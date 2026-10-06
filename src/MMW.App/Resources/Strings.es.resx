@@ -1539,4 +1539,23 @@ Si no los guardas, se perderán.</value>
   <data name="Preferences_DolbyVisionDav1_Note" xml:space="preserve">
     <value>dav1 es la entrada de muestra que exige la especificación de Dolby, pero la mayoría de los reproductores (FFmpeg, mpv, Plex, Jellyfin…) no la leen. Si no se marca, se usa av01 con la configuración de Dolby Vision, que reproducen correctamente.</value>
   </data>
+  <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
+    <value>Se perderán metadatos</value>
+  </data>
+  <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
+    <value>MP4 no puede conservar todo lo que llevan estas pistas:
+
+{0}
+
+¿Guardar de todos modos?</value>
+  </data>
+  <data name="Button_SaveAnyway" xml:space="preserve">
+    <value>Guardar de todos modos</value>
+  </data>
+  <data name="TrackInspector_Hdr10Plus" xml:space="preserve">
+    <value>Metadatos dinámicos HDR10+ (SMPTE ST 2094-40)</value>
+  </data>
+  <data name="Fallback_Hdr10Plus" xml:space="preserve">
+    <value>HDR10+</value>
+  </data>
 </root>

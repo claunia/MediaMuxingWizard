@@ -50,6 +50,8 @@ internal static class MatroskaCodecMapping
                     FrameRate = defaultDuration > 0 ? 1e9 / defaultDuration : 0,
                     DolbyVisionConfig = DolbyVisionRecord(children),
                     BitsPerSample = ColourBitDepth(children),
+                    Hdr10Plus = v.Hdr10Plus,
+                    Hdr10PlusInBlockAdditions = v.Hdr10Plus,
                 };
                 break;
             }

@@ -40,6 +40,7 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
     {
         TrackSupportLevel.NeedsConversion when Track.CanConvert => null,
         TrackSupportLevel.NeedsConversion or TrackSupportLevel.Unsupported => Track.Support.Reason,
+        TrackSupportLevel.Passthrough => Track.Support.Reason, // a warning: e.g. HDR10+ that MP4 cannot keep
         _ => null,
     };
 

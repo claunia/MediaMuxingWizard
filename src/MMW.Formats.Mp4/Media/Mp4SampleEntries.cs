@@ -411,6 +411,17 @@ internal static class Mp4SampleEntries
     /// <summary>Whether an MP4 file can store a track described by <paramref name="config"/>.</summary>
     public static TrackSupport CheckSupport(CodecConfig config)
     {
+        ArgumentNullException.ThrowIfNull(config);
+        var support = CheckCodecSupport(config);
+        // HDR10+ kept next to the frames (Matroska BlockAdditions, VP9) has no place in MP4: the video is stored
+        // with its static HDR10 metadata only.
+        return config.Hdr10PlusInBlockAdditions && support.Level == TrackSupportLevel.Passthrough
+            ? support with { Reason = "its HDR10+ dynamic metadata is stored next to the frames (Matroska block additions) and cannot be kept in MP4; it will play as HDR10. Save as Matroska/WebM to keep it" }
+            : support;
+    }
+
+    private static TrackSupport CheckCodecSupport(CodecConfig config)
+    {
         if (config.Native is Mp4NativeTrack)
             return TrackSupport.Passthrough;
         return config.Codec switch

@@ -4495,5 +4495,50 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Metadata will be lost.
+        /// </summary>
+        public static string Dialog_MetadataLoss_Title {
+            get {
+                return ResourceManager.GetString("Dialog_MetadataLoss_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MP4 cannot keep everything these tracks carry:.
+        /// </summary>
+        public static string Dialog_MetadataLoss_MessageFormat {
+            get {
+                return ResourceManager.GetString("Dialog_MetadataLoss_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Anyway.
+        /// </summary>
+        public static string Button_SaveAnyway {
+            get {
+                return ResourceManager.GetString("Button_SaveAnyway", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HDR10+ dynamic metadata (SMPTE ST 2094-40).
+        /// </summary>
+        public static string TrackInspector_Hdr10Plus {
+            get {
+                return ResourceManager.GetString("TrackInspector_Hdr10Plus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HDR10+.
+        /// </summary>
+        public static string Fallback_Hdr10Plus {
+            get {
+                return ResourceManager.GetString("Fallback_Hdr10Plus", resourceCulture);
+            }
+        }
+        
     }
 }

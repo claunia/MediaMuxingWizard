@@ -128,6 +128,14 @@ public sealed record CodecConfig
     /// <summary>Raw Dolby Vision decoder configuration record (dvcC/dvvC payload).</summary>
     public byte[]? DolbyVisionConfig { get; init; }
 
+    /// <summary>The frames carry HDR10+ (SMPTE ST 2094-40) dynamic metadata, in the bitstream or next to it.</summary>
+    public bool Hdr10Plus { get; init; }
+
+    /// <summary>
+    /// HDR10+ metadata is stored outside the bitstream, in Matroska BlockAdditions (VP9): only Matroska can keep it.
+    /// </summary>
+    public bool Hdr10PlusInBlockAdditions { get; init; }
+
     // ----- audio
 
     public int Channels { get; init; }

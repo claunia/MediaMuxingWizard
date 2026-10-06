@@ -883,6 +883,8 @@ internal sealed class Mp4Muxer : IMuxer
         {
             if (DvInfo(c) is { } dv)
                 brands.AddRange(DolbyVision.Mp4Brands(dv, c.Color).Where(b => !brands.Contains(b)));
+            if (c.Codec == CodecType.Av1 && c.Hdr10Plus && !c.Hdr10PlusInBlockAdditions && !brands.Contains("cdm4"))
+                brands.Add("cdm4"); // HDR10+ metadata OBUs in AV1 ("HDR10+ Metadata in AV1", §3)
         }
         var b = new PayloadBuilder().Type(major).U32(minor);
         foreach (var brand in brands)

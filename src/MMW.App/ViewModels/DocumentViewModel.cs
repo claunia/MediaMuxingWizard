@@ -7,6 +7,8 @@ using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Actions;
 using MMW.Core.Diagnostics;
+using MMW.Core.Media;
+using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Core.Undo;
 
@@ -53,7 +55,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             Rows.Add(TrackRowViewModel.ForTrack(t));
         document.Tracks.CollectionChanged += OnTracksChanged;
         SelectedRow = Rows[0];
-        _ = CheckDolbyVisionAsync();
+        _ = ScanVideoAsync();
     }
 
     public MediaDocument Document { get; }
@@ -150,7 +152,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
 
     // ------------------------------------------------------------------ Dolby Vision repair
 
-    private (VideoTrack Track, MMW.Core.Media.Codecs.DolbyVisionDetection Detection)? _dolbyVisionRepair;
+    private (VideoTrack Track, DolbyVisionDetection Detection)? _dolbyVisionRepair;
 
     /// <summary>Notice shown when the bitstream has Dolby Vision but the container lacks its configuration.</summary>
     [ObservableProperty]
@@ -160,30 +162,48 @@ public sealed partial class DocumentViewModel : ViewModelBase
 
     public bool HasDolbyVisionNotice => DolbyVisionNotice is not null;
 
-    /// <summary>Scans the video bitstream for Dolby Vision RPUs when the container has no configuration record.</summary>
-    public async Task CheckDolbyVisionAsync()
+    /// <summary>
+    /// Scans the start of each video track: Dolby Vision RPUs the container does not signal (offered for repair) and
+    /// HDR10+ dynamic metadata (shown in the track's HDR details).
+    /// </summary>
+    public async Task ScanVideoAsync()
     {
-        if (Document.Tracks.OfType<VideoTrack>().FirstOrDefault(MMW.Core.Media.DolbyVisionDetector.NeedsCheck) is not { } video)
-            return;
-        try
+        foreach (var video in Document.Tracks.OfType<VideoTrack>().Where(VideoBitstreamScan.NeedsScan).ToList())
         {
-            if (await MMW.Core.Media.DolbyVisionDetector.DetectAsync(video) is not { } detection)
-                return;
-            _dolbyVisionRepair = (video, detection);
-            var fallback = detection.BlSignalCompatibilityId switch
+            try
             {
-                1 or 6 => Strings.Fallback_Hdr10,
-                4 => Strings.Fallback_Hlg,
-                2 => Strings.Fallback_Sdr,
-                _ => Strings.Fallback_Unwatchable,
-            };
-            DolbyVisionNotice = string.Format(CultureInfo.CurrentCulture, Strings.Notice_DolbyVisionMissingFormat, detection.ProfileName, detection.Level, fallback);
-            AppLog.Info($"{Document.DisplayName}: Dolby Vision {detection.ProfileName} found in the bitstream but not signalled by the container.");
+                var result = await VideoBitstreamScan.ScanAsync(video);
+                if (result.Hdr10Plus && !video.Hdr10Plus)
+                {
+                    video.Hdr10Plus = true; // detected, not an edit: not tracked for undo
+                    if (_trackInspectors.TryGetValue(video, out var inspector))
+                        inspector.RefreshHdr();
+                    foreach (var row in Rows.Where(r => r.Track == video))
+                        row.Refresh();
+                }
+
+                if (result.MissingDolbyVision is { } detection && _dolbyVisionRepair is null)
+                    OfferDolbyVisionRepair(video, detection);
+            }
+            catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+            {
+                AppLog.Debug($"Video scan skipped for {Document.DisplayName}: {ex.Message}");
+            }
         }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+    }
+
+    private void OfferDolbyVisionRepair(VideoTrack video, DolbyVisionDetection detection)
+    {
+        _dolbyVisionRepair = (video, detection);
+        var fallback = detection.BlSignalCompatibilityId switch
         {
-            AppLog.Debug($"Dolby Vision check skipped for {Document.DisplayName}: {ex.Message}");
-        }
+            1 or 6 => video.Hdr10Plus ? Strings.Fallback_Hdr10Plus : Strings.Fallback_Hdr10,
+            4 => Strings.Fallback_Hlg,
+            2 => Strings.Fallback_Sdr,
+            _ => Strings.Fallback_Unwatchable,
+        };
+        DolbyVisionNotice = string.Format(CultureInfo.CurrentCulture, Strings.Notice_DolbyVisionMissingFormat, detection.ProfileName, detection.Level, fallback);
+        AppLog.Info($"{Document.DisplayName}: Dolby Vision {detection.ProfileName} found in the bitstream but not signalled by the container.");
     }
 
     private bool CanRepairDolbyVision() => _dolbyVisionRepair is not null && DolbyVisionNotice is not null;
@@ -468,8 +488,38 @@ public sealed partial class DocumentViewModel : ViewModelBase
             chapters[i].Thumbnail ??= images[i];
     }
 
+    /// <summary>
+    /// Asks before saving to MP4 tracks whose HDR10+ metadata lives next to the frames (Matroska block additions):
+    /// MP4 cannot keep it.
+    /// </summary>
+    private async Task<bool> ConfirmMetadataLossAsync(SaveOptions options)
+    {
+        if (RemuxPolicy.TargetKind(Document, options) != ContainerKind.Mp4 ||
+            !Document.Tracks.OfType<VideoTrack>().Any(v => v.Hdr10Plus && v.Source is { Container: ContainerKind.Matroska }))
+            return true;
+        IReadOnlyList<(Track Track, TrackSupport Support)> checks;
+        try
+        {
+            checks = await Remuxer.CheckAsync(Document, ContainerKind.Mp4);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            return true; // the save reports it
+        }
+
+        var losses = checks.Where(c => c.Support.Level == TrackSupportLevel.Passthrough && c.Support.Reason is not null)
+            .Select(c => $"• {c.Track.Name} ({c.Track.Format}): {c.Support.Reason}")
+            .ToList();
+        return losses.Count == 0 ||
+               await _dialogs.ConfirmAsync(Strings.Dialog_MetadataLoss_Title,
+                   string.Format(CultureInfo.CurrentCulture, Strings.Dialog_MetadataLoss_MessageFormat, string.Join("\n", losses)),
+                   Strings.Button_SaveAnyway);
+    }
+
     private async Task<bool> SaveCoreAsync(SaveOptions options)
     {
+        if (!await ConfirmMetadataLossAsync(options))
+            return false;
         IsBusy = true;
         Progress = 0;
         try

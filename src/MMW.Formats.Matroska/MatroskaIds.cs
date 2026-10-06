@@ -166,6 +166,12 @@ internal static class MatroskaIds
     /// <summary>Block addition type of a Dolby Vision configuration record for profiles above 7 ('dvvC').</summary>
     public const ulong BlockAddTypeDvvC = 0x64767643;
 
+    /// <summary>Block addition type of ITU-T T.35 metadata (HDR10+ in WebM VP9, BlockAddIDValue 4).</summary>
+    public const ulong BlockAddTypeItuT35 = 4;
+
+    /// <summary>TrackEntry: highest BlockAddID used by the track's blocks.</summary>
+    public const ulong MaxBlockAdditionId = 0x55EE;
+
     /// <summary>True for IDs that may appear as direct children of a Segment.</summary>
     public static bool IsTopLevel(ulong id) => id is SeekHead or Info or Tracks or Cluster or Cues or Attachments or Chapters or Tags;
 }

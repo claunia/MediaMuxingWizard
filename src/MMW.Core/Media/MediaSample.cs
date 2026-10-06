@@ -55,6 +55,12 @@ public sealed class MediaSample
     /// <summary>Length of the stored payload in the source file (lazy payloads only).</summary>
     public int StoredSize { get; set; }
 
+    /// <summary>
+    /// Data stored next to the frame (Matroska BlockAdditions), e.g. HDR10+ metadata of VP9 video (ID 4, ITU-T T.35);
+    /// null when there is none. Containers without such storage drop it.
+    /// </summary>
+    public IReadOnlyList<BlockAddition>? Additions { get; set; }
+
     /// <summary>Presentation time.</summary>
     public long Pts => Dts + CtsOffset;
 
@@ -107,4 +113,11 @@ public sealed class MediaSample
     public MediaSample Clone() => (MediaSample)MemberwiseClone();
 
     public override string ToString() => $"dts={Dts} cts={CtsOffset} dur={Duration} size={Size}{(IsSync ? " sync" : string.Empty)}";
+}
+
+/// <summary>A Matroska BlockMore: data of type <paramref name="Id"/> (BlockAddID) attached to a frame.</summary>
+public readonly record struct BlockAddition(ulong Id, ReadOnlyMemory<byte> Data)
+{
+    /// <summary>BlockAddID of ITU-T T.35 metadata (HDR10+ in WebM VP9).</summary>
+    public const ulong ItuT35 = 4;
 }

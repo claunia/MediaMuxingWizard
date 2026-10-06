@@ -125,11 +125,28 @@ internal static class MatroskaTrackParser
                 track.DolbyVisionRecord = extra.Data.ToArray();
         }
 
+        track.Hdr10Plus = HasItuT35BlockAdditions(entry, codecId);
+
         var details = string.Create(CultureInfo.InvariantCulture, $"{track.PixelWidth}×{track.PixelHeight}");
         if (track.ProfileLevel.Length > 0)
             details += ", " + track.ProfileLevel;
         track.FormatDetails = details;
         return track;
+    }
+
+    /// <summary>
+    /// True when the track's blocks carry ITU-T T.35 metadata in BlockAdditions (HDR10+ in WebM VP9): declared by a
+    /// BlockAdditionMapping of type 4, or, in files older than the mappings, by a VP9 track with MaxBlockAdditionID 4.
+    /// </summary>
+    internal static bool HasItuT35BlockAdditions(List<EbmlChild> entry, string codecId)
+    {
+        foreach (var child in entry)
+        {
+            if (child.Id == BlockAdditionMapping && EbmlParser.Children(child.Data).GetUInt(BlockAddIdType, 0) == BlockAddTypeItuT35)
+                return true;
+        }
+
+        return codecId == "V_VP9" && entry.GetUInt(MaxBlockAdditionId, 0) >= 4;
     }
 
     private static void ParseColour(VideoTrack track, List<EbmlChild> c)

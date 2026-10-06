@@ -145,7 +145,10 @@ internal static class MediaCommands
         var target = ContainerKinds.FromPath(a.Positional[1]);
         if (target == ContainerKind.Unknown)
             throw new UsageException("The output extension must be an MP4 or Matroska type.");
-        var problems = (await Core.Media.Remuxer.CheckAsync(doc, target))
+        var checks = await Core.Media.Remuxer.CheckAsync(doc, target);
+        foreach (var (track, support) in checks.Where(c => c.Support.Level == Core.Media.TrackSupportLevel.Passthrough && c.Support.Reason is not null))
+            await output.WriteLineAsync($"Warning: track {track.Id} ({track.Format}): {support.Reason}");
+        var problems = checks
             .Where(p => p.Support.Level is Core.Media.TrackSupportLevel.NeedsConversion or Core.Media.TrackSupportLevel.Unsupported)
             .ToList();
         foreach (var (track, support) in problems)

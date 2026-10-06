@@ -227,6 +227,9 @@ public static class Remuxer
 
         public MediaSample? Head { get; set; }
 
+        /// <summary>The track carries HDR10+ (known from the model or found in the bitstream).</summary>
+        public bool Hdr10Plus { get; init; }
+
         public double HeadTime => Head is null ? double.MaxValue : (Head.Dts + Offset) / Timescale;
     }
 
@@ -277,6 +280,13 @@ public static class Remuxer
                 var support = CheckConverted(factory, sampleSource.Config, source.Import);
                 if (!support.CanMux)
                     throw new NotSupportedException($"{sampleSource.Config.FormatName} track '{track.Name}' cannot be written to {factory.Kind}: {support.Reason}");
+                if (support.Level == TrackSupportLevel.Passthrough && support.Reason is { } warning)
+                    AppLog.Warn($"{sampleSource.Config.FormatName} track '{track.Name}': {warning}");
+
+                // HDR10+ in AV1 is signalled in MP4 by the cdm4 brand ("HDR10+ Metadata in AV1", §3), so the muxer
+                // must know before it starts; only AV1 bitstreams are scanned for it.
+                var hdr10Plus = track is VideoTrack { Hdr10Plus: true } || sampleSource.Config.Hdr10Plus ||
+                                (factory.Kind == ContainerKind.Mp4 && sampleSource.Config.Codec == CodecType.Av1 && Hdr10PlusDetector.Detect(sampleSource, ct));
 
                 sampleSource.Reset();
                 if (SubtitleConversions.IsOcr(source.Import, sampleSource.Config.Codec))
@@ -305,7 +315,7 @@ public static class Remuxer
                     sampleSource = new TrueHdAccessUnitSource(sampleSource);
                 }
 
-                outputs.Add(new Output { Model = track, Source = sampleSource, Timescale = Math.Max(1u, sampleSource.Config.Timescale) });
+                outputs.Add(new Output { Model = track, Source = sampleSource, Timescale = Math.Max(1u, sampleSource.Config.Timescale), Hdr10Plus = hdr10Plus });
             }
 
             using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 1 << 20))
@@ -340,6 +350,8 @@ public static class Remuxer
                     var cfg = o.Source.Config;
                     if (o.Model is VideoTrack { DolbyVisionRecord: { Length: >= 5 } dvRecord })
                         cfg = cfg with { DolbyVisionConfig = dvRecord }; // repaired or edited Dolby Vision configuration
+                    if (o.Hdr10Plus)
+                        cfg = cfg with { Hdr10Plus = true };
                     var preRoll = o.Head is { } first && first.Pts + o.Offset < 0 ? TimeSpan.FromSeconds(-(first.Pts + o.Offset) / o.Timescale) : TimeSpan.Zero;
                     o.MuxIndex = muxer.AddTrack(cfg, new MuxTrackSettings
                     {

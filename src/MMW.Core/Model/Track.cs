@@ -114,6 +114,12 @@ public sealed partial class VideoTrack : Track
     public DolbyVisionInfo? DolbyVision { get; set; }
 
     /// <summary>
+    /// The frames carry HDR10+ (SMPTE ST 2094-40) dynamic metadata. Detected from the bitstream or the container,
+    /// not edited (and not tracked for undo).
+    /// </summary>
+    public bool Hdr10Plus { get; set; }
+
+    /// <summary>
     /// Raw Dolby Vision decoder configuration record as stored in (or to be written to) the container
     /// (dvcC/dvvC/dvwC in MP4, BlockAdditionMapping in Matroska); null when the container has none.
     /// </summary>

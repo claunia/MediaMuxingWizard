@@ -122,7 +122,11 @@ internal sealed class MatroskaDemuxer : IDemuxer
 internal readonly record struct BlockFrame(long Position, int Size, ReadOnlyMemory<byte> Data, bool InMemory);
 
 /// <summary>A parsed block (SimpleBlock or BlockGroup).</summary>
-internal sealed record BlockInfo(ulong Track, long Timestamp, bool Keyframe, bool Discardable, long? Duration, List<BlockFrame> Frames);
+internal sealed record BlockInfo(ulong Track, long Timestamp, bool Keyframe, bool Discardable, long? Duration, List<BlockFrame> Frames)
+{
+    /// <summary>BlockAdditions of a BlockGroup (BlockMore elements); null when there are none.</summary>
+    public List<BlockAddition>? Additions { get; init; }
+}
 
 /// <summary>Walks the clusters of a file in order and dispatches blocks to the attached tracks.</summary>
 internal sealed class ClusterScanner
@@ -239,6 +243,7 @@ internal sealed class ClusterScanner
         long blockPos = -1, blockSize = 0;
         long? duration = null;
         var hasReference = false;
+        List<BlockAddition>? additions = null;
         var pos = group.DataPosition;
         while (pos < end && ebml.TryReadHeader(pos, end, out var child) && !child.IsUnknownSize)
         {
@@ -254,12 +259,34 @@ internal sealed class ClusterScanner
                 case ReferenceBlock:
                     hasReference = true;
                     break;
+                case BlockAdditions:
+                    additions = ReadBlockAdditions(ebml.ReadData(child));
+                    break;
             }
 
             pos = child.End;
         }
 
-        return blockPos < 0 ? null : ReadBlock(blockPos, blockSize, simple: false, keyframe: !hasReference, duration: duration, discardable: false);
+        if (blockPos < 0)
+            return null;
+        var block = ReadBlock(blockPos, blockSize, simple: false, keyframe: !hasReference, duration: duration, discardable: false);
+        return block is not null && additions is { Count: > 0 } ? block with { Additions = additions } : block;
+    }
+
+    /// <summary>Reads the BlockMore elements of a BlockAdditions (BlockAddID defaults to 1).</summary>
+    private static List<BlockAddition> ReadBlockAdditions(ReadOnlyMemory<byte> data)
+    {
+        var result = new List<BlockAddition>();
+        foreach (var more in EbmlParser.Children(data))
+        {
+            if (more.Id != BlockMore)
+                continue;
+            var children = EbmlParser.Children(more.Data);
+            if (children.Child(BlockAdditional) is { } payload)
+                result.Add(new BlockAddition(children.GetUInt(BlockAddId, 1), payload.Data.ToArray()));
+        }
+
+        return result;
     }
 
     private BlockInfo? ReadBlock(long position, long size, bool simple, bool keyframe, long? duration, bool discardable)
@@ -596,7 +623,12 @@ internal sealed class MatroskaTrackSource : ISampleSource
         for (var i = 0; i < count; i++)
         {
             var frame = block.Frames[i];
-            var sample = new MediaSample { IsSync = block.Keyframe || Config.Kind != TrackKind.Video, IsDiscardable = block.Discardable };
+            var sample = new MediaSample
+            {
+                IsSync = block.Keyframe || Config.Kind != TrackKind.Video,
+                IsDiscardable = block.Discardable,
+                Additions = count == 1 ? block.Additions : null, // additions belong to an unlaced block's frame
+            };
             if (frame.InMemory || Encoding.Zlib)
             {
                 var stored = frame.InMemory ? frame.Data.ToArray() : _demuxer.Reader.ReadAvailable(frame.Position, frame.Size);

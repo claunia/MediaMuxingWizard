@@ -33,7 +33,7 @@ public class DolbyVisionRepairTests
             var video = doc.Document.Tracks.OfType<VideoTrack>().First();
             Assert.Null(video.DolbyVisionRecord);
 
-            await doc.CheckDolbyVisionAsync();
+            await doc.ScanVideoAsync();
             Assert.True(doc.HasDolbyVisionNotice);
             Assert.Contains("8.4", doc.DolbyVisionNotice!, StringComparison.Ordinal);
             Assert.False(doc.IsDirty);

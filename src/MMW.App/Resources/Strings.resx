@@ -1539,4 +1539,23 @@ Your changes will be lost if you don't save them.</value>
   <data name="Preferences_DolbyVisionDav1_Note" xml:space="preserve">
     <value>dav1 is the sample entry Dolby's specification requires, but most players (FFmpeg, mpv, Plex, Jellyfin…) cannot read it. When unchecked, av01 with the Dolby Vision configuration is used, which they play correctly.</value>
   </data>
+  <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
+    <value>Metadata will be lost</value>
+  </data>
+  <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
+    <value>MP4 cannot keep everything these tracks carry:
+
+{0}
+
+Save anyway?</value>
+  </data>
+  <data name="Button_SaveAnyway" xml:space="preserve">
+    <value>Save Anyway</value>
+  </data>
+  <data name="TrackInspector_Hdr10Plus" xml:space="preserve">
+    <value>HDR10+ dynamic metadata (SMPTE ST 2094-40)</value>
+  </data>
+  <data name="Fallback_Hdr10Plus" xml:space="preserve">
+    <value>HDR10+</value>
+  </data>
 </root>

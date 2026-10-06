@@ -8,6 +8,9 @@ internal static class MatroskaMediaIds
     public const ulong BlockDuration = 0x9B;
     public const ulong ReferenceBlock = 0xFB;
     public const ulong BlockAdditions = 0x75A1;
+    public const ulong BlockMore = 0xA6;
+    public const ulong BlockAddId = 0xEE;
+    public const ulong BlockAdditional = 0xA5;
     public const ulong EncryptedBlock = 0xAF;
 
     // Cues

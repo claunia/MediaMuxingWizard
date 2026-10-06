@@ -94,6 +94,9 @@ internal sealed class MatroskaMuxer : IMuxer
         public long FirstMs { get; set; } = long.MaxValue;
 
         public long EndMs { get; set; }
+
+        /// <summary>Timestamp of the previous block (the ReferenceBlock of a BlockGroup that is not a key frame).</summary>
+        public long LastPtsMs { get; set; } = -1;
     }
 
     public int AddTrack(CodecConfig config, MuxTrackSettings settings)
@@ -321,6 +324,17 @@ internal sealed class MatroskaMuxer : IMuxer
         if (c.SeekPreRoll > TimeSpan.Zero || c.Codec == CodecType.Opus)
             w.UInt(SeekPreRoll, (ulong)((c.SeekPreRoll > TimeSpan.Zero ? c.SeekPreRoll : TimeSpan.FromMilliseconds(80)).Ticks * 100));
 
+        if (c.Hdr10PlusInBlockAdditions)
+        {
+            w.UInt(MaxBlockAdditionId, BlockAddition.ItuT35);
+            w.Master(BlockAdditionMapping, m =>
+            {
+                m.UInt(BlockAddIdValue, BlockAddition.ItuT35);
+                m.String(BlockAddIdName, "ITU-T T.35 metadata (HDR10+)");
+                m.UInt(BlockAddIdType, BlockAddTypeItuT35);
+            });
+        }
+
         if (c.DolbyVisionConfig is { Length: >= 5 } dv)
         {
             var profile = dv[2] >> 1;
@@ -547,10 +561,22 @@ internal sealed class MatroskaMuxer : IMuxer
         var subtitle = t.Config.Kind is TrackKind.Subtitle or TrackKind.ClosedCaption;
         var oddAudio = t.Config.Kind == TrackKind.Audio && sample.Duration > 0 && t.Config.DefaultSampleDuration > 0 &&
                        sample.Duration != t.Config.DefaultSampleDuration;
-        if (subtitle || oddAudio)
+        if (sample.Additions is { Count: > 0 } additions)
+        {
+            // BlockAdditions (e.g. HDR10+ of VP9) only fit in a BlockGroup; non-key frames then need a ReferenceBlock.
+            long? reference = sample.IsSync || t.LastPtsMs < 0 ? null : t.LastPtsMs - ptsMs is 0 ? -1 : t.LastPtsMs - ptsMs;
+            WriteBlockGroup(t.Number, (short)relative, data, subtitle || oddAudio ? durationMs : 0, additions, reference);
+        }
+        else if (subtitle || oddAudio)
+        {
             WriteBlockGroup(t.Number, (short)relative, data, durationMs);
+        }
         else
+        {
             WriteSimpleBlock(t.Number, (short)relative, data, sample.IsSync, sample.IsDiscardable);
+        }
+
+        t.LastPtsMs = ptsMs;
 
         var cueTrack = _tracks.FirstOrDefault(x => x.IsVideo) ?? _tracks.FirstOrDefault(x => x.Config.Kind == TrackKind.Audio) ?? _tracks[0];
         if (t == cueTrack && sample.IsSync && (t.IsVideo || _cues.Count == 0 || _cues[^1].ClusterPosition != _clusterStart - _segmentDataStart))
@@ -621,13 +647,32 @@ internal sealed class MatroskaMuxer : IMuxer
         _out.Write(data);
     }
 
-    private void WriteBlockGroup(uint track, short relative, ReadOnlySpan<byte> data, long durationMs)
+    private void WriteBlockGroup(uint track, short relative, ReadOnlySpan<byte> data, long durationMs,
+        IReadOnlyList<BlockAddition>? additions = null, long? referenceMs = null)
     {
         var trackLength = EbmlVarInt.SizeLength(track);
         var blockSize = (ulong)(trackLength + 3 + data.Length);
+        // Elements after the Block, in the specification's order: BlockAdditions, BlockDuration, ReferenceBlock.
         var duration = new EbmlWriter();
+        if (additions is { Count: > 0 })
+        {
+            duration.Master(BlockAdditions, a =>
+            {
+                foreach (var addition in additions)
+                {
+                    a.Master(BlockMore, m =>
+                    {
+                        m.UInt(BlockAddId, addition.Id);
+                        m.Binary(BlockAdditional, addition.Data.Span);
+                    });
+                }
+            });
+        }
+
         if (durationMs > 0)
             duration.UInt(BlockDuration, (ulong)durationMs);
+        if (referenceMs is { } reference)
+            duration.Int(ReferenceBlock, reference);
         var blockElementSize = EbmlVarInt.IdLength(MatroskaMediaIds.Block) + EbmlVarInt.SizeLength(blockSize) + (long)blockSize;
         var groupSize = (ulong)(blockElementSize + duration.Length);
 

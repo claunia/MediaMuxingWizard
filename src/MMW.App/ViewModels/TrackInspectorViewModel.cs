@@ -301,6 +301,9 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         }
     }
 
+    /// <summary>Updates the HDR details after a background scan found more (e.g. HDR10+).</summary>
+    public void RefreshHdr() => OnPropertyChanged(nameof(HdrText));
+
     public string HdrText
     {
         get
@@ -310,6 +313,8 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
             var lines = new List<string>();
             if (Video.DolbyVision is { } dv)
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_DolbyVisionFormat, dv));
+            if (Video.Hdr10Plus)
+                lines.Add(Strings.TrackInspector_Hdr10Plus);
             if (Video.Hdr is { } h)
             {
                 if (h.MaxLuminance is { } max)

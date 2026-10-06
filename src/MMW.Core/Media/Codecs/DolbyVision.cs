@@ -468,7 +468,7 @@ public static class DolbyVision
         return new DolbyVisionDetection(profile, level, compat, true, el, true, record);
     }
 
-    private static bool Leb128(ReadOnlySpan<byte> data, ref int pos, out long value)
+    internal static bool Leb128(ReadOnlySpan<byte> data, ref int pos, out long value)
     {
         value = 0;
         for (var i = 0; i < 8; i++)
