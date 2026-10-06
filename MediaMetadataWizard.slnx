@@ -5,6 +5,7 @@
     <Project Path="src/MMW.Formats.Matroska/MMW.Formats.Matroska.csproj" />
     <Project Path="src/MMW.Queue/MMW.Queue.csproj" />
     <Project Path="src/MMW.App/MMW.App.csproj" />
+    <Project Path="src/MMW.Cli/MMW.Cli.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MMW.Core.Tests/MMW.Core.Tests.csproj" />
@@ -13,6 +14,7 @@
     <Project Path="tests/MMW.Formats.Matroska.Tests/MMW.Formats.Matroska.Tests.csproj" />
     <Project Path="tests/MMW.Queue.Tests/MMW.Queue.Tests.csproj" />
     <Project Path="tests/MMW.App.Tests/MMW.App.Tests.csproj" />
+    <Project Path="tests/MMW.Cli.Tests/MMW.Cli.Tests.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />

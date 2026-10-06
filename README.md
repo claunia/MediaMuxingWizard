@@ -18,6 +18,13 @@ dotnet build MediaMetadataWizard.slnx
 dotnet run --project src/MMW.App
 ```
 
+## Command line
+
+`mmw` (project `src/MMW.Cli`) scripts the same operations: `mmw info file.m4v --json`,
+`mmw set file.m4v "Name=Pilot" "Media Kind=TV Show"`, `mmw artwork file.mkv --add cover.jpg`,
+`mmw chapters file.mp4 --import chapters.txt`, `mmw tracks file.m4v --organize-groups --fix-fallbacks`,
+and `mmw queue add|start|status` for the editor's batch queue. Run `mmw --help` for everything.
+
 ## Metadata search API keys
 
 TheMovieDB and TheTVDB keys are read from `appsettings.json` next to the executable. Copy

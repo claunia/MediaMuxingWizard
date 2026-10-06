@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MMW.Cli</RootNamespace>
+    <AssemblyName>mmw</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMW.Core\MMW.Core.csproj" />
+    <ProjectReference Include="..\MMW.Formats.Mp4\MMW.Formats.Mp4.csproj" />
+    <ProjectReference Include="..\MMW.Formats.Matroska\MMW.Formats.Matroska.csproj" />
+    <ProjectReference Include="..\MMW.Queue\MMW.Queue.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MMW.Cli.Tests" />
+  </ItemGroup>
+</Project>
