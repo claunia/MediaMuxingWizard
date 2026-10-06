@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MMW.App.ViewModels"
+             xmlns:app="using:MMW.App"
+             xmlns:views="using:MMW.App.Views"
+             x:Class="MMW.App.Views.DocumentView"
+             x:DataType="vm:DocumentViewModel">
+  <Grid RowDefinitions="2*,5,3*" Margin="8,6,8,4">
+    <DataGrid x:Name="TrackGrid"
+              ItemsSource="{Binding Rows}"
+              SelectedItem="{Binding SelectedRow}"
+              SelectionMode="Extended"
+              AutoGenerateColumns="False"
+              CanUserReorderColumns="False"
+              CanUserSortColumns="False"
+              IsReadOnly="False"
+              MinHeight="80"
+              SelectionChanged="OnSelectionChanged">
+      <DataGrid.KeyBindings>
+        <KeyBinding Gesture="{x:Static app:Gestures.Delete}" Command="{Binding DeleteTracksCommand}" />
+        <KeyBinding Gesture="Back" Command="{Binding DeleteTracksCommand}" />
+      </DataGrid.KeyBindings>
+      <DataGrid.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Delete" Command="{Binding DeleteTracksCommand}" />
+          <MenuItem Header="Move Up" Command="{Binding MoveTrackUpCommand}" />
+          <MenuItem Header="Move Down" Command="{Binding MoveTrackDownCommand}" />
+        </ContextMenu>
+      </DataGrid.ContextMenu>
+      <DataGrid.Columns>
+        <DataGridTemplateColumn Header="" Width="36" IsReadOnly="True">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate x:DataType="vm:TrackRowViewModel">
+              <PathIcon Data="{Binding IconKey, Converter={x:Static views:Converters.IconResource}}" Width="16" Height="16" Opacity="0.75" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="Id" Binding="{Binding IdText}" IsReadOnly="True" Width="44" />
+        <DataGridTemplateColumn Header="Enabled" Width="92">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate x:DataType="vm:TrackRowViewModel">
+              <CheckBox IsChecked="{Binding Enabled}" IsVisible="{Binding CanToggleEnabled}" HorizontalAlignment="Center"
+                        ToolTip.Tip="Enable or disable the track" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+        <DataGridTextColumn Header="Duration" Binding="{Binding Duration}" IsReadOnly="True" Width="104" />
+        <DataGridTextColumn Header="Language" Binding="{Binding Language}" IsReadOnly="True" Width="*" />
+        <DataGridTextColumn Header="Format" Binding="{Binding Format}" IsReadOnly="True" Width="3*" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="Transparent" />
+
+    <Border Grid.Row="2" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1" CornerRadius="4" MinHeight="160">
+      <ContentControl Content="{Binding Inspector}" />
+    </Border>
+  </Grid>
+</UserControl>

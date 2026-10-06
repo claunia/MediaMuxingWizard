@@ -4,7 +4,8 @@
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="xunit.v3.assert" />
+    <!-- Lowest version used by any test project (App.Tests is pinned to 3.2 by Avalonia.Headless.XUnit). -->
+    <PackageReference Include="xunit.v3.assert" VersionOverride="3.2.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\MMW.Core\MMW.Core.csproj" />

@@ -14,10 +14,11 @@ public sealed class Mp4Handler : IContainerHandler
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(options);
-        await Task.Run(() => Mp4Writer.Save(document, options, progress, cancellationToken), cancellationToken).ConfigureAwait(false);
+        // No ConfigureAwait(false): the document is bound to the UI, so it must be updated on the caller's context.
+        await Task.Run(() => Mp4Writer.Save(document, options, progress, cancellationToken), cancellationToken);
 
         // Re-read so track IDs, layout and preserved items reflect the new file.
-        var saved = await ReadAsync(options.OutputPath ?? document.Path!, cancellationToken).ConfigureAwait(false);
+        var saved = await ReadAsync(options.OutputPath ?? document.Path!, cancellationToken);
         document.ContainerState = saved.ContainerState;
         document.FileSize = saved.FileSize;
         if (options.OutputPath is not null)

@@ -10,6 +10,7 @@
     <Project Path="tests/MMW.TestSupport/MMW.TestSupport.csproj" />
     <Project Path="tests/MMW.Formats.Mp4.Tests/MMW.Formats.Mp4.Tests.csproj" />
     <Project Path="tests/MMW.Formats.Matroska.Tests/MMW.Formats.Matroska.Tests.csproj" />
+    <Project Path="tests/MMW.App.Tests/MMW.App.Tests.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />

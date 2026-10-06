@@ -1,0 +1,7 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MMW.App.ViewModels"
+             x:Class="MMW.App.Views.MultiSelectionView"
+             x:DataType="vm:MultiSelectionViewModel">
+  <TextBlock Text="{Binding Text}" Classes="dim" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" />
+</UserControl>

@@ -1,0 +1,306 @@
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
+using MMW.Core.Languages;
+using MMW.Core.Model;
+
+namespace MMW.App.ViewModels;
+
+/// <summary>A selectable choice with a display name.</summary>
+public sealed record Choice<T>(T Value, string Name)
+{
+    public override string ToString() => Name;
+}
+
+public sealed partial class CharacteristicItemViewModel : ViewModelBase
+{
+    private readonly Track _track;
+
+    public CharacteristicItemViewModel(Track track, MediaCharacteristics.Characteristic characteristic)
+    {
+        _track = track;
+        Tag = characteristic.Tag;
+        Name = characteristic.DisplayName;
+    }
+
+    public string Tag { get; }
+
+    public string Name { get; }
+
+    public bool IsChecked
+    {
+        get => _track.MediaCharacteristics.Contains(Tag);
+        set
+        {
+            if (value == IsChecked)
+                return;
+            if (value)
+                _track.MediaCharacteristics.Add(Tag);
+            else
+                _track.MediaCharacteristics.Remove(Tag);
+        }
+    }
+
+    public void Refresh() => OnPropertyChanged(nameof(IsChecked));
+}
+
+/// <summary>Inspector for a single audio, video, subtitle or other track.</summary>
+public sealed partial class TrackInspectorViewModel : ViewModelBase
+{
+    private readonly MediaDocument _document;
+
+    public TrackInspectorViewModel(Track track, MediaDocument document)
+    {
+        Track = track;
+        _document = document;
+        Characteristics = new ObservableCollection<CharacteristicItemViewModel>(
+            MediaCharacteristics.For(track.Kind).Select(c => new CharacteristicItemViewModel(track, c)));
+        track.MediaCharacteristics.CollectionChanged += OnCharacteristicsChanged;
+        track.PropertyChanged += (_, e) =>
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Track.Language):
+                    OnPropertyChanged(nameof(SelectedLanguage));
+                    break;
+                case nameof(Track.AlternateGroup):
+                    OnPropertyChanged(nameof(SelectedAlternateGroup));
+                    break;
+                case nameof(AudioTrack.Volume):
+                    OnPropertyChanged(nameof(VolumeDb));
+                    OnPropertyChanged(nameof(VolumeText));
+                    break;
+                case nameof(AudioTrack.Fallback):
+                    OnPropertyChanged(nameof(SelectedFallback));
+                    break;
+                case nameof(AudioTrack.FollowsSubtitle):
+                    OnPropertyChanged(nameof(SelectedFollowsSubtitle));
+                    break;
+                case nameof(SubtitleTrack.ForcedTrack):
+                    OnPropertyChanged(nameof(SelectedForcedTrack));
+                    break;
+                case nameof(SubtitleTrack.ForcedMode):
+                    OnPropertyChanged(nameof(SelectedForcedMode));
+                    break;
+                case nameof(VideoTrack.Color):
+                    OnPropertyChanged(nameof(SelectedColorPreset));
+                    break;
+            }
+        };
+    }
+
+    public Track Track { get; }
+
+    public VideoTrack? Video => Track as VideoTrack;
+
+    public AudioTrack? Audio => Track as AudioTrack;
+
+    public SubtitleTrack? Subtitle => Track as SubtitleTrack;
+
+    public bool IsVideo => Track is VideoTrack;
+
+    public bool IsAudio => Track is AudioTrack;
+
+    public bool IsSubtitle => Track is SubtitleTrack;
+
+    public bool IsMp4 => _document.Container == ContainerKind.Mp4;
+
+    public bool IsMatroska => _document.Container == ContainerKind.Matroska;
+
+    public string Header => Track.Kind switch
+    {
+        TrackKind.Video => "Video Track",
+        TrackKind.Audio => "Audio Track",
+        TrackKind.Subtitle => "Subtitle Track",
+        TrackKind.ClosedCaption => "Closed Captions",
+        _ => "Track",
+    };
+
+    public ObservableCollection<CharacteristicItemViewModel> Characteristics { get; }
+
+    public bool HasCharacteristics => Characteristics.Count > 0;
+
+    // ------------------------------------------------------------------ language
+
+    public IReadOnlyList<Language> Languages => LanguageTable.All;
+
+    public Language? SelectedLanguage
+    {
+        get => LanguageTable.Find(Track.Language) ?? new Language(Track.Language, Track.Language, Track.Language, LanguageTable.DisplayName(Track.Language));
+        set
+        {
+            if (value is not null && value.Tag != Track.Language)
+                Track.Language = value.Tag;
+        }
+    }
+
+    // ------------------------------------------------------------------ alternate group
+
+    public static IReadOnlyList<Choice<int>> AlternateGroups { get; } =
+        [new(0, "None"), .. Enumerable.Range(1, 6).Select(i => new Choice<int>(i, i.ToString(CultureInfo.InvariantCulture)))];
+
+    public Choice<int>? SelectedAlternateGroup
+    {
+        get => AlternateGroups.FirstOrDefault(g => g.Value == Track.AlternateGroup) ?? new Choice<int>(Track.AlternateGroup, Track.AlternateGroup.ToString(CultureInfo.InvariantCulture));
+        set
+        {
+            if (value is not null)
+                Track.AlternateGroup = value.Value;
+        }
+    }
+
+    // ------------------------------------------------------------------ audio
+
+    /// <summary>Volume in dB, -60 meaning silence (-∞).</summary>
+    public double VolumeDb
+    {
+        get => Audio is { Volume: > 0 } a ? Math.Max(-60, 20 * Math.Log10(a.Volume)) : -60;
+        set
+        {
+            if (Audio is null)
+                return;
+            Audio.Volume = value <= -60 ? 0 : Math.Round(Math.Pow(10, value / 20), 3);
+        }
+    }
+
+    public string VolumeText => Audio is null ? string.Empty : VolumeDb <= -60 ? "-∞ dB" : string.Create(CultureInfo.InvariantCulture, $"{VolumeDb:+0.0;-0.0;0.0} dB");
+
+    private IEnumerable<Choice<Track?>> TrackChoices(Func<Track, bool> filter) =>
+        [new Choice<Track?>(null, "None"), .. _document.Tracks.Where(t => t != Track && filter(t)).Select(t => new Choice<Track?>(t, Describe(t)))];
+
+    public IReadOnlyList<Choice<Track?>> FallbackChoices => TrackChoices(t => t is AudioTrack).ToList();
+
+    public Choice<Track?>? SelectedFallback
+    {
+        get => FallbackChoices.FirstOrDefault(c => c.Value == Audio?.Fallback);
+        set
+        {
+            if (Audio is not null && value is not null)
+                Audio.Fallback = value.Value;
+        }
+    }
+
+    public IReadOnlyList<Choice<Track?>> SubtitleChoices => TrackChoices(t => t is SubtitleTrack or ClosedCaptionTrack).ToList();
+
+    public Choice<Track?>? SelectedFollowsSubtitle
+    {
+        get => SubtitleChoices.FirstOrDefault(c => c.Value == Audio?.FollowsSubtitle);
+        set
+        {
+            if (Audio is not null && value is not null)
+                Audio.FollowsSubtitle = value.Value;
+        }
+    }
+
+    // ------------------------------------------------------------------ subtitles
+
+    public static IReadOnlyList<Choice<ForcedSubtitleMode>> ForcedModes { get; } =
+    [
+        new(ForcedSubtitleMode.None, "No"),
+        new(ForcedSubtitleMode.SomeSamplesForced, "Some samples are forced"),
+        new(ForcedSubtitleMode.AllSamplesForced, "All samples are forced"),
+    ];
+
+    public Choice<ForcedSubtitleMode>? SelectedForcedMode
+    {
+        get => ForcedModes.FirstOrDefault(m => m.Value == Subtitle?.ForcedMode);
+        set
+        {
+            if (Subtitle is not null && value is not null)
+                Subtitle.ForcedMode = value.Value;
+        }
+    }
+
+    public Choice<Track?>? SelectedForcedTrack
+    {
+        get => SubtitleChoices.FirstOrDefault(c => c.Value == Subtitle?.ForcedTrack);
+        set
+        {
+            if (Subtitle is not null && value is not null)
+                Subtitle.ForcedTrack = value.Value;
+        }
+    }
+
+    // ------------------------------------------------------------------ video
+
+    public IReadOnlyList<ColorPreset> ColorPresets => ColorPreset.All;
+
+    public ColorPreset? SelectedColorPreset
+    {
+        get => Video is null ? null : ColorPreset.All.FirstOrDefault(p => p.Color with { FullRange = null } == Video.Color with { FullRange = null })
+                                       ?? new ColorPreset($"Custom ({Video.Color})", Video.Color);
+        set
+        {
+            if (Video is not null && value is not null)
+                Video.Color = value.Color with { FullRange = Video.Color.FullRange };
+        }
+    }
+
+    public string HdrText
+    {
+        get
+        {
+            if (Video is null)
+                return string.Empty;
+            var lines = new List<string>();
+            if (Video.DolbyVision is { } dv)
+                lines.Add($"Dolby Vision {dv}");
+            if (Video.Hdr is { } h)
+            {
+                if (h.MaxLuminance is { } max)
+                    lines.Add(string.Create(CultureInfo.InvariantCulture, $"Mastering display: {h.MinLuminance:0.####}–{max:0.#} cd/m²"));
+                if (h.MaxCll is { } cll)
+                    lines.Add(string.Create(CultureInfo.InvariantCulture, $"MaxCLL {cll} cd/m², MaxFALL {h.MaxFall} cd/m²"));
+                if (h.AmbientIlluminance is { } lux)
+                    lines.Add(string.Create(CultureInfo.InvariantCulture, $"Ambient viewing: {lux:0.#} lux"));
+            }
+
+            return lines.Count == 0 ? "None" : string.Join("\n", lines);
+        }
+    }
+
+    // ------------------------------------------------------------------ info
+
+    public string InfoText
+    {
+        get
+        {
+            var lines = new List<string>
+            {
+                $"Format: {Track.Format} ({Track.CodecId})",
+            };
+            if (Track.FormatDetails.Length > 0)
+                lines.Add($"Details: {Track.FormatDetails}");
+            lines.Add($"Duration: {TrackRowViewModel.FormatDuration(Track.Duration)}");
+            if (Track.Bitrate > 0)
+                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Bitrate: {Track.Bitrate / 1000.0:0.#} kbit/s"));
+            if (Track.DataLength > 0)
+                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Size: {Track.DataLength / 1048576.0:0.##} MiB"));
+            if (Video is { } v)
+            {
+                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Frame rate: {v.FrameRate:0.###} fps"));
+                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Pixel size: {v.PixelWidth}×{v.PixelHeight}, PAR {v.ParNumerator}:{v.ParDenominator}"));
+            }
+
+            if (Audio is { } a)
+            {
+                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Channels: {a.Channels} {a.ChannelLayout}").TrimEnd());
+                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Sample rate: {a.SampleRate} Hz"));
+            }
+
+            if (Track.Source is { } s)
+                lines.Add($"Source: {Path.GetFileName(s.Path)}, track {s.TrackId}");
+            return string.Join("\n", lines);
+        }
+    }
+
+    public static string Describe(Track t) =>
+        $"{t.Id}: {(t.Name.Length > 0 ? t.Name : t.Format)} ({LanguageTable.DisplayName(t.Language)})";
+
+    private void OnCharacteristicsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        foreach (var c in Characteristics)
+            c.Refresh();
+    }
+}

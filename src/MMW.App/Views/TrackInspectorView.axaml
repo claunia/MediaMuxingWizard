@@ -1,0 +1,106 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MMW.App.ViewModels"
+             x:Class="MMW.App.Views.TrackInspectorView"
+             x:DataType="vm:TrackInspectorViewModel">
+  <TabControl Padding="8,4">
+    <TabItem Header="{Binding Header}">
+      <ScrollViewer>
+        <StackPanel Spacing="14" Margin="0,4">
+          <!-- Common -->
+          <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8" MaxWidth="720" HorizontalAlignment="Left">
+            <TextBlock Text="Name:" Classes="label" />
+            <TextBox Grid.Column="1" Text="{Binding Track.Name, UpdateSourceTrigger=LostFocus}" PlaceholderText="Track name" MinWidth="320" />
+
+            <TextBlock Grid.Row="1" Text="Language:" Classes="label" />
+            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
+                      IsTextSearchEnabled="True" MinWidth="320" MaxDropDownHeight="400" />
+
+            <TextBlock Grid.Row="2" Text="Enabled:" Classes="label" />
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="16">
+              <CheckBox IsChecked="{Binding Track.Enabled}" Content="Enabled" />
+              <CheckBox IsChecked="{Binding Track.IsDefault}" Content="Default" IsVisible="{Binding IsMatroska}" />
+              <CheckBox IsChecked="{Binding Track.IsForced}" Content="Forced" IsVisible="{Binding IsMatroska}" />
+            </StackPanel>
+
+            <TextBlock Grid.Row="3" Text="Alternate group:" Classes="label" IsVisible="{Binding IsMp4}" />
+            <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{x:Static vm:TrackInspectorViewModel.AlternateGroups}"
+                      SelectedItem="{Binding SelectedAlternateGroup}" IsVisible="{Binding IsMp4}" MinWidth="120" />
+          </Grid>
+
+          <!-- Video -->
+          <StackPanel IsVisible="{Binding IsVideo}" Spacing="8">
+            <TextBlock Text="Visual" Classes="groupHeader" />
+            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8" MaxWidth="720" HorizontalAlignment="Left">
+              <TextBlock Text="Display size:" Classes="label" IsVisible="{Binding IsMp4}" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsMp4}">
+                <NumericUpDown Value="{Binding Video.DisplayWidth, FallbackValue=0}" Minimum="0" Maximum="16384" Increment="1" FormatString="0" Width="130" />
+                <TextBlock Text="×" VerticalAlignment="Center" />
+                <NumericUpDown Value="{Binding Video.DisplayHeight, FallbackValue=0}" Minimum="0" Maximum="16384" Increment="1" FormatString="0" Width="130" />
+              </StackPanel>
+              <TextBlock Grid.Row="1" Text="Colour space:" Classes="label" />
+              <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ColorPresets}" SelectedItem="{Binding SelectedColorPreset}" MinWidth="260" />
+              <TextBlock Grid.Row="2" Text="HDR:" Classes="label" VerticalAlignment="Top" />
+              <SelectableTextBlock Grid.Row="2" Grid.Column="1" Text="{Binding HdrText}" TextWrapping="Wrap" />
+              <TextBlock Grid.Row="3" Text="Profile:" Classes="label" />
+              <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Video.ProfileLevel, FallbackValue=''}" VerticalAlignment="Center" />
+            </Grid>
+          </StackPanel>
+
+          <!-- Audio -->
+          <StackPanel IsVisible="{Binding IsAudio}" Spacing="8">
+            <TextBlock Text="Sound" Classes="groupHeader" />
+            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" MaxWidth="720" HorizontalAlignment="Left">
+              <TextBlock Text="Volume:" Classes="label" IsVisible="{Binding IsMp4}" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsMp4}">
+                <Slider Minimum="-60" Maximum="6" Value="{Binding VolumeDb}" Width="260" />
+                <TextBlock Text="{Binding VolumeText}" VerticalAlignment="Center" MinWidth="60" />
+              </StackPanel>
+              <TextBlock Grid.Row="1" Text="Fallback:" Classes="label" IsVisible="{Binding IsMp4}" />
+              <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FallbackChoices}" SelectedItem="{Binding SelectedFallback}"
+                        IsVisible="{Binding IsMp4}" MinWidth="260" ToolTip.Tip="Track played by devices that cannot decode this one" />
+              <TextBlock Grid.Row="2" Text="Subtitles:" Classes="label" IsVisible="{Binding IsMp4}" />
+              <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding SubtitleChoices}" SelectedItem="{Binding SelectedFollowsSubtitle}"
+                        IsVisible="{Binding IsMp4}" MinWidth="260" ToolTip.Tip="Subtitle track that follows this audio track" />
+            </Grid>
+          </StackPanel>
+
+          <!-- Subtitles -->
+          <StackPanel IsVisible="{Binding IsSubtitle}" Spacing="8">
+            <TextBlock Text="Subtitles" Classes="groupHeader" />
+            <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8" MaxWidth="720" HorizontalAlignment="Left" IsVisible="{Binding IsMp4}">
+              <TextBlock Text="Forced:" Classes="label" />
+              <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:TrackInspectorViewModel.ForcedModes}" SelectedItem="{Binding SelectedForcedMode}" MinWidth="260" />
+              <TextBlock Grid.Row="1" Text="Forced track:" Classes="label" />
+              <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SubtitleChoices}" SelectedItem="{Binding SelectedForcedTrack}" MinWidth="260" />
+              <CheckBox Grid.Row="2" Grid.Column="1" Content="Place subtitles at the top" IsChecked="{Binding Subtitle.PlaceAtTop, FallbackValue=False}" />
+            </Grid>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </TabItem>
+
+    <TabItem Header="Media Characteristics" IsVisible="{Binding HasCharacteristics}">
+      <ScrollViewer>
+        <StackPanel Margin="0,8">
+          <TextBlock Text="Describe the purpose of this track so players can choose it automatically." Classes="dim" Margin="0,0,0,8" TextWrapping="Wrap" />
+          <ItemsControl ItemsSource="{Binding Characteristics}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:CharacteristicItemViewModel">
+                <CheckBox IsChecked="{Binding IsChecked}" ToolTip.Tip="{Binding Tag}">
+                  <TextBlock Text="{Binding Name}" />
+                </CheckBox>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </ScrollViewer>
+    </TabItem>
+
+    <TabItem Header="Info">
+      <ScrollViewer>
+        <SelectableTextBlock Text="{Binding InfoText}" Margin="0,8" TextWrapping="Wrap" />
+      </ScrollViewer>
+    </TabItem>
+  </TabControl>
+</UserControl>

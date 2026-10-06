@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MMW.App.ViewModels"
+             xmlns:views="using:MMW.App.Views"
+             xmlns:ch="using:MMW.Core.Chapters"
+             x:Class="MMW.App.Views.ChaptersInspectorView"
+             x:DataType="vm:ChaptersInspectorViewModel">
+  <UserControl.Styles>
+    <Style Selector="MenuItem" x:DataType="vm:MenuNode">
+      <Setter Property="Header" Value="{Binding Header}" />
+      <Setter Property="Command" Value="{Binding Command}" />
+      <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+    </Style>
+  </UserControl.Styles>
+  <DockPanel Margin="8">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
+      <Button Classes="icon" Command="{Binding AddCommand}" ToolTip.Tip="Add a chapter"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+      <Button Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Delete the selected chapter"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+      <Button Classes="icon" Command="{Binding RenameAllCommand}" ToolTip.Tip="Rename every chapter “Chapter N”"><PathIcon Data="{StaticResource IconRename}" /></Button>
+      <DropDownButton Content="Insert every…" ToolTip.Tip="Replace chapters with marks at a fixed interval">
+        <DropDownButton.Flyout>
+          <MenuFlyout ItemsSource="{Binding IntervalMenu}" />
+        </DropDownButton.Flyout>
+      </DropDownButton>
+      <Button Classes="icon" Command="{Binding ImportCommand}" ToolTip.Tip="Import chapters (txt) or chapter titles (csv)"><PathIcon Data="{StaticResource IconImport}" /></Button>
+      <Button Classes="icon" Command="{Binding ExportCommand}" ToolTip.Tip="Export chapters as text"><PathIcon Data="{StaticResource IconExport}" /></Button>
+    </StackPanel>
+    <DataGrid ItemsSource="{Binding Chapters}" SelectedItem="{Binding Selected}" AutoGenerateColumns="False"
+              CanUserSortColumns="False" CellEditEnded="OnCellEditEnded">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Time" Width="140" x:DataType="ch:Chapter"
+                            Binding="{Binding Start, Converter={x:Static views:Converters.ChapterTime}}" />
+        <DataGridTextColumn Header="Title" Width="*" x:DataType="ch:Chapter" Binding="{Binding Title}" />
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>
