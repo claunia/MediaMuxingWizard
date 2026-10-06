@@ -137,7 +137,7 @@ public static class ConversionDefaults
                 list.Add(Aac(AudioMixdown.Multichannel));
             if (config.Codec is not (CodecType.Ac3 or CodecType.Eac3))
                 list.Add(new ImportChoice(ImportAction.ConvertToAc3, Ac3Name));
-            if (support.CanMux && (config.Codec is CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts || (config.Codec == CodecType.Aac && channels > 2)))
+            if (support.CanMux && (config.Codec is CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts or CodecType.TrueHd || (config.Codec == CodecType.Aac && channels > 2)))
                 list.Add(new ImportChoice(ImportAction.AacPlusPassthrough, AacPlusPassthroughName));
             if (config.Codec is CodecType.Dts or CodecType.TrueHd or CodecType.Mlp)
                 list.Add(new ImportChoice(ImportAction.AacPlusAc3, AacPlusAc3Name));

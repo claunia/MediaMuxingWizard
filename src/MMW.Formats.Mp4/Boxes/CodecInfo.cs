@@ -306,7 +306,9 @@ public static class CodecInfo
         {
             var version = BinaryPrimitives.ReadUInt16BigEndian(p.AsSpan(8));
             track.Channels = BinaryPrimitives.ReadUInt16BigEndian(p.AsSpan(16));
-            track.SampleRate = (int)(BinaryPrimitives.ReadUInt32BigEndian(p.AsSpan(24)) >> 16);
+            track.SampleRate = entry.Type == "mlpa"
+                ? (int)BinaryPrimitives.ReadUInt32BigEndian(p.AsSpan(24)) // MLPSampleEntry: 32-bit integer rate
+                : (int)(BinaryPrimitives.ReadUInt32BigEndian(p.AsSpan(24)) >> 16);
             if (version == 2 && p.Length >= 64)
             {
                 track.SampleRate = (int)BitConverter.Int64BitsToDouble((long)BinaryPrimitives.ReadUInt64BigEndian(p.AsSpan(32)));

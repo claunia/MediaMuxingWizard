@@ -225,7 +225,18 @@ internal static class Mp4SampleEntries
             }
 
             case "mlpa":
-                return config with { Codec = CodecType.TrueHd, BitsPerSample = 0 };
+            {
+                // MLPSampleEntry stores the sampling rate as a 32-bit integer, not 16.16 (Dolby, §2.4).
+                var mlpRate = entry.Payload.Length >= 28 ? (int)BinaryPrimitives.ReadUInt32BigEndian(entry.Payload.AsSpan(24)) : 0;
+                var dmlp = entry.Find("dmlp")?.Payload;
+                return config with
+                {
+                    Codec = CodecType.TrueHd,
+                    BitsPerSample = 0,
+                    SampleRate = mlpRate > 0 ? mlpRate : config.SampleRate,
+                    Extradata = dmlp is { Length: >= 10 } ? dmlp : null,
+                };
+            }
             case "sowt":
                 return config with { Codec = CodecType.Pcm, PcmBigEndian = false };
             case "twos":
@@ -413,7 +424,9 @@ internal static class Mp4SampleEntries
             CodecType.Tx3g or CodecType.VobSub => TrackSupport.Passthrough,
             CodecType.TextUtf8 or CodecType.Ass or CodecType.Ssa or CodecType.WebVtt =>
                 new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToTx3g, "converted to 3GPP timed text (tx3g)"),
-            CodecType.Vorbis or CodecType.TrueHd or CodecType.Mlp or CodecType.Pcm =>
+            // Dolby TrueHD (FBA syntax) is stored as mlpa + dmlp; DVD-Audio MLP (FBB) is not allowed in ISO files.
+            CodecType.TrueHd => TrackSupport.Passthrough,
+            CodecType.Vorbis or CodecType.Mlp or CodecType.Pcm =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
             CodecType.Pgs or CodecType.DvbSub =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.Skip, $"{config.FormatName} bitmap subtitles cannot be stored in MP4; they need OCR to text"),
@@ -591,6 +604,7 @@ internal static class Mp4SampleEntries
         var channels = c.Channels > 0 ? c.Channels : 2;
         var rate = c.SampleRate > 0 ? c.SampleRate : (int)c.Timescale;
         var sampleSize = 16;
+        var mlpSampleRate = false;
         string type;
         switch (c.Codec)
         {
@@ -661,6 +675,23 @@ internal static class Mp4SampleEntries
                 break;
             }
 
+            case CodecType.TrueHd:
+            {
+                // Dolby TrueHD (MLP) bitstreams within the ISO base media file format, §2.4–2.5.
+                type = "mlpa";
+                var first = ctx.FirstSample is { } s ? TrueHd.Parse(s) : null;
+                var dmlp = c.Extradata is { Length: 10 } ? c.Extradata
+                    : first is { IsMajorSync: true } ? TrueHd.BuildDmlp(first)
+                    : throw new InvalidDataException("Dolby TrueHD track without a major sync in its first access unit.");
+                children.Add(new Box("dmlp", dmlp));
+                if (first is { SampleRate: > 0 })
+                    rate = first.SampleRate;
+                mlpSampleRate = true;
+                channels = 2;
+                sampleSize = 16;
+                break;
+            }
+
             case CodecType.Alac:
             {
                 type = "alac";
@@ -688,7 +719,7 @@ internal static class Mp4SampleEntries
             .U16(0).U16(0).U32(0) // version, revision, vendor
             .U16(Math.Clamp(channels, 1, ushort.MaxValue)).U16(sampleSize)
             .U16(0).U16(0)
-            .U32(rate is > 0 and <= ushort.MaxValue ? (uint)rate << 16 : 0)
+            .U32(mlpSampleRate ? (uint)rate : rate is > 0 and <= ushort.MaxValue ? (uint)rate << 16 : 0)
             .ToArray();
         return new Box(type, payload, children);
     }

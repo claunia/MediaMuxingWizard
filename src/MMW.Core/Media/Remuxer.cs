@@ -299,6 +299,12 @@ public static class Remuxer
                     sampleSource = converter;
                 }
 
+                else if (factory.Kind == ContainerKind.Mp4 && sampleSource.Config.Codec == CodecType.TrueHd)
+                {
+                    // MP4 stores one access unit per sample with exact timing and a dmlp box (Dolby's ISOBMFF spec).
+                    sampleSource = new TrueHdAccessUnitSource(sampleSource);
+                }
+
                 outputs.Add(new Output { Model = track, Source = sampleSource, Timescale = Math.Max(1u, sampleSource.Config.Timescale) });
             }
 
