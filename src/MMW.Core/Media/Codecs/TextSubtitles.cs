@@ -24,13 +24,21 @@ public sealed record StyledText(string Text, IReadOnlyList<StyleRun> Runs)
 
     public bool IsEmpty => Text.Length == 0;
 
-    /// <summary>Joins several cues shown at the same time, one per line.</summary>
+    /// <summary>
+    /// The cue is a forced subtitle (shown even when subtitles are off): the tx3g 'frcd' sample modifier, or the
+    /// forced flag of a bitmap subtitle that was recognised by OCR.
+    /// </summary>
+    public bool Forced { get; init; }
+
+    /// <summary>Joins several cues shown at the same time, one per line (forced when any of them is).</summary>
     public static StyledText Join(IEnumerable<StyledText> parts)
     {
         var sb = new StringBuilder();
         var runs = new List<StyleRun>();
+        var forced = false;
         foreach (var p in parts.Where(p => !p.IsEmpty))
         {
+            forced |= p.Forced;
             if (sb.Length > 0)
                 sb.Append('\n');
             var offset = sb.Length;
@@ -38,7 +46,7 @@ public sealed record StyledText(string Text, IReadOnlyList<StyleRun> Runs)
             runs.AddRange(p.Runs.Select(r => new StyleRun(r.Start + offset, r.End + offset, r.Style)));
         }
 
-        return new StyledText(sb.ToString(), runs);
+        return new StyledText(sb.ToString(), runs) { Forced = forced };
     }
 }
 
@@ -303,7 +311,10 @@ public static class SubtitleText
         return block;
     }
 
-    /// <summary>Encodes styled text as a tx3g sample (length-prefixed UTF-8 and a 'styl' box).</summary>
+    /// <summary>
+    /// Encodes styled text as a tx3g sample (length-prefixed UTF-8, a 'styl' box, and an empty 'frcd' box when
+    /// <see cref="StyledText.Forced"/> is set).
+    /// </summary>
     public static byte[] ToTx3g(StyledText text, int fontSize)
     {
         ArgumentNullException.ThrowIfNull(text);
@@ -312,7 +323,14 @@ public static class SubtitleText
             throw new InvalidDataException("Subtitle text is too long for a tx3g sample.");
         var runs = Normalize(text);
         var styl = runs.Count == 0 ? 0 : 10 + runs.Count * 12;
-        var result = new byte[2 + utf8.Length + styl];
+        var frcd = text.Forced && !text.IsEmpty ? 8 : 0;
+        var result = new byte[2 + utf8.Length + styl + frcd];
+        if (frcd > 0)
+        {
+            BinaryPrimitives.WriteUInt32BigEndian(result.AsSpan(result.Length - 8), 8);
+            "frcd"u8.CopyTo(result.AsSpan(result.Length - 4));
+        }
+
         BinaryPrimitives.WriteUInt16BigEndian(result, (ushort)utf8.Length);
         utf8.CopyTo(result, 2);
         if (styl > 0)
@@ -338,7 +356,7 @@ public static class SubtitleText
         return result;
     }
 
-    /// <summary>Decodes a tx3g sample (text and 'styl' runs).</summary>
+    /// <summary>Decodes a tx3g sample (text, 'styl' runs and the 'frcd' forced flag).</summary>
     public static StyledText FromTx3g(ReadOnlySpan<byte> sample)
     {
         if (sample.Length < 2)
@@ -353,12 +371,15 @@ public static class SubtitleText
         text = text.Replace("\r\n", "\n", StringComparison.Ordinal);
 
         var runs = new List<StyleRun>();
+        var forced = false;
         var pos = 2 + len;
         while (pos + 8 <= sample.Length)
         {
             var size = (int)BinaryPrimitives.ReadUInt32BigEndian(sample[pos..]);
             if (size < 8 || pos + size > sample.Length)
                 break;
+            if (sample.Slice(pos + 4, 4).SequenceEqual("frcd"u8))
+                forced = true;
             if (sample.Slice(pos + 4, 4).SequenceEqual("styl"u8) && size >= 10)
             {
                 var count = BinaryPrimitives.ReadUInt16BigEndian(sample[(pos + 8)..]);
@@ -376,7 +397,7 @@ public static class SubtitleText
             pos += size;
         }
 
-        return new StyledText(text, runs);
+        return new StyledText(text, runs) { Forced = forced };
     }
 
     private static List<StyleRun> Normalize(StyledText text)

@@ -11,6 +11,7 @@ public static class MediaFormatRegistry
     private static readonly List<IDemuxerFactory> s_demuxers = [];
     private static readonly Dictionary<Model.ContainerKind, IMuxerFactory> s_muxers = [];
     private static IAudioConverterFactory? s_audioConverter;
+    private static ISubtitleConverterFactory? s_subtitleConverter;
 
     /// <summary>Registers a demuxer factory (once per factory type).</summary>
     public static void Register(IDemuxerFactory factory)
@@ -51,6 +52,27 @@ public static class MediaFormatRegistry
 
     /// <summary>The registered audio converter when it is available, otherwise null.</summary>
     public static IAudioConverterFactory? AvailableAudioConverter => AudioConverter is { IsAvailable: true } c ? c : null;
+
+    /// <summary>Registers (or replaces) the bitmap subtitle OCR converter used for the "Tx3g (OCR)"/"SRT (OCR)" actions.</summary>
+    public static void Register(ISubtitleConverterFactory factory)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        lock (s_lock)
+            s_subtitleConverter = factory;
+    }
+
+    /// <summary>The registered subtitle OCR converter, or null (check <see cref="ISubtitleConverterFactory.IsAvailable"/> too).</summary>
+    public static ISubtitleConverterFactory? SubtitleConverter
+    {
+        get
+        {
+            lock (s_lock)
+                return s_subtitleConverter;
+        }
+    }
+
+    /// <summary>The registered subtitle OCR converter when it is available, otherwise null.</summary>
+    public static ISubtitleConverterFactory? AvailableSubtitleConverter => SubtitleConverter is { IsAvailable: true } c ? c : null;
 
     public static IReadOnlyList<IDemuxerFactory> Demuxers
     {

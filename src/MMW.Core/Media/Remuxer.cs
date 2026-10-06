@@ -64,6 +64,10 @@ public static class Remuxer
         TrackConversions.Expand(document);
         var tracks = document.Tracks.Where(t => t is not ChapterTrack && t.Source?.Import?.Action != ImportAction.Skip).ToList();
 
+        // Bitmap subtitles converted by OCR keep their forced flags: found by a decoding pass (no OCR) before muxing,
+        // since the track header is written first. The model is updated here, on the caller's context.
+        await DetectForcedModesAsync(tracks, cancellationToken);
+
         // The heavy lifting runs off the caller's thread; the document is only read there.
         await Task.Run(() => Write(document, tracks, options, output, factory, progress, cancellationToken), cancellationToken);
 
@@ -123,10 +127,44 @@ public static class Remuxer
         }, cancellationToken);
     }
 
+    /// <summary>
+    /// Sets <see cref="SubtitleTrack.ForcedMode"/> of the subtitle tracks converted by OCR whose mode is not set, from
+    /// the forced flags of their bitmaps (all forced: <see cref="ForcedSubtitleMode.AllSamplesForced"/>, which also
+    /// sets Matroska's FlagForced; some: <see cref="ForcedSubtitleMode.SomeSamplesForced"/>).
+    /// </summary>
+    private static async Task DetectForcedModesAsync(List<Track> tracks, CancellationToken cancellationToken)
+    {
+        if (MediaFormatRegistry.AvailableSubtitleConverter is not { } converter)
+            return;
+        foreach (var track in tracks)
+        {
+            if (track is not SubtitleTrack { ForcedMode: ForcedSubtitleMode.None, IsForced: false } sub || sub.Source is not { } source ||
+                !SubtitleConversions.IsOcr(sub))
+                continue;
+
+            var mode = await Task.Run(() =>
+            {
+                using var demuxer = MediaFormatRegistry.OpenDemuxer(source.Path, new DemuxOptions { FrameRate = source.Import?.FrameRate });
+                var sampleSource = demuxer.Tracks.FirstOrDefault(t => t.TrackId == source.TrackId);
+                return sampleSource is not null && converter.CanDecode(sampleSource.Config)
+                    ? converter.DetectForcedMode(sampleSource, cancellationToken)
+                    : ForcedSubtitleMode.None;
+            }, cancellationToken);
+            if (mode != ForcedSubtitleMode.None)
+            {
+                AppLog.Info($"Subtitle track '{track.Name}': {(mode == ForcedSubtitleMode.AllSamplesForced ? "all" : "some")} subtitles are forced.");
+                sub.ForcedMode = mode;
+            }
+        }
+    }
+
     /// <summary>Support of a track after its conversion action (if any) is applied.</summary>
     private static TrackSupport CheckConverted(IMuxerFactory factory, CodecConfig config, TrackImportOptions? import)
     {
         var action = import?.Action ?? ImportAction.Passthrough;
+        if (SubtitleConversions.IsOcr(import, config.Codec))
+            return CheckOcr(factory, config, import!);
+
         if (ConversionTarget(action) is not { } target)
             return factory.CheckSupport(config);
 
@@ -142,6 +180,28 @@ public static class Remuxer
 
         var output = factory.CheckSupport((import?.Conversion ?? ConversionDefaults.Settings).PredictOutput(config, target));
         return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, $"converted to {label}") : output;
+    }
+
+    /// <summary>Support of a bitmap subtitle track converted to text by OCR.</summary>
+    private static TrackSupport CheckOcr(IMuxerFactory factory, CodecConfig config, TrackImportOptions import)
+    {
+        var target = SubtitleConversions.Target(import.Action)!.Value;
+        var label = SubtitleConversions.DisplayName(target);
+        if (MediaFormatRegistry.AvailableSubtitleConverter is not { } converter)
+        {
+            var reason = MediaFormatRegistry.SubtitleConverter?.UnavailableReason ?? "no OCR engine is installed";
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, $"converting to {label} is not available: {reason}");
+        }
+
+        if (!converter.CanDecode(config))
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, $"{config.FormatName} subtitles cannot be decoded for OCR");
+
+        var language = converter.ResolveLanguage(config.Language, import.Ocr ?? OcrOptions.Default);
+        if (converter.CheckLanguage(language) is { } missing)
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, $"converting to {label} is not available: {missing}");
+
+        var output = factory.CheckSupport(SubtitleConversions.PredictOutput(config, target));
+        return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, import.Action, $"converted to {label} ({converter.Name}, {language})") : output;
     }
 
     /// <summary>The codec a single-track conversion action produces, or null for other actions.</summary>
@@ -219,7 +279,16 @@ public static class Remuxer
                     throw new NotSupportedException($"{sampleSource.Config.FormatName} track '{track.Name}' cannot be written to {factory.Kind}: {support.Reason}");
 
                 sampleSource.Reset();
-                if (ConversionTarget(action) is { } target)
+                if (SubtitleConversions.IsOcr(source.Import, sampleSource.Config.Codec))
+                {
+                    var target = SubtitleConversions.Target(action)!.Value;
+                    var converter = MediaFormatRegistry.AvailableSubtitleConverter!.Create(sampleSource, target, source.Import!.Ocr ?? OcrOptions.Default, ct);
+                    if (converter is IDisposable disposable)
+                        converters.Add(disposable);
+                    AppLog.Info($"Recognising {sampleSource.Config.FormatName} track '{track.Name}' as {converter.Config.FormatName} text (OCR).");
+                    sampleSource = converter;
+                }
+                else if (ConversionTarget(action) is { } target)
                 {
                     var settings = source.Import?.Conversion ?? ConversionDefaults.Settings;
                     var converter = MediaFormatRegistry.AvailableAudioConverter!.Create(sampleSource, target, settings);

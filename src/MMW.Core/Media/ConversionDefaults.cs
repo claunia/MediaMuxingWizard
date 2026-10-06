@@ -6,8 +6,12 @@ namespace MMW.Core.Media;
 /// <param name="Action">The import action.</param>
 /// <param name="DisplayName">Subler's label ("Passthru", "AAC - Dolby Pro Logic II", "AAC + Passthru", …).</param>
 /// <param name="Mixdown">The mixdown of an AAC conversion chosen by this entry; null to use the settings' mixdown.</param>
-public sealed record ImportChoice(ImportAction Action, string DisplayName, AudioMixdown? Mixdown = null)
+/// <param name="Ocr">The entry converts a bitmap subtitle track to text by OCR ("Tx3g (OCR)", "SRT (OCR)").</param>
+public sealed record ImportChoice(ImportAction Action, string DisplayName, AudioMixdown? Mixdown = null, bool Ocr = false)
 {
+    /// <summary>The OCR settings this choice implies, starting from <paramref name="options"/>; null for non-OCR choices.</summary>
+    public OcrOptions? OcrFrom(OcrOptions? options) => Ocr ? options ?? OcrOptions.Default : null;
+
     /// <summary>The conversion settings this choice implies, starting from <paramref name="settings"/>.</summary>
     public AudioConversionSettings? SettingsFrom(AudioConversionSettings settings)
     {
@@ -79,6 +83,14 @@ public static class ConversionDefaults
         _ => SkipName,
     };
 
+    /// <summary>True when the subtitle OCR converter is registered, available and can decode <paramref name="config"/>.</summary>
+    public static bool CanOcr(CodecConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Kind == TrackKind.Subtitle && SubtitleConversions.IsBitmap(config.Codec) &&
+               MediaFormatRegistry.AvailableSubtitleConverter is { } c && c.CanDecode(config);
+    }
+
     /// <summary>True when the audio converter is registered, available and can decode <paramref name="config"/>.</summary>
     public static bool CanConvert(CodecConfig config)
     {
@@ -91,7 +103,11 @@ public static class ConversionDefaults
     /// whose muxer answered <paramref name="support"/>. The last entry is always <see cref="ImportAction.Skip"/>.
     /// </summary>
     /// <param name="canConvert">Whether the audio converter can convert the track (see <see cref="CanConvert"/>).</param>
-    public static IReadOnlyList<ImportChoice> Choices(CodecConfig config, TrackSupport support, ContainerKind target, bool canConvert)
+    /// <param name="canOcr">
+    /// Whether the bitmap subtitle track can be converted to text by OCR (see <see cref="CanOcr"/>): "Tx3g (OCR)" is
+    /// offered for MP4 targets, "SRT (OCR)" for Matroska.
+    /// </param>
+    public static IReadOnlyList<ImportChoice> Choices(CodecConfig config, TrackSupport support, ContainerKind target, bool canConvert, bool canOcr = false)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(support);
@@ -125,6 +141,12 @@ public static class ConversionDefaults
                 list.Add(new ImportChoice(ImportAction.AacPlusPassthrough, AacPlusPassthroughName));
             if (config.Codec is CodecType.Dts or CodecType.TrueHd or CodecType.Mlp)
                 list.Add(new ImportChoice(ImportAction.AacPlusAc3, AacPlusAc3Name));
+        }
+
+        if (canOcr && config.Kind == TrackKind.Subtitle && SubtitleConversions.IsBitmap(config.Codec))
+        {
+            var ocr = SubtitleConversions.TargetFor(target);
+            list.Add(new ImportChoice(SubtitleConversions.Action(ocr), SubtitleConversions.DisplayName(ocr), Ocr: true));
         }
 
         list.Add(new ImportChoice(ImportAction.Skip, list.Count == 0 ? NotAvailableName : SkipName));
@@ -166,6 +188,10 @@ public static class ConversionDefaults
                 return suggested;
         }
 
-        return choices.FirstOrDefault(c => c.Action == support.SuggestedAction) ?? choices[0];
+        // Bitmap subtitles the container cannot store (PGS/DVB into MP4): OCR when available.
+        if (!support.CanMux && choices.FirstOrDefault(c => c.Ocr) is { } ocr)
+            return ocr;
+
+        return choices.FirstOrDefault(c => c.Action == support.SuggestedAction && !c.Ocr) ?? choices[0];
     }
 }

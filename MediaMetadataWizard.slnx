@@ -6,6 +6,7 @@
     <Project Path="src/MMW.Formats.Elementary/MMW.Formats.Elementary.csproj" />
     <Project Path="src/MMW.Media.Remux/MMW.Media.Remux.csproj" />
     <Project Path="src/MMW.Media.Conversion/MMW.Media.Conversion.csproj" />
+    <Project Path="src/MMW.Ocr/MMW.Ocr.csproj" />
     <Project Path="src/MMW.Queue/MMW.Queue.csproj" />
     <Project Path="src/MMW.App/MMW.App.csproj" />
     <Project Path="src/MMW.Cli/MMW.Cli.csproj" />
@@ -19,6 +20,7 @@
     <Project Path="tests/MMW.Formats.Elementary.Tests/MMW.Formats.Elementary.Tests.csproj" />
     <Project Path="tests/MMW.Media.Remux.Tests/MMW.Media.Remux.Tests.csproj" />
     <Project Path="tests/MMW.Media.Conversion.Tests/MMW.Media.Conversion.Tests.csproj" />
+    <Project Path="tests/MMW.Ocr.Tests/MMW.Ocr.Tests.csproj" />
     <Project Path="tests/MMW.Queue.Tests/MMW.Queue.Tests.csproj" />
     <Project Path="tests/MMW.App.Tests/MMW.App.Tests.csproj" />
     <Project Path="tests/MMW.Cli.Tests/MMW.Cli.Tests.csproj" />

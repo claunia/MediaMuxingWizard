@@ -81,6 +81,35 @@ public static class BitmapSubtitleDecoder
         }
     }
 
+    /// <summary>
+    /// Decodes every sample of <paramref name="source"/> (rewound first) into bitmaps, in display order, on the
+    /// calling thread (for consumers that are themselves synchronous, such as a converting
+    /// <see cref="ISampleSource"/>). Decoding is lazy: one batch of samples per step of the enumeration, and the
+    /// decoder is released when the enumeration is disposed.
+    /// </summary>
+    /// <exception cref="NotSupportedException">The codec is not a supported bitmap format, or FFmpeg is unavailable.</exception>
+    public static IEnumerable<SubtitleBitmap> Decode(ISampleSource source, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        if (source.Config.Kind != TrackKind.Subtitle || source.Config.Codec is not (CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub))
+            throw new NotSupportedException($"{source.Config.FormatName} is not a bitmap subtitle format.");
+        FFmpegLoader.EnsureAvailable();
+        return DecodeIterator(source, cancellationToken);
+    }
+
+    private static IEnumerable<SubtitleBitmap> DecodeIterator(ISampleSource source, CancellationToken cancellationToken)
+    {
+        using var session = new Session(source);
+        while (true)
+        {
+            var (ready, finished) = session.DecodeBatch(cancellationToken);
+            foreach (var bitmap in ready)
+                yield return bitmap;
+            if (finished)
+                yield break;
+        }
+    }
+
     /// <summary>Decoding state of one track.</summary>
     private sealed class Session : IDisposable
     {

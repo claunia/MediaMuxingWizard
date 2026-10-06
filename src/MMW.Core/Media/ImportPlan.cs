@@ -8,10 +8,14 @@ public enum ImportAction
     /// <summary>Copy the samples unchanged (codec configuration is translated between containers as needed).</summary>
     Passthrough,
 
-    /// <summary>Convert text subtitles to 3GPP timed text (lossless for plain text; styling is simplified).</summary>
+    /// <summary>
+    /// Convert text subtitles to 3GPP timed text (lossless for plain text; styling is simplified). For bitmap
+    /// subtitles (PGS, VobSub, DVB) the text is recognised by OCR (requires the registered
+    /// <see cref="ISubtitleConverterFactory"/>; settings in <see cref="TrackImportOptions.Ocr"/>).
+    /// </summary>
     ConvertToTx3g,
 
-    /// <summary>Convert text subtitles to SubRip text (Matroska S_TEXT/UTF8).</summary>
+    /// <summary>Convert text subtitles to SubRip text (Matroska S_TEXT/UTF8); bitmap subtitles by OCR.</summary>
     ConvertToSrt,
 
     /// <summary>
@@ -77,6 +81,13 @@ public sealed record TrackImportOptions
 
     /// <summary>Audio conversion settings for the conversion actions (null = <see cref="AudioConversionSettings.Default"/>).</summary>
     public AudioConversionSettings? Conversion { get; init; }
+
+    /// <summary>
+    /// OCR settings when a bitmap subtitle track is converted to text (<see cref="ImportAction.ConvertToTx3g"/> or
+    /// <see cref="ImportAction.ConvertToSrt"/>); null otherwise (a bitmap track with those actions then uses
+    /// <see cref="OcrOptions.Default"/>).
+    /// </summary>
+    public OcrOptions? Ocr { get; init; }
 }
 
 /// <summary>One track to take from a source file.</summary>
@@ -90,6 +101,9 @@ public sealed record TrackImport(string SourcePath, uint TrackId, ImportAction A
 
     /// <summary>Audio conversion settings for the conversion actions.</summary>
     public AudioConversionSettings? Conversion { get; init; }
+
+    /// <summary>OCR settings of a bitmap subtitle conversion.</summary>
+    public OcrOptions? Ocr { get; init; }
 }
 
 /// <summary>The tracks a save will read, grouped by source file.</summary>
@@ -117,6 +131,7 @@ public sealed class ImportPlan
             {
                 FrameRate = source.Import?.FrameRate,
                 Conversion = source.Import?.Conversion,
+                Ocr = source.Import?.Ocr,
             });
         }
 

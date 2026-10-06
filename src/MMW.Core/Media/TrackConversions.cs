@@ -10,31 +10,38 @@ namespace MMW.Core.Media;
 /// </summary>
 public static class TrackConversions
 {
-    /// <summary>True when a track of <paramref name="document"/> asks for an audio conversion on save.</summary>
+    /// <summary>True when a track of <paramref name="document"/> asks for an audio conversion or a subtitle OCR on save.</summary>
     public static bool HasConversions(MediaDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
-        return document.Tracks.Any(t => t.Source?.Import is { } i && ConversionDefaults.IsConversion(i.Action));
+        return document.Tracks.Any(t => t.Source?.Import is { } i && (ConversionDefaults.IsConversion(i.Action) || SubtitleConversions.IsOcr(t)));
     }
 
     /// <summary>
     /// Sets the import action of <paramref name="track"/> (e.g. "Convert to AAC" on an existing DTS or FLAC track);
     /// the conversion happens on the next save. Two-track actions are expanded immediately.
     /// </summary>
+    /// <remarks>
+    /// A tx3g/SRT action on a bitmap subtitle track (PGS, VobSub, DVB) is an OCR conversion: <paramref name="ocr"/>
+    /// (or the track's previous OCR settings, or <see cref="OcrOptions.Default"/>) is stored with it.
+    /// </remarks>
     /// <returns>The tracks added to the document (the AAC track of a two-track action), possibly empty.</returns>
     /// <exception cref="InvalidOperationException">The track has no source.</exception>
-    public static IReadOnlyList<Track> SetAction(MediaDocument document, Track track, ImportAction action, AudioConversionSettings? settings = null)
+    public static IReadOnlyList<Track> SetAction(MediaDocument document, Track track, ImportAction action, AudioConversionSettings? settings = null,
+        OcrOptions? ocr = null)
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(track);
         var source = track.Source ?? throw new InvalidOperationException($"Track '{track.Name}' ({track.Format}) has no source file.");
         var import = source.Import ?? new TrackImportOptions();
+        var isOcr = SubtitleConversions.Target(action) is not null && (ocr is not null || import.Ocr is not null || SubtitleConversions.IsBitmapFormat(track.Format));
         track.Source = source with
         {
             Import = import with
             {
                 Action = action,
                 Conversion = ConversionDefaults.IsConversion(action) ? settings ?? import.Conversion ?? ConversionDefaults.Settings : import.Conversion,
+                Ocr = isOcr ? ocr ?? import.Ocr ?? OcrOptions.Default : null,
             },
         };
         return ExpandTrack(document, track);

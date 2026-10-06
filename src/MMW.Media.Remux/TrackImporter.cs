@@ -6,6 +6,7 @@ using MMW.Formats.Elementary;
 using MMW.Formats.Matroska.Media;
 using MMW.Formats.Mp4.Media;
 using MMW.Media.Conversion;
+using MMW.Ocr;
 
 namespace MMW.Media.Remux;
 
@@ -13,10 +14,11 @@ namespace MMW.Media.Remux;
 public static class MediaRemux
 {
     /// <summary>
-    /// Registers the MP4, Matroska and elementary stream formats and the FFmpeg audio converter (idempotent). The MP4
-    /// and Matroska handlers register their own formats; call this at start-up so files imported from elementary
-    /// streams can be remuxed and audio conversions are offered. FFmpeg itself is loaded lazily (a missing FFmpeg only
-    /// disables the conversion actions).
+    /// Registers the MP4, Matroska and elementary stream formats, the FFmpeg audio converter and the bitmap subtitle
+    /// OCR converter (idempotent). The MP4 and Matroska handlers register their own formats; call this at start-up so
+    /// files imported from elementary streams can be remuxed and conversions are offered. FFmpeg and Tesseract are
+    /// loaded lazily (a missing library only disables the corresponding conversion actions). To use another tessdata
+    /// directory, call <see cref="SubtitleOcr.Register"/> with a <see cref="TessdataManager"/> afterwards.
     /// </summary>
     public static void EnsureRegistered()
     {
@@ -24,6 +26,7 @@ public static class MediaRemux
         MatroskaMediaFormat.Register();
         ElementaryFormat.Register();
         MediaConversion.Register();
+        SubtitleOcr.Register();
     }
 
     /// <summary>Every file extension that can be inspected for tracks to import.</summary>
@@ -69,6 +72,9 @@ public sealed class ImportableTrack
     /// <summary>True when the audio converter (FFmpeg) can convert this track (the conversion actions are offered).</summary>
     public bool CanConvert { get; init; }
 
+    /// <summary>True when this bitmap subtitle track can be converted to text by OCR (Tesseract and FFmpeg are available).</summary>
+    public bool CanOcr { get; init; }
+
     /// <summary>
     /// The actions to offer, with Subler's labels ("Passthru", "AAC - Dolby Pro Logic II", …, "AAC + Passthru",
     /// "AAC + AC3", "Skip"/"Not available"); the last entry is always <see cref="ImportAction.Skip"/>.
@@ -89,6 +95,7 @@ public sealed class ImportableTrack
                 return;
             Action = value.Action;
             Conversion = value.SettingsFrom(Conversion ?? ConversionDefaults.Settings);
+            Ocr = value.OcrFrom(Ocr);
         }
     }
 
@@ -97,6 +104,12 @@ public sealed class ImportableTrack
 
     /// <summary>Conversion settings for the conversion actions (bitrate, DRC, mixdown); null for other actions.</summary>
     public AudioConversionSettings? Conversion { get; set; }
+
+    /// <summary>
+    /// OCR settings (recognition language) when an OCR choice is selected; null otherwise. Set
+    /// <see cref="OcrOptions.Language"/> to override the language derived from <see cref="Language"/>.
+    /// </summary>
+    public OcrOptions? Ocr { get; set; }
 
     /// <summary>Raw H.264/HEVC without timing: the frame rate the UI should ask for.</summary>
     public bool RequiresFrameRate { get; init; }
@@ -141,7 +154,8 @@ public static class TrackImporter
                 continue;
             var support = muxer.CheckSupport(config);
             var canConvert = ConversionDefaults.CanConvert(config);
-            var choices = ConversionDefaults.Choices(config, support, target, canConvert);
+            var canOcr = ConversionDefaults.CanOcr(config);
+            var choices = ConversionDefaults.Choices(config, support, target, canConvert, canOcr);
             var choice = ConversionDefaults.Suggest(config, support, target, choices);
             result.Add(new ImportableTrack
             {
@@ -156,10 +170,11 @@ public static class TrackImporter
                 Name = config.Name,
                 Support = support,
                 CanConvert = canConvert,
+                CanOcr = canOcr,
                 Choices = choices,
                 Choice = choice,
                 RequiresFrameRate = needsRate && config.Kind == TrackKind.Video,
-                Selected = support.CanMux || ConversionDefaults.IsConversion(choice.Action),
+                Selected = support.CanMux || ConversionDefaults.IsConversion(choice.Action) || choice.Ocr,
             });
         }
 
@@ -259,10 +274,21 @@ public static class TrackImporter
         track.Duration = item.Duration;
         track.Timescale = c.Timescale;
         var conversion = ConversionDefaults.IsConversion(item.Action) ? item.Conversion ?? ConversionDefaults.Settings : null;
+        var ocr = SubtitleConversions.IsBitmap(c.Codec) && SubtitleConversions.Target(item.Action) is not null ? item.Ocr ?? OcrOptions.Default : null;
         track.Source = new TrackSource(item.SourcePath, item.SourceContainer, item.TrackId)
         {
-            Import = new TrackImportOptions { Action = item.Action, FrameRate = item.FrameRate, Conversion = conversion },
+            Import = new TrackImportOptions { Action = item.Action, FrameRate = item.FrameRate, Conversion = conversion, Ocr = ocr },
         };
+
+        // A track converted by OCR is shown with the text format it will have once saved.
+        if (ocr is not null && SubtitleConversions.Target(item.Action) is { } ocrTarget)
+        {
+            var output = SubtitleConversions.PredictOutput(c, ocrTarget);
+            track.Format = output.FormatName;
+            track.CodecId = output.SourceCodecId;
+            track.FormatDetails = "Text (OCR)";
+            track.Timescale = output.Timescale;
+        }
 
         // A converted track is shown with the codec, channels and rate it will have once saved.
         if (conversion is not null && track is AudioTrack audio && item.Action is ImportAction.ConvertToAac or ImportAction.ConvertToAc3)
