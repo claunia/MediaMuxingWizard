@@ -48,6 +48,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         _use64BitOffsets = settings.Use64BitOffsets;
         _use64BitTimes = settings.Use64BitTimes;
         _optimizeOnSave = settings.OptimizeOnSave;
+        _dolbyVisionAv1UsesAv01 = settings.DolbyVisionAv1UsesAv01;
         _useFileNameFormat = settings.UseFileNameFormat;
         _movieFormat = settings.MovieFileNameFormat;
         _tvFormat = settings.TvFileNameFormat;
@@ -97,6 +98,9 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
 
     [ObservableProperty]
     private bool _optimizeOnSave;
+
+    [ObservableProperty]
+    private bool _dolbyVisionAv1UsesAv01;
 
     [ObservableProperty]
     private bool _useFileNameFormat;
@@ -314,6 +318,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         _settings.Drc = Math.Clamp(Drc, 0, MMW.Core.Media.AudioConversionSettings.MaxDrc);
         _settings.ConvertAc3 = ConvertAc3;
         _settings.ConvertDts = ConvertDts;
+        _settings.DolbyVisionAv1UsesAv01 = DolbyVisionAv1UsesAv01;
         _settings.ApplyConversionDefaults();
         _settings.TmdbApiKey = string.IsNullOrWhiteSpace(TmdbApiKey) ? null : TmdbApiKey.Trim();
         _settings.TvdbApiKey = string.IsNullOrWhiteSpace(TvdbApiKey) ? null : TvdbApiKey.Trim();

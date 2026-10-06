@@ -4477,5 +4477,23 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Store AV1 Dolby Vision 10.0 as av01 (compatible with FFmpeg-.
+        /// </summary>
+        public static string Preferences_DolbyVisionAv01 {
+            get {
+                return ResourceManager.GetString("Preferences_DolbyVisionAv01", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dolby's specification requires the dav1 sample entry for AV1.
+        /// </summary>
+        public static string Preferences_DolbyVisionAv01_Tip {
+            get {
+                return ResourceManager.GetString("Preferences_DolbyVisionAv01_Tip", resourceCulture);
+            }
+        }
+        
     }
 }

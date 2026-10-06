@@ -312,7 +312,7 @@ internal sealed class Mp4Muxer : IMuxer
         _headerWritten = true;
         _out.SetLength(0);
         _out.Position = 0;
-        _out.Write(BoxWriter.ToArray(BuildFtyp(_settings.OutputPath, _tracks.Select(t => t.Config.Codec).ToList())));
+        _out.Write(BoxWriter.ToArray(BuildFtyp(_settings.OutputPath, _tracks.Select(t => t.Config).ToList())));
         _reservedStart = _out.Position;
         _reservedSize = EstimateMoovSize();
         WriteFree(_out, _reservedSize);
@@ -580,7 +580,10 @@ internal sealed class Mp4Muxer : IMuxer
             EsId = (ushort)t.TrackId,
         });
         if (config.Native is Mp4NativeTrack)
+        {
             ApplyModelToNativeEntry(entry, model);
+            DolbyVisionEntry.Apply(entry, config.DolbyVisionConfig); // copied entries follow the specification too
+        }
         var handler = Mp4SampleEntries.HandlerFor(config);
 
         var use64 = _settings.Options.Use64BitTimes || trackDuration > uint.MaxValue || mediaDuration > uint.MaxValue;
@@ -620,6 +623,11 @@ internal sealed class Mp4Muxer : IMuxer
         else if (model is SubtitleTrack sub && sub.ForcedTrack is { } ft && ids.TryGetValue(ft, out var forcedId))
         {
             AddReference(children, "forc", [forcedId]);
+        }
+        else if (config.Kind == TrackKind.Video && DvInfo(config) is { } dv && DolbyVision.IsEnhancementLayerTrack(dv) &&
+                 BaseLayerFor(t) is { } baseLayer)
+        {
+            AddReference(children, "vdep", [baseLayer.TrackId]); // dual-track Dolby Vision: the EL depends on the BL track
         }
 
         // Edit list (always written: players use it for the presentation duration).
@@ -845,8 +853,20 @@ internal sealed class Mp4Muxer : IMuxer
         tref.SetChild(new Box(type, b.ToArray()));
     }
 
-    private static Box BuildFtyp(string path, IReadOnlyCollection<CodecType> codecs)
+    private static DolbyVisionInfo? DvInfo(CodecConfig config) =>
+        config.DolbyVisionConfig is { Length: >= 5 } record ? DolbyVision.ParseConfigurationRecord(record) : null;
+
+    /// <summary>
+    /// The base layer track for a Dolby Vision enhancement-layer track: another video track of the same codec that
+    /// carries a base layer (no Dolby Vision, or a configuration with bl_present_flag), like GPAC.
+    /// </summary>
+    private TrackState? BaseLayerFor(TrackState el) => _tracks.FirstOrDefault(o =>
+        o != el && o.Config.Kind == TrackKind.Video && o.Config.Codec == el.Config.Codec &&
+        (DvInfo(o.Config) is not { } dv || dv.BlPresent));
+
+    private static Box BuildFtyp(string path, IReadOnlyCollection<CodecConfig> configs)
     {
+        var codecs = configs.Select(c => c.Codec).ToList();
         var ext = Path.GetExtension(path).ToLowerInvariant();
         var (major, minor, brands) = ext switch
         {
@@ -859,6 +879,11 @@ internal sealed class Mp4Muxer : IMuxer
         };
         if (codecs.Contains(CodecType.Av1) && !brands.Contains("av01"))
             brands.Add("av01");
+        foreach (var c in configs.Where(c => c.Kind == TrackKind.Video))
+        {
+            if (DvInfo(c) is { } dv)
+                brands.AddRange(DolbyVision.Mp4Brands(dv, c.Color).Where(b => !brands.Contains(b)));
+        }
         var b = new PayloadBuilder().Type(major).U32(minor);
         foreach (var brand in brands)
             b.Type(brand);

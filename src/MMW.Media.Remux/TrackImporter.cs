@@ -1,4 +1,5 @@
 using System.Globalization;
+using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
@@ -152,6 +153,7 @@ public static class TrackImporter
             var config = source.Config;
             if (config.Kind is TrackKind.Chapters)
                 continue;
+            config = WithDetectedDolbyVision(source, config);
             var support = muxer.CheckSupport(config);
             var canConvert = ConversionDefaults.CanConvert(config);
             var canOcr = ConversionDefaults.CanOcr(config);
@@ -179,6 +181,28 @@ public static class TrackImporter
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Dolby Vision RPUs in an HEVC/AV1 track that has no configuration record (raw elementary streams, or files
+    /// muxed without it): the record is rebuilt from the bitstream so the imported track is signalled correctly.
+    /// </summary>
+    private static CodecConfig WithDetectedDolbyVision(ISampleSource source, CodecConfig config)
+    {
+        if (config.Kind != TrackKind.Video || config.Codec is not (CodecType.Hevc or CodecType.Av1) || config.DolbyVisionConfig is not null)
+            return config;
+        try
+        {
+            if (DolbyVisionDetector.Detect(source, config.Color) is not { } detection)
+                return config;
+            AppLog.Info($"Dolby Vision {detection.ProfileName} (level {detection.Level}) found in the bitstream of track {source.TrackId}; its configuration was rebuilt.");
+            return config with { DolbyVisionConfig = detection.ConfigurationRecord };
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"Dolby Vision check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
     }
 
     /// <summary>
@@ -220,6 +244,19 @@ public static class TrackImporter
         return added;
     }
 
+    /// <summary>
+    /// The track's Dolby Vision record; for raw streams imported with a chosen frame rate the level is recomputed with
+    /// it (the bitstream scan used the stream's timing, or assumed one).
+    /// </summary>
+    private static byte[]? DolbyVisionRecordFor(ImportableTrack item)
+    {
+        if (item.Config.DolbyVisionConfig is not { Length: >= 5 } record)
+            return null;
+        if (item.SourceContainer != ContainerKind.Unknown || item.FrameRate is not > 0 || item.Config.Width <= 0 || item.Config.Height <= 0)
+            return record;
+        return DolbyVision.WithLevel(record, DolbyVision.Level(item.Config.Width, item.Config.Height, DolbyVision.NominalFrameRate(item.FrameRate.Value)));
+    }
+
     private static Track CreateTrack(ImportableTrack item)
     {
         var c = item.Config;
@@ -240,7 +277,7 @@ public static class TrackImporter
                     Color = c.Color,
                     Hdr = c.Hdr,
                     FrameRate = item.FrameRate ?? c.FrameRate,
-                    DolbyVision = c.DolbyVisionConfig is { Length: >= 5 } dv ? Formats.Mp4.Boxes.CodecInfo.ParseDolbyVisionRecord(dv) : null,
+                    DolbyVisionRecord = DolbyVisionRecordFor(item), // also carries detected records to the muxer
                 };
                 break;
             }

@@ -40,6 +40,8 @@
           <CheckBox Content="{x:Static res:Strings.Preferences_OptimizeOnSave}" IsChecked="{Binding OptimizeOnSave}" />
           <CheckBox Content="{x:Static res:Strings.Preferences_64BitOffsets}" IsChecked="{Binding Use64BitOffsets}" />
           <CheckBox Content="{x:Static res:Strings.Preferences_64BitTimes}" IsChecked="{Binding Use64BitTimes}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_DolbyVisionAv01}" IsChecked="{Binding DolbyVisionAv1UsesAv01}"
+                    ToolTip.Tip="{x:Static res:Strings.Preferences_DolbyVisionAv01_Tip}" />
         </StackPanel>
       </TabItem>
       <TabItem Header="{x:Static res:Strings.Preferences_Audio}">

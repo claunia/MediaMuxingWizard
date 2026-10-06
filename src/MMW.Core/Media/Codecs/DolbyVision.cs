@@ -137,7 +137,7 @@ public static class DolbyVision
         7 => 6,
         9 => 2,
         8 or 10 when color.Primaries == 9 && color.Matrix is 9 or 10 && color.Transfer == 16 => 1, // HDR10
-        8 or 10 when color.Primaries == 9 && color.Matrix is 9 or 10 && color.Transfer == 18 => 4, // HLG
+        8 or 10 when color.Primaries == 9 && color.Matrix is 9 or 10 && color.Transfer is 14 or 18 => 4, // HLG (18, or 14 with HLG in the alternative transfer SEI; there is no 8.0)
         8 or 10 when color.Primaries == 9 && color.Matrix is 9 or 10 => 0,
         8 or 10 when color.IsSpecified => 2, // BT.709 / SDR
         _ => 0,
@@ -179,6 +179,18 @@ public static class DolbyVision
         return record;
     }
 
+    /// <summary>A copy of <paramref name="record"/> with dv_level replaced.</summary>
+    public static byte[] WithLevel(ReadOnlySpan<byte> record, int level)
+    {
+        if (record.Length < 5)
+            throw new InvalidDataException("Dolby Vision configuration record is too short.");
+        var copy = record.ToArray();
+        var bits = BinaryPrimitives.ReadUInt16BigEndian(copy.AsSpan(2));
+        bits = (ushort)((bits & ~(0x3F << 3)) | ((level & 0x3F) << 3));
+        BinaryPrimitives.WriteUInt16BigEndian(copy.AsSpan(2), bits);
+        return copy;
+    }
+
     /// <summary>Parses a DOVIDecoderConfigurationRecord.</summary>
     public static DolbyVisionInfo ParseConfigurationRecord(ReadOnlySpan<byte> p)
     {
@@ -191,6 +203,89 @@ public static class DolbyVision
 
     /// <summary>MP4 box type for a record: dvcC (profiles ≤ 7), dvvC (8–10) or dvwC (above).</summary>
     public static string Mp4BoxType(int profile) => profile <= 7 ? "dvcC" : profile <= 10 ? "dvvC" : "dvwC";
+
+    /// <summary>
+    /// MP4 sample entry type for a Dolby Vision stream whose base codec uses <paramref name="entryType"/> (the base
+    /// type or its Dolby Vision variant), per "Dolby Vision Streams Within the ISO Base Media File Format": dvh1, dvhe,
+    /// dva1 or dvav only for the profiles without a cross-compatible base layer (1, 3 and 5), dav1 for AV1 profile
+    /// 10 without a compatible base layer (bl_signal_compatibility_id 0) unless <paramref name="av1UsesAv01"/>, and the
+    /// base codec's type otherwise. Without a record the base type is returned.
+    /// </summary>
+    public static string Mp4SampleEntryType(string entryType, DolbyVisionInfo? info, bool av1UsesAv01 = false)
+    {
+        ArgumentNullException.ThrowIfNull(entryType);
+        var baseType = entryType switch
+        {
+            "dvh1" => "hvc1",
+            "dvhe" => "hev1",
+            "dva1" => "avc1",
+            "dvav" => "avc3",
+            "dav1" => "av01",
+            _ => entryType,
+        };
+        if (info is null)
+            return baseType;
+        if (info.Profile is 1 or 3 or 5)
+        {
+            return baseType switch
+            {
+                "hvc1" => "dvh1",
+                "hev1" => "dvhe",
+                "avc1" => "dva1",
+                "avc3" => "dvav",
+                _ => baseType,
+            };
+        }
+
+        return baseType == "av01" && info.Profile == 10 && info.BlSignalCompatibilityId == 0 && !av1UsesAv01 ? "dav1" : baseType;
+    }
+
+    /// <summary>
+    /// Whether the sample entry needs an hvcE/avcE box: a single track carrying base layer, enhancement layer and RPU
+    /// (e.g. profile 7 FEL/MEL muxed into one track).
+    /// </summary>
+    public static bool NeedsEnhancementLayerConfig(DolbyVisionInfo info)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        return info.BlPresent && info.ElPresent && info.RpuPresent && info.Profile is not (10 or > 10);
+    }
+
+    /// <summary>
+    /// Whether the record describes an enhancement-layer-only track (dual-track storage): it needs a 'vdep' track
+    /// reference to the base layer track.
+    /// </summary>
+    public static bool IsEnhancementLayerTrack(DolbyVisionInfo info)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        return !info.BlPresent && info.ElPresent;
+    }
+
+    /// <summary>
+    /// ftyp compatible brands for a file with a Dolby Vision track: dby1, plus db1p (HDR10-compatible), db2g
+    /// (SDR-compatible), db4g (BT.2020 SDR) or db4h (HLG) by the base layer's compatibility.
+    /// </summary>
+    public static IReadOnlyList<string> Mp4Brands(DolbyVisionInfo info, ColorInfo color)
+    {
+        ArgumentNullException.ThrowIfNull(info);
+        var brands = new List<string> { "dby1" };
+        switch (info.BlSignalCompatibilityId)
+        {
+            case 1:
+                brands.Add("db1p");
+                break;
+            case 2:
+                brands.Add("db2g");
+                break;
+            case 4 when color.Transfer == 14:
+                brands.Add("db4g");
+                break;
+            case 4 when color.Transfer == 18:
+                brands.Add("db4h");
+                break;
+        }
+
+        return brands;
+    }
 
     /// <summary>
     /// Looks for Dolby Vision in HEVC samples (length-prefixed NAL units): RPU (UNSPEC62) and enhancement layer

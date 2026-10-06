@@ -1533,4 +1533,10 @@ Si no los guardas, se perderán.</value>
   <data name="Fallback_Unwatchable" xml:space="preserve">
     <value>vídeo con colores incorrectos</value>
   </data>
+  <data name="Preferences_DolbyVisionAv01" xml:space="preserve">
+    <value>Guardar AV1 Dolby Vision 10.0 como av01 (compatible con reproductores basados en FFmpeg)</value>
+  </data>
+  <data name="Preferences_DolbyVisionAv01_Tip" xml:space="preserve">
+    <value>La especificación de Dolby exige la entrada de muestra dav1 para AV1 perfil 10 sin capa base compatible, pero FFmpeg y los reproductores basados en él (mpv, Plex, Jellyfin…) no pueden leerla.</value>
+  </data>
 </root>

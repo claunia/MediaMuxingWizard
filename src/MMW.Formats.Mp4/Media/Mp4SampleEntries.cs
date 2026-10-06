@@ -484,19 +484,17 @@ internal static class Mp4SampleEntries
     private static Box BuildVideo(CodecConfig c, EntryContext ctx)
     {
         var children = new List<Box>();
-        var dvProfile = c.DolbyVisionConfig is { Length: >= 5 } dvRecord ? dvRecord[2] >> 1 : -1;
-        var dvCompat = c.DolbyVisionConfig is { Length: >= 5 } dvr ? dvr[4] >> 4 : 0;
-        string type;
+        string type; // Dolby Vision variants (dvh1, dav1…) are chosen by DolbyVisionEntry.Apply below
         switch (c.Codec)
         {
             case CodecType.H264:
-                type = dvProfile >= 0 && dvCompat == 0 ? "dva1" : "avc1";
+                type = "avc1";
                 children.Add(new Box("avcC", c.Extradata!));
                 break;
             case CodecType.Hevc:
             {
                 var inBand = ctx.InBandParameterSets && !Mp4RemuxOptions.ForceHvc1;
-                type = dvProfile >= 0 && dvCompat == 0 ? (inBand ? "dvhe" : "dvh1") : inBand ? "hev1" : "hvc1";
+                type = inBand ? "hev1" : "hvc1";
                 children.Add(new Box("hvcC", Hevc.MarkArraysComplete(c.Extradata!, !inBand)));
                 break;
             }
@@ -506,7 +504,6 @@ internal static class Mp4SampleEntries
                 children.Add(new Box("vvcC", [0, 0, 0, 0, .. c.Extradata!]));
                 break;
             case CodecType.Av1:
-                // 'dav1' is not recognised by common demuxers (ffmpeg); Dolby Vision AV1 is signalled by the dvvC box.
                 type = "av01";
                 children.Add(new Box("av1C", c.Extradata!));
                 break;
@@ -539,12 +536,6 @@ internal static class Mp4SampleEntries
 
             default:
                 throw new NotSupportedException($"{c.FormatName} video cannot be stored in MP4.");
-        }
-
-        if (c.DolbyVisionConfig is { Length: >= 5 } dv)
-        {
-            var dvType = dvProfile <= 7 ? "dvcC" : dvProfile <= 10 ? "dvvC" : "dvwC";
-            children.Add(new Box(dvType, dv));
         }
 
         if (c.Color.IsSpecified)
@@ -581,7 +572,9 @@ internal static class Mp4SampleEntries
             .U32(0x00480000).U32(0x00480000).U32(0).U16(1)
             .Bytes(compressor).U16(0x18).U16(0xFFFF)
             .ToArray();
-        return new Box(type, payload, children);
+        var entry = new Box(type, payload, children);
+        DolbyVisionEntry.Apply(entry, c.DolbyVisionConfig);
+        return entry;
 
         static int Chroma(double v) => (int)Math.Clamp(Math.Round(v / 0.00002), 0, ushort.MaxValue);
     }

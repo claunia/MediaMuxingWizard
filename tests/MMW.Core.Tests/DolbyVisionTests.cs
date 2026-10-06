@@ -85,7 +85,7 @@ public sealed class DolbyVisionTests
         var p8 = DolbyVision.ParseRpuHeader(Rpu(1, false, 10, 10, 12, false, true));
         Assert.Equal("8.4", DolbyVision.Describe(CodecType.Hevc, p8, false, 3840, 2160, 50, Hlg)!.ProfileName);
         Assert.Equal("8.2", DolbyVision.Describe(CodecType.Hevc, p8, false, 1920, 1080, 25, Sdr)!.ProfileName);
-        Assert.Equal("8.0", DolbyVision.Describe(CodecType.Hevc, p8, false, 1920, 1080, 25, new ColorInfo(9, 14, 9))!.ProfileName);
+        Assert.Equal("8.4", DolbyVision.Describe(CodecType.Hevc, p8, false, 1920, 1080, 25, new ColorInfo(9, 14, 9))!.ProfileName); // HLG signalled as BT.2020 SDR
 
         // AV1 is always profile 10.
         Assert.Equal("10.1", DolbyVision.Describe(CodecType.Av1, p8, false, 3840, 2160, 24, Pq)!.ProfileName);
@@ -147,6 +147,56 @@ public sealed class DolbyVisionTests
         Assert.Equal(new DolbyVisionInfo(1, 0, 10, 13, true, false, true, 4), DolbyVision.ParseConfigurationRecord(record));
         Assert.All(record.AsSpan(5).ToArray(), b => Assert.Equal(0, b));
         Assert.Throws<InvalidDataException>(() => DolbyVision.ParseConfigurationRecord(record.AsSpan(0, 4)));
+    }
+
+    [Theory]
+    [InlineData("hvc1", 5, 0, "dvh1")]
+    [InlineData("hev1", 5, 0, "dvhe")]
+    [InlineData("dvhe", 8, 1, "hev1")] // a compatible base layer keeps the base codec's type
+    [InlineData("hvc1", 8, 4, "hvc1")]
+    [InlineData("hev1", 7, 6, "hev1")]
+    [InlineData("hev1", 4, 0, "hev1")] // only profiles 1, 3 and 5 use dvhe/dvh1
+    [InlineData("avc1", 9, 2, "avc1")]
+    [InlineData("avc3", 1, 0, "dvav")]
+    [InlineData("av01", 10, 0, "dav1")]
+    [InlineData("av01", 10, 1, "av01")]
+    [InlineData("dav1", 10, 4, "av01")]
+    public void Mp4_sample_entry_types_follow_the_specification(string entry, int profile, int compat, string expected)
+    {
+        var info = DolbyVision.ParseConfigurationRecord(DolbyVision.BuildConfigurationRecord(profile, 6, true, false, true, compat));
+        Assert.Equal(expected, DolbyVision.Mp4SampleEntryType(entry, info));
+    }
+
+    [Fact]
+    public void Av1_profile_10_can_stay_av01_for_ffmpeg()
+    {
+        var info = DolbyVision.ParseConfigurationRecord(DolbyVision.BuildConfigurationRecord(10, 6, true, false, true, 0));
+        Assert.Equal("av01", DolbyVision.Mp4SampleEntryType("av01", info, av1UsesAv01: true));
+        Assert.Equal("av01", DolbyVision.Mp4SampleEntryType("dav1", info, av1UsesAv01: true));
+        Assert.Equal("hvc1", DolbyVision.Mp4SampleEntryType("dvh1", null));
+    }
+
+    [Fact]
+    public void Layers_brands_and_level_edits()
+    {
+        DolbyVisionInfo Info(int profile, bool el, bool bl, int compat = 6) =>
+            DolbyVision.ParseConfigurationRecord(DolbyVision.BuildConfigurationRecord(profile, 6, true, el, bl, compat));
+
+        Assert.True(DolbyVision.NeedsEnhancementLayerConfig(Info(7, el: true, bl: true)));
+        Assert.False(DolbyVision.NeedsEnhancementLayerConfig(Info(8, el: false, bl: true, 1)));
+        Assert.False(DolbyVision.NeedsEnhancementLayerConfig(Info(7, el: true, bl: false)));
+        Assert.True(DolbyVision.IsEnhancementLayerTrack(Info(7, el: true, bl: false)));
+        Assert.False(DolbyVision.IsEnhancementLayerTrack(Info(7, el: true, bl: true)));
+
+        Assert.Equal(["dby1", "db1p"], DolbyVision.Mp4Brands(Info(8, false, true, 1), Pq));
+        Assert.Equal(["dby1", "db2g"], DolbyVision.Mp4Brands(Info(9, false, true, 2), Sdr));
+        Assert.Equal(["dby1", "db4h"], DolbyVision.Mp4Brands(Info(8, false, true, 4), Hlg));
+        Assert.Equal(["dby1", "db4g"], DolbyVision.Mp4Brands(Info(8, false, true, 4), new ColorInfo(9, 14, 9)));
+        Assert.Equal(["dby1"], DolbyVision.Mp4Brands(Info(5, false, true, 0), Pq));
+
+        var record = DolbyVision.BuildConfigurationRecord(8, 3, true, false, true, 4);
+        Assert.Equal(new DolbyVisionInfo(1, 0, 8, 13, true, false, true, 4), DolbyVision.ParseConfigurationRecord(DolbyVision.WithLevel(record, 13)));
+        Assert.Equal(3, DolbyVision.ParseConfigurationRecord(record).Level); // the original is not modified
     }
 
     [Fact]
