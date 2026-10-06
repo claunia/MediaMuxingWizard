@@ -63,6 +63,7 @@
         <MenuItem Header="_Delete Selected Tracks" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" InputGesture="{x:Static app:Gestures.Delete}" />
         <MenuItem Header="Move Track _Up" Command="{Binding SelectedDocument.MoveTrackUpCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="Move Track Do_wn" Command="{Binding SelectedDocument.MoveTrackDownCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="_Offset…" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
         <Separator />
         <MenuItem Header="_Organize Alternate Groups" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="_Fix Audio Fallbacks" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
@@ -126,6 +127,7 @@
                 <MenuItem Header="10 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="10" />
                 <MenuItem Header="15 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="15" />
               </MenuItem>
+              <MenuItem Header="Offset…" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
               <MenuItem Header="Organize Alternate Groups" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
               <MenuItem Header="Fix Audio Fallbacks" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
               <MenuItem Header="Complete Track Languages…" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />

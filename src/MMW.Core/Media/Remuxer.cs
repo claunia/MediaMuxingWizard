@@ -26,6 +26,13 @@ public static class RemuxPolicy
                                         (t.IsPending || (t.Source is { } s && (document.Path is null || !SamePath(s.Path, document.Path)))));
     }
 
+    /// <summary>True when a track has a start offset to apply (only possible by rewriting the timeline).</summary>
+    public static bool HasOffsets(MediaDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        return document.Tracks.Any(t => t is not ChapterTrack && t.StartOffset != TimeSpan.Zero);
+    }
+
     public static bool SamePath(string a, string b) =>
         string.Equals(
             Path.GetFullPath(a),

@@ -26,7 +26,7 @@ public sealed class Mp4Handler : IContainerHandler
         ArgumentNullException.ThrowIfNull(options);
 
         var target = RemuxPolicy.TargetKind(document, options);
-        if (target != ContainerKind.Mp4 || RemuxPolicy.HasImportedTracks(document) || (options.Optimize && NeedsInterleaving(document)))
+        if (target != ContainerKind.Mp4 || RemuxPolicy.HasImportedTracks(document) || RemuxPolicy.HasOffsets(document) || (options.Optimize && NeedsInterleaving(document)))
         {
             await Remuxer.SaveAsync(document, options, target, progress, cancellationToken);
             return;

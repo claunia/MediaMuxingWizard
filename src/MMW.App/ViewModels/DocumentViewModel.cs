@@ -222,6 +222,32 @@ public sealed partial class DocumentViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task OffsetTracks()
+    {
+        var tracks = SelectedTracks().Where(t => t is not ChapterTrack).ToList();
+        if (tracks.Count == 0)
+        {
+            await _dialogs.ShowMessageAsync("Offset", "Select the tracks to shift first.");
+            return;
+        }
+
+        var text = await _dialogs.PromptAsync("Offset", "Shift the selected tracks by this many milliseconds (negative values make them start earlier):", "0");
+        if (text is null)
+            return;
+        if (!double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var ms))
+        {
+            await _dialogs.ShowMessageAsync("Offset", $"'{text}' is not a number of milliseconds.");
+            return;
+        }
+
+        using (Undo.Transaction("Offset Tracks"))
+        {
+            foreach (var t in tracks)
+                t.StartOffset += TimeSpan.FromMilliseconds(ms);
+        }
+    }
+
+    [RelayCommand]
     private void ClearTrackNames()
     {
         using (Undo.Transaction("Clear Track Names"))

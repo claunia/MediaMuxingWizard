@@ -283,3 +283,30 @@ public class ImportTests
         Assert.DoesNotContain(doc.Rows, r => r.IdText == "na");
     }
 }
+
+public class OffsetTests
+{
+    [AvaloniaFact]
+    public async Task Offsetting_audio_delays_it_in_the_saved_file()
+    {
+        var fixture = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(fixture) || !Fixtures.HasTool("ffprobe"))
+            Assert.Skip("Needs the MP4 fixtures and ffprobe.");
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        var dialogs = new FakeDialogService();
+        var main = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
+        var media = Fixtures.CopyToTemp(fixture);
+        await main.OpenPathsAsync([media]);
+        var doc = main.Documents.Single();
+
+        doc.SelectedRow = doc.Rows.First(r => r.Track is AudioTrack);
+        var inspector = Assert.IsType<TrackInspectorViewModel>(doc.Inspector);
+        inspector.StartOffsetMs = 500;
+        Assert.True(await doc.Save(), string.Join("\n", dialogs.Messages));
+
+        var json = Fixtures.Run("ffprobe", $"-v error -select_streams a:0 -show_entries stream=start_time -of csv=p=0 {Fixtures.Quote(media)}");
+        var start = double.Parse(json.Trim(), System.Globalization.CultureInfo.InvariantCulture);
+        Assert.InRange(start, 0.45, 0.55);
+        Assert.Equal(TimeSpan.Zero, doc.Document.Tracks.OfType<AudioTrack>().First().StartOffset);
+    }
+}

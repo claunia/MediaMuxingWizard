@@ -67,6 +67,9 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
                 case nameof(Track.AlternateGroup):
                     OnPropertyChanged(nameof(SelectedAlternateGroup));
                     break;
+                case nameof(Track.StartOffset):
+                    OnPropertyChanged(nameof(StartOffsetMs));
+                    break;
                 case nameof(AudioTrack.Volume):
                     OnPropertyChanged(nameof(VolumeDb));
                     OnPropertyChanged(nameof(VolumeText));
@@ -147,6 +150,18 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         {
             if (value is not null)
                 Track.AlternateGroup = value.Value;
+        }
+    }
+
+    /// <summary>Extra delay applied to the track when saving, in milliseconds (negative values advance it).</summary>
+    public double StartOffsetMs
+    {
+        get => Track.StartOffset.TotalMilliseconds;
+        set
+        {
+            var offset = TimeSpan.FromMilliseconds(Math.Round(value));
+            if (offset != Track.StartOffset)
+                Track.StartOffset = offset;
         }
     }
 
