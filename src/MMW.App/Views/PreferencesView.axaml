@@ -11,7 +11,13 @@
     </StackPanel>
     <TabControl>
       <TabItem Header="General">
-        <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" Margin="0,12">
+        <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10" Margin="0,12">
+          <TextBlock Grid.Row="3" Text="Chapters:" Classes="label" />
+          <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <CheckBox Content="Create preview images when saving MP4, at the" IsChecked="{Binding CreateChapterPreviews}" />
+            <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.PreviewPositions}" SelectedItem="{Binding ChapterPreviewPosition}"
+                      IsEnabled="{Binding CreateChapterPreviews}" MinWidth="120" />
+          </StackPanel>
           <TextBlock Text="Appearance:" Classes="label" />
           <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.Themes}" SelectedItem="{Binding Theme}" MinWidth="220" />
           <TextBlock Grid.Row="1" Text="Window:" Classes="label" />

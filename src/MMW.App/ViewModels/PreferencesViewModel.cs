@@ -39,6 +39,8 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         }
         _theme = Themes.First(t => t.Value == settings.Theme);
         _rememberWindowSize = settings.RememberWindowSize;
+        _createChapterPreviews = settings.CreateChapterPreviews;
+        _chapterPreviewPosition = PreviewPositions.OrderBy(p => Math.Abs(p.Value - settings.ChapterPreviewPosition)).First();
         _ratingsCountry = settings.RatingsCountry;
         _use64BitOffsets = settings.Use64BitOffsets;
         _use64BitTimes = settings.Use64BitTimes;
@@ -64,6 +66,14 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
 
     [ObservableProperty]
     private bool _rememberWindowSize;
+
+    public static IReadOnlyList<Choice<double>> PreviewPositions { get; } = [new(0, "Beginning"), new(0.5, "Middle"), new(0.95, "End")];
+
+    [ObservableProperty]
+    private bool _createChapterPreviews;
+
+    [ObservableProperty]
+    private Choice<double> _chapterPreviewPosition;
 
     [ObservableProperty]
     private string _ratingsCountry;
@@ -272,6 +282,8 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
 
         _settings.Theme = Theme.Value;
         _settings.RememberWindowSize = RememberWindowSize;
+        _settings.CreateChapterPreviews = CreateChapterPreviews;
+        _settings.ChapterPreviewPosition = ChapterPreviewPosition.Value;
         _settings.RatingsCountry = RatingsCountry;
         _settings.Use64BitOffsets = Use64BitOffsets;
         _settings.Use64BitTimes = Use64BitTimes;

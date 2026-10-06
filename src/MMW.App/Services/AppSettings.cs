@@ -62,6 +62,13 @@ public sealed class AppSettings
 
     public string? TvdbApiKey { get; set; }
 
+    // Chapters
+    /// <summary>Create missing chapter preview images when saving MP4 files.</summary>
+    public bool CreateChapterPreviews { get; set; }
+
+    /// <summary>Where in each chapter the preview is taken: 0 = beginning, 0.5 = middle, 1 = end.</summary>
+    public double ChapterPreviewPosition { get; set; }
+
     // Audio conversion
     public MMW.Core.Media.AudioMixdown Mixdown { get; set; } = MMW.Core.Media.AudioMixdown.DolbyProLogicII;
 

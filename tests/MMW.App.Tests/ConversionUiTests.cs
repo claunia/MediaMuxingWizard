@@ -85,3 +85,26 @@ public class ConversionUiTests
         window.CaptureRenderedFrame()?.Save(Path.Combine(shots, "11-chapter-thumbnails.png"));
     }
 }
+
+public class ChapterPreviewOnSaveTests
+{
+    [AvaloniaFact]
+    public async Task Saving_creates_chapter_previews_when_enabled()
+    {
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        var fixture = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!MMW.Media.Conversion.MediaConversion.IsAvailable || !File.Exists(fixture))
+            Assert.Skip("Needs FFmpeg libraries and the MP4 fixtures.");
+        var settings = new SettingsService(Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"), "settings.json"));
+        settings.Settings.CreateChapterPreviews = true;
+        settings.Settings.ChapterPreviewPosition = 0.5;
+        var main = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), settings);
+        var media = Fixtures.CopyToTemp(fixture);
+        await main.OpenPathsAsync([media]);
+
+        Assert.True(await main.Documents.Single().Save());
+
+        var reread = await new MMW.Formats.Mp4.Mp4Handler().ReadAsync(media, TestContext.Current.CancellationToken);
+        Assert.All(reread.Chapters, c => Assert.NotNull(c.Thumbnail));
+    }
+}

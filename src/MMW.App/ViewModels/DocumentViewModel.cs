@@ -382,12 +382,38 @@ public sealed partial class DocumentViewModel : ViewModelBase
         }
     }
 
+    /// <summary>Captures missing chapter previews before an MP4 save when the preference is on.</summary>
+    private async Task CreateChapterPreviewsAsync(SaveOptions options)
+    {
+        var s = _settings.Settings;
+        var targetIsMp4 = ContainerKinds.FromPath(options.OutputPath ?? Document.Path ?? string.Empty) == ContainerKind.Mp4;
+        if (!s.CreateChapterPreviews || !targetIsMp4 || Document.Path is null || Document.Chapters.Count == 0 ||
+            Document.Chapters.All(c => c.Thumbnail is not null) || !MMW.Media.Conversion.MediaConversion.IsAvailable ||
+            Document.Tracks.OfType<VideoTrack>().FirstOrDefault() is not { IsPending: false } video)
+            return;
+
+        var chapters = Document.Chapters.OrderBy(c => c.Start).ToList();
+        var times = new List<TimeSpan>(chapters.Count);
+        for (var i = 0; i < chapters.Count; i++)
+        {
+            var end = i + 1 < chapters.Count ? chapters[i + 1].Start : Document.Duration;
+            var length = end > chapters[i].Start ? end - chapters[i].Start : TimeSpan.Zero;
+            // Stay a little inside the chapter so "end" does not land on the next one.
+            times.Add(chapters[i].Start + length * Math.Clamp(s.ChapterPreviewPosition, 0, 0.95));
+        }
+
+        var images = await MMW.Media.Conversion.ThumbnailGenerator.CaptureManyAsync(Document.Path, video.Source?.TrackId ?? video.Id, times, 320);
+        for (var i = 0; i < chapters.Count && i < images.Count; i++)
+            chapters[i].Thumbnail ??= images[i];
+    }
+
     private async Task<bool> SaveCoreAsync(SaveOptions options)
     {
         IsBusy = true;
         Progress = 0;
         try
         {
+            await CreateChapterPreviewsAsync(options);
             var handler = _documents.HandlerFor(Document);
             var progress = new Progress<double>(p => Progress = p);
             await handler.SaveAsync(Document, options, progress);
