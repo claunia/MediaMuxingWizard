@@ -78,3 +78,64 @@ public class CommandLineTests
         Assert.Contains("Completed", output.ToString(), StringComparison.Ordinal);
     }
 }
+
+public class MediaCommandTests
+{
+    private static string Fixture()
+    {
+        var path = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(path))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        return Fixtures.CopyToTemp(path);
+    }
+
+    private static async Task<(int Code, string Out)> Run(params string[] args)
+    {
+        var output = new StringWriter();
+        var error = new StringWriter();
+        var code = await CommandLine.RunAsync(args, output, error, Path.Combine(Path.GetTempPath(), "mmw-tests", "q-" + Guid.NewGuid().ToString("N") + ".json"));
+        return (code, output + error.ToString());
+    }
+
+    [Fact]
+    public async Task Nfo_export_then_import_round_trips_tags()
+    {
+        var file = Fixture();
+        Assert.Equal(0, (await Run("set", file, "Name=Exported", "Genre=Drama", "Director=Dee")).Code);
+        var nfo = Path.ChangeExtension(file, ".nfo");
+        Assert.Equal(0, (await Run("nfo", file, "--export", nfo)).Code);
+        Assert.Equal(0, (await Run("clear-tags", file)).Code);
+
+        var (code, output) = await Run("nfo", file, "--import");
+        Assert.True(code == 0, output);
+        var info = (await Run("tags", file)).Out;
+        Assert.Contains("Name: Exported", info, StringComparison.Ordinal);
+        Assert.Contains("Genre: Drama", info, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Import_srt_and_remux_to_matroska()
+    {
+        var file = Fixture();
+        var srt = Path.ChangeExtension(file, ".srt");
+        await File.WriteAllTextAsync(srt, "1\n00:00:00,100 --> 00:00:01,000\nHi\n", TestContext.Current.CancellationToken);
+        var (code, output) = await Run("import", file, srt, "--language", "de");
+        Assert.True(code == 0, output);
+
+        var mkv = Path.ChangeExtension(file, ".mkv");
+        (code, output) = await Run("remux", file, mkv);
+        Assert.True(code == 0, output);
+        var info = (await Run("info", mkv)).Out;
+        Assert.Contains("Matroska", info, StringComparison.Ordinal);
+        Assert.Contains("German", info, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Search_requires_a_configured_provider()
+    {
+        var file = Fixture();
+        var (code, output) = await Run("search", file, "--provider", "Nonexistent");
+        Assert.Equal(2, code);
+        Assert.Contains("Unknown provider", output, StringComparison.Ordinal);
+    }
+}

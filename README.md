@@ -23,7 +23,8 @@ dotnet run --project src/MMW.App
 `mmw` (project `src/MMW.Cli`) scripts the same operations: `mmw info file.m4v --json`,
 `mmw set file.m4v "Name=Pilot" "Media Kind=TV Show"`, `mmw artwork file.mkv --add cover.jpg`,
 `mmw chapters file.mp4 --import chapters.txt`, `mmw tracks file.m4v --organize-groups --fix-fallbacks`,
-and `mmw queue add|start|status` for the editor's batch queue. Run `mmw --help` for everything.
+`mmw search file.m4v --apply` (online metadata), `mmw nfo file.mkv --import`, `mmw import file.m4v subs.srt`,
+`mmw remux file.mkv file.m4v`, and `mmw queue add|start|status` for the editor's batch queue. Run `mmw --help` for everything.
 
 ## Metadata search API keys
 

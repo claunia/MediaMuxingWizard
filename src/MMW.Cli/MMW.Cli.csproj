@@ -9,6 +9,8 @@
     <ProjectReference Include="..\MMW.Formats.Mp4\MMW.Formats.Mp4.csproj" />
     <ProjectReference Include="..\MMW.Formats.Matroska\MMW.Formats.Matroska.csproj" />
     <ProjectReference Include="..\MMW.Queue\MMW.Queue.csproj" />
+    <ProjectReference Include="..\MMW.Metadata\MMW.Metadata.csproj" />
+    <ProjectReference Include="..\MMW.Media.Remux\MMW.Media.Remux.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="MMW.Cli.Tests" />

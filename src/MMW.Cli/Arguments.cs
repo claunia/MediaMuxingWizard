@@ -10,7 +10,7 @@ internal sealed class Arguments
 
     private static readonly HashSet<string> s_flags =
     [
-        "json", "replace", "remove-all", "clear", "organize-groups", "fix-fallbacks", "clear-names", "prettify-audio-names", "optimize",
+        "json", "replace", "remove-all", "clear", "organize-groups", "fix-fallbacks", "clear-names", "prettify-audio-names", "optimize", "apply",
     ];
 
     public static Arguments Parse(IReadOnlyList<string> args)
@@ -32,8 +32,13 @@ internal sealed class Arguments
                 continue;
             }
 
-            if (i + 1 >= args.Count)
-                throw new UsageException($"--{name} needs a value.");
+            // An option with no value after it acts as a flag (e.g. "nfo file --export").
+            if (i + 1 >= args.Count || args[i + 1].StartsWith("--", StringComparison.Ordinal))
+            {
+                result._flags.Add(name);
+                continue;
+            }
+
             if (!result._options.TryGetValue(name, out var list))
                 result._options[name] = list = [];
 

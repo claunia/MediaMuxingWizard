@@ -28,6 +28,14 @@ internal static class CommandLine
                         [--track <id> --name <name> --language <lang> --enabled <true|false>]
           queue add <file>... | queue start | queue status | queue clear-completed
                                                Use the editor's saved queue (and its options)
+          search <file> [--title t] [--year y] [--season n] [--episode n] [--provider p] [--language l]
+                        [--apply [--result n] [--artwork poster|season|episode|backdrop|none]]
+                                               Search online metadata; --apply writes the chosen result
+          nfo <file> --import [nfo] | --export [nfo]
+                                               Merge tags from a Kodi .nfo, or write one
+          import <file> <source>... [--language l] [--frame-rate fps] [--only video|audio|subtitle]
+                                               Add tracks from other files (remuxes on save)
+          remux <file> <output>                Rewrite as MP4 or Matroska (by extension), no re-encoding
           tag-names                            List the tag names accepted by "set"
 
         Every editing command saves the file in place, or to --output <path> when given.
@@ -54,6 +62,10 @@ internal static class CommandLine
                 "tracks" => await EditAsync(Arguments.Parse(args[1..]), output, Tracks),
                 "queue" => await QueueAsync(args[1..], output, queuePath ?? DefaultQueuePath),
                 "tag-names" => await TagNamesAsync(output),
+                "search" => await MediaCommands.SearchAsync(Arguments.Parse(args[1..]), output, Registry()),
+                "nfo" => await MediaCommands.NfoAsync(Arguments.Parse(args[1..]), output, Registry()),
+                "import" => await MediaCommands.ImportAsync(Arguments.Parse(args[1..]), output, Registry()),
+                "remux" => await MediaCommands.RemuxAsync(Arguments.Parse(args[1..]), output, Registry()),
                 _ => throw new UsageException($"Unknown command '{args[0]}'."),
             };
         }
@@ -63,7 +75,7 @@ internal static class CommandLine
             await error.WriteLineAsync("Run 'mmw --help' for usage.");
             return 2;
         }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or FormatException)
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or FormatException or HttpRequestException)
         {
             await error.WriteLineAsync($"Error: {ex.Message}");
             return 1;
@@ -73,7 +85,7 @@ internal static class CommandLine
     private static string DefaultQueuePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "MediaMetadataWizard", "queue.json");
 
-    private static ContainerRegistry Registry() => new([new Mp4Handler(), new MatroskaHandler()]);
+    internal static ContainerRegistry Registry() => new([new Mp4Handler(), new MatroskaHandler()]);
 
     private static string RequireFile(Arguments a)
     {
