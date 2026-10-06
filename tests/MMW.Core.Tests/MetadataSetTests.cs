@@ -112,3 +112,30 @@ public class RatingsTests
         Assert.Same(pg13, Ratings.Find("mpaa|PG-13|300|Some annotation"));
     }
 }
+
+public class PresetTests
+{
+    [Fact]
+    public void Preset_round_trips_through_json()
+    {
+        var set = new MetadataSet();
+        set.Set(TagId.TvShow, "Show");
+        set.Set(TagId.TvSeason, 3);
+        set.Set(TagId.Cast, new[] { "A", "B" });
+        set.Set(TagId.HdVideo, 2);
+        set.Set(TagId.TrackNumber, new IntPair(1, 8));
+        set.Set(TagId.Gapless, true);
+        set.Artworks.Add(new Artwork([0xFF, 0xD8, 0xFF, 0x00]));
+
+        var json = System.Text.Json.JsonSerializer.Serialize(MetadataPreset.FromSet("TV", set, true, false));
+        var preset = System.Text.Json.JsonSerializer.Deserialize<MetadataPreset>(json)!;
+        var back = preset.ToSet();
+
+        Assert.Equal(set.Keys, back.Keys);
+        foreach (var id in set.Keys)
+            Assert.Equal(MetadataSet.FormatValue(id, set[id]!), MetadataSet.FormatValue(id, back[id]!));
+        Assert.Single(back.Artworks);
+        Assert.True(preset.ReplaceArtworks);
+        Assert.False(preset.ReplaceAnnotations);
+    }
+}

@@ -61,3 +61,28 @@ public class UndoTests
         Assert.Empty(track.MediaCharacteristics);
     }
 }
+
+public class UndoTransactionTests
+{
+    [Fact]
+    public void Transaction_groups_edits_into_one_step()
+    {
+        var stack = new UndoStack();
+        var tracker = new ObservableUndoTracker(stack);
+        var doc = new MediaDocument(null, ContainerKind.Mp4) { Duration = TimeSpan.FromMinutes(3) };
+        tracker.TrackCollection(doc.Chapters, "Chapter");
+        tracker.TrackCollection(doc.Tracks, "Track");
+        doc.Chapters.Add(new MMW.Core.Chapters.Chapter(TimeSpan.Zero, "Old"));
+
+        using (stack.Transaction("Insert chapters"))
+            MMW.Core.Actions.TrackActions.InsertChaptersEvery(doc, TimeSpan.FromMinutes(1));
+
+        Assert.Equal(3, doc.Chapters.Count);
+        Assert.Equal("Insert chapters", stack.UndoDescription);
+        stack.Undo();
+        Assert.Equal("Old", Assert.Single(doc.Chapters).Title);
+        Assert.Empty(doc.Tracks);
+        stack.Redo();
+        Assert.Equal(3, doc.Chapters.Count);
+    }
+}

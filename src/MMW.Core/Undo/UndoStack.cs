@@ -45,6 +45,9 @@ public sealed partial class UndoStack : ObservableObject
 {
     private readonly Stack<IEditCommand> _undo = new();
     private readonly Stack<IEditCommand> _redo = new();
+    private List<IEditCommand>? _group;
+    private string _groupDescription = string.Empty;
+    private int _groupDepth;
 
     public bool CanUndo => _undo.Count > 0;
 
@@ -73,6 +76,12 @@ public sealed partial class UndoStack : ObservableObject
     {
         if (IsReplaying)
             return;
+        if (_group is not null)
+        {
+            _group.Add(command);
+            return;
+        }
+
         _undo.Push(command);
         _redo.Clear();
         Notify();
@@ -84,6 +93,42 @@ public sealed partial class UndoStack : ObservableObject
         if (EqualityComparer<T>.Default.Equals(oldValue, newValue))
             return;
         Record(new DelegateEdit(description, () => setter(newValue), () => setter(oldValue)));
+    }
+
+    /// <summary>Groups every edit recorded until the returned scope is disposed into one undo step.</summary>
+    public IDisposable Transaction(string description)
+    {
+        if (_groupDepth++ == 0)
+        {
+            _group = [];
+            _groupDescription = description;
+        }
+
+        return new TransactionScope(this);
+    }
+
+    private void EndTransaction()
+    {
+        if (--_groupDepth > 0)
+            return;
+        var edits = _group!;
+        _group = null;
+        if (edits.Count == 0)
+            return;
+        Record(edits.Count == 1 ? edits[0] : new CompositeEdit(_groupDescription, edits));
+    }
+
+    private sealed class TransactionScope(UndoStack stack) : IDisposable
+    {
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+            _disposed = true;
+            stack.EndTransaction();
+        }
     }
 
     public void Undo()
