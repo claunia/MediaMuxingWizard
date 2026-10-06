@@ -12,6 +12,10 @@
     <ProjectReference Include="..\MMW.Metadata\MMW.Metadata.csproj" />
     <ProjectReference Include="..\MMW.Media.Remux\MMW.Media.Remux.csproj" />
   </ItemGroup>
+  <!-- Provider API keys: git-ignored appsettings.json at the repository root, copied next to the tool when present. -->
+  <ItemGroup>
+    <None Include="..\..\appsettings.json" Condition="Exists('..\..\appsettings.json')" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="MMW.Cli.Tests" />
   </ItemGroup>
