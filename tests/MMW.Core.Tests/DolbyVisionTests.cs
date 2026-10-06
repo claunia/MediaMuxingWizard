@@ -158,7 +158,8 @@ public sealed class DolbyVisionTests
     [InlineData("hev1", 4, 0, "hev1")] // only profiles 1, 3 and 5 use dvhe/dvh1
     [InlineData("avc1", 9, 2, "avc1")]
     [InlineData("avc3", 1, 0, "dvav")]
-    [InlineData("av01", 10, 0, "dav1")]
+    [InlineData("av01", 10, 0, "av01")] // dav1 only on request (most players cannot read it)
+    [InlineData("dav1", 10, 0, "av01")]
     [InlineData("av01", 10, 1, "av01")]
     [InlineData("dav1", 10, 4, "av01")]
     public void Mp4_sample_entry_types_follow_the_specification(string entry, int profile, int compat, string expected)
@@ -168,11 +169,13 @@ public sealed class DolbyVisionTests
     }
 
     [Fact]
-    public void Av1_profile_10_can_stay_av01_for_ffmpeg()
+    public void Av1_profile_10_without_compatible_base_layer_is_dav1_on_request()
     {
         var info = DolbyVision.ParseConfigurationRecord(DolbyVision.BuildConfigurationRecord(10, 6, true, false, true, 0));
-        Assert.Equal("av01", DolbyVision.Mp4SampleEntryType("av01", info, av1UsesAv01: true));
-        Assert.Equal("av01", DolbyVision.Mp4SampleEntryType("dav1", info, av1UsesAv01: true));
+        Assert.Equal("dav1", DolbyVision.Mp4SampleEntryType("av01", info, av1UsesDav1: true));
+        Assert.Equal("dav1", DolbyVision.Mp4SampleEntryType("dav1", info, av1UsesDav1: true));
+        var compatible = DolbyVision.ParseConfigurationRecord(DolbyVision.BuildConfigurationRecord(10, 6, true, false, true, 4));
+        Assert.Equal("av01", DolbyVision.Mp4SampleEntryType("av01", compatible, av1UsesDav1: true));
         Assert.Equal("hvc1", DolbyVision.Mp4SampleEntryType("dvh1", null));
     }
 

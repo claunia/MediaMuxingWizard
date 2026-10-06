@@ -51,23 +51,26 @@ public sealed class DolbyVisionEntryTests
     }
 
     [Fact]
-    public void Av1_profile_10_without_compatible_base_layer_is_dav1_unless_av01_is_preferred()
+    public void Av1_profile_10_without_compatible_base_layer_is_av01_unless_dav1_is_requested()
     {
         var record = DolbyVision.BuildConfigurationRecord(10, 6, true, false, true, 0);
         var entry = Entry("av01", "av1C");
         DolbyVisionEntry.Apply(entry, record);
-        Assert.Equal("dav1:av1C,dvvC,colr", Layout(entry));
+        Assert.Equal("av01:av1C,dvvC,colr", Layout(entry));
 
-        DolbyVisionEntry.Av1UsesAv01 = true;
+        DolbyVisionEntry.Av1UsesDav1 = true;
         try
         {
             DolbyVisionEntry.Apply(entry);
-            Assert.Equal("av01:av1C,dvvC,colr", Layout(entry));
+            Assert.Equal("dav1:av1C,dvvC,colr", Layout(entry));
         }
         finally
         {
-            DolbyVisionEntry.Av1UsesAv01 = false;
+            DolbyVisionEntry.Av1UsesDav1 = false;
         }
+
+        DolbyVisionEntry.Apply(entry); // back to av01
+        Assert.Equal("av01:av1C,dvvC,colr", Layout(entry));
     }
 
     [Fact]

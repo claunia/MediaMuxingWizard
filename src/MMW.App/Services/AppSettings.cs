@@ -40,10 +40,10 @@ public sealed class AppSettings
     public bool OptimizeOnSave { get; set; }
 
     /// <summary>
-    /// Store AV1 Dolby Vision profile 10.0 as 'av01' (readable by FFmpeg-based players) instead of the 'dav1' sample
-    /// entry Dolby's specification requires.
+    /// Store AV1 Dolby Vision profile 10.0 with the 'dav1' sample entry Dolby's specification requires, instead of
+    /// 'av01' (the default, because most players cannot read 'dav1').
     /// </summary>
-    public bool DolbyVisionAv1UsesAv01 { get; set; }
+    public bool DolbyVisionAv1UsesDav1 { get; set; }
 
     public bool LogIncludesDate { get; set; }
 
@@ -98,7 +98,7 @@ public sealed class AppSettings
     /// <summary>Pushes the conversion and muxing preferences to the shared defaults used by the importer and muxers.</summary>
     public void ApplyConversionDefaults()
     {
-        MMW.Formats.Mp4.Boxes.DolbyVisionEntry.Av1UsesAv01 = DolbyVisionAv1UsesAv01;
+        MMW.Formats.Mp4.Boxes.DolbyVisionEntry.Av1UsesDav1 = DolbyVisionAv1UsesDav1;
         MMW.Core.Media.ConversionDefaults.Settings = new MMW.Core.Media.AudioConversionSettings { Mixdown = Mixdown, BitratePerChannel = BitratePerChannel, Drc = Drc };
         MMW.Core.Media.ConversionDefaults.ConvertAc3 = ConvertAc3;
         MMW.Core.Media.ConversionDefaults.ConvertDts = ConvertDts;

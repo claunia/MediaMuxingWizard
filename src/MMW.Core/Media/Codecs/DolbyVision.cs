@@ -207,11 +207,13 @@ public static class DolbyVision
     /// <summary>
     /// MP4 sample entry type for a Dolby Vision stream whose base codec uses <paramref name="entryType"/> (the base
     /// type or its Dolby Vision variant), per "Dolby Vision Streams Within the ISO Base Media File Format": dvh1, dvhe,
-    /// dva1 or dvav only for the profiles without a cross-compatible base layer (1, 3 and 5), dav1 for AV1 profile
-    /// 10 without a compatible base layer (bl_signal_compatibility_id 0) unless <paramref name="av1UsesAv01"/>, and the
-    /// base codec's type otherwise. Without a record the base type is returned.
+    /// dva1 or dvav only for the profiles without a cross-compatible base layer (1, 3 and 5), and the base codec's type
+    /// otherwise. AV1 profile 10 without a compatible base layer (bl_signal_compatibility_id 0) should be dav1, but
+    /// FFmpeg and the players built on it cannot read that sample entry, so it is only used when
+    /// <paramref name="av1UsesDav1"/>; av01 with the dvvC box is what those files carry in practice. Without a record
+    /// the base type is returned.
     /// </summary>
-    public static string Mp4SampleEntryType(string entryType, DolbyVisionInfo? info, bool av1UsesAv01 = false)
+    public static string Mp4SampleEntryType(string entryType, DolbyVisionInfo? info, bool av1UsesDav1 = false)
     {
         ArgumentNullException.ThrowIfNull(entryType);
         var baseType = entryType switch
@@ -237,7 +239,7 @@ public static class DolbyVision
             };
         }
 
-        return baseType == "av01" && info.Profile == 10 && info.BlSignalCompatibilityId == 0 && !av1UsesAv01 ? "dav1" : baseType;
+        return baseType == "av01" && info.Profile == 10 && info.BlSignalCompatibilityId == 0 && av1UsesDav1 ? "dav1" : baseType;
     }
 
     /// <summary>

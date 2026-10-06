@@ -10,8 +10,11 @@ namespace MMW.Formats.Mp4.Boxes;
 /// </summary>
 public static class DolbyVisionEntry
 {
-    /// <summary>Write 'av01' instead of 'dav1' for AV1 profile 10 without a compatible base layer (FFmpeg cannot read 'dav1').</summary>
-    public static bool Av1UsesAv01 { get; set; }
+    /// <summary>
+    /// Write 'dav1', as the specification requires, for AV1 profile 10 without a compatible base layer. Off by default:
+    /// FFmpeg and the players built on it cannot read 'dav1', so 'av01' (with the dvvC box) is written instead.
+    /// </summary>
+    public static bool Av1UsesDav1 { get; set; }
 
     /// <summary>
     /// Brings <paramref name="entry"/> in line with <paramref name="record"/> (or, when null, with the entry's own
@@ -36,7 +39,7 @@ public static class DolbyVisionEntry
             entry.Children.Insert(after + 1, new Box(boxType, record));
         }
 
-        entry.Type = DolbyVision.Mp4SampleEntryType(entry.Type, info, Av1UsesAv01);
+        entry.Type = DolbyVision.Mp4SampleEntryType(entry.Type, info, Av1UsesDav1);
 
         // hvcE/avcE: the spec leaves their content open; like GPAC, they repeat the base configuration record.
         entry.Children.RemoveAll(c => c.Type is "hvcE" or "avcE");

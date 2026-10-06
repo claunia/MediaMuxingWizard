@@ -1533,10 +1533,10 @@ Your changes will be lost if you don't save them.</value>
   <data name="Fallback_Unwatchable" xml:space="preserve">
     <value>video with wrong colours</value>
   </data>
-  <data name="Preferences_DolbyVisionAv01" xml:space="preserve">
-    <value>Store AV1 Dolby Vision 10.0 as av01 (compatible with FFmpeg-based players)</value>
+  <data name="Preferences_DolbyVisionDav1" xml:space="preserve">
+    <value>Store AV1 Dolby Vision 10.0 as dav1</value>
   </data>
-  <data name="Preferences_DolbyVisionAv01_Tip" xml:space="preserve">
-    <value>Dolby's specification requires the dav1 sample entry for AV1 profile 10 without a compatible base layer, but FFmpeg and the players built on it (mpv, Plex, Jellyfin…) cannot read it.</value>
+  <data name="Preferences_DolbyVisionDav1_Note" xml:space="preserve">
+    <value>dav1 is the sample entry Dolby's specification requires, but most players (FFmpeg, mpv, Plex, Jellyfin…) cannot read it. When unchecked, av01 with the Dolby Vision configuration is used, which they play correctly.</value>
   </data>
 </root>
