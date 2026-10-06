@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.Core.Metadata;
 
 namespace MMW.App.ViewModels;
@@ -82,8 +84,8 @@ public partial class TextTagViewModel(TagDefinition definition, ITagEditorHost h
 
     public string Watermark => Definition.Kind switch
     {
-        TagValueKind.IntegerPair => "n / total",
-        TagValueKind.Date => "YYYY-MM-DD",
+        TagValueKind.IntegerPair => Strings.Tag_WatermarkPair,
+        TagValueKind.Date => Strings.Tag_WatermarkDate,
         TagValueKind.Integer => "0",
         _ => string.Empty,
     };
@@ -180,7 +182,7 @@ public sealed partial class EnumTagViewModel(TagDefinition definition, ITagEdito
     {
         _refreshing = true;
         var current = Host.Metadata.GetInt(Id);
-        Selected = current is null ? null : Choices.FirstOrDefault(c => c.Value == current) ?? new EnumChoice(current.Value, $"Unknown ({current})");
+        Selected = current is null ? null : Choices.FirstOrDefault(c => c.Value == current) ?? new EnumChoice(current.Value, string.Format(CultureInfo.CurrentCulture, Strings.Tag_UnknownChoiceFormat, current));
         _refreshing = false;
     }
 }

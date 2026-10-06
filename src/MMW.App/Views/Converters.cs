@@ -45,5 +45,5 @@ public sealed class ChapterTimeConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
         Core.Chapters.ChapterTime.TryParse(value as string, out var t)
             ? t
-            : new Avalonia.Data.BindingNotification(new FormatException("Use hh:mm:ss.fff"), Avalonia.Data.BindingErrorType.DataValidationError);
+            : new Avalonia.Data.BindingNotification(new FormatException(Resources.Strings.Error_ChapterTime), Avalonia.Data.BindingErrorType.DataValidationError);
 }

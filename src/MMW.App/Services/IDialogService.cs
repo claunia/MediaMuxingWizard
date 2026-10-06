@@ -1,3 +1,5 @@
+using MMW.App.Resources;
+
 namespace MMW.App.Services;
 
 public enum SaveChangesChoice
@@ -21,7 +23,8 @@ public interface IDialogService
 
     Task ShowMessageAsync(string title, string message);
 
-    Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK");
+    /// <summary>Asks to confirm an action; <paramref name="confirmText"/> labels the confirming button (null = OK).</summary>
+    Task<bool> ConfirmAsync(string title, string message, string? confirmText = null);
 
     Task<SaveChangesChoice> AskSaveChangesAsync(string documentName);
 
@@ -34,11 +37,11 @@ public interface IDialogService
 
 public static class FileFilters
 {
-    public static readonly FileFilter Media = new("Media files", ["mp4", "m4v", "m4a", "m4b", "m4r", "mov", "mkv", "mka", "mks", "webm"]);
-    public static readonly FileFilter Mp4 = new("MPEG-4", ["mp4", "m4v", "m4a", "m4b", "m4r", "mov"]);
-    public static readonly FileFilter Matroska = new("Matroska", ["mkv", "mka", "mks", "webm"]);
-    public static readonly FileFilter Images = new("Images", ["jpg", "jpeg", "png", "bmp", "gif"]);
-    public static readonly FileFilter ChapterText = new("Chapter files", ["txt", "csv", "xml"]);
-    public static readonly FileFilter Text = new("Text", ["txt"]);
-    public static readonly FileFilter All = new("All files", ["*"]);
+    public static readonly FileFilter Media = new(Strings.FileFilter_Media, ["mp4", "m4v", "m4a", "m4b", "m4r", "mov", "mkv", "mka", "mks", "webm"]);
+    public static readonly FileFilter Mp4 = new(Strings.FileFilter_Mp4, ["mp4", "m4v", "m4a", "m4b", "m4r", "mov"]);
+    public static readonly FileFilter Matroska = new(Strings.FileFilter_Matroska, ["mkv", "mka", "mks", "webm"]);
+    public static readonly FileFilter Images = new(Strings.FileFilter_Images, ["jpg", "jpeg", "png", "bmp", "gif"]);
+    public static readonly FileFilter ChapterText = new(Strings.FileFilter_ChapterFiles, ["txt", "csv", "xml"]);
+    public static readonly FileFilter Text = new(Strings.FileFilter_Text, ["txt"]);
+    public static readonly FileFilter All = new(Strings.FileFilter_All, ["*"]);
 }

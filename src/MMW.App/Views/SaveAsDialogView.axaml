@@ -1,25 +1,26 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              x:Class="MMW.App.Views.SaveAsDialogView"
              x:DataType="vm:SaveAsDialogViewModel">
   <StackPanel Spacing="12" Width="520">
-    <TextBlock Text="Save As" FontWeight="SemiBold" FontSize="16" />
+    <TextBlock Text="{x:Static res:Strings.SaveAs_Title}" FontWeight="SemiBold" FontSize="16" />
     <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" RowSpacing="8">
-      <TextBlock Text="File:" Classes="label" />
+      <TextBlock Text="{x:Static res:Strings.SaveAs_File}" Classes="label" />
       <TextBox Grid.Column="1" Text="{Binding Path}" />
-      <Button Grid.Column="2" Content="Browse…" Command="{Binding BrowseCommand}" Margin="8,0,0,0" />
-      <TextBlock Grid.Row="1" Text="Format:" Classes="label" />
+      <Button Grid.Column="2" Content="{x:Static res:Strings.Button_Browse}" Command="{Binding BrowseCommand}" Margin="8,0,0,0" />
+      <TextBlock Grid.Row="1" Text="{x:Static res:Strings.SaveAs_Format}" Classes="label" />
       <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}" HorizontalAlignment="Stretch" />
     </Grid>
     <StackPanel Spacing="4" IsVisible="{Binding TargetIsMp4}">
-      <CheckBox Content="Optimize (interleave and put the header first for streaming)" IsChecked="{Binding Optimize}" />
-      <CheckBox Content="64-bit chunk offsets (needed for files larger than 4 GB)" IsChecked="{Binding Use64BitOffsets}" />
-      <CheckBox Content="64-bit times" IsChecked="{Binding Use64BitTimes}" />
+      <CheckBox Content="{x:Static res:Strings.SaveAs_Optimize}" IsChecked="{Binding Optimize}" />
+      <CheckBox Content="{x:Static res:Strings.SaveAs_64BitOffsets}" IsChecked="{Binding Use64BitOffsets}" />
+      <CheckBox Content="{x:Static res:Strings.SaveAs_64BitTimes}" IsChecked="{Binding Use64BitTimes}" />
     </StackPanel>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-      <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
-      <Button Content="Save" Command="{Binding SaveCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Cancel}" Command="{Binding CancelCommand}" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Save}" Command="{Binding SaveCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
     </StackPanel>
   </StackPanel>
 </UserControl>

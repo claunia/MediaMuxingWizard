@@ -1,3 +1,4 @@
+using System.Globalization;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
@@ -20,6 +21,7 @@ public partial class App : Application
         {
             MMW.Media.Remux.MediaRemux.EnsureRegistered();
             var settings = new SettingsService();
+            ApplyUiCulture(settings.Settings.UiCulture);
             settings.Settings.ApplyConversionDefaults();
             RequestedThemeVariant = settings.Settings.Theme switch
             {
@@ -71,5 +73,25 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>
+    /// Sets the user interface language (resource lookups) for the UI thread and threads started later; null or an
+    /// unknown name keeps the system language. Formatting of numbers and dates (CurrentCulture) is not changed.
+    /// </summary>
+    public static void ApplyUiCulture(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+        try
+        {
+            var culture = CultureInfo.GetCultureInfo(name);
+            CultureInfo.CurrentUICulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+        }
+        catch (CultureNotFoundException ex)
+        {
+            MMW.Core.Diagnostics.AppLog.Warn($"Unknown interface language '{name}': {ex.Message}");
+        }
     }
 }

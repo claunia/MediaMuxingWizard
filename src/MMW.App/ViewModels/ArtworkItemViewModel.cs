@@ -1,4 +1,6 @@
+using System.Globalization;
 using Avalonia.Media.Imaging;
+using MMW.App.Resources;
 using MMW.Core.Diagnostics;
 using MMW.Core.Metadata;
 
@@ -14,12 +16,12 @@ public sealed class ArtworkItemViewModel : ViewModelBase, IDisposable
         {
             using var ms = new MemoryStream(artwork.Data);
             Thumbnail = Bitmap.DecodeToWidth(ms, 400);
-            Description = $"{Thumbnail.PixelSize.Width}×{Thumbnail.PixelSize.Height} {artwork.Format.ToString().ToUpperInvariant()}, {artwork.Data.Length / 1024} KB";
+            Description = string.Format(CultureInfo.CurrentCulture, Strings.Artwork_DescriptionFormat, Thumbnail.PixelSize.Width, Thumbnail.PixelSize.Height, artwork.Format.ToString().ToUpperInvariant(), artwork.Data.Length / 1024);
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or NotSupportedException or IOException)
         {
             AppLog.Warn($"Could not decode artwork: {ex.Message}");
-            Description = $"{artwork.Format} (unreadable), {artwork.Data.Length / 1024} KB";
+            Description = string.Format(CultureInfo.CurrentCulture, Strings.Artwork_UnreadableFormat, artwork.Format, artwork.Data.Length / 1024);
         }
     }
 

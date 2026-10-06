@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              x:Class="MMW.App.Views.MetadataInspectorView"
              x:DataType="vm:MetadataInspectorViewModel">
@@ -14,32 +15,32 @@
 
   <TabControl SelectedIndex="{Binding SelectedTab}" Padding="8,4">
     <!-- ========================= Tags ========================= -->
-    <TabItem Header="Tags">
+    <TabItem Header="{x:Static res:Strings.MetadataInspector_Tags}">
       <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
-          <DropDownButton AutomationProperties.Name="Apply or save a set of tags" ToolTip.Tip="Apply or save a set of tags">
+          <DropDownButton AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_SetsTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_SetsTooltip}">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <PathIcon Data="{StaticResource IconSets}" Width="14" Height="14" />
-              <TextBlock Text="Sets" />
+              <TextBlock Text="{x:Static res:Strings.MetadataInspector_Sets}" />
             </StackPanel>
             <DropDownButton.Flyout>
               <MenuFlyout ItemsSource="{Binding SetsMenu}" />
             </DropDownButton.Flyout>
           </DropDownButton>
-          <DropDownButton AutomationProperties.Name="Add a tag" ToolTip.Tip="Add a tag">
+          <DropDownButton AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_AddTagTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_AddTagTooltip}">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <PathIcon Data="{StaticResource IconAdd}" Width="14" Height="14" />
-              <TextBlock Text="Add Tag" />
+              <TextBlock Text="{x:Static res:Strings.MetadataInspector_AddTag}" />
             </StackPanel>
             <DropDownButton.Flyout>
               <MenuFlyout ItemsSource="{Binding AddTagMenu}" />
             </DropDownButton.Flyout>
           </DropDownButton>
-          <TextBox Text="{Binding Filter}" PlaceholderText="Filter tags" Width="200" />
+          <TextBox Text="{Binding Filter}" PlaceholderText="{x:Static res:Strings.MetadataInspector_FilterTags}" Width="200" />
         </StackPanel>
 
         <Panel>
-          <TextBlock Text="No tags. Use “Add Tag” or “Sets” to add some, or drop artwork, NFO or chapter files on the window."
+          <TextBlock Text="{x:Static res:Strings.MetadataInspector_Empty}"
                      IsVisible="{Binding IsEmpty}" Classes="dim" TextWrapping="Wrap"
                      HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" TextAlignment="Center" />
           <ScrollViewer>
@@ -59,7 +60,7 @@
                                                FilterMode="ContainsOrdinal" MinimumPrefixLength="0" />
                               <TextBlock Text="{Binding Error}" Classes="error" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
                             </StackPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveTag}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveTag}" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -73,7 +74,7 @@
                                        MaxHeight="160" />
                               <TextBlock Text="{Binding Error}" Classes="error" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
                             </StackPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0" VerticalAlignment="Top">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveTag}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveTag}" Margin="4,0,0,0" VerticalAlignment="Top">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -91,7 +92,7 @@
                                     <Border Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" CornerRadius="12" Padding="10,3,4,3" Margin="0,2,6,2">
                                       <StackPanel Orientation="Horizontal" Spacing="4">
                                         <TextBlock Text="{Binding}" VerticalAlignment="Center" />
-                                        <Button Classes="icon" Padding="3" AutomationProperties.Name="Remove" ToolTip.Tip="Remove"
+                                        <Button Classes="icon" Padding="3" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveName}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveName}"
                                                 Command="{Binding $parent[ItemsControl;1].((vm:PeopleTagViewModel)DataContext).RemovePersonCommand}"
                                                 CommandParameter="{Binding}">
                                           <PathIcon Data="{StaticResource IconClose}" Width="8" Height="8" />
@@ -101,13 +102,13 @@
                                   </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                               </ItemsControl>
-                              <TextBox Text="{Binding NewPerson}" PlaceholderText="Add name…" MinWidth="160" Margin="0,2">
+                              <TextBox Text="{Binding NewPerson}" PlaceholderText="{x:Static res:Strings.MetadataInspector_AddName}" MinWidth="160" Margin="0,2">
                                 <TextBox.KeyBindings>
                                   <KeyBinding Gesture="Enter" Command="{Binding AddPersonCommand}" />
                                 </TextBox.KeyBindings>
                               </TextBox>
                             </WrapPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0" VerticalAlignment="Top">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveTag}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveTag}" Margin="4,0,0,0" VerticalAlignment="Top">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -116,7 +117,7 @@
                           <Grid ColumnDefinitions="170,*,Auto" Margin="0,2">
                             <TextBlock Text="{Binding Name}" Classes="label" />
                             <CheckBox Grid.Column="1" IsChecked="{Binding Value}" />
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveTag}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveTag}" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -124,8 +125,8 @@
                         <DataTemplate DataType="vm:EnumTagViewModel">
                           <Grid ColumnDefinitions="170,*,Auto" Margin="0,2">
                             <TextBlock Text="{Binding Name}" Classes="label" />
-                            <ComboBox Grid.Column="1" ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" MinWidth="200" PlaceholderText="Choose…" />
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" MinWidth="200" PlaceholderText="{x:Static res:Strings.MetadataInspector_Choose}" />
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveTag}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveTag}" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -134,10 +135,10 @@
                           <Grid ColumnDefinitions="170,*,Auto" Margin="0,2">
                             <TextBlock Text="{Binding Name}" Classes="label" />
                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                              <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" MinWidth="260" PlaceholderText="Choose a rating…" />
+                              <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" MinWidth="260" PlaceholderText="{x:Static res:Strings.MetadataInspector_ChooseRating}" />
                               <TextBlock Text="{Binding Raw}" VerticalAlignment="Center" Classes="dim" />
                             </StackPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveTag}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveTag}" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -154,29 +155,29 @@
     </TabItem>
 
     <!-- ========================= Artwork ========================= -->
-    <TabItem Header="Artwork">
+    <TabItem Header="{x:Static res:Strings.MetadataInspector_Artwork}">
       <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-          <Button Classes="icon" Command="{Binding AddArtworkCommand}" AutomationProperties.Name="Add artwork from files" ToolTip.Tip="Add artwork from files"><PathIcon Data="{StaticResource IconAdd}" /></Button>
-          <Button Classes="icon" Command="{Binding RemoveArtworkCommand}" AutomationProperties.Name="Remove the selected artwork" ToolTip.Tip="Remove the selected artwork"><PathIcon Data="{StaticResource IconDelete}" /></Button>
-          <Button Classes="icon" Command="{Binding MoveArtworkUpCommand}" AutomationProperties.Name="Move earlier (the first image is the cover)" ToolTip.Tip="Move earlier (the first image is the cover)"><PathIcon Data="{StaticResource IconUp}" /></Button>
-          <Button Classes="icon" Command="{Binding MoveArtworkDownCommand}" AutomationProperties.Name="Move later" ToolTip.Tip="Move later"><PathIcon Data="{StaticResource IconDown}" /></Button>
-          <Button Classes="icon" Command="{Binding ExportArtworkCommand}" AutomationProperties.Name="Export the selected artwork" ToolTip.Tip="Export the selected artwork"><PathIcon Data="{StaticResource IconExport}" /></Button>
-          <TextBlock Text="Size" VerticalAlignment="Center" Margin="12,0,4,0" Classes="dim" />
+          <Button Classes="icon" Command="{Binding AddArtworkCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_AddArtworkTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_AddArtworkTooltip}"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+          <Button Classes="icon" Command="{Binding RemoveArtworkCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_RemoveArtworkTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_RemoveArtworkTooltip}"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+          <Button Classes="icon" Command="{Binding MoveArtworkUpCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_MoveArtworkUpTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_MoveArtworkUpTooltip}"><PathIcon Data="{StaticResource IconUp}" /></Button>
+          <Button Classes="icon" Command="{Binding MoveArtworkDownCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_MoveArtworkDownTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_MoveArtworkDownTooltip}"><PathIcon Data="{StaticResource IconDown}" /></Button>
+          <Button Classes="icon" Command="{Binding ExportArtworkCommand}" AutomationProperties.Name="{x:Static res:Strings.MetadataInspector_ExportArtworkTooltip}" ToolTip.Tip="{x:Static res:Strings.MetadataInspector_ExportArtworkTooltip}"><PathIcon Data="{StaticResource IconExport}" /></Button>
+          <TextBlock Text="{x:Static res:Strings.MetadataInspector_Size}" VerticalAlignment="Center" Margin="12,0,4,0" Classes="dim" />
           <Slider Minimum="80" Maximum="400" Value="{Binding ThumbnailSize}" Width="160" VerticalAlignment="Center" />
         </StackPanel>
         <Panel>
-          <TextBlock Text="Drop images here or use + to add artwork." Classes="dim"
+          <TextBlock Text="{x:Static res:Strings.MetadataInspector_ArtworkEmpty}" Classes="dim"
                      IsVisible="{Binding !Artworks.Count}" HorizontalAlignment="Center" VerticalAlignment="Center" />
           <ListBox x:Name="ArtworkList" ItemsSource="{Binding Artworks}" SelectedItem="{Binding SelectedArtwork}"
                    Background="Transparent" DragDrop.AllowDrop="True" KeyDown="OnArtworkKeyDown">
             <ListBox.ContextMenu>
               <ContextMenu>
-                <MenuItem Header="Copy" Click="OnCopyArtwork" />
-                <MenuItem Header="Paste" Click="OnPasteArtwork" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Copy}" Click="OnCopyArtwork" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Paste}" Click="OnPasteArtwork" />
                 <Separator />
-                <MenuItem Header="Export…" Command="{Binding ExportArtworkCommand}" />
-                <MenuItem Header="Remove" Command="{Binding RemoveArtworkCommand}" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Export}" Command="{Binding ExportArtworkCommand}" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Remove}" Command="{Binding RemoveArtworkCommand}" />
               </ContextMenu>
             </ListBox.ContextMenu>
             <ListBox.ItemsPanel>

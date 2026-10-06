@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              x:Class="MMW.App.Views.PromptDialogView"
              x:DataType="vm:PromptDialogViewModel">
@@ -8,8 +9,8 @@
     <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
     <TextBox Text="{Binding Text}" AttachedToVisualTree="OnTextAttached" />
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-      <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
-      <Button Content="OK" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Cancel}" Command="{Binding CancelCommand}" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_OK}" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
     </StackPanel>
   </StackPanel>
 </UserControl>

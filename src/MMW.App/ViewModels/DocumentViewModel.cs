@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Actions;
 using MMW.Core.Diagnostics;
@@ -104,14 +105,14 @@ public sealed partial class DocumentViewModel : ViewModelBase
                 {
                     ContainerKind.Mp4 => "MPEG-4",
                     ContainerKind.Matroska => "Matroska",
-                    _ => "Unknown",
+                    _ => Strings.Status_UnknownContainer,
                 },
                 TrackRowViewModel.FormatDuration(Document.Duration),
                 string.Create(CultureInfo.InvariantCulture, $"{Document.FileSize / 1048576.0:0.#} MiB"),
-                $"{Document.Tracks.Count(t => t is not ChapterTrack)} tracks",
+                string.Format(CultureInfo.CurrentCulture, Strings.Status_TracksFormat, Document.Tracks.Count(t => t is not ChapterTrack)),
             };
             if (Document.Chapters.Count > 0)
-                parts.Add($"{Document.Chapters.Count} chapters");
+                parts.Add(string.Format(CultureInfo.CurrentCulture, Strings.Status_ChaptersFormat, Document.Chapters.Count));
             return string.Join("  ·  ", parts);
         }
     }
@@ -159,7 +160,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     {
         if (choice.Ocr && !await OcrAdvice.EnsureModelsAsync(_dialogs, _settings.Settings, [track.Language]))
             return;
-        using (Undo.Transaction($"Convert {track.Format}"))
+        using (Undo.Transaction(string.Format(CultureInfo.CurrentCulture, Strings.Undo_ConvertFormat, track.Format)))
         {
             MMW.Core.Media.TrackConversions.SetAction(Document, track, choice.Action, choice.SettingsFrom(MMW.Core.Media.ConversionDefaults.Settings),
                 choice.OcrFrom(OcrAdvice.Options(_settings.Settings)));
@@ -209,7 +210,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     private void DeleteTracks()
     {
         var tracks = SelectedTracks().ToList();
-        using (Undo.Transaction(tracks.Count == 1 ? "Delete Track" : "Delete Tracks"))
+        using (Undo.Transaction(tracks.Count == 1 ? Strings.Undo_DeleteTrack : Strings.Undo_DeleteTracks))
         {
             foreach (var t in tracks)
             {
@@ -250,20 +251,20 @@ public sealed partial class DocumentViewModel : ViewModelBase
         var tracks = SelectedTracks().Where(t => t is not ChapterTrack).ToList();
         if (tracks.Count == 0)
         {
-            await _dialogs.ShowMessageAsync("Offset", "Select the tracks to shift first.");
+            await _dialogs.ShowMessageAsync(Strings.Dialog_Offset_Title, Strings.Dialog_Offset_SelectFirst);
             return;
         }
 
-        var text = await _dialogs.PromptAsync("Offset", "Shift the selected tracks by this many milliseconds (negative values make them start earlier):", "0");
+        var text = await _dialogs.PromptAsync(Strings.Dialog_Offset_Title, Strings.Dialog_Offset_Prompt, "0");
         if (text is null)
             return;
         if (!double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var ms))
         {
-            await _dialogs.ShowMessageAsync("Offset", $"'{text}' is not a number of milliseconds.");
+            await _dialogs.ShowMessageAsync(Strings.Dialog_Offset_Title, string.Format(CultureInfo.CurrentCulture, Strings.Dialog_Offset_NotANumberFormat, text));
             return;
         }
 
-        using (Undo.Transaction("Offset Tracks"))
+        using (Undo.Transaction(Strings.Undo_OffsetTracks))
         {
             foreach (var t in tracks)
                 t.StartOffset += TimeSpan.FromMilliseconds(ms);
@@ -273,39 +274,38 @@ public sealed partial class DocumentViewModel : ViewModelBase
     [RelayCommand]
     private void ClearTrackNames()
     {
-        using (Undo.Transaction("Clear Track Names"))
+        using (Undo.Transaction(Strings.Undo_ClearTrackNames))
             TrackActions.ClearTrackNames(Document);
     }
 
     [RelayCommand]
     private void PrettifyAudioNames()
     {
-        using (Undo.Transaction("Prettify Audio Track Names"))
+        using (Undo.Transaction(Strings.Undo_PrettifyAudioNames))
             TrackActions.PrettifyAudioNames(Document);
     }
 
     [RelayCommand]
     private void OrganizeGroups()
     {
-        using (Undo.Transaction("Organize Alternate Groups"))
+        using (Undo.Transaction(Strings.Undo_OrganizeGroups))
             GroupActions.OrganizeAlternateGroups(Document, inferMediaCharacteristics: true);
     }
 
     [RelayCommand]
     private void FixFallbacks()
     {
-        using (Undo.Transaction("Fix Audio Fallbacks"))
+        using (Undo.Transaction(Strings.Undo_FixFallbacks))
             GroupActions.FixAudioFallbacks(Document);
     }
 
     [RelayCommand]
     private async Task CompleteLanguages()
     {
-        var language = await _dialogs.ShowDialogAsync(new LanguagePickerDialogViewModel("Complete Track Languages",
-            "Set this language on every track whose language is undetermined."));
+        var language = await _dialogs.ShowDialogAsync(new LanguagePickerDialogViewModel(Strings.Dialog_CompleteLanguages_Title, Strings.Dialog_CompleteLanguages_Message));
         if (language is null)
             return;
-        using (Undo.Transaction("Complete Languages"))
+        using (Undo.Transaction(Strings.Undo_CompleteLanguages))
             GroupActions.CompleteLanguages(Document, language);
     }
 
@@ -314,14 +314,14 @@ public sealed partial class DocumentViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyColorSpace(ColorPreset preset)
     {
-        using (Undo.Transaction("Apply Colour Space"))
+        using (Undo.Transaction(Strings.Undo_ApplyColorSpace))
             GroupActions.ApplyColorSpace(Document, preset.Color);
     }
 
     [RelayCommand]
     private void InsertChaptersEvery(int minutes)
     {
-        using (Undo.Transaction("Insert Chapters"))
+        using (Undo.Transaction(Strings.Undo_InsertChapters))
             TrackActions.InsertChaptersEvery(Document, minutes == 0 ? null : TimeSpan.FromMinutes(minutes));
         SelectedRow = Rows.FirstOrDefault(r => r.Track is ChapterTrack) ?? SelectedRow;
     }
@@ -337,14 +337,14 @@ public sealed partial class DocumentViewModel : ViewModelBase
     public void ImportNfo(string path)
     {
         var set = MMW.Metadata.Nfo.NfoMetadata.Read(path);
-        ApplyMetadata("Import NFO", doc => doc.Metadata.Merge(set, overwrite: true, replaceArtworks: false));
+        ApplyMetadata(Strings.Undo_ImportNfo, doc => doc.Metadata.Merge(set, overwrite: true, replaceArtworks: false));
     }
 
     [RelayCommand]
     private async Task ExportNfo()
     {
         var suggested = Document.Path is { } p ? Path.GetFileName(MMW.Metadata.Nfo.NfoMetadata.NfoPathFor(p)) : "metadata.nfo";
-        var path = await _dialogs.SaveFileAsync("Export NFO", suggested, [new FileFilter("Kodi NFO", ["nfo"])]);
+        var path = await _dialogs.SaveFileAsync(Strings.Dialog_ExportNfo_Title, suggested, [new FileFilter(Strings.FileFilter_KodiNfo, ["nfo"])]);
         if (path is not null)
             await File.WriteAllTextAsync(path, MMW.Metadata.Nfo.NfoMetadata.Export(Document.Metadata));
     }
@@ -353,7 +353,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     public async Task ImportChaptersAsync(string path)
     {
         _chaptersInspector ??= new ChaptersInspectorViewModel(Document, _dialogs);
-        using (Undo.Transaction("Import Chapters"))
+        using (Undo.Transaction(Strings.Undo_ImportChapters))
             await _chaptersInspector.ImportFileAsync(path);
         SelectedRow = Rows.FirstOrDefault(r => r.Track is ChapterTrack) ?? SelectedRow;
     }
@@ -433,7 +433,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or InvalidOperationException)
         {
             AppLog.Error($"Saving '{Document.DisplayName}' failed", ex);
-            await _dialogs.ShowMessageAsync("Could not save", ex.Message);
+            await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotSave_Title, ex.Message);
             return false;
         }
         finally

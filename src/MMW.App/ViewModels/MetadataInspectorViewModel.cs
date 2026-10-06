@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Diagnostics;
 using MMW.Core.Metadata;
@@ -82,7 +84,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
             return;
 
         // Clearing a value removes the tag but keeps its (empty) row until the user removes it.
-        RecordAndApply(normalised is null ? $"Clear {definition.Name}" : $"Change {definition.Name}",
+        RecordAndApply(string.Format(CultureInfo.CurrentCulture, normalised is null ? Strings.Undo_ClearTagFormat : Strings.Undo_ChangeTagFormat, definition.Name),
             () => Metadata.Set(id, normalised), () => Metadata.Set(id, old));
     }
 
@@ -90,7 +92,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
     {
         var old = Metadata[id];
         _items.Remove(id);
-        RecordAndApply($"Remove {TagCatalog.Get(id).Name}", () => Metadata.Remove(id), () => Metadata.Set(id, old));
+        RecordAndApply(string.Format(CultureInfo.CurrentCulture, Strings.Undo_RemoveTagFormat, TagCatalog.Get(id).Name), () => Metadata.Remove(id), () => Metadata.Set(id, old));
         Rebuild();
     }
 
@@ -164,11 +166,11 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         }
 
         SetsMenu.Clear();
-        SetsMenu.Add(new MenuNode("Save Set…", SaveSetCommand));
+        SetsMenu.Add(new MenuNode(Strings.Sets_Save, SaveSetCommand));
         SetsMenu.Add(MenuNode.Separator);
-        SetsMenu.Add(new MenuNode("All", ApplyBuiltInSetCommand, "All"));
-        SetsMenu.Add(new MenuNode("Movie", ApplyBuiltInSetCommand, "Movie"));
-        SetsMenu.Add(new MenuNode("TV Show", ApplyBuiltInSetCommand, "TV Show"));
+        SetsMenu.Add(new MenuNode(Strings.Sets_All, ApplyBuiltInSetCommand, "All"));
+        SetsMenu.Add(new MenuNode(Strings.Sets_Movie, ApplyBuiltInSetCommand, "Movie"));
+        SetsMenu.Add(new MenuNode(Strings.Sets_TvShow, ApplyBuiltInSetCommand, "TV Show"));
         var presets = _settings.Settings.Presets;
         if (presets.Count > 0)
         {
@@ -222,7 +224,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         }
 
         var after = Metadata.Clone();
-        _undo.Record(new DelegateEdit($"Apply Set \"{preset.Name}\"", () => Restore(after), () => Restore(before)));
+        _undo.Record(new DelegateEdit(string.Format(CultureInfo.CurrentCulture, Strings.Undo_ApplySetFormat, preset.Name), () => Restore(after), () => Restore(before)));
         Rebuild();
     }
 
@@ -322,14 +324,14 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         var valid = images.Where(d => Artwork.Detect(d) != ArtworkFormat.Unknown).Select(d => new Artwork(d)).ToList();
         if (valid.Count == 0)
             return;
-        EditArtworks(valid.Count == 1 ? "Add Artwork" : "Add Artworks", list => list.AddRange(valid));
+        EditArtworks(valid.Count == 1 ? Strings.Undo_AddArtwork : Strings.Undo_AddArtworks, list => list.AddRange(valid));
         SelectedTab = 1;
     }
 
     [RelayCommand]
     private async Task AddArtwork()
     {
-        var files = await _dialogs.OpenFilesAsync("Add Artwork", [FileFilters.Images], allowMultiple: true);
+        var files = await _dialogs.OpenFilesAsync(Strings.Dialog_AddArtwork_Title, [FileFilters.Images], allowMultiple: true);
         var data = new List<byte[]>();
         foreach (var f in files)
             data.Add(await File.ReadAllBytesAsync(f));
@@ -342,7 +344,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
     private void RemoveArtwork()
     {
         var art = SelectedArtwork!.Artwork;
-        EditArtworks("Remove Artwork", list => list.Remove(art));
+        EditArtworks(Strings.Undo_RemoveArtwork, list => list.Remove(art));
     }
 
     [RelayCommand(CanExecute = nameof(HasSelectedArtwork))]
@@ -358,7 +360,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         var target = index + delta;
         if (target < 0 || target >= Metadata.Artworks.Count)
             return;
-        EditArtworks("Move Artwork", list =>
+        EditArtworks(Strings.Undo_MoveArtwork, list =>
         {
             list.RemoveAt(index);
             list.Insert(target, art);
@@ -370,7 +372,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
     private async Task ExportArtwork()
     {
         var art = SelectedArtwork!.Artwork;
-        var path = await _dialogs.SaveFileAsync("Export Artwork", "artwork" + art.Extension, [FileFilters.Images]);
+        var path = await _dialogs.SaveFileAsync(Strings.Dialog_ExportArtwork_Title, Strings.File_DefaultArtworkName + art.Extension, [FileFilters.Images]);
         if (path is not null)
             await File.WriteAllBytesAsync(path, art.Data);
     }

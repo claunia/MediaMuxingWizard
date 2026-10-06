@@ -24,6 +24,9 @@ public sealed class AppSettings
 
     public ThemeChoice Theme { get; set; } = ThemeChoice.System;
 
+    /// <summary>User interface language ("en", "es"…); null follows the system. Applied at startup.</summary>
+    public string? UiCulture { get; set; }
+
     /// <summary>Country whose content ratings are offered (USA is always offered).</summary>
     public string RatingsCountry { get; set; } = "USA";
 

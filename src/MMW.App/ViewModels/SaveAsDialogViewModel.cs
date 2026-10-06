@@ -1,5 +1,7 @@
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
@@ -16,26 +18,26 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
         _dialogs = dialogs;
         IsMp4 = document.Container == ContainerKind.Mp4;
         IReadOnlyList<Choice<string>> mp4 =
-            [new(".m4v", "MPEG-4 Video (.m4v)"), new(".mp4", "MPEG-4 (.mp4)"), new(".m4a", "MPEG-4 Audio (.m4a)"), new(".m4b", "Audiobook (.m4b)"), new(".m4r", "Ringtone (.m4r)")];
-        IReadOnlyList<Choice<string>> mkv = [new(".mkv", "Matroska (.mkv)"), new(".mka", "Matroska Audio (.mka)"), new(".webm", "WebM (.webm)")];
+            [new(".m4v", Strings.Format_M4v), new(".mp4", Strings.Format_Mp4), new(".m4a", Strings.Format_M4a), new(".m4b", Strings.Format_M4b), new(".m4r", Strings.Format_M4r)];
+        IReadOnlyList<Choice<string>> mkv = [new(".mkv", Strings.Format_Mkv), new(".mka", Strings.Format_Mka), new(".webm", Strings.Format_Webm)];
 
         // Saving to the other container family remuxes the file (no re-encoding).
         Formats = IsMp4 ? [.. mp4, .. mkv] : [.. mkv, .. mp4];
 
-        var source = document.Path ?? "Untitled.m4v";
+        var source = document.Path ?? Strings.SaveAs_Untitled + ".m4v";
         var ext = System.IO.Path.GetExtension(source).ToLowerInvariant();
         _selectedFormat = Formats.FirstOrDefault(f => f.Value == ext) ?? Formats[0];
         var baseName = settings.UseFileNameFormat
             ? FileNameFormatter.FormatFor(document.Metadata, settings.MovieFileNameFormat, settings.TvFileNameFormat)
             : null;
-        baseName ??= System.IO.Path.GetFileNameWithoutExtension(source) + " copy";
+        baseName ??= string.Format(CultureInfo.CurrentCulture, Strings.SaveAs_CopyNameFormat, System.IO.Path.GetFileNameWithoutExtension(source));
         _path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(source) ?? string.Empty, baseName + _selectedFormat.Value);
         _optimize = settings.OptimizeOnSave;
         _use64BitOffsets = settings.Use64BitOffsets || document.FileSize > 3_900_000_000L;
         _use64BitTimes = settings.Use64BitTimes;
     }
 
-    public override string Title => "Save As";
+    public override string Title => Strings.SaveAs_Title;
 
     public bool IsMp4 { get; }
 
@@ -71,7 +73,7 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
     private async Task Browse()
     {
         var filter = new FileFilter(SelectedFormat.Name, [SelectedFormat.Value.TrimStart('.')]);
-        var chosen = await _dialogs.SaveFileAsync("Save As", System.IO.Path.GetFileName(Path), [filter]);
+        var chosen = await _dialogs.SaveFileAsync(Strings.SaveAs_Title, System.IO.Path.GetFileName(Path), [filter]);
         if (chosen is not null)
             Path = chosen;
     }

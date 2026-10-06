@@ -1,18 +1,19 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              x:Class="MMW.App.Views.SaveSetDialogView"
              x:DataType="vm:SaveSetDialogViewModel">
   <StackPanel Spacing="12" Width="400">
-    <TextBlock Text="Save Set" FontWeight="SemiBold" FontSize="16" />
-    <TextBlock Text="Save the current tags and artwork as a reusable set." TextWrapping="Wrap" Classes="dim" />
-    <TextBox Text="{Binding Name}" PlaceholderText="Set name" />
-    <TextBlock Text="When this set is applied:" />
-    <CheckBox Content="Keep the file's existing artwork (add the set's artwork)" IsChecked="{Binding KeepArtworks}" />
-    <CheckBox Content="Keep the file's existing tag values (only fill missing tags)" IsChecked="{Binding KeepAnnotations}" />
+    <TextBlock Text="{x:Static res:Strings.SaveSet_Title}" FontWeight="SemiBold" FontSize="16" />
+    <TextBlock Text="{x:Static res:Strings.SaveSet_Description}" TextWrapping="Wrap" Classes="dim" />
+    <TextBox Text="{Binding Name}" PlaceholderText="{x:Static res:Strings.SaveSet_NamePlaceholder}" />
+    <TextBlock Text="{x:Static res:Strings.SaveSet_WhenApplied}" />
+    <CheckBox Content="{x:Static res:Strings.SaveSet_KeepArtwork}" IsChecked="{Binding KeepArtworks}" />
+    <CheckBox Content="{x:Static res:Strings.SaveSet_KeepTags}" IsChecked="{Binding KeepAnnotations}" />
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-      <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
-      <Button Content="Save" Command="{Binding SaveCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Cancel}" Command="{Binding CancelCommand}" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Save}" Command="{Binding SaveCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
     </StackPanel>
   </StackPanel>
 </UserControl>

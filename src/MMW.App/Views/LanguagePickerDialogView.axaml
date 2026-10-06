@@ -1,16 +1,17 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              x:Class="MMW.App.Views.LanguagePickerDialogView"
              x:DataType="vm:LanguagePickerDialogViewModel">
   <StackPanel Spacing="10" Width="380">
     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="16" />
     <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Classes="dim" />
-    <TextBox Text="{Binding Filter}" PlaceholderText="Search languages" />
+    <TextBox Text="{Binding Filter}" PlaceholderText="{x:Static res:Strings.LanguagePicker_Search}" />
     <ListBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Selected}" Height="260" />
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-      <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
-      <Button Content="OK" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Cancel}" Command="{Binding CancelCommand}" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_OK}" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
     </StackPanel>
   </StackPanel>
 </UserControl>

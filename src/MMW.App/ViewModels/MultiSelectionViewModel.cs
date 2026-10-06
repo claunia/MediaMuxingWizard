@@ -1,4 +1,6 @@
+using System.Globalization;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.Core.Languages;
 using MMW.Core.Model;
 using MMW.Core.Undo;
@@ -17,7 +19,7 @@ public sealed partial class MultiSelectionViewModel : ViewModelBase
         _undo = undo;
     }
 
-    public string Text => $"{_tracks.Count} tracks selected";
+    public string Text => string.Format(CultureInfo.CurrentCulture, Strings.MultiSelection_CountFormat, _tracks.Count);
 
     public bool HasTracks => _tracks.Count > 0;
 
@@ -35,7 +37,7 @@ public sealed partial class MultiSelectionViewModel : ViewModelBase
         {
             if (value is null)
                 return;
-            using (_undo.Transaction("Change Language"))
+            using (_undo.Transaction(Strings.Undo_ChangeLanguage))
             {
                 foreach (var t in _tracks)
                     t.Language = value.Tag;
@@ -57,7 +59,7 @@ public sealed partial class MultiSelectionViewModel : ViewModelBase
         {
             if (value is null)
                 return;
-            using (_undo.Transaction(value.Value ? "Enable Tracks" : "Disable Tracks"))
+            using (_undo.Transaction(value.Value ? Strings.Undo_EnableTracks : Strings.Undo_DisableTracks))
             {
                 foreach (var t in _tracks)
                     t.Enabled = value.Value;
@@ -78,7 +80,7 @@ public sealed partial class MultiSelectionViewModel : ViewModelBase
         {
             if (value is null)
                 return;
-            using (_undo.Transaction("Change Alternate Group"))
+            using (_undo.Transaction(Strings.Undo_ChangeAlternateGroup))
             {
                 foreach (var t in _tracks)
                     t.AlternateGroup = value.Value;
@@ -91,7 +93,7 @@ public sealed partial class MultiSelectionViewModel : ViewModelBase
     [RelayCommand]
     private void ClearNames()
     {
-        using (_undo.Transaction("Clear Track Names"))
+        using (_undo.Transaction(Strings.Undo_ClearTrackNames))
         {
             foreach (var t in _tracks)
                 t.Name = string.Empty;

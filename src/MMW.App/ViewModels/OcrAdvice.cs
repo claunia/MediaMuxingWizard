@@ -1,3 +1,5 @@
+using System.Globalization;
+using MMW.App.Resources;
 using MMW.Core.Media;
 
 namespace MMW.App.ViewModels;
@@ -5,9 +7,7 @@ namespace MMW.App.ViewModels;
 /// <summary>Advice shown whenever bitmap subtitles are converted with our built-in OCR.</summary>
 public static class OcrAdvice
 {
-    public const string Warning =
-        "Our built-in OCR is basic. Subtitle Edit (https://www.nikse.dk/subtitleedit) does a much better job of " +
-        "converting image subtitles to text, and we recommend using it, then importing the resulting SRT file.";
+    public static string Warning => Strings.Ocr_Warning;
 
     public static bool IsOcr(ImportChoice? choice) => choice?.Ocr == true;
 
@@ -24,7 +24,7 @@ public static class OcrAdvice
         var factory = MMW.Ocr.SubtitleOcr.Factory;
         if (!factory.IsAvailable)
         {
-            await dialogs.ShowMessageAsync("OCR not available", factory.UnavailableReason ?? "Tesseract was not found.");
+            await dialogs.ShowMessageAsync(Strings.Ocr_NotAvailable_Title, factory.UnavailableReason ?? Strings.Ocr_TesseractNotFound);
             return false;
         }
 
@@ -39,7 +39,7 @@ public static class OcrAdvice
             return true;
 
         var names = string.Join(", ", missing.Select(MMW.Ocr.TesseractLanguages.DisplayName));
-        if (!await dialogs.ConfirmAsync("Download OCR language", $"OCR needs the {names} language model, which is not installed. Download it now (a few MB)?", "Download"))
+        if (!await dialogs.ConfirmAsync(Strings.Ocr_Download_Title, string.Format(CultureInfo.CurrentCulture, Strings.Ocr_Download_MessageFormat, names), Strings.Button_Download))
             return false;
         try
         {
@@ -49,7 +49,7 @@ public static class OcrAdvice
         }
         catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidDataException)
         {
-            await dialogs.ShowMessageAsync("Download failed", ex.Message);
+            await dialogs.ShowMessageAsync(Strings.Ocr_DownloadFailed_Title, ex.Message);
             return false;
         }
     }

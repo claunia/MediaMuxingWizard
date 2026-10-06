@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.Core.Diagnostics;
 using MMW.Core.Languages;
 using MMW.Core.Media;
@@ -116,7 +117,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
         _settings = settings;
     }
 
-    public override string Title => "Import Tracks";
+    public override string Title => Strings.Dialog_ImportTracks_Title;
 
     public ObservableCollection<ImportFileViewModel> Files { get; } = [];
 
@@ -127,7 +128,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
     private bool _isLoading = true;
 
     [ObservableProperty]
-    private string _status = "Reading files…";
+    private string _status = Strings.Import_Reading;
 
     /// <summary>Also merge the tags of the source files (MP4/Matroska sources only).</summary>
     [ObservableProperty]
@@ -157,7 +158,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
         var count = AllTracks.Count();
         Status = errors.Count > 0
             ? string.Join("\n", errors)
-            : $"{count} track(s) found." + (MMW.Media.Conversion.MediaConversion.IsAvailable ? string.Empty : " Audio conversion needs FFmpeg 8 libraries, which were not found.");
+            : string.Format(CultureInfo.CurrentCulture, Strings.Import_TracksFoundFormat, count) + (MMW.Media.Conversion.MediaConversion.IsAvailable ? string.Empty : " " + Strings.Import_FFmpegMissing);
     }
 
     [RelayCommand]
@@ -203,7 +204,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
                 t.Ocr = OcrAdvice.Options(_settings);
         }
 
-        using (_document.Undo.Transaction("Import Tracks"))
+        using (_document.Undo.Transaction(Strings.Undo_ImportTracks))
         {
             if (selected.Count > 0)
                 TrackImporter.AddToDocument(_document.Document, selected);
@@ -218,7 +219,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
                 try
                 {
                     var source = await new ContainerRegistry(Services.DocumentService.DefaultHandlers()).OpenAsync(file.Path);
-                    _document.ApplyMetadata("Import Metadata", doc => doc.Metadata.Merge(source.Metadata, overwrite: false, replaceArtworks: false));
+                    _document.ApplyMetadata(Strings.Undo_ImportMetadata, doc => doc.Metadata.Merge(source.Metadata, overwrite: false, replaceArtworks: false));
                 }
                 catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
                 {

@@ -1,3 +1,5 @@
+using System.Globalization;
+using MMW.App.Resources;
 using MMW.Core.Languages;
 using MMW.Core.Media;
 using MMW.Core.Model;
@@ -14,7 +16,7 @@ public sealed class LoadExternalSubtitlesAction : QueueAction
 {
     private static readonly string[] s_extensions = [".srt", ".ass", ".ssa", ".vtt"];
 
-    public override string Description => "Load external subtitles";
+    public override string Description => Strings.QueueAction_LoadSubtitles;
 
     public override async Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -49,7 +51,7 @@ public sealed class LoadExternalSubtitlesAction : QueueAction
                 }
             }
 
-            context.Log($"Loaded {added.Count} subtitle track(s) from {Path.GetFileName(file)}.");
+            context.Log(string.Format(CultureInfo.CurrentCulture, Strings.QueueLog_LoadedSubtitlesFormat, added.Count, Path.GetFileName(file)));
         }
     }
 
@@ -74,7 +76,7 @@ public sealed class LoadExternalSubtitlesAction : QueueAction
 /// </summary>
 public sealed class PrepareTracksForTargetAction : QueueAction
 {
-    public override string Description => "Prepare tracks for the output format";
+    public override string Description => Strings.QueueAction_PrepareTracks;
 
     public override async Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -99,12 +101,12 @@ public sealed class PrepareTracksForTargetAction : QueueAction
             if (choice is null || choice.Action == ImportAction.Skip)
             {
                 TrackConversions.SetAction(doc, track, ImportAction.Skip);
-                context.Log($"Dropping track {track.Id} ({track.Format}): it cannot be stored in the output format.");
+                context.Log(string.Format(CultureInfo.CurrentCulture, Strings.QueueLog_DroppingTrackFormat, track.Id, track.Format));
             }
             else
             {
                 TrackConversions.SetAction(doc, track, choice.Action, choice.SettingsFrom(ConversionDefaults.Settings));
-                context.Log($"Track {track.Id} ({track.Format}): {choice.DisplayName}.");
+                context.Log(string.Format(CultureInfo.CurrentCulture, Strings.QueueLog_TrackConversionFormat, track.Id, track.Format, choice.DisplayName));
             }
         }
     }

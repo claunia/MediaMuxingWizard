@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Actions;
 using MMW.Core.Chapters;
@@ -26,16 +28,22 @@ public sealed partial class ChaptersInspectorViewModel : ViewModelBase
     [NotifyCanExecuteChangedFor(nameof(RemoveCommand))]
     private Chapter? _selected;
 
-    private static readonly (int Minutes, string Name)[] s_intervals =
-        [(0, "At the beginning"), (1, "1 minute"), (2, "2 minutes"), (5, "5 minutes"), (10, "10 minutes"), (15, "15 minutes"), (20, "20 minutes"), (30, "30 minutes")];
+    private static readonly int[] s_intervals = [0, 1, 2, 5, 10, 15, 20, 30];
 
-    public IReadOnlyList<MenuNode> IntervalMenu => s_intervals.Select(i => new MenuNode(i.Name, InsertEveryCommand, i.Minutes)).ToList();
+    public IReadOnlyList<MenuNode> IntervalMenu => s_intervals.Select(m => new MenuNode(IntervalName(m), InsertEveryCommand, m)).ToList();
+
+    private static string IntervalName(int minutes) => minutes switch
+    {
+        0 => Strings.Chapters_Interval_AtBeginning,
+        1 => Strings.Chapters_Interval_OneMinute,
+        _ => string.Format(CultureInfo.CurrentCulture, Strings.Chapters_Interval_MinutesFormat, minutes),
+    };
 
     [RelayCommand]
     private void Add()
     {
         var start = Selected is { } s ? s.Start + TimeSpan.FromSeconds(1) : Chapters.Count > 0 ? Chapters.Max(c => c.Start) + TimeSpan.FromMinutes(1) : TimeSpan.Zero;
-        var chapter = new Chapter(start, $"Chapter {Chapters.Count + 1}");
+        var chapter = new Chapter(start, string.Format(CultureInfo.CurrentCulture, Strings.Chapters_NewTitleFormat, Chapters.Count + 1));
         var index = Selected is null ? Chapters.Count : Chapters.IndexOf(Selected) + 1;
         Chapters.Insert(index, chapter);
         TrackActions.EnsureChapterTrack(_document);
@@ -101,7 +109,7 @@ public sealed partial class ChaptersInspectorViewModel : ViewModelBase
     [RelayCommand]
     private async Task Import()
     {
-        var files = await _dialogs.OpenFilesAsync("Import Chapters", [FileFilters.ChapterText, FileFilters.All], allowMultiple: false);
+        var files = await _dialogs.OpenFilesAsync(Strings.Dialog_ImportChapters_Title, [FileFilters.ChapterText, FileFilters.All], allowMultiple: false);
         if (files.Count == 1)
             await ImportFileAsync(files[0]);
     }
@@ -115,7 +123,7 @@ public sealed partial class ChaptersInspectorViewModel : ViewModelBase
             var titles = ChapterTextFormat.ParseTitlesCsv(text);
             if (titles.Count != Chapters.Count)
             {
-                await _dialogs.ShowMessageAsync("Import Chapters", $"The CSV file has {titles.Count} titles but the file has {Chapters.Count} chapters.");
+                await _dialogs.ShowMessageAsync(Strings.Dialog_ImportChapters_Title, string.Format(CultureInfo.CurrentCulture, Strings.Dialog_ImportChapters_CountMismatchFormat, titles.Count, Chapters.Count));
                 return;
             }
 
@@ -128,7 +136,7 @@ public sealed partial class ChaptersInspectorViewModel : ViewModelBase
         var chapters = ChapterTextFormat.Parse(text);
         if (chapters.Count == 0)
         {
-            await _dialogs.ShowMessageAsync("Import Chapters", "No chapters were found in the file.");
+            await _dialogs.ShowMessageAsync(Strings.Dialog_ImportChapters_Title, Strings.Dialog_ImportChapters_NoneFound);
             return;
         }
 
@@ -139,7 +147,7 @@ public sealed partial class ChaptersInspectorViewModel : ViewModelBase
     private async Task Export()
     {
         var name = Path.GetFileNameWithoutExtension(_document.Path ?? "chapters") + ".chapters.txt";
-        var path = await _dialogs.SaveFileAsync("Export Chapters", name, [FileFilters.Text]);
+        var path = await _dialogs.SaveFileAsync(Strings.Dialog_ExportChapters_Title, name, [FileFilters.Text]);
         if (path is not null)
             await File.WriteAllTextAsync(path, ChapterTextFormat.ToOgg(Chapters));
     }

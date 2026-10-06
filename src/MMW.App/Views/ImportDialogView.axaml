@@ -1,24 +1,25 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              xmlns:views="using:MMW.App.Views"
              x:Class="MMW.App.Views.ImportDialogView"
              x:DataType="vm:ImportDialogViewModel">
   <DockPanel Width="900" Height="520">
-    <TextBlock DockPanel.Dock="Top" Text="{Binding Target, StringFormat='Import Tracks into {0}'}" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,10" />
+    <TextBlock DockPanel.Dock="Top" Text="{Binding Target, StringFormat={x:Static res:Strings.Import_TitleFormat}}" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,10" />
     <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" Margin="0,10,0,0">
       <StackPanel Spacing="6">
-        <CheckBox Content="Import metadata (tags, artwork) from the source files" IsChecked="{Binding ImportMetadata}" />
+        <CheckBox Content="{x:Static res:Strings.Import_ImportMetadata}" IsChecked="{Binding ImportMetadata}" />
         <TextBlock Text="{Binding Status}" Classes="dim" TextWrapping="Wrap" FontSize="12" />
       </StackPanel>
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
-        <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
-        <Button Content="Import" Command="{Binding ImportCommand}" Classes="accent" MinWidth="80" IsDefault="True" />
+        <Button Content="{x:Static res:Strings.Button_Cancel}" Command="{Binding CancelCommand}" MinWidth="80" />
+        <Button Content="{x:Static res:Strings.Button_Import}" Command="{Binding ImportCommand}" Classes="accent" MinWidth="80" IsDefault="True" />
       </StackPanel>
     </Grid>
     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
-      <Button Content="Check All" Command="{Binding CheckAllCommand}" />
-      <Button Content="Uncheck All" Command="{Binding UncheckAllCommand}" />
+      <Button Content="{x:Static res:Strings.Button_CheckAll}" Command="{Binding CheckAllCommand}" />
+      <Button Content="{x:Static res:Strings.Button_UncheckAll}" Command="{Binding UncheckAllCommand}" />
     </StackPanel>
     <Panel>
       <ProgressBar IsIndeterminate="True" Width="200" IsVisible="{Binding IsLoading}" VerticalAlignment="Center" />
@@ -34,12 +35,12 @@
                       <Grid ColumnDefinitions="30,28,40,*,90,170,140,Auto" Margin="0,2">
                         <Grid.ContextMenu>
                           <ContextMenu>
-                            <MenuItem Header="Check Only Tracks with This Language"
+                            <MenuItem Header="{x:Static res:Strings.Import_CheckSameLanguage}"
                                       Command="{Binding $parent[UserControl].((vm:ImportDialogViewModel)DataContext).CheckSameLanguageCommand}"
                                       CommandParameter="{Binding}" />
                           </ContextMenu>
                         </Grid.ContextMenu>
-                        <CheckBox IsChecked="{Binding Selected}" IsEnabled="{Binding CanImport}" AutomationProperties.Name="Import this track" />
+                        <CheckBox IsChecked="{Binding Selected}" IsEnabled="{Binding CanImport}" AutomationProperties.Name="{x:Static res:Strings.Import_TrackCheckbox}" />
                         <PathIcon Grid.Column="1" Width="14" Height="14" Opacity="0.7"
                                   Data="{Binding Kind, Converter={x:Static views:Converters.KindIcon}}" />
                         <TextBlock Grid.Column="2" Text="{Binding IdText}" VerticalAlignment="Center" Classes="dim" />
@@ -55,7 +56,7 @@
                                   IsTextSearchEnabled="True" MaxDropDownHeight="360" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
                         <ComboBox Grid.Column="6" ItemsSource="{Binding Actions}" SelectedItem="{Binding SelectedAction}" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
                         <ComboBox Grid.Column="7" ItemsSource="{x:Static vm:ImportTrackViewModel.FrameRates}" SelectedItem="{Binding FrameRate}"
-                                  IsVisible="{Binding RequiresFrameRate}" ToolTip.Tip="Frame rate of the raw video stream" MinWidth="90" />
+                                  IsVisible="{Binding RequiresFrameRate}" ToolTip.Tip="{x:Static res:Strings.Import_FrameRateTooltip}" MinWidth="90" />
                       </Grid>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>

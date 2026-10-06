@@ -1,6 +1,8 @@
+using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using MMW.App.Resources;
 using MMW.App.ViewModels;
 using MMW.App.Views;
 
@@ -48,23 +50,23 @@ public sealed class AvaloniaDialogService : IDialogService
     }
 
     public Task ShowMessageAsync(string title, string message) =>
-        ShowDialogAsync(new MessageDialogViewModel(title, message, ["OK"]));
+        ShowDialogAsync(new MessageDialogViewModel(title, message, [Strings.Button_OK]));
 
-    public async Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK") =>
-        await ShowDialogAsync(new MessageDialogViewModel(title, message, [confirmText, "Cancel"])) == confirmText;
+    public async Task<bool> ConfirmAsync(string title, string message, string? confirmText = null)
+    {
+        confirmText ??= Strings.Button_OK;
+        return await ShowDialogAsync(new MessageDialogViewModel(title, message, [confirmText, Strings.Button_Cancel])) == confirmText;
+    }
 
     public async Task<SaveChangesChoice> AskSaveChangesAsync(string documentName)
     {
-        const string save = "Save", discard = "Don't Save", cancel = "Cancel";
-        var result = await ShowDialogAsync(new MessageDialogViewModel("Unsaved changes",
-            $"Do you want to save the changes made to \"{documentName}\"?\n\nYour changes will be lost if you don't save them.",
+        string save = Strings.Button_Save, discard = Strings.Button_DontSave, cancel = Strings.Button_Cancel;
+        var result = await ShowDialogAsync(new MessageDialogViewModel(Strings.Dialog_SaveChanges_Title,
+            string.Format(CultureInfo.CurrentCulture, Strings.Dialog_SaveChanges_MessageFormat, documentName),
             [save, discard, cancel], save));
-        return result switch
-        {
-            save => SaveChangesChoice.Save,
-            discard => SaveChangesChoice.Discard,
-            _ => SaveChangesChoice.Cancel,
-        };
+        return result == save ? SaveChangesChoice.Save
+            : result == discard ? SaveChangesChoice.Discard
+            : SaveChangesChoice.Cancel;
     }
 
     public Task<string?> PromptAsync(string title, string message, string initialText = "") =>

@@ -1,73 +1,79 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              xmlns:md="using:MMW.Core.Metadata"
              x:Class="MMW.App.Views.PreferencesView"
              x:DataType="vm:PreferencesViewModel">
   <DockPanel Width="680" Height="540">
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
-      <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
-      <Button Content="OK" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_Cancel}" Command="{Binding CancelCommand}" MinWidth="80" />
+      <Button Content="{x:Static res:Strings.Button_OK}" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
     </StackPanel>
     <TabControl>
-      <TabItem Header="General">
-        <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10" Margin="0,12">
-          <TextBlock Grid.Row="3" Text="Chapters:" Classes="label" />
-          <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="8">
-            <CheckBox Content="Create preview images when saving MP4, at the" IsChecked="{Binding CreateChapterPreviews}" />
+      <TabItem Header="{x:Static res:Strings.Preferences_General}">
+        <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10" Margin="0,12">
+          <TextBlock Text="{x:Static res:Strings.Preferences_Appearance}" Classes="label" />
+          <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.Themes}" SelectedItem="{Binding Theme}" MinWidth="220" />
+          <TextBlock Grid.Row="1" Text="{x:Static res:Strings.Preferences_Language}" Classes="label" />
+          <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4">
+            <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.UiLanguages}" SelectedItem="{Binding UiLanguage}" MinWidth="220" />
+            <TextBlock Text="{x:Static res:Strings.Preferences_LanguageRestartNote}" Classes="dim" FontSize="12" />
+          </StackPanel>
+          <TextBlock Grid.Row="2" Text="{x:Static res:Strings.Preferences_Window}" Classes="label" />
+          <CheckBox Grid.Row="2" Grid.Column="1" Content="{x:Static res:Strings.Preferences_RememberSize}" IsChecked="{Binding RememberWindowSize}" />
+          <TextBlock Grid.Row="3" Text="{x:Static res:Strings.Preferences_ShowRatingsFor}" Classes="label" />
+          <StackPanel Grid.Row="3" Grid.Column="1" Spacing="4">
+            <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.RatingCountries}" SelectedItem="{Binding RatingsCountry}" MinWidth="220" />
+            <TextBlock Text="{x:Static res:Strings.Preferences_UsaRatingsNote}" Classes="dim" FontSize="12" />
+          </StackPanel>
+          <TextBlock Grid.Row="4" Text="{x:Static res:Strings.Preferences_Chapters}" Classes="label" />
+          <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <CheckBox Content="{x:Static res:Strings.Preferences_CreatePreviews}" IsChecked="{Binding CreateChapterPreviews}" />
             <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.PreviewPositions}" SelectedItem="{Binding ChapterPreviewPosition}"
                       IsEnabled="{Binding CreateChapterPreviews}" MinWidth="120" />
           </StackPanel>
-          <TextBlock Text="Appearance:" Classes="label" />
-          <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.Themes}" SelectedItem="{Binding Theme}" MinWidth="220" />
-          <TextBlock Grid.Row="1" Text="Window:" Classes="label" />
-          <CheckBox Grid.Row="1" Grid.Column="1" Content="Remember size" IsChecked="{Binding RememberWindowSize}" />
-          <TextBlock Grid.Row="2" Text="Show ratings for:" Classes="label" />
-          <StackPanel Grid.Row="2" Grid.Column="1" Spacing="4">
-            <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.RatingCountries}" SelectedItem="{Binding RatingsCountry}" MinWidth="220" />
-            <TextBlock Text="USA ratings are always shown." Classes="dim" FontSize="12" />
-          </StackPanel>
         </Grid>
       </TabItem>
-      <TabItem Header="Saving">
+      <TabItem Header="{x:Static res:Strings.Preferences_Saving}">
         <StackPanel Spacing="8" Margin="0,12">
-          <CheckBox Content="Optimize when saving (interleave, header first)" IsChecked="{Binding OptimizeOnSave}" />
-          <CheckBox Content="Always use 64-bit chunk offsets (automatic above 4 GB)" IsChecked="{Binding Use64BitOffsets}" />
-          <CheckBox Content="Use 64-bit times" IsChecked="{Binding Use64BitTimes}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_OptimizeOnSave}" IsChecked="{Binding OptimizeOnSave}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_64BitOffsets}" IsChecked="{Binding Use64BitOffsets}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_64BitTimes}" IsChecked="{Binding Use64BitTimes}" />
         </StackPanel>
       </TabItem>
-      <TabItem Header="Audio">
+      <TabItem Header="{x:Static res:Strings.Preferences_Audio}">
         <StackPanel Spacing="10" Margin="0,12">
           <TextBlock Text="{x:Static vm:PreferencesViewModel.FFmpegStatus}" Classes="dim" TextWrapping="Wrap" />
           <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
-            <TextBlock Text="Downmix audio to:" Classes="label" />
+            <TextBlock Text="{x:Static res:Strings.Preferences_Downmix}" Classes="label" />
             <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.Mixdowns}" SelectedItem="{Binding Mixdown}" MinWidth="240" />
-            <TextBlock Grid.Row="1" Text="AAC bitrate per channel:" Classes="label" />
+            <TextBlock Grid.Row="1" Text="{x:Static res:Strings.Preferences_AacBitrate}" Classes="label" />
             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
               <NumericUpDown Value="{Binding BitratePerChannel}" Minimum="64" Maximum="320" Increment="16" FormatString="0" Width="140" />
-              <TextBlock Text="kbit/s" VerticalAlignment="Center" Classes="dim" />
+              <TextBlock Text="{x:Static res:Strings.Preferences_Kbps}" VerticalAlignment="Center" Classes="dim" />
             </StackPanel>
-            <TextBlock Grid.Row="2" Text="Dynamic range compression:" Classes="label" />
+            <TextBlock Grid.Row="2" Text="{x:Static res:Strings.Preferences_Drc}" Classes="label" />
             <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="8">
               <Slider Minimum="0" Maximum="4" Value="{Binding Drc}" Width="200" TickFrequency="0.5" IsSnapToTickEnabled="True" />
               <TextBlock Text="{Binding Drc, StringFormat='{}{0:0.0}'}" VerticalAlignment="Center" />
             </StackPanel>
           </Grid>
-          <CheckBox Content="Suggest converting AC-3 audio to AAC when importing into MP4" IsChecked="{Binding ConvertAc3}" />
-          <CheckBox Content="Suggest AAC + Passthru for DTS audio when importing into MP4" IsChecked="{Binding ConvertDts}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_ConvertAc3}" IsChecked="{Binding ConvertAc3}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_ConvertDts}" IsChecked="{Binding ConvertDts}" />
         </StackPanel>
       </TabItem>
-      <TabItem Header="OCR">
+      <TabItem Header="{x:Static res:Strings.Preferences_Ocr}">
         <DockPanel Margin="0,12">
           <StackPanel DockPanel.Dock="Top" Spacing="8">
             <TextBlock Text="{x:Static vm:PreferencesViewModel.OcrStatus}" Classes="dim" TextWrapping="Wrap" />
             <TextBlock Text="{x:Static vm:PreferencesViewModel.OcrAdviceText}" Classes="error" TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="Recognition language:" VerticalAlignment="Center" />
+              <TextBlock Text="{x:Static res:Strings.Preferences_OcrLanguage}" VerticalAlignment="Center" />
               <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.OcrLanguageChoices}" SelectedItem="{Binding OcrLanguage}"
                         MinWidth="240" MaxDropDownHeight="360" IsTextSearchEnabled="True" />
             </StackPanel>
-            <TextBox Text="{Binding OcrFilter}" PlaceholderText="Filter language models" />
+            <TextBox Text="{Binding OcrFilter}" PlaceholderText="{x:Static res:Strings.Preferences_OcrFilter}" />
           </StackPanel>
           <ListBox ItemsSource="{Binding OcrLanguages}" Margin="0,8,0,0">
             <ListBox.ItemTemplate>
@@ -77,42 +83,42 @@
                     <TextBlock Text="{Binding Name}" />
                     <TextBlock Text="{Binding Error}" Classes="error" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
                   </StackPanel>
-                  <TextBlock Grid.Column="1" Text="Installed" Classes="dim" VerticalAlignment="Center" Margin="8,0" IsVisible="{Binding IsInstalled}" />
+                  <TextBlock Grid.Column="1" Text="{x:Static res:Strings.Preferences_OcrInstalled}" Classes="dim" VerticalAlignment="Center" Margin="8,0" IsVisible="{Binding IsInstalled}" />
                   <ProgressBar Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Progress}" Width="100" IsVisible="{Binding IsBusy}" Margin="8,0" />
-                  <Button Grid.Column="2" Content="Download" Command="{Binding DownloadCommand}" IsVisible="{Binding !IsInstalled}" />
-                  <Button Grid.Column="3" Content="Delete" Command="{Binding DeleteCommand}" IsVisible="{Binding IsDownloaded}" Margin="4,0,0,0" />
+                  <Button Grid.Column="2" Content="{x:Static res:Strings.Button_Download}" Command="{Binding DownloadCommand}" IsVisible="{Binding !IsInstalled}" />
+                  <Button Grid.Column="3" Content="{x:Static res:Strings.Button_Delete}" Command="{Binding DeleteCommand}" IsVisible="{Binding IsDownloaded}" Margin="4,0,0,0" />
                 </Grid>
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
         </DockPanel>
       </TabItem>
-      <TabItem Header="Metadata" IsVisible="{Binding HasMetadata}">
+      <TabItem Header="{x:Static res:Strings.Preferences_Metadata}" IsVisible="{Binding HasMetadata}">
         <ScrollViewer>
           <StackPanel Spacing="8" Margin="0,12,8,0">
             <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8">
-              <TextBlock Text="Movies:" Classes="label" />
+              <TextBlock Text="{x:Static res:Strings.Preferences_Movies}" Classes="label" />
               <ComboBox Grid.Column="1" ItemsSource="{Binding MovieProviders}" SelectedItem="{Binding DefaultMovieProvider}" MinWidth="200" />
-              <TextBlock Grid.Row="1" Text="TV shows:" Classes="label" />
+              <TextBlock Grid.Row="1" Text="{x:Static res:Strings.Preferences_TvShows}" Classes="label" />
               <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding TvProviders}" SelectedItem="{Binding DefaultTvProvider}" MinWidth="200" />
-              <TextBlock Grid.Row="2" Text="TheMovieDB key:" Classes="label" />
-              <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TmdbApiKey}" PasswordChar="•" PlaceholderText="From appsettings.json or the environment" />
-              <TextBlock Grid.Row="3" Text="TheTVDB key:" Classes="label" />
-              <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TvdbApiKey}" PasswordChar="•" PlaceholderText="From appsettings.json or the environment" />
+              <TextBlock Grid.Row="2" Text="{x:Static res:Strings.Preferences_TmdbKey}" Classes="label" />
+              <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TmdbApiKey}" PasswordChar="•" PlaceholderText="{x:Static res:Strings.Preferences_KeyPlaceholder}" />
+              <TextBlock Grid.Row="3" Text="{x:Static res:Strings.Preferences_TvdbKey}" Classes="label" />
+              <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TvdbApiKey}" PasswordChar="•" PlaceholderText="{x:Static res:Strings.Preferences_KeyPlaceholder}" />
             </Grid>
-            <CheckBox Content="Overwrite existing tags" IsChecked="{Binding MetadataOverwrite}" />
-            <CheckBox Content="Keep existing values the result does not provide" IsChecked="{Binding MetadataKeepEmpty}" />
-            <CheckBox Content="Replace existing artwork with the chosen artwork" IsChecked="{Binding ReplaceArtworkOnSearch}" />
-            <CheckBox Content="Detect 4K for HD Video (some Apple TV models then refuse 1080p streaming)" IsChecked="{Binding Autodetect4K}" />
+            <CheckBox Content="{x:Static res:Strings.Preferences_Overwrite}" IsChecked="{Binding MetadataOverwrite}" />
+            <CheckBox Content="{x:Static res:Strings.Preferences_KeepEmpty}" IsChecked="{Binding MetadataKeepEmpty}" />
+            <CheckBox Content="{x:Static res:Strings.Preferences_ReplaceArtwork}" IsChecked="{Binding ReplaceArtworkOnSearch}" />
+            <CheckBox Content="{x:Static res:Strings.Preferences_Detect4K}" IsChecked="{Binding Autodetect4K}" />
             <StackPanel Orientation="Horizontal" Spacing="8">
-              <Button Content="Delete Cached Results" Command="{Binding ClearCacheCommand}" />
+              <Button Content="{x:Static res:Strings.Preferences_DeleteCache}" Command="{Binding ClearCacheCommand}" />
               <TextBlock Text="{Binding CacheStatus}" Classes="dim" VerticalAlignment="Center" />
             </StackPanel>
 
-            <TextBlock Text="Map provider values to tags" Classes="groupHeader" />
+            <TextBlock Text="{x:Static res:Strings.Preferences_MapHeader}" Classes="groupHeader" />
             <StackPanel Orientation="Horizontal" Spacing="12">
-              <RadioButton Content="Movies" IsChecked="{Binding !EditTvMap}" GroupName="map" />
-              <RadioButton Content="TV shows" IsChecked="{Binding EditTvMap}" GroupName="map" />
+              <RadioButton Content="{x:Static res:Strings.Preferences_MapMovies}" IsChecked="{Binding !EditTvMap}" GroupName="map" />
+              <RadioButton Content="{x:Static res:Strings.Preferences_MapTv}" IsChecked="{Binding EditTvMap}" GroupName="map" />
             </StackPanel>
             <ListBox ItemsSource="{Binding MapEntries}" SelectedItem="{Binding SelectedMapEntry}" Height="180">
               <ListBox.ItemTemplate>
@@ -129,47 +135,47 @@
               </ListBox.ItemTemplate>
             </ListBox>
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <Button Classes="icon" Command="{Binding AddMapEntryCommand}" AutomationProperties.Name="Add a mapping" ToolTip.Tip="Add a mapping"><PathIcon Data="{StaticResource IconAdd}" /></Button>
-              <Button Classes="icon" Command="{Binding RemoveMapEntryCommand}" AutomationProperties.Name="Remove the mapping" ToolTip.Tip="Remove the mapping"><PathIcon Data="{StaticResource IconDelete}" /></Button>
-              <Button Content="Restore Defaults" Command="{Binding RestoreMapCommand}" />
-              <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.MapTokens}" PlaceholderText="Available values" MinWidth="200" Margin="12,0,0,0" />
+              <Button Classes="icon" Command="{Binding AddMapEntryCommand}" AutomationProperties.Name="{x:Static res:Strings.Preferences_AddMapping}" ToolTip.Tip="{x:Static res:Strings.Preferences_AddMapping}"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+              <Button Classes="icon" Command="{Binding RemoveMapEntryCommand}" AutomationProperties.Name="{x:Static res:Strings.Preferences_RemoveMapping}" ToolTip.Tip="{x:Static res:Strings.Preferences_RemoveMapping}"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+              <Button Content="{x:Static res:Strings.Button_RestoreDefaults}" Command="{Binding RestoreMapCommand}" />
+              <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.MapTokens}" PlaceholderText="{x:Static res:Strings.Preferences_AvailableValues}" MinWidth="200" Margin="12,0,0,0" />
             </StackPanel>
           </StackPanel>
         </ScrollViewer>
       </TabItem>
-      <TabItem Header="Sets">
+      <TabItem Header="{x:Static res:Strings.Preferences_Sets}">
         <DockPanel Margin="0,12">
           <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="4" Margin="0,8,0,0">
-            <Button Classes="icon" Command="{Binding RemovePresetCommand}" AutomationProperties.Name="Remove the selected set" ToolTip.Tip="Remove the selected set"><PathIcon Data="{StaticResource IconDelete}" /></Button>
-            <Button Classes="icon" Command="{Binding MovePresetUpCommand}" AutomationProperties.Name="Move up (sets 1–9 have keyboard shortcuts)" ToolTip.Tip="Move up (sets 1–9 have keyboard shortcuts)"><PathIcon Data="{StaticResource IconUp}" /></Button>
+            <Button Classes="icon" Command="{Binding RemovePresetCommand}" AutomationProperties.Name="{x:Static res:Strings.Preferences_RemoveSet}" ToolTip.Tip="{x:Static res:Strings.Preferences_RemoveSet}"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+            <Button Classes="icon" Command="{Binding MovePresetUpCommand}" AutomationProperties.Name="{x:Static res:Strings.Preferences_MoveSetUp}" ToolTip.Tip="{x:Static res:Strings.Preferences_MoveSetUp}"><PathIcon Data="{StaticResource IconUp}" /></Button>
           </StackPanel>
-          <TextBlock DockPanel.Dock="Top" Text="Saved sets are applied from the Sets button in the metadata inspector." Classes="dim" Margin="0,0,0,8" />
+          <TextBlock DockPanel.Dock="Top" Text="{x:Static res:Strings.Preferences_SetsHelp}" Classes="dim" Margin="0,0,0,8" />
           <ListBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}">
             <ListBox.ItemTemplate>
               <DataTemplate x:DataType="md:MetadataPreset">
                 <StackPanel>
                   <TextBlock Text="{Binding Name}" />
-                  <TextBlock Classes="dim" FontSize="11" Text="{Binding Values.Count, StringFormat='{}{0} tags'}" />
+                  <TextBlock Classes="dim" FontSize="11" Text="{Binding Values.Count, StringFormat={x:Static res:Strings.Preferences_TagCountFormat}}" />
                 </StackPanel>
               </DataTemplate>
             </ListBox.ItemTemplate>
           </ListBox>
         </DockPanel>
       </TabItem>
-      <TabItem Header="File Name">
+      <TabItem Header="{x:Static res:Strings.Preferences_FileName}">
         <StackPanel Spacing="10" Margin="0,12">
-          <CheckBox Content="Name saved files from their tags" IsChecked="{Binding UseFileNameFormat}" />
+          <CheckBox Content="{x:Static res:Strings.Preferences_UseFileNameFormat}" IsChecked="{Binding UseFileNameFormat}" />
           <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6" IsEnabled="{Binding UseFileNameFormat}">
-            <TextBlock Text="Movies:" Classes="label" />
+            <TextBlock Text="{x:Static res:Strings.Preferences_FileNameMovies}" Classes="label" />
             <TextBox Grid.Column="1" Text="{Binding MovieFormat}" FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" />
             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MoviePreview}" Classes="dim" FontSize="12" />
-            <TextBlock Grid.Row="2" Text="TV shows:" Classes="label" />
+            <TextBlock Grid.Row="2" Text="{x:Static res:Strings.Preferences_FileNameTvShows}" Classes="label" />
             <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TvFormat}" FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" />
             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TvPreview}" Classes="dim" FontSize="12" />
           </Grid>
           <TextBlock TextWrapping="Wrap" Classes="dim" FontSize="12"
-                     Text="Use {Tag Name} tokens. Add :00 for leading zeros, :yyyy for a date's year, and |upper, |lower, |capitalize, |camel, |snake, |train or |dot to change case." />
-          <Button Content="Restore Defaults" Command="{Binding RestoreFormatsCommand}" HorizontalAlignment="Left" />
+                     Text="{x:Static res:Strings.Preferences_FileNameHelp}" />
+          <Button Content="{x:Static res:Strings.Button_RestoreDefaults}" Command="{Binding RestoreFormatsCommand}" HorizontalAlignment="Left" />
         </StackPanel>
       </TabItem>
     </TabControl>

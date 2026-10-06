@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using MMW.App.Resources;
 using MMW.Core.Languages;
 using MMW.Core.Model;
 
@@ -118,11 +119,11 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
 
     public string Header => Track.Kind switch
     {
-        TrackKind.Video => "Video Track",
-        TrackKind.Audio => "Audio Track",
-        TrackKind.Subtitle => "Subtitle Track",
-        TrackKind.ClosedCaption => "Closed Captions",
-        _ => "Track",
+        TrackKind.Video => Strings.TrackInspector_Header_Video,
+        TrackKind.Audio => Strings.TrackInspector_Header_Audio,
+        TrackKind.Subtitle => Strings.TrackInspector_Header_Subtitle,
+        TrackKind.ClosedCaption => Strings.TrackInspector_Header_ClosedCaptions,
+        _ => Strings.TrackInspector_Header_Track,
     };
 
     public ObservableCollection<CharacteristicItemViewModel> Characteristics { get; }
@@ -146,7 +147,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     // ------------------------------------------------------------------ alternate group
 
     public static IReadOnlyList<Choice<int>> AlternateGroups { get; } =
-        [new(0, "None"), .. Enumerable.Range(1, 6).Select(i => new Choice<int>(i, i.ToString(CultureInfo.InvariantCulture)))];
+        [new(0, Strings.TrackInspector_AlternateGroupNone), .. Enumerable.Range(1, 6).Select(i => new Choice<int>(i, i.ToString(CultureInfo.InvariantCulture)))];
 
     public Choice<int>? SelectedAlternateGroup
     {
@@ -230,7 +231,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     public string VolumeText => Audio is null ? string.Empty : VolumeDb <= -60 ? "-∞ dB" : string.Create(CultureInfo.InvariantCulture, $"{VolumeDb:+0.0;-0.0;0.0} dB");
 
     private IEnumerable<Choice<Track?>> TrackChoices(Func<Track, bool> filter) =>
-        [new Choice<Track?>(null, "None"), .. _document.Tracks.Where(t => t != Track && filter(t)).Select(t => new Choice<Track?>(t, Describe(t)))];
+        [new Choice<Track?>(null, Strings.TrackInspector_TrackNone), .. _document.Tracks.Where(t => t != Track && filter(t)).Select(t => new Choice<Track?>(t, Describe(t)))];
 
     public IReadOnlyList<Choice<Track?>> FallbackChoices => TrackChoices(t => t is AudioTrack).ToList();
 
@@ -260,9 +261,9 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
 
     public static IReadOnlyList<Choice<ForcedSubtitleMode>> ForcedModes { get; } =
     [
-        new(ForcedSubtitleMode.None, "No"),
-        new(ForcedSubtitleMode.SomeSamplesForced, "Some samples are forced"),
-        new(ForcedSubtitleMode.AllSamplesForced, "All samples are forced"),
+        new(ForcedSubtitleMode.None, Strings.TrackInspector_ForcedModeNo),
+        new(ForcedSubtitleMode.SomeSamplesForced, Strings.TrackInspector_ForcedModeSome),
+        new(ForcedSubtitleMode.AllSamplesForced, Strings.TrackInspector_ForcedModeAll),
     ];
 
     public Choice<ForcedSubtitleMode>? SelectedForcedMode
@@ -292,7 +293,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     public ColorPreset? SelectedColorPreset
     {
         get => Video is null ? null : ColorPreset.All.FirstOrDefault(p => p.Color with { FullRange = null } == Video.Color with { FullRange = null })
-                                       ?? new ColorPreset($"Custom ({Video.Color})", Video.Color);
+                                       ?? new ColorPreset(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_CustomColorFormat, Video.Color), Video.Color);
         set
         {
             if (Video is not null && value is not null)
@@ -308,18 +309,18 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
                 return string.Empty;
             var lines = new List<string>();
             if (Video.DolbyVision is { } dv)
-                lines.Add($"Dolby Vision {dv}");
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_DolbyVisionFormat, dv));
             if (Video.Hdr is { } h)
             {
                 if (h.MaxLuminance is { } max)
-                    lines.Add(string.Create(CultureInfo.InvariantCulture, $"Mastering display: {h.MinLuminance:0.####}–{max:0.#} cd/m²"));
+                    lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_MasteringDisplayFormat, h.MinLuminance, max));
                 if (h.MaxCll is { } cll)
-                    lines.Add(string.Create(CultureInfo.InvariantCulture, $"MaxCLL {cll} cd/m², MaxFALL {h.MaxFall} cd/m²"));
+                    lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_LightLevelFormat, cll, h.MaxFall));
                 if (h.AmbientIlluminance is { } lux)
-                    lines.Add(string.Create(CultureInfo.InvariantCulture, $"Ambient viewing: {lux:0.#} lux"));
+                    lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_AmbientFormat, lux));
             }
 
-            return lines.Count == 0 ? "None" : string.Join("\n", lines);
+            return lines.Count == 0 ? Strings.TrackInspector_HdrNone : string.Join("\n", lines);
         }
     }
 
@@ -331,29 +332,29 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         {
             var lines = new List<string>
             {
-                $"Format: {Track.Format} ({Track.CodecId})",
+                string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_FormatFormat, Track.Format, Track.CodecId),
             };
             if (Track.FormatDetails.Length > 0)
-                lines.Add($"Details: {Track.FormatDetails}");
-            lines.Add($"Duration: {TrackRowViewModel.FormatDuration(Track.Duration)}");
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_DetailsFormat, Track.FormatDetails));
+            lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_DurationFormat, TrackRowViewModel.FormatDuration(Track.Duration)));
             if (Track.Bitrate > 0)
-                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Bitrate: {Track.Bitrate / 1000.0:0.#} kbit/s"));
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInfo_BitrateFormat, Track.Bitrate / 1000.0));
             if (Track.DataLength > 0)
-                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Size: {Track.DataLength / 1048576.0:0.##} MiB"));
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInfo_SizeFormat, Track.DataLength / 1048576.0));
             if (Video is { } v)
             {
-                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Frame rate: {v.FrameRate:0.###} fps"));
-                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Pixel size: {v.PixelWidth}×{v.PixelHeight}, PAR {v.ParNumerator}:{v.ParDenominator}"));
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInfo_FrameRateFormat, v.FrameRate));
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInfo_PixelSizeFormat, v.PixelWidth, v.PixelHeight, v.ParNumerator, v.ParDenominator));
             }
 
             if (Audio is { } a)
             {
-                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Channels: {a.Channels} {a.ChannelLayout}").TrimEnd());
-                lines.Add(string.Create(CultureInfo.InvariantCulture, $"Sample rate: {a.SampleRate} Hz"));
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInfo_ChannelsFormat, a.Channels, a.ChannelLayout).TrimEnd());
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInfo_SampleRateFormat, a.SampleRate));
             }
 
             if (Track.Source is { } s)
-                lines.Add($"Source: {Path.GetFileName(s.Path)}, track {s.TrackId}");
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_SourceFormat, Path.GetFileName(s.Path), s.TrackId));
             return string.Join("\n", lines);
         }
     }

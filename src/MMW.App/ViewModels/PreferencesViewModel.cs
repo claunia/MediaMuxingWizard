@@ -1,8 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
-using MMW.Core.Metadata;
 using MMW.Core.Metadata;
 
 namespace MMW.App.ViewModels;
@@ -38,6 +39,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
             _tvMap = new ObservableCollection<MapEntryViewModel>(metadata.Maps.Tv.Entries.Select(e => new MapEntryViewModel(e.Tag, e.Template)));
         }
         _theme = Themes.First(t => t.Value == settings.Theme);
+        _uiLanguage = UiLanguages.FirstOrDefault(l => string.Equals(l.Value, settings.UiCulture, StringComparison.OrdinalIgnoreCase)) ?? UiLanguages[0];
         _rememberWindowSize = settings.RememberWindowSize;
         _createChapterPreviews = settings.CreateChapterPreviews;
         _ocrLanguage = OcrLanguageChoices.FirstOrDefault(c => c.Value == settings.OcrLanguage) ?? OcrLanguageChoices[0];
@@ -53,10 +55,18 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         UpdatePreviews();
     }
 
-    public override string Title => "Preferences";
+    public override string Title => Strings.Preferences_Title;
 
     public static IReadOnlyList<Choice<ThemeChoice>> Themes { get; } =
-        [new(ThemeChoice.System, "Follow the system"), new(ThemeChoice.Light, "Light"), new(ThemeChoice.Dark, "Dark")];
+        [new(ThemeChoice.System, Strings.Preferences_Theme_System), new(ThemeChoice.Light, Strings.Preferences_Theme_Light), new(ThemeChoice.Dark, Strings.Preferences_Theme_Dark)];
+
+    /// <summary>Interface languages: the system default plus each translation, named in its own language.</summary>
+    public static IReadOnlyList<Choice<string?>> UiLanguages { get; } =
+        [new(null, Strings.Preferences_LanguageSystem), new("en", "English"), new("es", "Español")];
+
+    /// <summary>Interface language; a change takes effect after restarting the app.</summary>
+    [ObservableProperty]
+    private Choice<string?> _uiLanguage;
 
     public static IReadOnlyList<string> RatingCountries => Ratings.Countries;
 
@@ -68,7 +78,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
     [ObservableProperty]
     private bool _rememberWindowSize;
 
-    public static IReadOnlyList<Choice<double>> PreviewPositions { get; } = [new(0, "Beginning"), new(0.5, "Middle"), new(0.95, "End")];
+    public static IReadOnlyList<Choice<double>> PreviewPositions { get; } = [new(0, Strings.Preferences_Preview_Beginning), new(0.5, Strings.Preferences_Preview_Middle), new(0.95, Strings.Preferences_Preview_End)];
 
     [ObservableProperty]
     private bool _createChapterPreviews;
@@ -116,17 +126,17 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
     private void UpdatePreviews()
     {
         var movie = new MetadataSet();
-        movie.Set(TagId.Name, "The Movie");
+        movie.Set(TagId.Name, Strings.Preferences_SampleMovie);
         movie.Set(TagId.ReleaseDate, "1999-03-31");
         movie.Set(TagId.MediaKind, TagCatalog.MediaKindMovie);
         var tv = new MetadataSet();
-        tv.Set(TagId.Name, "Pilot");
-        tv.Set(TagId.TvShow, "The Show");
+        tv.Set(TagId.Name, Strings.Preferences_SampleEpisode);
+        tv.Set(TagId.TvShow, Strings.Preferences_SampleShow);
         tv.Set(TagId.TvSeason, 1);
         tv.Set(TagId.TvEpisodeNumber, 2);
         tv.Set(TagId.MediaKind, TagCatalog.MediaKindTvShow);
-        MoviePreview = (FileNameFormatter.Format(MovieFormat, movie) ?? "(empty)") + ".m4v";
-        TvPreview = (FileNameFormatter.Format(TvFormat, tv) ?? "(empty)") + ".m4v";
+        MoviePreview = (FileNameFormatter.Format(MovieFormat, movie) ?? Strings.Preferences_PreviewEmpty) + ".m4v";
+        TvPreview = (FileNameFormatter.Format(TvFormat, tv) ?? Strings.Preferences_PreviewEmpty) + ".m4v";
     }
 
     [RelayCommand]
@@ -152,13 +162,13 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
     // ------------------------------------------------------------------ OCR
 
     public static string OcrStatus => MMW.Ocr.SubtitleOcr.Factory.IsAvailable
-        ? $"{MMW.Ocr.SubtitleOcr.Factory.Name} is available. Models are stored in {MMW.Ocr.SubtitleOcr.Factory.Tessdata.Directory}."
-        : $"OCR is not available: {MMW.Ocr.SubtitleOcr.Factory.UnavailableReason}";
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Preferences_OcrAvailableFormat, MMW.Ocr.SubtitleOcr.Factory.Name, MMW.Ocr.SubtitleOcr.Factory.Tessdata.Directory)
+        : string.Format(CultureInfo.CurrentCulture, Strings.Preferences_OcrUnavailableFormat, MMW.Ocr.SubtitleOcr.Factory.UnavailableReason);
 
     public static string OcrAdviceText => OcrAdvice.Warning;
 
     public static IReadOnlyList<Choice<string?>> OcrLanguageChoices { get; } =
-        [new(null, "Same as the subtitle track"), .. MMW.Ocr.TesseractLanguages.All.Select(l => new Choice<string?>(l.Code, l.Name))];
+        [new(null, Strings.Preferences_OcrSameAsTrack), .. MMW.Ocr.TesseractLanguages.All.Select(l => new Choice<string?>(l.Code, l.Name))];
 
     [ObservableProperty]
     private Choice<string?> _ocrLanguage;
@@ -188,8 +198,8 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         Enum.GetValues<MMW.Core.Media.AudioMixdown>().Select(m => new Choice<MMW.Core.Media.AudioMixdown>(m, MMW.Core.Media.ConversionDefaults.MixdownName(m))).ToList();
 
     public static string FFmpegStatus => MMW.Media.Conversion.MediaConversion.IsAvailable
-        ? $"FFmpeg {MMW.Media.Conversion.MediaConversion.Version} is available."
-        : $"FFmpeg libraries were not found: {MMW.Media.Conversion.MediaConversion.Error}";
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Preferences_FFmpegAvailableFormat, MMW.Media.Conversion.MediaConversion.Version)
+        : string.Format(CultureInfo.CurrentCulture, Strings.Preferences_FFmpegMissingFormat, MMW.Media.Conversion.MediaConversion.Error);
 
     [ObservableProperty]
     private Choice<MMW.Core.Media.AudioMixdown> _mixdown;
@@ -287,7 +297,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
     {
         _metadata?.ProviderSettings.Cache?.Clear();
         _metadata?.RecentSearches.Clear();
-        CacheStatus = "Cached results and recent searches deleted.";
+        CacheStatus = Strings.Preferences_CacheCleared;
     }
 
     [RelayCommand]
@@ -315,6 +325,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         }
 
         _settings.Theme = Theme.Value;
+        _settings.UiCulture = UiLanguage.Value;
         _settings.RememberWindowSize = RememberWindowSize;
         _settings.CreateChapterPreviews = CreateChapterPreviews;
         _settings.OcrLanguage = OcrLanguage.Value;

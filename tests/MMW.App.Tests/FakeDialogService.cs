@@ -27,7 +27,7 @@ internal sealed class FakeDialogService : IDialogService
         return Task.CompletedTask;
     }
 
-    public Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK") => Task.FromResult(true);
+    public Task<bool> ConfirmAsync(string title, string message, string? confirmText = null) => Task.FromResult(true);
 
     public Task<SaveChangesChoice> AskSaveChangesAsync(string documentName) => Task.FromResult(SaveChangesAnswer);
 

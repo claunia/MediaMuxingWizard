@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 
 namespace MMW.App.ViewModels;
 
@@ -7,7 +8,7 @@ public sealed record SaveSetResult(string Name, bool KeepArtworks, bool KeepAnno
 
 public sealed partial class SaveSetDialogViewModel : DialogViewModel<SaveSetResult>
 {
-    public override string Title => "Save Set";
+    public override string Title => Strings.SaveSet_Title;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]

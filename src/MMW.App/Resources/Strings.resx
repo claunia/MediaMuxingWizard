@@ -1,0 +1,1509 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Name" xml:space="preserve">
+    <value>Media Metadata Wizard</value>
+  </data>
+  <data name="Window_TitleFormat" xml:space="preserve">
+    <value>{0} — Media Metadata Wizard</value>
+  </data>
+  <data name="Menu_File" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="Menu_File_Open" xml:space="preserve">
+    <value>_Open…</value>
+  </data>
+  <data name="Menu_File_OpenRecent" xml:space="preserve">
+    <value>Open _Recent</value>
+  </data>
+  <data name="Menu_File_ClearRecent" xml:space="preserve">
+    <value>Clear Menu</value>
+  </data>
+  <data name="Menu_File_Close" xml:space="preserve">
+    <value>_Close</value>
+  </data>
+  <data name="Menu_File_Save" xml:space="preserve">
+    <value>_Save</value>
+  </data>
+  <data name="Menu_File_SaveAs" xml:space="preserve">
+    <value>Save _As…</value>
+  </data>
+  <data name="Menu_File_SendToQueue" xml:space="preserve">
+    <value>Send to _Queue</value>
+  </data>
+  <data name="Menu_File_ExportNfo" xml:space="preserve">
+    <value>Export _NFO…</value>
+  </data>
+  <data name="Menu_File_Preferences" xml:space="preserve">
+    <value>_Preferences…</value>
+  </data>
+  <data name="Menu_File_Exit" xml:space="preserve">
+    <value>E_xit</value>
+  </data>
+  <data name="Menu_Edit" xml:space="preserve">
+    <value>_Edit</value>
+  </data>
+  <data name="Menu_Edit_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Menu_Edit_UndoFormat" xml:space="preserve">
+    <value>Undo {0}</value>
+  </data>
+  <data name="Menu_Edit_Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Menu_Edit_RedoFormat" xml:space="preserve">
+    <value>Redo {0}</value>
+  </data>
+  <data name="Menu_Metadata" xml:space="preserve">
+    <value>_Metadata</value>
+  </data>
+  <data name="Menu_Metadata_Search" xml:space="preserve">
+    <value>_Search Online…</value>
+  </data>
+  <data name="Menu_Tracks" xml:space="preserve">
+    <value>_Tracks</value>
+  </data>
+  <data name="Menu_Tracks_Import" xml:space="preserve">
+    <value>_Import…</value>
+  </data>
+  <data name="Menu_Tracks_DeleteSelected" xml:space="preserve">
+    <value>_Delete Selected Tracks</value>
+  </data>
+  <data name="Menu_Tracks_MoveUp" xml:space="preserve">
+    <value>Move Track _Up</value>
+  </data>
+  <data name="Menu_Tracks_MoveDown" xml:space="preserve">
+    <value>Move Track Do_wn</value>
+  </data>
+  <data name="Menu_Tracks_Offset" xml:space="preserve">
+    <value>_Offset…</value>
+  </data>
+  <data name="Menu_Tracks_OrganizeGroups" xml:space="preserve">
+    <value>_Organize Alternate Groups</value>
+  </data>
+  <data name="Menu_Tracks_FixFallbacks" xml:space="preserve">
+    <value>_Fix Audio Fallbacks</value>
+  </data>
+  <data name="Menu_Tracks_CompleteLanguages" xml:space="preserve">
+    <value>Complete Track _Languages…</value>
+  </data>
+  <data name="Menu_Tracks_ApplyColorSpace" xml:space="preserve">
+    <value>Apply Colour _Space</value>
+  </data>
+  <data name="Menu_Tracks_ClearNames" xml:space="preserve">
+    <value>_Clear Track Names</value>
+  </data>
+  <data name="Menu_Tracks_PrettifyAudioNames" xml:space="preserve">
+    <value>_Prettify Audio Track Names</value>
+  </data>
+  <data name="Menu_Tracks_InsertChapterEvery" xml:space="preserve">
+    <value>Insert a Chapter _Every</value>
+  </data>
+  <data name="Menu_Chapters_AtBeginning" xml:space="preserve">
+    <value>At the Beginning</value>
+  </data>
+  <data name="Menu_Chapters_1Minute" xml:space="preserve">
+    <value>1 Minute</value>
+  </data>
+  <data name="Menu_Chapters_2Minutes" xml:space="preserve">
+    <value>2 Minutes</value>
+  </data>
+  <data name="Menu_Chapters_5Minutes" xml:space="preserve">
+    <value>5 Minutes</value>
+  </data>
+  <data name="Menu_Chapters_10Minutes" xml:space="preserve">
+    <value>10 Minutes</value>
+  </data>
+  <data name="Menu_Chapters_15Minutes" xml:space="preserve">
+    <value>15 Minutes</value>
+  </data>
+  <data name="Menu_Chapters_20Minutes" xml:space="preserve">
+    <value>20 Minutes</value>
+  </data>
+  <data name="Menu_Chapters_30Minutes" xml:space="preserve">
+    <value>30 Minutes</value>
+  </data>
+  <data name="Menu_Window" xml:space="preserve">
+    <value>_Window</value>
+  </data>
+  <data name="Menu_Window_Queue" xml:space="preserve">
+    <value>_Queue</value>
+  </data>
+  <data name="Menu_Window_Log" xml:space="preserve">
+    <value>Message _Log</value>
+  </data>
+  <data name="Menu_Help" xml:space="preserve">
+    <value>_Help</value>
+  </data>
+  <data name="Menu_Help_About" xml:space="preserve">
+    <value>_About Media Metadata Wizard</value>
+  </data>
+  <data name="Menu_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="Menu_Paste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="Menu_Export" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="Menu_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Action_InsertChapterEvery" xml:space="preserve">
+    <value>Insert a Chapter Every</value>
+  </data>
+  <data name="Action_Offset" xml:space="preserve">
+    <value>Offset…</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>Organize Alternate Groups</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>Fix Audio Fallbacks</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>Complete Track Languages…</value>
+  </data>
+  <data name="Action_ClearNames" xml:space="preserve">
+    <value>Clear Track Names</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>Prettify Audio Track Names</value>
+  </data>
+  <data name="Toolbar_Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Toolbar_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Toolbar_Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Toolbar_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Toolbar_Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="Toolbar_Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Toolbar_Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="Toolbar_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Toolbar_SendToQueue" xml:space="preserve">
+    <value>Send to Queue</value>
+  </data>
+  <data name="Toolbar_Queue" xml:space="preserve">
+    <value>Queue</value>
+  </data>
+  <data name="Tooltip_Open" xml:space="preserve">
+    <value>Open a file</value>
+  </data>
+  <data name="Tooltip_Save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="Tooltip_ImportTracks" xml:space="preserve">
+    <value>Import tracks from other files</value>
+  </data>
+  <data name="Tooltip_DeleteTracks" xml:space="preserve">
+    <value>Delete the selected tracks</value>
+  </data>
+  <data name="Tooltip_Actions" xml:space="preserve">
+    <value>Track and chapter actions</value>
+  </data>
+  <data name="Tooltip_SearchComingSoon" xml:space="preserve">
+    <value>Search metadata online (coming soon)</value>
+  </data>
+  <data name="Tooltip_SendToQueue" xml:space="preserve">
+    <value>Send this file to the batch queue</value>
+  </data>
+  <data name="Tooltip_ShowQueue" xml:space="preserve">
+    <value>Show the batch queue</value>
+  </data>
+  <data name="Tooltip_CloseTab" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Welcome_DropHere" xml:space="preserve">
+    <value>Drop MP4 or Matroska files here</value>
+  </data>
+  <data name="Welcome_Subtitle" xml:space="preserve">
+    <value>Edit tags, artwork, chapters and track properties without re-encoding.</value>
+  </data>
+  <data name="Welcome_Open" xml:space="preserve">
+    <value>Open…</value>
+  </data>
+  <data name="Welcome_RecentFiles" xml:space="preserve">
+    <value>Recent files</value>
+  </data>
+  <data name="Tracks_Menu_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Tracks_Menu_MoveUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="Tracks_Menu_MoveDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="Tracks_Column_Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Tracks_Column_Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Tracks_Column_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Tracks_Column_Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="Tracks_Column_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Tracks_Column_Format" xml:space="preserve">
+    <value>Format</value>
+  </data>
+  <data name="Tracks_Tooltip_Enabled" xml:space="preserve">
+    <value>Enable or disable the track</value>
+  </data>
+  <data name="Tracks_Row_Metadata" xml:space="preserve">
+    <value>Metadata</value>
+  </data>
+  <data name="Tracks_Row_MetadataFormat" xml:space="preserve">
+    <value>Tags, artwork</value>
+  </data>
+  <data name="Tracks_Row_Chapters" xml:space="preserve">
+    <value>Chapters</value>
+  </data>
+  <data name="Tracks_Row_ChaptersFormat" xml:space="preserve">
+    <value>Chapters, {0}</value>
+  </data>
+  <data name="Status_UnknownContainer" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Status_TracksFormat" xml:space="preserve">
+    <value>{0} tracks</value>
+  </data>
+  <data name="Status_ChaptersFormat" xml:space="preserve">
+    <value>{0} chapters</value>
+  </data>
+  <data name="TrackInspector_Header_Video" xml:space="preserve">
+    <value>Video Track</value>
+  </data>
+  <data name="TrackInspector_Header_Audio" xml:space="preserve">
+    <value>Audio Track</value>
+  </data>
+  <data name="TrackInspector_Header_Subtitle" xml:space="preserve">
+    <value>Subtitle Track</value>
+  </data>
+  <data name="TrackInspector_Header_ClosedCaptions" xml:space="preserve">
+    <value>Closed Captions</value>
+  </data>
+  <data name="TrackInspector_Header_Track" xml:space="preserve">
+    <value>Track</value>
+  </data>
+  <data name="TrackInspector_Name" xml:space="preserve">
+    <value>Name:</value>
+  </data>
+  <data name="TrackInspector_NamePlaceholder" xml:space="preserve">
+    <value>Track name</value>
+  </data>
+  <data name="TrackInspector_Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="TrackInspector_Enabled" xml:space="preserve">
+    <value>Enabled:</value>
+  </data>
+  <data name="TrackInspector_EnabledCheck" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="TrackInspector_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="TrackInspector_Forced" xml:space="preserve">
+    <value>Forced</value>
+  </data>
+  <data name="TrackInspector_AlternateGroup" xml:space="preserve">
+    <value>Alternate group:</value>
+  </data>
+  <data name="TrackInspector_Delay" xml:space="preserve">
+    <value>Delay:</value>
+  </data>
+  <data name="TrackInspector_DelayName" xml:space="preserve">
+    <value>Delay in milliseconds</value>
+  </data>
+  <data name="TrackInspector_DelayNote" xml:space="preserve">
+    <value>ms (applied when saving; the file is remuxed)</value>
+  </data>
+  <data name="TrackInspector_Conversion" xml:space="preserve">
+    <value>Conversion:</value>
+  </data>
+  <data name="TrackInspector_ConversionTooltip" xml:space="preserve">
+    <value>Conversion applied when saving</value>
+  </data>
+  <data name="TrackInspector_AppliedWhenSaving" xml:space="preserve">
+    <value>applied when saving</value>
+  </data>
+  <data name="TrackInspector_Visual" xml:space="preserve">
+    <value>Visual</value>
+  </data>
+  <data name="TrackInspector_DisplaySize" xml:space="preserve">
+    <value>Display size:</value>
+  </data>
+  <data name="TrackInspector_ColourSpace" xml:space="preserve">
+    <value>Colour space:</value>
+  </data>
+  <data name="TrackInspector_Hdr" xml:space="preserve">
+    <value>HDR:</value>
+  </data>
+  <data name="TrackInspector_Profile" xml:space="preserve">
+    <value>Profile:</value>
+  </data>
+  <data name="TrackInspector_Sound" xml:space="preserve">
+    <value>Sound</value>
+  </data>
+  <data name="TrackInspector_Volume" xml:space="preserve">
+    <value>Volume:</value>
+  </data>
+  <data name="TrackInspector_Fallback" xml:space="preserve">
+    <value>Fallback:</value>
+  </data>
+  <data name="TrackInspector_FallbackTooltip" xml:space="preserve">
+    <value>Track played by devices that cannot decode this one</value>
+  </data>
+  <data name="TrackInspector_FollowingSubtitles" xml:space="preserve">
+    <value>Subtitles:</value>
+  </data>
+  <data name="TrackInspector_FollowingSubtitlesTooltip" xml:space="preserve">
+    <value>Subtitle track that follows this audio track</value>
+  </data>
+  <data name="TrackInspector_SubtitlesGroup" xml:space="preserve">
+    <value>Subtitles</value>
+  </data>
+  <data name="TrackInspector_ForcedMode" xml:space="preserve">
+    <value>Forced:</value>
+  </data>
+  <data name="TrackInspector_ForcedTrack" xml:space="preserve">
+    <value>Forced track:</value>
+  </data>
+  <data name="TrackInspector_MediaCharacteristics" xml:space="preserve">
+    <value>Media Characteristics</value>
+  </data>
+  <data name="TrackInspector_CharacteristicsHelp" xml:space="preserve">
+    <value>Describe the purpose of this track so players can choose it automatically.</value>
+  </data>
+  <data name="TrackInspector_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="TrackInspector_AlternateGroupNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="TrackInspector_TrackNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="TrackInspector_HdrNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="TrackInspector_ForcedModeNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="TrackInspector_ForcedModeSome" xml:space="preserve">
+    <value>Some samples are forced</value>
+  </data>
+  <data name="TrackInspector_ForcedModeAll" xml:space="preserve">
+    <value>All samples are forced</value>
+  </data>
+  <data name="TrackInspector_CustomColorFormat" xml:space="preserve">
+    <value>Custom ({0})</value>
+  </data>
+  <data name="TrackInspector_DolbyVisionFormat" xml:space="preserve">
+    <value>Dolby Vision {0}</value>
+  </data>
+  <data name="TrackInspector_MasteringDisplayFormat" xml:space="preserve">
+    <value>Mastering display: {0:0.####}–{1:0.#} cd/m²</value>
+  </data>
+  <data name="TrackInspector_LightLevelFormat" xml:space="preserve">
+    <value>MaxCLL {0} cd/m², MaxFALL {1} cd/m²</value>
+  </data>
+  <data name="TrackInspector_AmbientFormat" xml:space="preserve">
+    <value>Ambient viewing: {0:0.#} lux</value>
+  </data>
+  <data name="TrackInfo_FormatFormat" xml:space="preserve">
+    <value>Format: {0} ({1})</value>
+  </data>
+  <data name="TrackInfo_DetailsFormat" xml:space="preserve">
+    <value>Details: {0}</value>
+  </data>
+  <data name="TrackInfo_DurationFormat" xml:space="preserve">
+    <value>Duration: {0}</value>
+  </data>
+  <data name="TrackInfo_BitrateFormat" xml:space="preserve">
+    <value>Bitrate: {0:0.#} kbit/s</value>
+  </data>
+  <data name="TrackInfo_SizeFormat" xml:space="preserve">
+    <value>Size: {0:0.##} MiB</value>
+  </data>
+  <data name="TrackInfo_FrameRateFormat" xml:space="preserve">
+    <value>Frame rate: {0:0.###} fps</value>
+  </data>
+  <data name="TrackInfo_PixelSizeFormat" xml:space="preserve">
+    <value>Pixel size: {0}×{1}, PAR {2}:{3}</value>
+  </data>
+  <data name="TrackInfo_ChannelsFormat" xml:space="preserve">
+    <value>Channels: {0} {1}</value>
+  </data>
+  <data name="TrackInfo_SampleRateFormat" xml:space="preserve">
+    <value>Sample rate: {0} Hz</value>
+  </data>
+  <data name="TrackInfo_SourceFormat" xml:space="preserve">
+    <value>Source: {0}, track {1}</value>
+  </data>
+  <data name="MultiSelection_CountFormat" xml:space="preserve">
+    <value>{0} tracks selected</value>
+  </data>
+  <data name="MultiSelection_MultipleValues" xml:space="preserve">
+    <value>Multiple values</value>
+  </data>
+  <data name="MultiSelection_ClearNames" xml:space="preserve">
+    <value>Clear Names</value>
+  </data>
+  <data name="Undo_ConvertFormat" xml:space="preserve">
+    <value>Convert {0}</value>
+  </data>
+  <data name="Undo_DeleteTrack" xml:space="preserve">
+    <value>Delete Track</value>
+  </data>
+  <data name="Undo_DeleteTracks" xml:space="preserve">
+    <value>Delete Tracks</value>
+  </data>
+  <data name="Undo_OffsetTracks" xml:space="preserve">
+    <value>Offset Tracks</value>
+  </data>
+  <data name="Undo_ClearTrackNames" xml:space="preserve">
+    <value>Clear Track Names</value>
+  </data>
+  <data name="Undo_PrettifyAudioNames" xml:space="preserve">
+    <value>Prettify Audio Track Names</value>
+  </data>
+  <data name="Undo_OrganizeGroups" xml:space="preserve">
+    <value>Organize Alternate Groups</value>
+  </data>
+  <data name="Undo_FixFallbacks" xml:space="preserve">
+    <value>Fix Audio Fallbacks</value>
+  </data>
+  <data name="Undo_CompleteLanguages" xml:space="preserve">
+    <value>Complete Languages</value>
+  </data>
+  <data name="Undo_ApplyColorSpace" xml:space="preserve">
+    <value>Apply Colour Space</value>
+  </data>
+  <data name="Undo_InsertChapters" xml:space="preserve">
+    <value>Insert Chapters</value>
+  </data>
+  <data name="Undo_ImportNfo" xml:space="preserve">
+    <value>Import NFO</value>
+  </data>
+  <data name="Undo_ImportChapters" xml:space="preserve">
+    <value>Import Chapters</value>
+  </data>
+  <data name="Undo_ImportTracks" xml:space="preserve">
+    <value>Import Tracks</value>
+  </data>
+  <data name="Undo_ImportMetadata" xml:space="preserve">
+    <value>Import Metadata</value>
+  </data>
+  <data name="Undo_ClearTagFormat" xml:space="preserve">
+    <value>Clear {0}</value>
+  </data>
+  <data name="Undo_ChangeTagFormat" xml:space="preserve">
+    <value>Change {0}</value>
+  </data>
+  <data name="Undo_RemoveTagFormat" xml:space="preserve">
+    <value>Remove {0}</value>
+  </data>
+  <data name="Undo_ApplySetFormat" xml:space="preserve">
+    <value>Apply Set "{0}"</value>
+  </data>
+  <data name="Undo_AddArtwork" xml:space="preserve">
+    <value>Add Artwork</value>
+  </data>
+  <data name="Undo_AddArtworks" xml:space="preserve">
+    <value>Add Artworks</value>
+  </data>
+  <data name="Undo_RemoveArtwork" xml:space="preserve">
+    <value>Remove Artwork</value>
+  </data>
+  <data name="Undo_MoveArtwork" xml:space="preserve">
+    <value>Move Artwork</value>
+  </data>
+  <data name="Undo_ApplyResultFormat" xml:space="preserve">
+    <value>Apply {0} Result</value>
+  </data>
+  <data name="Undo_ChangeLanguage" xml:space="preserve">
+    <value>Change Language</value>
+  </data>
+  <data name="Undo_EnableTracks" xml:space="preserve">
+    <value>Enable Tracks</value>
+  </data>
+  <data name="Undo_DisableTracks" xml:space="preserve">
+    <value>Disable Tracks</value>
+  </data>
+  <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
+    <value>Change Alternate Group</value>
+  </data>
+  <data name="Button_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Button_DontSave" xml:space="preserve">
+    <value>Don't Save</value>
+  </data>
+  <data name="Button_Download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Button_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Button_Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Button_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Button_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Button_Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="Button_Choose" xml:space="preserve">
+    <value>Choose…</value>
+  </data>
+  <data name="Button_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Button_RestoreDefaults" xml:space="preserve">
+    <value>Restore Defaults</value>
+  </data>
+  <data name="Button_CheckAll" xml:space="preserve">
+    <value>Check All</value>
+  </data>
+  <data name="Button_UncheckAll" xml:space="preserve">
+    <value>Uncheck All</value>
+  </data>
+  <data name="Dialog_SaveChanges_Title" xml:space="preserve">
+    <value>Unsaved changes</value>
+  </data>
+  <data name="Dialog_SaveChanges_MessageFormat" xml:space="preserve">
+    <value>Do you want to save the changes made to "{0}"?
+
+Your changes will be lost if you don't save them.</value>
+  </data>
+  <data name="Dialog_Open_Title" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Dialog_ImportTracks_Title" xml:space="preserve">
+    <value>Import Tracks</value>
+  </data>
+  <data name="Dialog_CouldNotImportNfo_Title" xml:space="preserve">
+    <value>Could not import NFO</value>
+  </data>
+  <data name="Dialog_CouldNotOpen_Title" xml:space="preserve">
+    <value>Could not open file</value>
+  </data>
+  <data name="Dialog_CouldNotSave_Title" xml:space="preserve">
+    <value>Could not save</value>
+  </data>
+  <data name="Dialog_Offset_Title" xml:space="preserve">
+    <value>Offset</value>
+  </data>
+  <data name="Dialog_Offset_SelectFirst" xml:space="preserve">
+    <value>Select the tracks to shift first.</value>
+  </data>
+  <data name="Dialog_Offset_Prompt" xml:space="preserve">
+    <value>Shift the selected tracks by this many milliseconds (negative values make them start earlier):</value>
+  </data>
+  <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
+    <value>'{0}' is not a number of milliseconds.</value>
+  </data>
+  <data name="Dialog_CompleteLanguages_Title" xml:space="preserve">
+    <value>Complete Track Languages</value>
+  </data>
+  <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
+    <value>Set this language on every track whose language is undetermined.</value>
+  </data>
+  <data name="Dialog_ExportNfo_Title" xml:space="preserve">
+    <value>Export NFO</value>
+  </data>
+  <data name="Dialog_AddArtwork_Title" xml:space="preserve">
+    <value>Add Artwork</value>
+  </data>
+  <data name="Dialog_ExportArtwork_Title" xml:space="preserve">
+    <value>Export Artwork</value>
+  </data>
+  <data name="Dialog_ImportChapters_Title" xml:space="preserve">
+    <value>Import Chapters</value>
+  </data>
+  <data name="Dialog_ImportChapters_CountMismatchFormat" xml:space="preserve">
+    <value>The CSV file has {0} titles but the file has {1} chapters.</value>
+  </data>
+  <data name="Dialog_ImportChapters_NoneFound" xml:space="preserve">
+    <value>No chapters were found in the file.</value>
+  </data>
+  <data name="Dialog_ExportChapters_Title" xml:space="preserve">
+    <value>Export Chapters</value>
+  </data>
+  <data name="Dialog_AddToQueue_Title" xml:space="preserve">
+    <value>Add to Queue</value>
+  </data>
+  <data name="Dialog_OutputFolder_Title" xml:space="preserve">
+    <value>Output Folder</value>
+  </data>
+  <data name="Dialog_About_TitleFormat" xml:space="preserve">
+    <value>About {0}</value>
+  </data>
+  <data name="About_Description" xml:space="preserve">
+    <value>Edit metadata, chapters and tracks of MP4 and Matroska files.</value>
+  </data>
+  <data name="About_FFmpegFormat" xml:space="preserve">
+    <value>Audio conversion: FFmpeg {0} (LGPL).</value>
+  </data>
+  <data name="About_FFmpegMissing" xml:space="preserve">
+    <value>Audio conversion: FFmpeg libraries not found.</value>
+  </data>
+  <data name="About_OcrFormat" xml:space="preserve">
+    <value>Subtitle OCR: {0}.</value>
+  </data>
+  <data name="About_OcrMissing" xml:space="preserve">
+    <value>Subtitle OCR: Tesseract not found.</value>
+  </data>
+  <data name="About_Icons" xml:space="preserve">
+    <value>Icons: Material Design Icons (Apache 2.0).</value>
+  </data>
+  <data name="FileFilter_Media" xml:space="preserve">
+    <value>Media files</value>
+  </data>
+  <data name="FileFilter_Mp4" xml:space="preserve">
+    <value>MPEG-4</value>
+  </data>
+  <data name="FileFilter_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="FileFilter_Images" xml:space="preserve">
+    <value>Images</value>
+  </data>
+  <data name="FileFilter_ChapterFiles" xml:space="preserve">
+    <value>Chapter files</value>
+  </data>
+  <data name="FileFilter_Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="FileFilter_All" xml:space="preserve">
+    <value>All files</value>
+  </data>
+  <data name="FileFilter_Importable" xml:space="preserve">
+    <value>Importable files</value>
+  </data>
+  <data name="FileFilter_KodiNfo" xml:space="preserve">
+    <value>Kodi NFO</value>
+  </data>
+  <data name="File_DefaultArtworkName" xml:space="preserve">
+    <value>artwork</value>
+  </data>
+  <data name="Error_NoWriterFormat" xml:space="preserve">
+    <value>No writer for {0} files.</value>
+  </data>
+  <data name="Error_ChapterTime" xml:space="preserve">
+    <value>Use hh:mm:ss.fff</value>
+  </data>
+  <data name="Error_MetadataSearchUnavailable" xml:space="preserve">
+    <value>Metadata search is not available.</value>
+  </data>
+  <data name="Error_NoProviderFormat" xml:space="preserve">
+    <value>No provider for {0}.</value>
+  </data>
+  <data name="QueueAction_FetchMetadata" xml:space="preserve">
+    <value>Search metadata online</value>
+  </data>
+  <data name="QueueAction_LoadSubtitles" xml:space="preserve">
+    <value>Load external subtitles</value>
+  </data>
+  <data name="QueueAction_PrepareTracks" xml:space="preserve">
+    <value>Prepare tracks for the output format</value>
+  </data>
+  <data name="QueueLog_NothingToSearch" xml:space="preserve">
+    <value>Nothing to search for (no title in the tags or file name).</value>
+  </data>
+  <data name="QueueLog_NoResultsFormat" xml:space="preserve">
+    <value>{0}: no results for "{1}".</value>
+  </data>
+  <data name="QueueLog_LoadedSubtitlesFormat" xml:space="preserve">
+    <value>Loaded {0} subtitle track(s) from {1}.</value>
+  </data>
+  <data name="QueueLog_DroppingTrackFormat" xml:space="preserve">
+    <value>Dropping track {0} ({1}): it cannot be stored in the output format.</value>
+  </data>
+  <data name="QueueLog_TrackConversionFormat" xml:space="preserve">
+    <value>Track {0} ({1}): {2}.</value>
+  </data>
+  <data name="Notification_QueueFinished_Title" xml:space="preserve">
+    <value>Queue finished</value>
+  </data>
+  <data name="Notification_QueueFinished_MessageFormat" xml:space="preserve">
+    <value>{0} completed, {1} failed.</value>
+  </data>
+  <data name="Queue_Title" xml:space="preserve">
+    <value>Queue</value>
+  </data>
+  <data name="Queue_SummaryFormat" xml:space="preserve">
+    <value>{0} items · {1} ready · {2} done · {3} failed</value>
+  </data>
+  <data name="Queue_SummaryRunningFormat" xml:space="preserve">
+    <value>Running · {0}</value>
+  </data>
+  <data name="Queue_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Queue_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Queue_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Queue_Stop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="Queue_Tooltip_Add" xml:space="preserve">
+    <value>Add files to the queue</value>
+  </data>
+  <data name="Queue_Tooltip_Remove" xml:space="preserve">
+    <value>Remove the selected item</value>
+  </data>
+  <data name="Queue_Tooltip_Start" xml:space="preserve">
+    <value>Process every ready item</value>
+  </data>
+  <data name="Queue_Tooltip_Stop" xml:space="preserve">
+    <value>Stop after cancelling the current item</value>
+  </data>
+  <data name="Queue_Empty" xml:space="preserve">
+    <value>Drop files here or use Add. Each file gets the actions chosen on the right.</value>
+  </data>
+  <data name="Queue_Menu_Edit" xml:space="preserve">
+    <value>Edit…</value>
+  </data>
+  <data name="Queue_Menu_Reveal" xml:space="preserve">
+    <value>Show in File Manager</value>
+  </data>
+  <data name="Queue_Menu_RunAgain" xml:space="preserve">
+    <value>Run Again</value>
+  </data>
+  <data name="Queue_Menu_RemoveFromQueue" xml:space="preserve">
+    <value>Remove from Queue</value>
+  </data>
+  <data name="Queue_Menu_RemoveCompleted" xml:space="preserve">
+    <value>Remove Completed Items</value>
+  </data>
+  <data name="Queue_Output" xml:space="preserve">
+    <value>Output</value>
+  </data>
+  <data name="Queue_SameFolder" xml:space="preserve">
+    <value>Same folder as the source</value>
+  </data>
+  <data name="Queue_Folder" xml:space="preserve">
+    <value>Folder:</value>
+  </data>
+  <data name="Queue_FileType" xml:space="preserve">
+    <value>File type:</value>
+  </data>
+  <data name="Queue_OptimizeMp4" xml:space="preserve">
+    <value>Optimize MP4 output</value>
+  </data>
+  <data name="Queue_AutoStart" xml:space="preserve">
+    <value>Start automatically when files are added</value>
+  </data>
+  <data name="Queue_NotifyWhenDone" xml:space="preserve">
+    <value>Notify when done</value>
+  </data>
+  <data name="Queue_Metadata" xml:space="preserve">
+    <value>Metadata</value>
+  </data>
+  <data name="Queue_ClearMetadata" xml:space="preserve">
+    <value>Clear existing metadata</value>
+  </data>
+  <data name="Queue_FetchMetadata" xml:space="preserve">
+    <value>Search metadata online, artwork:</value>
+  </data>
+  <data name="Queue_ApplySet" xml:space="preserve">
+    <value>Apply set:</value>
+  </data>
+  <data name="Queue_NoSavedSets" xml:space="preserve">
+    <value>No saved sets</value>
+  </data>
+  <data name="Queue_NameFromTags" xml:space="preserve">
+    <value>Name output files from tags</value>
+  </data>
+  <data name="Queue_LoadChapters" xml:space="preserve">
+    <value>Load chapters from a .txt next to the file</value>
+  </data>
+  <data name="Queue_LoadSubtitles" xml:space="preserve">
+    <value>Load subtitles (.srt, .ass, .vtt) named like the file</value>
+  </data>
+  <data name="Queue_Tracks" xml:space="preserve">
+    <value>Tracks</value>
+  </data>
+  <data name="Queue_CompleteLanguages" xml:space="preserve">
+    <value>Complete languages:</value>
+  </data>
+  <data name="Queue_OrganizeGroups" xml:space="preserve">
+    <value>Organize alternate groups</value>
+  </data>
+  <data name="Queue_FixFallbacks" xml:space="preserve">
+    <value>Fix audio fallbacks</value>
+  </data>
+  <data name="Queue_EnableAudio" xml:space="preserve">
+    <value>Enable audio in:</value>
+  </data>
+  <data name="Queue_EnableSubtitles" xml:space="preserve">
+    <value>Enable subtitles in:</value>
+  </data>
+  <data name="Queue_ClearTrackNames" xml:space="preserve">
+    <value>Clear track names</value>
+  </data>
+  <data name="Queue_PrettifyAudioNames" xml:space="preserve">
+    <value>Prettify audio track names</value>
+  </data>
+  <data name="Queue_RenameChapters" xml:space="preserve">
+    <value>Rename chapters</value>
+  </data>
+  <data name="Queue_ColourSpace" xml:space="preserve">
+    <value>Colour space:</value>
+  </data>
+  <data name="FileType_SameAsSource" xml:space="preserve">
+    <value>Same as source</value>
+  </data>
+  <data name="Format_M4v" xml:space="preserve">
+    <value>MPEG-4 Video (.m4v)</value>
+  </data>
+  <data name="Format_Mp4" xml:space="preserve">
+    <value>MPEG-4 (.mp4)</value>
+  </data>
+  <data name="Format_M4a" xml:space="preserve">
+    <value>MPEG-4 Audio (.m4a)</value>
+  </data>
+  <data name="Format_M4b" xml:space="preserve">
+    <value>Audiobook (.m4b)</value>
+  </data>
+  <data name="Format_M4r" xml:space="preserve">
+    <value>Ringtone (.m4r)</value>
+  </data>
+  <data name="Format_Mkv" xml:space="preserve">
+    <value>Matroska (.mkv)</value>
+  </data>
+  <data name="Format_Mka" xml:space="preserve">
+    <value>Matroska Audio (.mka)</value>
+  </data>
+  <data name="Format_Webm" xml:space="preserve">
+    <value>WebM (.webm)</value>
+  </data>
+  <data name="ArtworkKind_Poster" xml:space="preserve">
+    <value>Poster</value>
+  </data>
+  <data name="ArtworkKind_Season" xml:space="preserve">
+    <value>Season</value>
+  </data>
+  <data name="ArtworkKind_Episode" xml:space="preserve">
+    <value>Episode</value>
+  </data>
+  <data name="ArtworkKind_Backdrop" xml:space="preserve">
+    <value>Backdrop</value>
+  </data>
+  <data name="ArtworkKind_Square" xml:space="preserve">
+    <value>Square</value>
+  </data>
+  <data name="ArtworkKind_Rectangle" xml:space="preserve">
+    <value>Rectangle</value>
+  </data>
+  <data name="ArtworkKind_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ArtworkKind_None" xml:space="preserve">
+    <value>No artwork</value>
+  </data>
+  <data name="Log_Title" xml:space="preserve">
+    <value>Message Log</value>
+  </data>
+  <data name="MetadataInspector_Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="MetadataInspector_Sets" xml:space="preserve">
+    <value>Sets</value>
+  </data>
+  <data name="MetadataInspector_SetsTooltip" xml:space="preserve">
+    <value>Apply or save a set of tags</value>
+  </data>
+  <data name="MetadataInspector_AddTag" xml:space="preserve">
+    <value>Add Tag</value>
+  </data>
+  <data name="MetadataInspector_AddTagTooltip" xml:space="preserve">
+    <value>Add a tag</value>
+  </data>
+  <data name="MetadataInspector_FilterTags" xml:space="preserve">
+    <value>Filter tags</value>
+  </data>
+  <data name="MetadataInspector_Empty" xml:space="preserve">
+    <value>No tags. Use “Add Tag” or “Sets” to add some, or drop artwork, NFO or chapter files on the window.</value>
+  </data>
+  <data name="MetadataInspector_RemoveTag" xml:space="preserve">
+    <value>Remove tag</value>
+  </data>
+  <data name="MetadataInspector_RemoveName" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="MetadataInspector_AddName" xml:space="preserve">
+    <value>Add name…</value>
+  </data>
+  <data name="MetadataInspector_Choose" xml:space="preserve">
+    <value>Choose…</value>
+  </data>
+  <data name="MetadataInspector_ChooseRating" xml:space="preserve">
+    <value>Choose a rating…</value>
+  </data>
+  <data name="MetadataInspector_Artwork" xml:space="preserve">
+    <value>Artwork</value>
+  </data>
+  <data name="MetadataInspector_AddArtworkTooltip" xml:space="preserve">
+    <value>Add artwork from files</value>
+  </data>
+  <data name="MetadataInspector_RemoveArtworkTooltip" xml:space="preserve">
+    <value>Remove the selected artwork</value>
+  </data>
+  <data name="MetadataInspector_MoveArtworkUpTooltip" xml:space="preserve">
+    <value>Move earlier (the first image is the cover)</value>
+  </data>
+  <data name="MetadataInspector_MoveArtworkDownTooltip" xml:space="preserve">
+    <value>Move later</value>
+  </data>
+  <data name="MetadataInspector_ExportArtworkTooltip" xml:space="preserve">
+    <value>Export the selected artwork</value>
+  </data>
+  <data name="MetadataInspector_Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="MetadataInspector_ArtworkEmpty" xml:space="preserve">
+    <value>Drop images here or use + to add artwork.</value>
+  </data>
+  <data name="Sets_Save" xml:space="preserve">
+    <value>Save Set…</value>
+  </data>
+  <data name="Sets_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Sets_Movie" xml:space="preserve">
+    <value>Movie</value>
+  </data>
+  <data name="Sets_TvShow" xml:space="preserve">
+    <value>TV Show</value>
+  </data>
+  <data name="Artwork_DescriptionFormat" xml:space="preserve">
+    <value>{0}×{1} {2}, {3} KB</value>
+  </data>
+  <data name="Artwork_UnreadableFormat" xml:space="preserve">
+    <value>{0} (unreadable), {1} KB</value>
+  </data>
+  <data name="Tag_WatermarkPair" xml:space="preserve">
+    <value>n / total</value>
+  </data>
+  <data name="Tag_WatermarkDate" xml:space="preserve">
+    <value>YYYY-MM-DD</value>
+  </data>
+  <data name="Tag_UnknownChoiceFormat" xml:space="preserve">
+    <value>Unknown ({0})</value>
+  </data>
+  <data name="Chapters_Tooltip_Add" xml:space="preserve">
+    <value>Add a chapter</value>
+  </data>
+  <data name="Chapters_Tooltip_Delete" xml:space="preserve">
+    <value>Delete the selected chapter</value>
+  </data>
+  <data name="Chapters_Tooltip_RenameAll" xml:space="preserve">
+    <value>Rename every chapter “Chapter N”</value>
+  </data>
+  <data name="Chapters_InsertEvery" xml:space="preserve">
+    <value>Insert every…</value>
+  </data>
+  <data name="Chapters_Tooltip_InsertEvery" xml:space="preserve">
+    <value>Replace chapters with marks at a fixed interval</value>
+  </data>
+  <data name="Chapters_Tooltip_Import" xml:space="preserve">
+    <value>Import chapters (txt) or chapter titles (csv)</value>
+  </data>
+  <data name="Chapters_Tooltip_Thumbnails" xml:space="preserve">
+    <value>Capture chapter preview images</value>
+  </data>
+  <data name="Chapters_Tooltip_Export" xml:space="preserve">
+    <value>Export chapters as text</value>
+  </data>
+  <data name="Chapters_Column_Time" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Chapters_Column_Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="Chapters_Interval_AtBeginning" xml:space="preserve">
+    <value>At the beginning</value>
+  </data>
+  <data name="Chapters_Interval_OneMinute" xml:space="preserve">
+    <value>1 minute</value>
+  </data>
+  <data name="Chapters_Interval_MinutesFormat" xml:space="preserve">
+    <value>{0} minutes</value>
+  </data>
+  <data name="Chapters_NewTitleFormat" xml:space="preserve">
+    <value>Chapter {0}</value>
+  </data>
+  <data name="Import_TitleFormat" xml:space="preserve">
+    <value>Import Tracks into {0}</value>
+  </data>
+  <data name="Import_ImportMetadata" xml:space="preserve">
+    <value>Import metadata (tags, artwork) from the source files</value>
+  </data>
+  <data name="Import_CheckSameLanguage" xml:space="preserve">
+    <value>Check Only Tracks with This Language</value>
+  </data>
+  <data name="Import_TrackCheckbox" xml:space="preserve">
+    <value>Import this track</value>
+  </data>
+  <data name="Import_FrameRateTooltip" xml:space="preserve">
+    <value>Frame rate of the raw video stream</value>
+  </data>
+  <data name="Import_Reading" xml:space="preserve">
+    <value>Reading files…</value>
+  </data>
+  <data name="Import_TracksFoundFormat" xml:space="preserve">
+    <value>{0} track(s) found.</value>
+  </data>
+  <data name="Import_FFmpegMissing" xml:space="preserve">
+    <value>Audio conversion needs FFmpeg 8 libraries, which were not found.</value>
+  </data>
+  <data name="Search_Title" xml:space="preserve">
+    <value>Search Metadata</value>
+  </data>
+  <data name="Search_Movie" xml:space="preserve">
+    <value>Movie</value>
+  </data>
+  <data name="Search_TvEpisode" xml:space="preserve">
+    <value>TV Episode</value>
+  </data>
+  <data name="Search_Provider" xml:space="preserve">
+    <value>Provider:</value>
+  </data>
+  <data name="Search_Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Search_MovieTitle" xml:space="preserve">
+    <value>Movie title</value>
+  </data>
+  <data name="Search_Year" xml:space="preserve">
+    <value>Year:</value>
+  </data>
+  <data name="Search_AnyYear" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="Search_TvShow" xml:space="preserve">
+    <value>TV show</value>
+  </data>
+  <data name="Search_Season" xml:space="preserve">
+    <value>Season:</value>
+  </data>
+  <data name="Search_Episode" xml:space="preserve">
+    <value>Episode:</value>
+  </data>
+  <data name="Search_AllSeasons" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Search_AllEpisodes" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Search_ReplaceArtwork" xml:space="preserve">
+    <value>Replace existing artwork</value>
+  </data>
+  <data name="Search_Column_Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="Search_Column_Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Search_ProviderNeedsKeyFormat" xml:space="preserve">
+    <value>{0} needs an API key. Add it to appsettings.json or in Preferences → Metadata.</value>
+  </data>
+  <data name="Search_SearchingEpisodeFormat" xml:space="preserve">
+    <value>Searching {0} for episode information…</value>
+  </data>
+  <data name="Search_SearchingMovieFormat" xml:space="preserve">
+    <value>Searching {0} for movie information…</value>
+  </data>
+  <data name="Search_NoResults" xml:space="preserve">
+    <value>No results.</value>
+  </data>
+  <data name="Search_OneResult" xml:space="preserve">
+    <value>1 result.</value>
+  </data>
+  <data name="Search_ResultsFormat" xml:space="preserve">
+    <value>{0} results.</value>
+  </data>
+  <data name="Search_LoadingDetails" xml:space="preserve">
+    <value>Loading details…</value>
+  </data>
+  <data name="Search_DetailsFormat" xml:space="preserve">
+    <value>{0} · {1} artwork(s)</value>
+  </data>
+  <data name="Search_DownloadingArtwork" xml:space="preserve">
+    <value>Downloading artwork…</value>
+  </data>
+  <data name="Search_CouldNotDownloadFormat" xml:space="preserve">
+    <value>Could not download artwork: {0}</value>
+  </data>
+  <data name="Search_SeasonFormat" xml:space="preserve">
+    <value>Season {0}</value>
+  </data>
+  <data name="Preferences_Title" xml:space="preserve">
+    <value>Preferences</value>
+  </data>
+  <data name="Preferences_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Preferences_Appearance" xml:space="preserve">
+    <value>Appearance:</value>
+  </data>
+  <data name="Preferences_Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Preferences_LanguageSystem" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="Preferences_LanguageRestartNote" xml:space="preserve">
+    <value>A language change takes effect after restarting the app.</value>
+  </data>
+  <data name="Preferences_Theme_System" xml:space="preserve">
+    <value>Follow the system</value>
+  </data>
+  <data name="Preferences_Theme_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Preferences_Theme_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Preferences_Window" xml:space="preserve">
+    <value>Window:</value>
+  </data>
+  <data name="Preferences_RememberSize" xml:space="preserve">
+    <value>Remember size</value>
+  </data>
+  <data name="Preferences_ShowRatingsFor" xml:space="preserve">
+    <value>Show ratings for:</value>
+  </data>
+  <data name="Preferences_UsaRatingsNote" xml:space="preserve">
+    <value>USA ratings are always shown.</value>
+  </data>
+  <data name="Preferences_Chapters" xml:space="preserve">
+    <value>Chapters:</value>
+  </data>
+  <data name="Preferences_CreatePreviews" xml:space="preserve">
+    <value>Create preview images when saving MP4, at the</value>
+  </data>
+  <data name="Preferences_Preview_Beginning" xml:space="preserve">
+    <value>Beginning</value>
+  </data>
+  <data name="Preferences_Preview_Middle" xml:space="preserve">
+    <value>Middle</value>
+  </data>
+  <data name="Preferences_Preview_End" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Preferences_Saving" xml:space="preserve">
+    <value>Saving</value>
+  </data>
+  <data name="Preferences_OptimizeOnSave" xml:space="preserve">
+    <value>Optimize when saving (interleave, header first)</value>
+  </data>
+  <data name="Preferences_64BitOffsets" xml:space="preserve">
+    <value>Always use 64-bit chunk offsets (automatic above 4 GB)</value>
+  </data>
+  <data name="Preferences_64BitTimes" xml:space="preserve">
+    <value>Use 64-bit times</value>
+  </data>
+  <data name="Preferences_Audio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Preferences_Downmix" xml:space="preserve">
+    <value>Downmix audio to:</value>
+  </data>
+  <data name="Preferences_AacBitrate" xml:space="preserve">
+    <value>AAC bitrate per channel:</value>
+  </data>
+  <data name="Preferences_Kbps" xml:space="preserve">
+    <value>kbit/s</value>
+  </data>
+  <data name="Preferences_Drc" xml:space="preserve">
+    <value>Dynamic range compression:</value>
+  </data>
+  <data name="Preferences_ConvertAc3" xml:space="preserve">
+    <value>Suggest converting AC-3 audio to AAC when importing into MP4</value>
+  </data>
+  <data name="Preferences_ConvertDts" xml:space="preserve">
+    <value>Suggest AAC + Passthru for DTS audio when importing into MP4</value>
+  </data>
+  <data name="Preferences_FFmpegAvailableFormat" xml:space="preserve">
+    <value>FFmpeg {0} is available.</value>
+  </data>
+  <data name="Preferences_FFmpegMissingFormat" xml:space="preserve">
+    <value>FFmpeg libraries were not found: {0}</value>
+  </data>
+  <data name="Preferences_Ocr" xml:space="preserve">
+    <value>OCR</value>
+  </data>
+  <data name="Preferences_OcrAvailableFormat" xml:space="preserve">
+    <value>{0} is available. Models are stored in {1}.</value>
+  </data>
+  <data name="Preferences_OcrUnavailableFormat" xml:space="preserve">
+    <value>OCR is not available: {0}</value>
+  </data>
+  <data name="Preferences_OcrLanguage" xml:space="preserve">
+    <value>Recognition language:</value>
+  </data>
+  <data name="Preferences_OcrSameAsTrack" xml:space="preserve">
+    <value>Same as the subtitle track</value>
+  </data>
+  <data name="Preferences_OcrFilter" xml:space="preserve">
+    <value>Filter language models</value>
+  </data>
+  <data name="Preferences_OcrInstalled" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="Preferences_Metadata" xml:space="preserve">
+    <value>Metadata</value>
+  </data>
+  <data name="Preferences_Movies" xml:space="preserve">
+    <value>Movies:</value>
+  </data>
+  <data name="Preferences_TvShows" xml:space="preserve">
+    <value>TV shows:</value>
+  </data>
+  <data name="Preferences_TmdbKey" xml:space="preserve">
+    <value>TheMovieDB key:</value>
+  </data>
+  <data name="Preferences_TvdbKey" xml:space="preserve">
+    <value>TheTVDB key:</value>
+  </data>
+  <data name="Preferences_KeyPlaceholder" xml:space="preserve">
+    <value>From appsettings.json or the environment</value>
+  </data>
+  <data name="Preferences_Overwrite" xml:space="preserve">
+    <value>Overwrite existing tags</value>
+  </data>
+  <data name="Preferences_KeepEmpty" xml:space="preserve">
+    <value>Keep existing values the result does not provide</value>
+  </data>
+  <data name="Preferences_ReplaceArtwork" xml:space="preserve">
+    <value>Replace existing artwork with the chosen artwork</value>
+  </data>
+  <data name="Preferences_Detect4K" xml:space="preserve">
+    <value>Detect 4K for HD Video (some Apple TV models then refuse 1080p streaming)</value>
+  </data>
+  <data name="Preferences_DeleteCache" xml:space="preserve">
+    <value>Delete Cached Results</value>
+  </data>
+  <data name="Preferences_CacheCleared" xml:space="preserve">
+    <value>Cached results and recent searches deleted.</value>
+  </data>
+  <data name="Preferences_MapHeader" xml:space="preserve">
+    <value>Map provider values to tags</value>
+  </data>
+  <data name="Preferences_MapMovies" xml:space="preserve">
+    <value>Movies</value>
+  </data>
+  <data name="Preferences_MapTv" xml:space="preserve">
+    <value>TV shows</value>
+  </data>
+  <data name="Preferences_AddMapping" xml:space="preserve">
+    <value>Add a mapping</value>
+  </data>
+  <data name="Preferences_RemoveMapping" xml:space="preserve">
+    <value>Remove the mapping</value>
+  </data>
+  <data name="Preferences_AvailableValues" xml:space="preserve">
+    <value>Available values</value>
+  </data>
+  <data name="Preferences_Sets" xml:space="preserve">
+    <value>Sets</value>
+  </data>
+  <data name="Preferences_RemoveSet" xml:space="preserve">
+    <value>Remove the selected set</value>
+  </data>
+  <data name="Preferences_MoveSetUp" xml:space="preserve">
+    <value>Move up (sets 1–9 have keyboard shortcuts)</value>
+  </data>
+  <data name="Preferences_SetsHelp" xml:space="preserve">
+    <value>Saved sets are applied from the Sets button in the metadata inspector.</value>
+  </data>
+  <data name="Preferences_TagCountFormat" xml:space="preserve">
+    <value>{0} tags</value>
+  </data>
+  <data name="Preferences_FileName" xml:space="preserve">
+    <value>File Name</value>
+  </data>
+  <data name="Preferences_UseFileNameFormat" xml:space="preserve">
+    <value>Name saved files from their tags</value>
+  </data>
+  <data name="Preferences_FileNameMovies" xml:space="preserve">
+    <value>Movies:</value>
+  </data>
+  <data name="Preferences_FileNameTvShows" xml:space="preserve">
+    <value>TV shows:</value>
+  </data>
+  <data name="Preferences_FileNameHelp" xml:space="preserve">
+    <value>Use {Tag Name} tokens. Add :00 for leading zeros, :yyyy for a date's year, and |upper, |lower, |capitalize, |camel, |snake, |train or |dot to change case.</value>
+  </data>
+  <data name="Preferences_PreviewEmpty" xml:space="preserve">
+    <value>(empty)</value>
+  </data>
+  <data name="Preferences_SampleMovie" xml:space="preserve">
+    <value>The Movie</value>
+  </data>
+  <data name="Preferences_SampleEpisode" xml:space="preserve">
+    <value>Pilot</value>
+  </data>
+  <data name="Preferences_SampleShow" xml:space="preserve">
+    <value>The Show</value>
+  </data>
+  <data name="SaveAs_Title" xml:space="preserve">
+    <value>Save As</value>
+  </data>
+  <data name="SaveAs_File" xml:space="preserve">
+    <value>File:</value>
+  </data>
+  <data name="SaveAs_Format" xml:space="preserve">
+    <value>Format:</value>
+  </data>
+  <data name="SaveAs_Optimize" xml:space="preserve">
+    <value>Optimize (interleave and put the header first for streaming)</value>
+  </data>
+  <data name="SaveAs_64BitOffsets" xml:space="preserve">
+    <value>64-bit chunk offsets (needed for files larger than 4 GB)</value>
+  </data>
+  <data name="SaveAs_64BitTimes" xml:space="preserve">
+    <value>64-bit times</value>
+  </data>
+  <data name="SaveAs_Untitled" xml:space="preserve">
+    <value>Untitled</value>
+  </data>
+  <data name="SaveAs_CopyNameFormat" xml:space="preserve">
+    <value>{0} copy</value>
+  </data>
+  <data name="SaveSet_Title" xml:space="preserve">
+    <value>Save Set</value>
+  </data>
+  <data name="SaveSet_Description" xml:space="preserve">
+    <value>Save the current tags and artwork as a reusable set.</value>
+  </data>
+  <data name="SaveSet_NamePlaceholder" xml:space="preserve">
+    <value>Set name</value>
+  </data>
+  <data name="SaveSet_WhenApplied" xml:space="preserve">
+    <value>When this set is applied:</value>
+  </data>
+  <data name="SaveSet_KeepArtwork" xml:space="preserve">
+    <value>Keep the file's existing artwork (add the set's artwork)</value>
+  </data>
+  <data name="SaveSet_KeepTags" xml:space="preserve">
+    <value>Keep the file's existing tag values (only fill missing tags)</value>
+  </data>
+  <data name="LanguagePicker_Search" xml:space="preserve">
+    <value>Search languages</value>
+  </data>
+  <data name="Ocr_Warning" xml:space="preserve">
+    <value>Our built-in OCR is basic. Subtitle Edit (https://www.nikse.dk/subtitleedit) does a much better job of converting image subtitles to text, and we recommend using it, then importing the resulting SRT file.</value>
+  </data>
+  <data name="Ocr_NotAvailable_Title" xml:space="preserve">
+    <value>OCR not available</value>
+  </data>
+  <data name="Ocr_TesseractNotFound" xml:space="preserve">
+    <value>Tesseract was not found.</value>
+  </data>
+  <data name="Ocr_Download_Title" xml:space="preserve">
+    <value>Download OCR language</value>
+  </data>
+  <data name="Ocr_Download_MessageFormat" xml:space="preserve">
+    <value>OCR needs the {0} language model, which is not installed. Download it now (a few MB)?</value>
+  </data>
+  <data name="Ocr_DownloadFailed_Title" xml:space="preserve">
+    <value>Download failed</value>
+  </data>
+</root>

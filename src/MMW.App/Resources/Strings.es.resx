@@ -1,0 +1,1509 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Name" xml:space="preserve">
+    <value>Media Metadata Wizard</value>
+  </data>
+  <data name="Window_TitleFormat" xml:space="preserve">
+    <value>{0} — Media Metadata Wizard</value>
+  </data>
+  <data name="Menu_File" xml:space="preserve">
+    <value>_Archivo</value>
+  </data>
+  <data name="Menu_File_Open" xml:space="preserve">
+    <value>_Abrir…</value>
+  </data>
+  <data name="Menu_File_OpenRecent" xml:space="preserve">
+    <value>Abrir _recientes</value>
+  </data>
+  <data name="Menu_File_ClearRecent" xml:space="preserve">
+    <value>Borrar menú</value>
+  </data>
+  <data name="Menu_File_Close" xml:space="preserve">
+    <value>_Cerrar</value>
+  </data>
+  <data name="Menu_File_Save" xml:space="preserve">
+    <value>_Guardar</value>
+  </data>
+  <data name="Menu_File_SaveAs" xml:space="preserve">
+    <value>Guardar co_mo…</value>
+  </data>
+  <data name="Menu_File_SendToQueue" xml:space="preserve">
+    <value>En_viar a la cola</value>
+  </data>
+  <data name="Menu_File_ExportNfo" xml:space="preserve">
+    <value>Exportar _NFO…</value>
+  </data>
+  <data name="Menu_File_Preferences" xml:space="preserve">
+    <value>_Preferencias…</value>
+  </data>
+  <data name="Menu_File_Exit" xml:space="preserve">
+    <value>_Salir</value>
+  </data>
+  <data name="Menu_Edit" xml:space="preserve">
+    <value>_Edición</value>
+  </data>
+  <data name="Menu_Edit_Undo" xml:space="preserve">
+    <value>Deshacer</value>
+  </data>
+  <data name="Menu_Edit_UndoFormat" xml:space="preserve">
+    <value>Deshacer: {0}</value>
+  </data>
+  <data name="Menu_Edit_Redo" xml:space="preserve">
+    <value>Rehacer</value>
+  </data>
+  <data name="Menu_Edit_RedoFormat" xml:space="preserve">
+    <value>Rehacer: {0}</value>
+  </data>
+  <data name="Menu_Metadata" xml:space="preserve">
+    <value>_Metadatos</value>
+  </data>
+  <data name="Menu_Metadata_Search" xml:space="preserve">
+    <value>_Buscar en línea…</value>
+  </data>
+  <data name="Menu_Tracks" xml:space="preserve">
+    <value>_Pistas</value>
+  </data>
+  <data name="Menu_Tracks_Import" xml:space="preserve">
+    <value>_Importar…</value>
+  </data>
+  <data name="Menu_Tracks_DeleteSelected" xml:space="preserve">
+    <value>_Eliminar pistas seleccionadas</value>
+  </data>
+  <data name="Menu_Tracks_MoveUp" xml:space="preserve">
+    <value>_Subir pista</value>
+  </data>
+  <data name="Menu_Tracks_MoveDown" xml:space="preserve">
+    <value>_Bajar pista</value>
+  </data>
+  <data name="Menu_Tracks_Offset" xml:space="preserve">
+    <value>_Desplazar…</value>
+  </data>
+  <data name="Menu_Tracks_OrganizeGroups" xml:space="preserve">
+    <value>_Organizar grupos alternativos</value>
+  </data>
+  <data name="Menu_Tracks_FixFallbacks" xml:space="preserve">
+    <value>Corregir audio de _reserva</value>
+  </data>
+  <data name="Menu_Tracks_CompleteLanguages" xml:space="preserve">
+    <value>_Completar idiomas de pistas…</value>
+  </data>
+  <data name="Menu_Tracks_ApplyColorSpace" xml:space="preserve">
+    <value>_Aplicar espacio de color</value>
+  </data>
+  <data name="Menu_Tracks_ClearNames" xml:space="preserve">
+    <value>Borrar _nombres de pistas</value>
+  </data>
+  <data name="Menu_Tracks_PrettifyAudioNames" xml:space="preserve">
+    <value>E_mbellecer nombres de pistas de audio</value>
+  </data>
+  <data name="Menu_Tracks_InsertChapterEvery" xml:space="preserve">
+    <value>Inser_tar un capítulo cada</value>
+  </data>
+  <data name="Menu_Chapters_AtBeginning" xml:space="preserve">
+    <value>Al principio</value>
+  </data>
+  <data name="Menu_Chapters_1Minute" xml:space="preserve">
+    <value>1 minuto</value>
+  </data>
+  <data name="Menu_Chapters_2Minutes" xml:space="preserve">
+    <value>2 minutos</value>
+  </data>
+  <data name="Menu_Chapters_5Minutes" xml:space="preserve">
+    <value>5 minutos</value>
+  </data>
+  <data name="Menu_Chapters_10Minutes" xml:space="preserve">
+    <value>10 minutos</value>
+  </data>
+  <data name="Menu_Chapters_15Minutes" xml:space="preserve">
+    <value>15 minutos</value>
+  </data>
+  <data name="Menu_Chapters_20Minutes" xml:space="preserve">
+    <value>20 minutos</value>
+  </data>
+  <data name="Menu_Chapters_30Minutes" xml:space="preserve">
+    <value>30 minutos</value>
+  </data>
+  <data name="Menu_Window" xml:space="preserve">
+    <value>_Ventana</value>
+  </data>
+  <data name="Menu_Window_Queue" xml:space="preserve">
+    <value>_Cola</value>
+  </data>
+  <data name="Menu_Window_Log" xml:space="preserve">
+    <value>_Registro de mensajes</value>
+  </data>
+  <data name="Menu_Help" xml:space="preserve">
+    <value>Ay_uda</value>
+  </data>
+  <data name="Menu_Help_About" xml:space="preserve">
+    <value>_Acerca de Media Metadata Wizard</value>
+  </data>
+  <data name="Menu_Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="Menu_Paste" xml:space="preserve">
+    <value>Pegar</value>
+  </data>
+  <data name="Menu_Export" xml:space="preserve">
+    <value>Exportar…</value>
+  </data>
+  <data name="Menu_Remove" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="Action_InsertChapterEvery" xml:space="preserve">
+    <value>Insertar un capítulo cada</value>
+  </data>
+  <data name="Action_Offset" xml:space="preserve">
+    <value>Desplazar…</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>Organizar grupos alternativos</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>Corregir audio de reserva</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>Completar idiomas de pistas…</value>
+  </data>
+  <data name="Action_ClearNames" xml:space="preserve">
+    <value>Borrar nombres de pistas</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>Embellecer nombres de pistas de audio</value>
+  </data>
+  <data name="Toolbar_Open" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
+  <data name="Toolbar_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Toolbar_Import" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="Toolbar_Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Toolbar_Action" xml:space="preserve">
+    <value>Acciones</value>
+  </data>
+  <data name="Toolbar_Undo" xml:space="preserve">
+    <value>Deshacer</value>
+  </data>
+  <data name="Toolbar_Redo" xml:space="preserve">
+    <value>Rehacer</value>
+  </data>
+  <data name="Toolbar_Search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="Toolbar_SendToQueue" xml:space="preserve">
+    <value>Enviar a la cola</value>
+  </data>
+  <data name="Toolbar_Queue" xml:space="preserve">
+    <value>Cola</value>
+  </data>
+  <data name="Tooltip_Open" xml:space="preserve">
+    <value>Abrir un archivo</value>
+  </data>
+  <data name="Tooltip_Save" xml:space="preserve">
+    <value>Guardar los cambios</value>
+  </data>
+  <data name="Tooltip_ImportTracks" xml:space="preserve">
+    <value>Importar pistas de otros archivos</value>
+  </data>
+  <data name="Tooltip_DeleteTracks" xml:space="preserve">
+    <value>Eliminar las pistas seleccionadas</value>
+  </data>
+  <data name="Tooltip_Actions" xml:space="preserve">
+    <value>Acciones de pistas y capítulos</value>
+  </data>
+  <data name="Tooltip_SearchComingSoon" xml:space="preserve">
+    <value>Buscar metadatos en línea (próximamente)</value>
+  </data>
+  <data name="Tooltip_SendToQueue" xml:space="preserve">
+    <value>Enviar este archivo a la cola de procesamiento por lotes</value>
+  </data>
+  <data name="Tooltip_ShowQueue" xml:space="preserve">
+    <value>Mostrar la cola de procesamiento por lotes</value>
+  </data>
+  <data name="Tooltip_CloseTab" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Welcome_DropHere" xml:space="preserve">
+    <value>Suelta aquí archivos MP4 o Matroska</value>
+  </data>
+  <data name="Welcome_Subtitle" xml:space="preserve">
+    <value>Edita etiquetas, carátulas, capítulos y propiedades de las pistas sin volver a codificar.</value>
+  </data>
+  <data name="Welcome_Open" xml:space="preserve">
+    <value>Abrir…</value>
+  </data>
+  <data name="Welcome_RecentFiles" xml:space="preserve">
+    <value>Archivos recientes</value>
+  </data>
+  <data name="Tracks_Menu_Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Tracks_Menu_MoveUp" xml:space="preserve">
+    <value>Subir</value>
+  </data>
+  <data name="Tracks_Menu_MoveDown" xml:space="preserve">
+    <value>Bajar</value>
+  </data>
+  <data name="Tracks_Column_Id" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Tracks_Column_Enabled" xml:space="preserve">
+    <value>Activada</value>
+  </data>
+  <data name="Tracks_Column_Name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Tracks_Column_Duration" xml:space="preserve">
+    <value>Duración</value>
+  </data>
+  <data name="Tracks_Column_Language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Tracks_Column_Format" xml:space="preserve">
+    <value>Formato</value>
+  </data>
+  <data name="Tracks_Tooltip_Enabled" xml:space="preserve">
+    <value>Activar o desactivar la pista</value>
+  </data>
+  <data name="Tracks_Row_Metadata" xml:space="preserve">
+    <value>Metadatos</value>
+  </data>
+  <data name="Tracks_Row_MetadataFormat" xml:space="preserve">
+    <value>Etiquetas, carátulas</value>
+  </data>
+  <data name="Tracks_Row_Chapters" xml:space="preserve">
+    <value>Capítulos</value>
+  </data>
+  <data name="Tracks_Row_ChaptersFormat" xml:space="preserve">
+    <value>Capítulos, {0}</value>
+  </data>
+  <data name="Status_UnknownContainer" xml:space="preserve">
+    <value>Desconocido</value>
+  </data>
+  <data name="Status_TracksFormat" xml:space="preserve">
+    <value>{0} pistas</value>
+  </data>
+  <data name="Status_ChaptersFormat" xml:space="preserve">
+    <value>{0} capítulos</value>
+  </data>
+  <data name="TrackInspector_Header_Video" xml:space="preserve">
+    <value>Pista de vídeo</value>
+  </data>
+  <data name="TrackInspector_Header_Audio" xml:space="preserve">
+    <value>Pista de audio</value>
+  </data>
+  <data name="TrackInspector_Header_Subtitle" xml:space="preserve">
+    <value>Pista de subtítulos</value>
+  </data>
+  <data name="TrackInspector_Header_ClosedCaptions" xml:space="preserve">
+    <value>Subtítulos para sordos</value>
+  </data>
+  <data name="TrackInspector_Header_Track" xml:space="preserve">
+    <value>Pista</value>
+  </data>
+  <data name="TrackInspector_Name" xml:space="preserve">
+    <value>Nombre:</value>
+  </data>
+  <data name="TrackInspector_NamePlaceholder" xml:space="preserve">
+    <value>Nombre de la pista</value>
+  </data>
+  <data name="TrackInspector_Language" xml:space="preserve">
+    <value>Idioma:</value>
+  </data>
+  <data name="TrackInspector_Enabled" xml:space="preserve">
+    <value>Activada:</value>
+  </data>
+  <data name="TrackInspector_EnabledCheck" xml:space="preserve">
+    <value>Activada</value>
+  </data>
+  <data name="TrackInspector_Default" xml:space="preserve">
+    <value>Predeterminada</value>
+  </data>
+  <data name="TrackInspector_Forced" xml:space="preserve">
+    <value>Forzada</value>
+  </data>
+  <data name="TrackInspector_AlternateGroup" xml:space="preserve">
+    <value>Grupo alternativo:</value>
+  </data>
+  <data name="TrackInspector_Delay" xml:space="preserve">
+    <value>Retardo:</value>
+  </data>
+  <data name="TrackInspector_DelayName" xml:space="preserve">
+    <value>Retardo en milisegundos</value>
+  </data>
+  <data name="TrackInspector_DelayNote" xml:space="preserve">
+    <value>ms (se aplica al guardar; el archivo se vuelve a multiplexar)</value>
+  </data>
+  <data name="TrackInspector_Conversion" xml:space="preserve">
+    <value>Conversión:</value>
+  </data>
+  <data name="TrackInspector_ConversionTooltip" xml:space="preserve">
+    <value>Conversión que se aplica al guardar</value>
+  </data>
+  <data name="TrackInspector_AppliedWhenSaving" xml:space="preserve">
+    <value>se aplica al guardar</value>
+  </data>
+  <data name="TrackInspector_Visual" xml:space="preserve">
+    <value>Imagen</value>
+  </data>
+  <data name="TrackInspector_DisplaySize" xml:space="preserve">
+    <value>Tamaño de visualización:</value>
+  </data>
+  <data name="TrackInspector_ColourSpace" xml:space="preserve">
+    <value>Espacio de color:</value>
+  </data>
+  <data name="TrackInspector_Hdr" xml:space="preserve">
+    <value>HDR:</value>
+  </data>
+  <data name="TrackInspector_Profile" xml:space="preserve">
+    <value>Perfil:</value>
+  </data>
+  <data name="TrackInspector_Sound" xml:space="preserve">
+    <value>Sonido</value>
+  </data>
+  <data name="TrackInspector_Volume" xml:space="preserve">
+    <value>Volumen:</value>
+  </data>
+  <data name="TrackInspector_Fallback" xml:space="preserve">
+    <value>Pista de reserva:</value>
+  </data>
+  <data name="TrackInspector_FallbackTooltip" xml:space="preserve">
+    <value>Pista que reproducen los dispositivos que no pueden descodificar esta</value>
+  </data>
+  <data name="TrackInspector_FollowingSubtitles" xml:space="preserve">
+    <value>Subtítulos:</value>
+  </data>
+  <data name="TrackInspector_FollowingSubtitlesTooltip" xml:space="preserve">
+    <value>Pista de subtítulos que acompaña a esta pista de audio</value>
+  </data>
+  <data name="TrackInspector_SubtitlesGroup" xml:space="preserve">
+    <value>Subtítulos</value>
+  </data>
+  <data name="TrackInspector_ForcedMode" xml:space="preserve">
+    <value>Forzados:</value>
+  </data>
+  <data name="TrackInspector_ForcedTrack" xml:space="preserve">
+    <value>Pista forzada:</value>
+  </data>
+  <data name="TrackInspector_MediaCharacteristics" xml:space="preserve">
+    <value>Características multimedia</value>
+  </data>
+  <data name="TrackInspector_CharacteristicsHelp" xml:space="preserve">
+    <value>Describe la finalidad de esta pista para que los reproductores puedan elegirla automáticamente.</value>
+  </data>
+  <data name="TrackInspector_Info" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="TrackInspector_AlternateGroupNone" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="TrackInspector_TrackNone" xml:space="preserve">
+    <value>Ninguna</value>
+  </data>
+  <data name="TrackInspector_HdrNone" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="TrackInspector_ForcedModeNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="TrackInspector_ForcedModeSome" xml:space="preserve">
+    <value>Algunas muestras son forzadas</value>
+  </data>
+  <data name="TrackInspector_ForcedModeAll" xml:space="preserve">
+    <value>Todas las muestras son forzadas</value>
+  </data>
+  <data name="TrackInspector_CustomColorFormat" xml:space="preserve">
+    <value>Personalizado ({0})</value>
+  </data>
+  <data name="TrackInspector_DolbyVisionFormat" xml:space="preserve">
+    <value>Dolby Vision {0}</value>
+  </data>
+  <data name="TrackInspector_MasteringDisplayFormat" xml:space="preserve">
+    <value>Pantalla de masterización: {0:0.####}–{1:0.#} cd/m²</value>
+  </data>
+  <data name="TrackInspector_LightLevelFormat" xml:space="preserve">
+    <value>MaxCLL {0} cd/m², MaxFALL {1} cd/m²</value>
+  </data>
+  <data name="TrackInspector_AmbientFormat" xml:space="preserve">
+    <value>Iluminación ambiente: {0:0.#} lux</value>
+  </data>
+  <data name="TrackInfo_FormatFormat" xml:space="preserve">
+    <value>Formato: {0} ({1})</value>
+  </data>
+  <data name="TrackInfo_DetailsFormat" xml:space="preserve">
+    <value>Detalles: {0}</value>
+  </data>
+  <data name="TrackInfo_DurationFormat" xml:space="preserve">
+    <value>Duración: {0}</value>
+  </data>
+  <data name="TrackInfo_BitrateFormat" xml:space="preserve">
+    <value>Tasa de bits: {0:0.#} kbit/s</value>
+  </data>
+  <data name="TrackInfo_SizeFormat" xml:space="preserve">
+    <value>Tamaño: {0:0.##} MiB</value>
+  </data>
+  <data name="TrackInfo_FrameRateFormat" xml:space="preserve">
+    <value>Velocidad de fotogramas: {0:0.###} fps</value>
+  </data>
+  <data name="TrackInfo_PixelSizeFormat" xml:space="preserve">
+    <value>Tamaño en píxeles: {0}×{1}, PAR {2}:{3}</value>
+  </data>
+  <data name="TrackInfo_ChannelsFormat" xml:space="preserve">
+    <value>Canales: {0} {1}</value>
+  </data>
+  <data name="TrackInfo_SampleRateFormat" xml:space="preserve">
+    <value>Frecuencia de muestreo: {0} Hz</value>
+  </data>
+  <data name="TrackInfo_SourceFormat" xml:space="preserve">
+    <value>Origen: {0}, pista {1}</value>
+  </data>
+  <data name="MultiSelection_CountFormat" xml:space="preserve">
+    <value>{0} pistas seleccionadas</value>
+  </data>
+  <data name="MultiSelection_MultipleValues" xml:space="preserve">
+    <value>Varios valores</value>
+  </data>
+  <data name="MultiSelection_ClearNames" xml:space="preserve">
+    <value>Borrar nombres</value>
+  </data>
+  <data name="Undo_ConvertFormat" xml:space="preserve">
+    <value>Convertir {0}</value>
+  </data>
+  <data name="Undo_DeleteTrack" xml:space="preserve">
+    <value>Eliminar pista</value>
+  </data>
+  <data name="Undo_DeleteTracks" xml:space="preserve">
+    <value>Eliminar pistas</value>
+  </data>
+  <data name="Undo_OffsetTracks" xml:space="preserve">
+    <value>Desplazar pistas</value>
+  </data>
+  <data name="Undo_ClearTrackNames" xml:space="preserve">
+    <value>Borrar nombres de pistas</value>
+  </data>
+  <data name="Undo_PrettifyAudioNames" xml:space="preserve">
+    <value>Embellecer nombres de pistas de audio</value>
+  </data>
+  <data name="Undo_OrganizeGroups" xml:space="preserve">
+    <value>Organizar grupos alternativos</value>
+  </data>
+  <data name="Undo_FixFallbacks" xml:space="preserve">
+    <value>Corregir audio de reserva</value>
+  </data>
+  <data name="Undo_CompleteLanguages" xml:space="preserve">
+    <value>Completar idiomas</value>
+  </data>
+  <data name="Undo_ApplyColorSpace" xml:space="preserve">
+    <value>Aplicar espacio de color</value>
+  </data>
+  <data name="Undo_InsertChapters" xml:space="preserve">
+    <value>Insertar capítulos</value>
+  </data>
+  <data name="Undo_ImportNfo" xml:space="preserve">
+    <value>Importar NFO</value>
+  </data>
+  <data name="Undo_ImportChapters" xml:space="preserve">
+    <value>Importar capítulos</value>
+  </data>
+  <data name="Undo_ImportTracks" xml:space="preserve">
+    <value>Importar pistas</value>
+  </data>
+  <data name="Undo_ImportMetadata" xml:space="preserve">
+    <value>Importar metadatos</value>
+  </data>
+  <data name="Undo_ClearTagFormat" xml:space="preserve">
+    <value>Borrar {0}</value>
+  </data>
+  <data name="Undo_ChangeTagFormat" xml:space="preserve">
+    <value>Cambiar {0}</value>
+  </data>
+  <data name="Undo_RemoveTagFormat" xml:space="preserve">
+    <value>Quitar {0}</value>
+  </data>
+  <data name="Undo_ApplySetFormat" xml:space="preserve">
+    <value>Aplicar el conjunto «{0}»</value>
+  </data>
+  <data name="Undo_AddArtwork" xml:space="preserve">
+    <value>Añadir carátula</value>
+  </data>
+  <data name="Undo_AddArtworks" xml:space="preserve">
+    <value>Añadir carátulas</value>
+  </data>
+  <data name="Undo_RemoveArtwork" xml:space="preserve">
+    <value>Quitar carátula</value>
+  </data>
+  <data name="Undo_MoveArtwork" xml:space="preserve">
+    <value>Mover carátula</value>
+  </data>
+  <data name="Undo_ApplyResultFormat" xml:space="preserve">
+    <value>Aplicar resultado de {0}</value>
+  </data>
+  <data name="Undo_ChangeLanguage" xml:space="preserve">
+    <value>Cambiar idioma</value>
+  </data>
+  <data name="Undo_EnableTracks" xml:space="preserve">
+    <value>Activar pistas</value>
+  </data>
+  <data name="Undo_DisableTracks" xml:space="preserve">
+    <value>Desactivar pistas</value>
+  </data>
+  <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
+    <value>Cambiar grupo alternativo</value>
+  </data>
+  <data name="Button_OK" xml:space="preserve">
+    <value>Aceptar</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Button_DontSave" xml:space="preserve">
+    <value>No guardar</value>
+  </data>
+  <data name="Button_Download" xml:space="preserve">
+    <value>Descargar</value>
+  </data>
+  <data name="Button_Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Button_Import" xml:space="preserve">
+    <value>Importar</value>
+  </data>
+  <data name="Button_Apply" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="Button_Search" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="Button_Browse" xml:space="preserve">
+    <value>Examinar…</value>
+  </data>
+  <data name="Button_Choose" xml:space="preserve">
+    <value>Elegir…</value>
+  </data>
+  <data name="Button_Clear" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="Button_RestoreDefaults" xml:space="preserve">
+    <value>Restaurar valores predeterminados</value>
+  </data>
+  <data name="Button_CheckAll" xml:space="preserve">
+    <value>Marcar todo</value>
+  </data>
+  <data name="Button_UncheckAll" xml:space="preserve">
+    <value>Desmarcar todo</value>
+  </data>
+  <data name="Dialog_SaveChanges_Title" xml:space="preserve">
+    <value>Cambios sin guardar</value>
+  </data>
+  <data name="Dialog_SaveChanges_MessageFormat" xml:space="preserve">
+    <value>¿Quieres guardar los cambios hechos en «{0}»?
+
+Si no los guardas, se perderán.</value>
+  </data>
+  <data name="Dialog_Open_Title" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
+  <data name="Dialog_ImportTracks_Title" xml:space="preserve">
+    <value>Importar pistas</value>
+  </data>
+  <data name="Dialog_CouldNotImportNfo_Title" xml:space="preserve">
+    <value>No se ha podido importar el NFO</value>
+  </data>
+  <data name="Dialog_CouldNotOpen_Title" xml:space="preserve">
+    <value>No se ha podido abrir el archivo</value>
+  </data>
+  <data name="Dialog_CouldNotSave_Title" xml:space="preserve">
+    <value>No se ha podido guardar</value>
+  </data>
+  <data name="Dialog_Offset_Title" xml:space="preserve">
+    <value>Desplazar</value>
+  </data>
+  <data name="Dialog_Offset_SelectFirst" xml:space="preserve">
+    <value>Primero selecciona las pistas que quieres desplazar.</value>
+  </data>
+  <data name="Dialog_Offset_Prompt" xml:space="preserve">
+    <value>Desplaza las pistas seleccionadas este número de milisegundos (los valores negativos las adelantan):</value>
+  </data>
+  <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
+    <value>«{0}» no es un número de milisegundos.</value>
+  </data>
+  <data name="Dialog_CompleteLanguages_Title" xml:space="preserve">
+    <value>Completar idiomas de pistas</value>
+  </data>
+  <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
+    <value>Asigna este idioma a todas las pistas cuyo idioma no esté determinado.</value>
+  </data>
+  <data name="Dialog_ExportNfo_Title" xml:space="preserve">
+    <value>Exportar NFO</value>
+  </data>
+  <data name="Dialog_AddArtwork_Title" xml:space="preserve">
+    <value>Añadir carátulas</value>
+  </data>
+  <data name="Dialog_ExportArtwork_Title" xml:space="preserve">
+    <value>Exportar carátula</value>
+  </data>
+  <data name="Dialog_ImportChapters_Title" xml:space="preserve">
+    <value>Importar capítulos</value>
+  </data>
+  <data name="Dialog_ImportChapters_CountMismatchFormat" xml:space="preserve">
+    <value>El archivo CSV tiene {0} títulos, pero el archivo tiene {1} capítulos.</value>
+  </data>
+  <data name="Dialog_ImportChapters_NoneFound" xml:space="preserve">
+    <value>No se ha encontrado ningún capítulo en el archivo.</value>
+  </data>
+  <data name="Dialog_ExportChapters_Title" xml:space="preserve">
+    <value>Exportar capítulos</value>
+  </data>
+  <data name="Dialog_AddToQueue_Title" xml:space="preserve">
+    <value>Añadir a la cola</value>
+  </data>
+  <data name="Dialog_OutputFolder_Title" xml:space="preserve">
+    <value>Carpeta de salida</value>
+  </data>
+  <data name="Dialog_About_TitleFormat" xml:space="preserve">
+    <value>Acerca de {0}</value>
+  </data>
+  <data name="About_Description" xml:space="preserve">
+    <value>Edita los metadatos, capítulos y pistas de archivos MP4 y Matroska.</value>
+  </data>
+  <data name="About_FFmpegFormat" xml:space="preserve">
+    <value>Conversión de audio: FFmpeg {0} (LGPL).</value>
+  </data>
+  <data name="About_FFmpegMissing" xml:space="preserve">
+    <value>Conversión de audio: no se han encontrado las bibliotecas de FFmpeg.</value>
+  </data>
+  <data name="About_OcrFormat" xml:space="preserve">
+    <value>OCR de subtítulos: {0}.</value>
+  </data>
+  <data name="About_OcrMissing" xml:space="preserve">
+    <value>OCR de subtítulos: no se ha encontrado Tesseract.</value>
+  </data>
+  <data name="About_Icons" xml:space="preserve">
+    <value>Iconos: Material Design Icons (Apache 2.0).</value>
+  </data>
+  <data name="FileFilter_Media" xml:space="preserve">
+    <value>Archivos multimedia</value>
+  </data>
+  <data name="FileFilter_Mp4" xml:space="preserve">
+    <value>MPEG-4</value>
+  </data>
+  <data name="FileFilter_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="FileFilter_Images" xml:space="preserve">
+    <value>Imágenes</value>
+  </data>
+  <data name="FileFilter_ChapterFiles" xml:space="preserve">
+    <value>Archivos de capítulos</value>
+  </data>
+  <data name="FileFilter_Text" xml:space="preserve">
+    <value>Texto</value>
+  </data>
+  <data name="FileFilter_All" xml:space="preserve">
+    <value>Todos los archivos</value>
+  </data>
+  <data name="FileFilter_Importable" xml:space="preserve">
+    <value>Archivos importables</value>
+  </data>
+  <data name="FileFilter_KodiNfo" xml:space="preserve">
+    <value>NFO de Kodi</value>
+  </data>
+  <data name="File_DefaultArtworkName" xml:space="preserve">
+    <value>caratula</value>
+  </data>
+  <data name="Error_NoWriterFormat" xml:space="preserve">
+    <value>No se pueden escribir archivos {0}.</value>
+  </data>
+  <data name="Error_ChapterTime" xml:space="preserve">
+    <value>Usa hh:mm:ss.fff</value>
+  </data>
+  <data name="Error_MetadataSearchUnavailable" xml:space="preserve">
+    <value>La búsqueda de metadatos no está disponible.</value>
+  </data>
+  <data name="Error_NoProviderFormat" xml:space="preserve">
+    <value>No hay ningún proveedor para {0}.</value>
+  </data>
+  <data name="QueueAction_FetchMetadata" xml:space="preserve">
+    <value>Buscar metadatos en línea</value>
+  </data>
+  <data name="QueueAction_LoadSubtitles" xml:space="preserve">
+    <value>Cargar subtítulos externos</value>
+  </data>
+  <data name="QueueAction_PrepareTracks" xml:space="preserve">
+    <value>Preparar las pistas para el formato de salida</value>
+  </data>
+  <data name="QueueLog_NothingToSearch" xml:space="preserve">
+    <value>No hay nada que buscar (no hay título en las etiquetas ni en el nombre del archivo).</value>
+  </data>
+  <data name="QueueLog_NoResultsFormat" xml:space="preserve">
+    <value>{0}: no hay resultados para «{1}».</value>
+  </data>
+  <data name="QueueLog_LoadedSubtitlesFormat" xml:space="preserve">
+    <value>Se han cargado {0} pista(s) de subtítulos de {1}.</value>
+  </data>
+  <data name="QueueLog_DroppingTrackFormat" xml:space="preserve">
+    <value>Se descarta la pista {0} ({1}): no se puede guardar en el formato de salida.</value>
+  </data>
+  <data name="QueueLog_TrackConversionFormat" xml:space="preserve">
+    <value>Pista {0} ({1}): {2}.</value>
+  </data>
+  <data name="Notification_QueueFinished_Title" xml:space="preserve">
+    <value>Cola terminada</value>
+  </data>
+  <data name="Notification_QueueFinished_MessageFormat" xml:space="preserve">
+    <value>{0} completados, {1} con errores.</value>
+  </data>
+  <data name="Queue_Title" xml:space="preserve">
+    <value>Cola</value>
+  </data>
+  <data name="Queue_SummaryFormat" xml:space="preserve">
+    <value>{0} elementos · {1} listos · {2} terminados · {3} con errores</value>
+  </data>
+  <data name="Queue_SummaryRunningFormat" xml:space="preserve">
+    <value>En curso · {0}</value>
+  </data>
+  <data name="Queue_Add" xml:space="preserve">
+    <value>Añadir</value>
+  </data>
+  <data name="Queue_Remove" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="Queue_Start" xml:space="preserve">
+    <value>Iniciar</value>
+  </data>
+  <data name="Queue_Stop" xml:space="preserve">
+    <value>Detener</value>
+  </data>
+  <data name="Queue_Tooltip_Add" xml:space="preserve">
+    <value>Añadir archivos a la cola</value>
+  </data>
+  <data name="Queue_Tooltip_Remove" xml:space="preserve">
+    <value>Quitar el elemento seleccionado</value>
+  </data>
+  <data name="Queue_Tooltip_Start" xml:space="preserve">
+    <value>Procesar todos los elementos listos</value>
+  </data>
+  <data name="Queue_Tooltip_Stop" xml:space="preserve">
+    <value>Detener después de cancelar el elemento actual</value>
+  </data>
+  <data name="Queue_Empty" xml:space="preserve">
+    <value>Suelta aquí los archivos o usa Añadir. A cada archivo se le aplican las acciones elegidas a la derecha.</value>
+  </data>
+  <data name="Queue_Menu_Edit" xml:space="preserve">
+    <value>Editar…</value>
+  </data>
+  <data name="Queue_Menu_Reveal" xml:space="preserve">
+    <value>Mostrar en el gestor de archivos</value>
+  </data>
+  <data name="Queue_Menu_RunAgain" xml:space="preserve">
+    <value>Volver a ejecutar</value>
+  </data>
+  <data name="Queue_Menu_RemoveFromQueue" xml:space="preserve">
+    <value>Quitar de la cola</value>
+  </data>
+  <data name="Queue_Menu_RemoveCompleted" xml:space="preserve">
+    <value>Quitar los elementos completados</value>
+  </data>
+  <data name="Queue_Output" xml:space="preserve">
+    <value>Salida</value>
+  </data>
+  <data name="Queue_SameFolder" xml:space="preserve">
+    <value>La misma carpeta que el origen</value>
+  </data>
+  <data name="Queue_Folder" xml:space="preserve">
+    <value>Carpeta:</value>
+  </data>
+  <data name="Queue_FileType" xml:space="preserve">
+    <value>Tipo de archivo:</value>
+  </data>
+  <data name="Queue_OptimizeMp4" xml:space="preserve">
+    <value>Optimizar la salida MP4</value>
+  </data>
+  <data name="Queue_AutoStart" xml:space="preserve">
+    <value>Iniciar automáticamente al añadir archivos</value>
+  </data>
+  <data name="Queue_NotifyWhenDone" xml:space="preserve">
+    <value>Avisar al terminar</value>
+  </data>
+  <data name="Queue_Metadata" xml:space="preserve">
+    <value>Metadatos</value>
+  </data>
+  <data name="Queue_ClearMetadata" xml:space="preserve">
+    <value>Borrar los metadatos existentes</value>
+  </data>
+  <data name="Queue_FetchMetadata" xml:space="preserve">
+    <value>Buscar metadatos y carátula:</value>
+  </data>
+  <data name="Queue_ApplySet" xml:space="preserve">
+    <value>Aplicar conjunto:</value>
+  </data>
+  <data name="Queue_NoSavedSets" xml:space="preserve">
+    <value>Sin conjuntos guardados</value>
+  </data>
+  <data name="Queue_NameFromTags" xml:space="preserve">
+    <value>Nombrar los archivos de salida según las etiquetas</value>
+  </data>
+  <data name="Queue_LoadChapters" xml:space="preserve">
+    <value>Cargar capítulos de un .txt junto al archivo</value>
+  </data>
+  <data name="Queue_LoadSubtitles" xml:space="preserve">
+    <value>Cargar subtítulos (.srt, .ass, .vtt) con el mismo nombre que el archivo</value>
+  </data>
+  <data name="Queue_Tracks" xml:space="preserve">
+    <value>Pistas</value>
+  </data>
+  <data name="Queue_CompleteLanguages" xml:space="preserve">
+    <value>Completar idiomas:</value>
+  </data>
+  <data name="Queue_OrganizeGroups" xml:space="preserve">
+    <value>Organizar grupos alternativos</value>
+  </data>
+  <data name="Queue_FixFallbacks" xml:space="preserve">
+    <value>Corregir audio de reserva</value>
+  </data>
+  <data name="Queue_EnableAudio" xml:space="preserve">
+    <value>Activar el audio en:</value>
+  </data>
+  <data name="Queue_EnableSubtitles" xml:space="preserve">
+    <value>Activar los subtítulos en:</value>
+  </data>
+  <data name="Queue_ClearTrackNames" xml:space="preserve">
+    <value>Borrar nombres de pistas</value>
+  </data>
+  <data name="Queue_PrettifyAudioNames" xml:space="preserve">
+    <value>Embellecer nombres de pistas de audio</value>
+  </data>
+  <data name="Queue_RenameChapters" xml:space="preserve">
+    <value>Renombrar capítulos</value>
+  </data>
+  <data name="Queue_ColourSpace" xml:space="preserve">
+    <value>Espacio de color:</value>
+  </data>
+  <data name="FileType_SameAsSource" xml:space="preserve">
+    <value>Igual que el origen</value>
+  </data>
+  <data name="Format_M4v" xml:space="preserve">
+    <value>Vídeo MPEG-4 (.m4v)</value>
+  </data>
+  <data name="Format_Mp4" xml:space="preserve">
+    <value>MPEG-4 (.mp4)</value>
+  </data>
+  <data name="Format_M4a" xml:space="preserve">
+    <value>Audio MPEG-4 (.m4a)</value>
+  </data>
+  <data name="Format_M4b" xml:space="preserve">
+    <value>Audiolibro (.m4b)</value>
+  </data>
+  <data name="Format_M4r" xml:space="preserve">
+    <value>Tono de llamada (.m4r)</value>
+  </data>
+  <data name="Format_Mkv" xml:space="preserve">
+    <value>Matroska (.mkv)</value>
+  </data>
+  <data name="Format_Mka" xml:space="preserve">
+    <value>Audio Matroska (.mka)</value>
+  </data>
+  <data name="Format_Webm" xml:space="preserve">
+    <value>WebM (.webm)</value>
+  </data>
+  <data name="ArtworkKind_Poster" xml:space="preserve">
+    <value>Póster</value>
+  </data>
+  <data name="ArtworkKind_Season" xml:space="preserve">
+    <value>Temporada</value>
+  </data>
+  <data name="ArtworkKind_Episode" xml:space="preserve">
+    <value>Episodio</value>
+  </data>
+  <data name="ArtworkKind_Backdrop" xml:space="preserve">
+    <value>Fondo</value>
+  </data>
+  <data name="ArtworkKind_Square" xml:space="preserve">
+    <value>Cuadrada</value>
+  </data>
+  <data name="ArtworkKind_Rectangle" xml:space="preserve">
+    <value>Rectangular</value>
+  </data>
+  <data name="ArtworkKind_Other" xml:space="preserve">
+    <value>Otra</value>
+  </data>
+  <data name="ArtworkKind_None" xml:space="preserve">
+    <value>Sin carátula</value>
+  </data>
+  <data name="Log_Title" xml:space="preserve">
+    <value>Registro de mensajes</value>
+  </data>
+  <data name="MetadataInspector_Tags" xml:space="preserve">
+    <value>Etiquetas</value>
+  </data>
+  <data name="MetadataInspector_Sets" xml:space="preserve">
+    <value>Conjuntos</value>
+  </data>
+  <data name="MetadataInspector_SetsTooltip" xml:space="preserve">
+    <value>Aplicar o guardar un conjunto de etiquetas</value>
+  </data>
+  <data name="MetadataInspector_AddTag" xml:space="preserve">
+    <value>Añadir etiqueta</value>
+  </data>
+  <data name="MetadataInspector_AddTagTooltip" xml:space="preserve">
+    <value>Añadir una etiqueta</value>
+  </data>
+  <data name="MetadataInspector_FilterTags" xml:space="preserve">
+    <value>Filtrar etiquetas</value>
+  </data>
+  <data name="MetadataInspector_Empty" xml:space="preserve">
+    <value>No hay etiquetas. Usa «Añadir etiqueta» o «Conjuntos» para añadir algunas, o suelta en la ventana carátulas, archivos NFO o archivos de capítulos.</value>
+  </data>
+  <data name="MetadataInspector_RemoveTag" xml:space="preserve">
+    <value>Quitar etiqueta</value>
+  </data>
+  <data name="MetadataInspector_RemoveName" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="MetadataInspector_AddName" xml:space="preserve">
+    <value>Añadir nombre…</value>
+  </data>
+  <data name="MetadataInspector_Choose" xml:space="preserve">
+    <value>Elegir…</value>
+  </data>
+  <data name="MetadataInspector_ChooseRating" xml:space="preserve">
+    <value>Elige una clasificación…</value>
+  </data>
+  <data name="MetadataInspector_Artwork" xml:space="preserve">
+    <value>Carátulas</value>
+  </data>
+  <data name="MetadataInspector_AddArtworkTooltip" xml:space="preserve">
+    <value>Añadir carátulas desde archivos</value>
+  </data>
+  <data name="MetadataInspector_RemoveArtworkTooltip" xml:space="preserve">
+    <value>Quitar la carátula seleccionada</value>
+  </data>
+  <data name="MetadataInspector_MoveArtworkUpTooltip" xml:space="preserve">
+    <value>Mover antes (la primera imagen es la portada)</value>
+  </data>
+  <data name="MetadataInspector_MoveArtworkDownTooltip" xml:space="preserve">
+    <value>Mover después</value>
+  </data>
+  <data name="MetadataInspector_ExportArtworkTooltip" xml:space="preserve">
+    <value>Exportar la carátula seleccionada</value>
+  </data>
+  <data name="MetadataInspector_Size" xml:space="preserve">
+    <value>Tamaño</value>
+  </data>
+  <data name="MetadataInspector_ArtworkEmpty" xml:space="preserve">
+    <value>Suelta aquí imágenes o usa + para añadir carátulas.</value>
+  </data>
+  <data name="Sets_Save" xml:space="preserve">
+    <value>Guardar conjunto…</value>
+  </data>
+  <data name="Sets_All" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="Sets_Movie" xml:space="preserve">
+    <value>Película</value>
+  </data>
+  <data name="Sets_TvShow" xml:space="preserve">
+    <value>Serie de TV</value>
+  </data>
+  <data name="Artwork_DescriptionFormat" xml:space="preserve">
+    <value>{0}×{1} {2}, {3} KB</value>
+  </data>
+  <data name="Artwork_UnreadableFormat" xml:space="preserve">
+    <value>{0} (ilegible), {1} KB</value>
+  </data>
+  <data name="Tag_WatermarkPair" xml:space="preserve">
+    <value>n / total</value>
+  </data>
+  <data name="Tag_WatermarkDate" xml:space="preserve">
+    <value>AAAA-MM-DD</value>
+  </data>
+  <data name="Tag_UnknownChoiceFormat" xml:space="preserve">
+    <value>Desconocido ({0})</value>
+  </data>
+  <data name="Chapters_Tooltip_Add" xml:space="preserve">
+    <value>Añadir un capítulo</value>
+  </data>
+  <data name="Chapters_Tooltip_Delete" xml:space="preserve">
+    <value>Eliminar el capítulo seleccionado</value>
+  </data>
+  <data name="Chapters_Tooltip_RenameAll" xml:space="preserve">
+    <value>Renombrar todos los capítulos con números consecutivos</value>
+  </data>
+  <data name="Chapters_InsertEvery" xml:space="preserve">
+    <value>Insertar cada…</value>
+  </data>
+  <data name="Chapters_Tooltip_InsertEvery" xml:space="preserve">
+    <value>Sustituir los capítulos por marcas a intervalos fijos</value>
+  </data>
+  <data name="Chapters_Tooltip_Import" xml:space="preserve">
+    <value>Importar capítulos (txt) o títulos de capítulos (csv)</value>
+  </data>
+  <data name="Chapters_Tooltip_Thumbnails" xml:space="preserve">
+    <value>Capturar imágenes de vista previa de los capítulos</value>
+  </data>
+  <data name="Chapters_Tooltip_Export" xml:space="preserve">
+    <value>Exportar los capítulos como texto</value>
+  </data>
+  <data name="Chapters_Column_Time" xml:space="preserve">
+    <value>Tiempo</value>
+  </data>
+  <data name="Chapters_Column_Title" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Chapters_Interval_AtBeginning" xml:space="preserve">
+    <value>Al principio</value>
+  </data>
+  <data name="Chapters_Interval_OneMinute" xml:space="preserve">
+    <value>1 minuto</value>
+  </data>
+  <data name="Chapters_Interval_MinutesFormat" xml:space="preserve">
+    <value>{0} minutos</value>
+  </data>
+  <data name="Chapters_NewTitleFormat" xml:space="preserve">
+    <value>Capítulo {0}</value>
+  </data>
+  <data name="Import_TitleFormat" xml:space="preserve">
+    <value>Importar pistas a {0}</value>
+  </data>
+  <data name="Import_ImportMetadata" xml:space="preserve">
+    <value>Importar metadatos (etiquetas, carátulas) de los archivos de origen</value>
+  </data>
+  <data name="Import_CheckSameLanguage" xml:space="preserve">
+    <value>Marcar solo las pistas en este idioma</value>
+  </data>
+  <data name="Import_TrackCheckbox" xml:space="preserve">
+    <value>Importar esta pista</value>
+  </data>
+  <data name="Import_FrameRateTooltip" xml:space="preserve">
+    <value>Velocidad de fotogramas del flujo de vídeo sin contenedor</value>
+  </data>
+  <data name="Import_Reading" xml:space="preserve">
+    <value>Leyendo archivos…</value>
+  </data>
+  <data name="Import_TracksFoundFormat" xml:space="preserve">
+    <value>Se han encontrado {0} pista(s).</value>
+  </data>
+  <data name="Import_FFmpegMissing" xml:space="preserve">
+    <value>La conversión de audio necesita las bibliotecas de FFmpeg 8, que no se han encontrado.</value>
+  </data>
+  <data name="Search_Title" xml:space="preserve">
+    <value>Buscar metadatos</value>
+  </data>
+  <data name="Search_Movie" xml:space="preserve">
+    <value>Película</value>
+  </data>
+  <data name="Search_TvEpisode" xml:space="preserve">
+    <value>Episodio de TV</value>
+  </data>
+  <data name="Search_Provider" xml:space="preserve">
+    <value>Proveedor:</value>
+  </data>
+  <data name="Search_Language" xml:space="preserve">
+    <value>Idioma:</value>
+  </data>
+  <data name="Search_MovieTitle" xml:space="preserve">
+    <value>Título de la película</value>
+  </data>
+  <data name="Search_Year" xml:space="preserve">
+    <value>Año:</value>
+  </data>
+  <data name="Search_AnyYear" xml:space="preserve">
+    <value>Cualquiera</value>
+  </data>
+  <data name="Search_TvShow" xml:space="preserve">
+    <value>Serie de TV</value>
+  </data>
+  <data name="Search_Season" xml:space="preserve">
+    <value>Temporada:</value>
+  </data>
+  <data name="Search_Episode" xml:space="preserve">
+    <value>Episodio:</value>
+  </data>
+  <data name="Search_AllSeasons" xml:space="preserve">
+    <value>Todas</value>
+  </data>
+  <data name="Search_AllEpisodes" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Search_ReplaceArtwork" xml:space="preserve">
+    <value>Sustituir las carátulas existentes</value>
+  </data>
+  <data name="Search_Column_Tag" xml:space="preserve">
+    <value>Etiqueta</value>
+  </data>
+  <data name="Search_Column_Value" xml:space="preserve">
+    <value>Valor</value>
+  </data>
+  <data name="Search_ProviderNeedsKeyFormat" xml:space="preserve">
+    <value>{0} necesita una clave de API. Añádela en appsettings.json o en Preferencias → Metadatos.</value>
+  </data>
+  <data name="Search_SearchingEpisodeFormat" xml:space="preserve">
+    <value>Buscando información del episodio en {0}…</value>
+  </data>
+  <data name="Search_SearchingMovieFormat" xml:space="preserve">
+    <value>Buscando información de la película en {0}…</value>
+  </data>
+  <data name="Search_NoResults" xml:space="preserve">
+    <value>No hay resultados.</value>
+  </data>
+  <data name="Search_OneResult" xml:space="preserve">
+    <value>1 resultado.</value>
+  </data>
+  <data name="Search_ResultsFormat" xml:space="preserve">
+    <value>{0} resultados.</value>
+  </data>
+  <data name="Search_LoadingDetails" xml:space="preserve">
+    <value>Cargando detalles…</value>
+  </data>
+  <data name="Search_DetailsFormat" xml:space="preserve">
+    <value>{0} · {1} carátula(s)</value>
+  </data>
+  <data name="Search_DownloadingArtwork" xml:space="preserve">
+    <value>Descargando carátulas…</value>
+  </data>
+  <data name="Search_CouldNotDownloadFormat" xml:space="preserve">
+    <value>No se han podido descargar las carátulas: {0}</value>
+  </data>
+  <data name="Search_SeasonFormat" xml:space="preserve">
+    <value>Temporada {0}</value>
+  </data>
+  <data name="Preferences_Title" xml:space="preserve">
+    <value>Preferencias</value>
+  </data>
+  <data name="Preferences_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Preferences_Appearance" xml:space="preserve">
+    <value>Apariencia:</value>
+  </data>
+  <data name="Preferences_Language" xml:space="preserve">
+    <value>Idioma:</value>
+  </data>
+  <data name="Preferences_LanguageSystem" xml:space="preserve">
+    <value>Predeterminado del sistema</value>
+  </data>
+  <data name="Preferences_LanguageRestartNote" xml:space="preserve">
+    <value>El cambio de idioma se aplicará cuando reinicies la aplicación.</value>
+  </data>
+  <data name="Preferences_Theme_System" xml:space="preserve">
+    <value>Seguir al sistema</value>
+  </data>
+  <data name="Preferences_Theme_Light" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="Preferences_Theme_Dark" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
+  <data name="Preferences_Window" xml:space="preserve">
+    <value>Ventana:</value>
+  </data>
+  <data name="Preferences_RememberSize" xml:space="preserve">
+    <value>Recordar el tamaño</value>
+  </data>
+  <data name="Preferences_ShowRatingsFor" xml:space="preserve">
+    <value>Mostrar clasificaciones de:</value>
+  </data>
+  <data name="Preferences_UsaRatingsNote" xml:space="preserve">
+    <value>Las clasificaciones de EE. UU. se muestran siempre.</value>
+  </data>
+  <data name="Preferences_Chapters" xml:space="preserve">
+    <value>Capítulos:</value>
+  </data>
+  <data name="Preferences_CreatePreviews" xml:space="preserve">
+    <value>Crear imágenes de vista previa al guardar MP4, en:</value>
+  </data>
+  <data name="Preferences_Preview_Beginning" xml:space="preserve">
+    <value>Principio</value>
+  </data>
+  <data name="Preferences_Preview_Middle" xml:space="preserve">
+    <value>Mitad</value>
+  </data>
+  <data name="Preferences_Preview_End" xml:space="preserve">
+    <value>Final</value>
+  </data>
+  <data name="Preferences_Saving" xml:space="preserve">
+    <value>Guardado</value>
+  </data>
+  <data name="Preferences_OptimizeOnSave" xml:space="preserve">
+    <value>Optimizar al guardar (entrelazar, cabecera al principio)</value>
+  </data>
+  <data name="Preferences_64BitOffsets" xml:space="preserve">
+    <value>Usar siempre desplazamientos de fragmento de 64 bits (automático por encima de 4 GB)</value>
+  </data>
+  <data name="Preferences_64BitTimes" xml:space="preserve">
+    <value>Usar tiempos de 64 bits</value>
+  </data>
+  <data name="Preferences_Audio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Preferences_Downmix" xml:space="preserve">
+    <value>Reducir canales a:</value>
+  </data>
+  <data name="Preferences_AacBitrate" xml:space="preserve">
+    <value>Tasa de bits AAC por canal:</value>
+  </data>
+  <data name="Preferences_Kbps" xml:space="preserve">
+    <value>kbit/s</value>
+  </data>
+  <data name="Preferences_Drc" xml:space="preserve">
+    <value>Compresión dinámica:</value>
+  </data>
+  <data name="Preferences_ConvertAc3" xml:space="preserve">
+    <value>Sugerir convertir el audio AC-3 a AAC al importar en MP4</value>
+  </data>
+  <data name="Preferences_ConvertDts" xml:space="preserve">
+    <value>Sugerir AAC + Passthru para el audio DTS al importar en MP4</value>
+  </data>
+  <data name="Preferences_FFmpegAvailableFormat" xml:space="preserve">
+    <value>FFmpeg {0} está disponible.</value>
+  </data>
+  <data name="Preferences_FFmpegMissingFormat" xml:space="preserve">
+    <value>No se han encontrado las bibliotecas de FFmpeg: {0}</value>
+  </data>
+  <data name="Preferences_Ocr" xml:space="preserve">
+    <value>OCR</value>
+  </data>
+  <data name="Preferences_OcrAvailableFormat" xml:space="preserve">
+    <value>{0} está disponible. Los modelos se guardan en {1}.</value>
+  </data>
+  <data name="Preferences_OcrUnavailableFormat" xml:space="preserve">
+    <value>El OCR no está disponible: {0}</value>
+  </data>
+  <data name="Preferences_OcrLanguage" xml:space="preserve">
+    <value>Idioma de reconocimiento:</value>
+  </data>
+  <data name="Preferences_OcrSameAsTrack" xml:space="preserve">
+    <value>El mismo que la pista de subtítulos</value>
+  </data>
+  <data name="Preferences_OcrFilter" xml:space="preserve">
+    <value>Filtrar modelos de idioma</value>
+  </data>
+  <data name="Preferences_OcrInstalled" xml:space="preserve">
+    <value>Instalado</value>
+  </data>
+  <data name="Preferences_Metadata" xml:space="preserve">
+    <value>Metadatos</value>
+  </data>
+  <data name="Preferences_Movies" xml:space="preserve">
+    <value>Películas:</value>
+  </data>
+  <data name="Preferences_TvShows" xml:space="preserve">
+    <value>Series de TV:</value>
+  </data>
+  <data name="Preferences_TmdbKey" xml:space="preserve">
+    <value>Clave de TheMovieDB:</value>
+  </data>
+  <data name="Preferences_TvdbKey" xml:space="preserve">
+    <value>Clave de TheTVDB:</value>
+  </data>
+  <data name="Preferences_KeyPlaceholder" xml:space="preserve">
+    <value>De appsettings.json o del entorno</value>
+  </data>
+  <data name="Preferences_Overwrite" xml:space="preserve">
+    <value>Sobrescribir las etiquetas existentes</value>
+  </data>
+  <data name="Preferences_KeepEmpty" xml:space="preserve">
+    <value>Conservar los valores existentes que el resultado no proporcione</value>
+  </data>
+  <data name="Preferences_ReplaceArtwork" xml:space="preserve">
+    <value>Sustituir las carátulas existentes por las elegidas</value>
+  </data>
+  <data name="Preferences_Detect4K" xml:space="preserve">
+    <value>Detectar 4K en «HD Video» (algunos modelos de Apple TV rechazan entonces la reproducción en 1080p)</value>
+  </data>
+  <data name="Preferences_DeleteCache" xml:space="preserve">
+    <value>Eliminar resultados en caché</value>
+  </data>
+  <data name="Preferences_CacheCleared" xml:space="preserve">
+    <value>Se han eliminado los resultados en caché y las búsquedas recientes.</value>
+  </data>
+  <data name="Preferences_MapHeader" xml:space="preserve">
+    <value>Asignar valores del proveedor a etiquetas</value>
+  </data>
+  <data name="Preferences_MapMovies" xml:space="preserve">
+    <value>Películas</value>
+  </data>
+  <data name="Preferences_MapTv" xml:space="preserve">
+    <value>Series de TV</value>
+  </data>
+  <data name="Preferences_AddMapping" xml:space="preserve">
+    <value>Añadir una asignación</value>
+  </data>
+  <data name="Preferences_RemoveMapping" xml:space="preserve">
+    <value>Quitar la asignación</value>
+  </data>
+  <data name="Preferences_AvailableValues" xml:space="preserve">
+    <value>Valores disponibles</value>
+  </data>
+  <data name="Preferences_Sets" xml:space="preserve">
+    <value>Conjuntos</value>
+  </data>
+  <data name="Preferences_RemoveSet" xml:space="preserve">
+    <value>Quitar el conjunto seleccionado</value>
+  </data>
+  <data name="Preferences_MoveSetUp" xml:space="preserve">
+    <value>Subir (los conjuntos 1–9 tienen atajos de teclado)</value>
+  </data>
+  <data name="Preferences_SetsHelp" xml:space="preserve">
+    <value>Los conjuntos guardados se aplican desde el botón Conjuntos del inspector de metadatos.</value>
+  </data>
+  <data name="Preferences_TagCountFormat" xml:space="preserve">
+    <value>{0} etiquetas</value>
+  </data>
+  <data name="Preferences_FileName" xml:space="preserve">
+    <value>Nombre de archivo</value>
+  </data>
+  <data name="Preferences_UseFileNameFormat" xml:space="preserve">
+    <value>Nombrar los archivos guardados según sus etiquetas</value>
+  </data>
+  <data name="Preferences_FileNameMovies" xml:space="preserve">
+    <value>Películas:</value>
+  </data>
+  <data name="Preferences_FileNameTvShows" xml:space="preserve">
+    <value>Series de TV:</value>
+  </data>
+  <data name="Preferences_FileNameHelp" xml:space="preserve">
+    <value>Usa marcadores {Nombre de etiqueta}. Añade :00 para rellenar con ceros a la izquierda, :yyyy para el año de una fecha y |upper, |lower, |capitalize, |camel, |snake, |train o |dot para cambiar las mayúsculas y minúsculas.</value>
+  </data>
+  <data name="Preferences_PreviewEmpty" xml:space="preserve">
+    <value>(vacío)</value>
+  </data>
+  <data name="Preferences_SampleMovie" xml:space="preserve">
+    <value>La película</value>
+  </data>
+  <data name="Preferences_SampleEpisode" xml:space="preserve">
+    <value>Piloto</value>
+  </data>
+  <data name="Preferences_SampleShow" xml:space="preserve">
+    <value>La serie</value>
+  </data>
+  <data name="SaveAs_Title" xml:space="preserve">
+    <value>Guardar como</value>
+  </data>
+  <data name="SaveAs_File" xml:space="preserve">
+    <value>Archivo:</value>
+  </data>
+  <data name="SaveAs_Format" xml:space="preserve">
+    <value>Formato:</value>
+  </data>
+  <data name="SaveAs_Optimize" xml:space="preserve">
+    <value>Optimizar (entrelazar y poner la cabecera al principio para streaming)</value>
+  </data>
+  <data name="SaveAs_64BitOffsets" xml:space="preserve">
+    <value>Desplazamientos de fragmento de 64 bits (necesarios para archivos de más de 4 GB)</value>
+  </data>
+  <data name="SaveAs_64BitTimes" xml:space="preserve">
+    <value>Tiempos de 64 bits</value>
+  </data>
+  <data name="SaveAs_Untitled" xml:space="preserve">
+    <value>Sin título</value>
+  </data>
+  <data name="SaveAs_CopyNameFormat" xml:space="preserve">
+    <value>{0} copia</value>
+  </data>
+  <data name="SaveSet_Title" xml:space="preserve">
+    <value>Guardar conjunto</value>
+  </data>
+  <data name="SaveSet_Description" xml:space="preserve">
+    <value>Guarda las etiquetas y carátulas actuales como un conjunto reutilizable.</value>
+  </data>
+  <data name="SaveSet_NamePlaceholder" xml:space="preserve">
+    <value>Nombre del conjunto</value>
+  </data>
+  <data name="SaveSet_WhenApplied" xml:space="preserve">
+    <value>Cuando se aplique este conjunto:</value>
+  </data>
+  <data name="SaveSet_KeepArtwork" xml:space="preserve">
+    <value>Conservar las carátulas del archivo (añadir las del conjunto)</value>
+  </data>
+  <data name="SaveSet_KeepTags" xml:space="preserve">
+    <value>Conservar los valores de etiqueta del archivo (rellenar solo las que falten)</value>
+  </data>
+  <data name="LanguagePicker_Search" xml:space="preserve">
+    <value>Buscar idiomas</value>
+  </data>
+  <data name="Ocr_Warning" xml:space="preserve">
+    <value>Nuestro OCR integrado es básico. Subtitle Edit (https://www.nikse.dk/subtitleedit) convierte mucho mejor los subtítulos de imagen en texto, así que te recomendamos usarlo y después importar el archivo SRT resultante.</value>
+  </data>
+  <data name="Ocr_NotAvailable_Title" xml:space="preserve">
+    <value>OCR no disponible</value>
+  </data>
+  <data name="Ocr_TesseractNotFound" xml:space="preserve">
+    <value>No se ha encontrado Tesseract.</value>
+  </data>
+  <data name="Ocr_Download_Title" xml:space="preserve">
+    <value>Descargar idioma de OCR</value>
+  </data>
+  <data name="Ocr_Download_MessageFormat" xml:space="preserve">
+    <value>El OCR necesita el modelo de idioma {0}, que no está instalado. ¿Quieres descargarlo ahora (ocupa unos pocos MB)?</value>
+  </data>
+  <data name="Ocr_DownloadFailed_Title" xml:space="preserve">
+    <value>Error en la descarga</value>
+  </data>
+</root>

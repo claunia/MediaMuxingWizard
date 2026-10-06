@@ -1,12 +1,13 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="using:MMW.App.Resources"
         xmlns:vm="using:MMW.App.ViewModels"
         xmlns:app="using:MMW.App"
         xmlns:views="using:MMW.App.Views"
         x:Class="MMW.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
-        Title="{Binding SelectedDocument.Title, StringFormat='{}{0} — Media Metadata Wizard', FallbackValue='Media Metadata Wizard', TargetNullValue='Media Metadata Wizard'}"
+        Title="{Binding SelectedDocument.Title, StringFormat={x:Static res:Strings.Window_TitleFormat}, FallbackValue={x:Static res:Strings.App_Name}, TargetNullValue={x:Static res:Strings.App_Name}}"
         Width="1100" Height="760" MinWidth="720" MinHeight="480"
         DragDrop.AllowDrop="True">
 
@@ -25,9 +26,9 @@
   <DockPanel>
     <!-- Menu -->
     <Menu DockPanel.Dock="Top">
-      <MenuItem Header="_File">
-        <MenuItem Header="_Open…" Command="{Binding OpenCommand}" HotKey="{x:Static app:Gestures.Open}" InputGesture="{x:Static app:Gestures.Open}" />
-        <MenuItem Header="Open _Recent" ItemsSource="{Binding RecentMenu}" IsEnabled="{Binding RecentFiles.Count}">
+      <MenuItem Header="{x:Static res:Strings.Menu_File}">
+        <MenuItem Header="{x:Static res:Strings.Menu_File_Open}" Command="{Binding OpenCommand}" HotKey="{x:Static app:Gestures.Open}" InputGesture="{x:Static app:Gestures.Open}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_OpenRecent}" ItemsSource="{Binding RecentMenu}" IsEnabled="{Binding RecentFiles.Count}">
           <MenuItem.Styles>
             <Style Selector="MenuItem" x:DataType="vm:MenuNode">
               <Setter Property="Header" Value="{Binding Header}" />
@@ -37,38 +38,38 @@
           </MenuItem.Styles>
         </MenuItem>
         <Separator />
-        <MenuItem Header="_Close" Command="{Binding CloseDocumentCommand}" HotKey="{x:Static app:Gestures.Close}" InputGesture="{x:Static app:Gestures.Close}" IsEnabled="{Binding HasDocument}" />
-        <MenuItem Header="_Save" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Save}" InputGesture="{x:Static app:Gestures.Save}" IsEnabled="{Binding HasDocument}" />
-        <MenuItem Header="Save _As…" Command="{Binding SelectedDocument.SaveAsCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.SaveAs}" InputGesture="{x:Static app:Gestures.SaveAs}" IsEnabled="{Binding HasDocument}" />
-        <MenuItem Header="Send to _Queue" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_Close}" Command="{Binding CloseDocumentCommand}" HotKey="{x:Static app:Gestures.Close}" InputGesture="{x:Static app:Gestures.Close}" IsEnabled="{Binding HasDocument}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_Save}" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Save}" InputGesture="{x:Static app:Gestures.Save}" IsEnabled="{Binding HasDocument}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_SaveAs}" Command="{Binding SelectedDocument.SaveAsCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.SaveAs}" InputGesture="{x:Static app:Gestures.SaveAs}" IsEnabled="{Binding HasDocument}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_SendToQueue}" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" />
         <Separator />
-        <MenuItem Header="Export _NFO…" Command="{Binding SelectedDocument.ExportNfoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_ExportNfo}" Command="{Binding SelectedDocument.ExportNfoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" />
         <Separator />
-        <MenuItem Header="_Preferences…" Command="{Binding PreferencesCommand}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_Preferences}" Command="{Binding PreferencesCommand}" />
         <Separator />
-        <MenuItem Header="E_xit" Click="OnExitClick" InputGesture="{x:Static app:Gestures.Quit}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_File_Exit}" Click="OnExitClick" InputGesture="{x:Static app:Gestures.Quit}" />
       </MenuItem>
-      <MenuItem Header="_Edit" IsEnabled="{Binding HasDocument}">
-        <MenuItem Header="{Binding SelectedDocument.Undo.UndoDescription, StringFormat='Undo {0}', FallbackValue='Undo', TargetNullValue='Undo'}"
+      <MenuItem Header="{x:Static res:Strings.Menu_Edit}" IsEnabled="{Binding HasDocument}">
+        <MenuItem Header="{Binding SelectedDocument.Undo.UndoDescription, StringFormat={x:Static res:Strings.Menu_Edit_UndoFormat}, FallbackValue={x:Static res:Strings.Menu_Edit_Undo}, TargetNullValue={x:Static res:Strings.Menu_Edit_Undo}}"
                   Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Undo}" InputGesture="{x:Static app:Gestures.Undo}" />
-        <MenuItem Header="{Binding SelectedDocument.Undo.RedoDescription, StringFormat='Redo {0}', FallbackValue='Redo', TargetNullValue='Redo'}"
+        <MenuItem Header="{Binding SelectedDocument.Undo.RedoDescription, StringFormat={x:Static res:Strings.Menu_Edit_RedoFormat}, FallbackValue={x:Static res:Strings.Menu_Edit_Redo}, TargetNullValue={x:Static res:Strings.Menu_Edit_Redo}}"
                   Command="{Binding SelectedDocument.RedoCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Redo}" InputGesture="{x:Static app:Gestures.Redo}" />
       </MenuItem>
-      <MenuItem Header="_Metadata" IsEnabled="{Binding HasDocument}">
-        <MenuItem Header="_Search Online…" Command="{Binding SearchMetadataCommand}" InputGesture="{x:Static app:Gestures.Search}" />
+      <MenuItem Header="{x:Static res:Strings.Menu_Metadata}" IsEnabled="{Binding HasDocument}">
+        <MenuItem Header="{x:Static res:Strings.Menu_Metadata_Search}" Command="{Binding SearchMetadataCommand}" InputGesture="{x:Static app:Gestures.Search}" />
       </MenuItem>
-      <MenuItem Header="_Tracks" IsEnabled="{Binding HasDocument}">
-        <MenuItem Header="_Import…" Command="{Binding ImportTracksCommand}" InputGesture="{x:Static app:Gestures.Import}" />
+      <MenuItem Header="{x:Static res:Strings.Menu_Tracks}" IsEnabled="{Binding HasDocument}">
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_Import}" Command="{Binding ImportTracksCommand}" InputGesture="{x:Static app:Gestures.Import}" />
         <Separator />
-        <MenuItem Header="_Delete Selected Tracks" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" InputGesture="{x:Static app:Gestures.Delete}" />
-        <MenuItem Header="Move Track _Up" Command="{Binding SelectedDocument.MoveTrackUpCommand, FallbackValue={x:Null}}" />
-        <MenuItem Header="Move Track Do_wn" Command="{Binding SelectedDocument.MoveTrackDownCommand, FallbackValue={x:Null}}" />
-        <MenuItem Header="_Offset…" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_DeleteSelected}" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" InputGesture="{x:Static app:Gestures.Delete}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_MoveUp}" Command="{Binding SelectedDocument.MoveTrackUpCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_MoveDown}" Command="{Binding SelectedDocument.MoveTrackDownCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_Offset}" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
         <Separator />
-        <MenuItem Header="_Organize Alternate Groups" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
-        <MenuItem Header="_Fix Audio Fallbacks" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
-        <MenuItem Header="Complete Track _Languages…" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />
-        <MenuItem Header="Apply Colour _Space" ItemsSource="{Binding SelectedDocument.ColorSpaceMenu, FallbackValue={x:Null}}">
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_OrganizeGroups}" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_FixFallbacks}" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_CompleteLanguages}" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_ApplyColorSpace}" ItemsSource="{Binding SelectedDocument.ColorSpaceMenu, FallbackValue={x:Null}}">
           <MenuItem.Styles>
             <Style Selector="MenuItem" x:DataType="vm:MenuNode">
               <Setter Property="Header" Value="{Binding Header}" />
@@ -78,81 +79,81 @@
           </MenuItem.Styles>
         </MenuItem>
         <Separator />
-        <MenuItem Header="_Clear Track Names" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
-        <MenuItem Header="_Prettify Audio Track Names" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_ClearNames}" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_PrettifyAudioNames}" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
         <Separator />
-        <MenuItem Header="Insert a Chapter _Every">
-          <MenuItem Header="At the Beginning" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="0" />
-          <MenuItem Header="1 Minute" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="1" />
-          <MenuItem Header="2 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="2" />
-          <MenuItem Header="5 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="5" />
-          <MenuItem Header="10 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="10" />
-          <MenuItem Header="15 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="15" />
-          <MenuItem Header="20 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="20" />
-          <MenuItem Header="30 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="30" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_InsertChapterEvery}">
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_AtBeginning}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="0" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_1Minute}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="1" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_2Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="2" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_5Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="5" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_10Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="10" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_15Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="15" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_20Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="20" />
+          <MenuItem Header="{x:Static res:Strings.Menu_Chapters_30Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="30" />
         </MenuItem>
       </MenuItem>
-      <MenuItem Header="_Window">
-        <MenuItem Header="_Queue" Command="{Binding ShowQueueCommand}" />
-        <MenuItem Header="Message _Log" Click="OnShowLogClick" HotKey="{x:Static app:Gestures.Log}" InputGesture="{x:Static app:Gestures.Log}" />
+      <MenuItem Header="{x:Static res:Strings.Menu_Window}">
+        <MenuItem Header="{x:Static res:Strings.Menu_Window_Queue}" Command="{Binding ShowQueueCommand}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Window_Log}" Click="OnShowLogClick" HotKey="{x:Static app:Gestures.Log}" InputGesture="{x:Static app:Gestures.Log}" />
       </MenuItem>
-      <MenuItem Header="_Help">
-        <MenuItem Header="_About Media Metadata Wizard" Command="{Binding AboutCommand}" />
+      <MenuItem Header="{x:Static res:Strings.Menu_Help}">
+        <MenuItem Header="{x:Static res:Strings.Menu_Help_About}" Command="{Binding AboutCommand}" />
       </MenuItem>
     </Menu>
 
     <!-- Toolbar -->
     <Border DockPanel.Dock="Top" Classes="toolbarBar">
       <StackPanel Orientation="Horizontal" Spacing="2">
-        <Button Classes="toolbar" Command="{Binding OpenCommand}" AutomationProperties.Name="Open a file" ToolTip.Tip="Open a file">
-          <StackPanel><PathIcon Data="{StaticResource IconOpen}" /><TextBlock Classes="caption" Text="Open" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding OpenCommand}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_Open}" ToolTip.Tip="{x:Static res:Strings.Tooltip_Open}">
+          <StackPanel><PathIcon Data="{StaticResource IconOpen}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Open}" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Save changes" ToolTip.Tip="Save changes">
-          <StackPanel><PathIcon Data="{StaticResource IconSave}" /><TextBlock Classes="caption" Text="Save" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_Save}" ToolTip.Tip="{x:Static res:Strings.Tooltip_Save}">
+          <StackPanel><PathIcon Data="{StaticResource IconSave}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Save}" /></StackPanel>
         </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" Command="{Binding ImportTracksCommand}" IsEnabled="{Binding HasDocument}" HotKey="{x:Static app:Gestures.Import}" AutomationProperties.Name="Import tracks from other files" ToolTip.Tip="Import tracks from other files">
-          <StackPanel><PathIcon Data="{StaticResource IconImport}" /><TextBlock Classes="caption" Text="Import" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding ImportTracksCommand}" IsEnabled="{Binding HasDocument}" HotKey="{x:Static app:Gestures.Import}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_ImportTracks}" ToolTip.Tip="{x:Static res:Strings.Tooltip_ImportTracks}">
+          <StackPanel><PathIcon Data="{StaticResource IconImport}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Import}" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Delete the selected tracks" ToolTip.Tip="Delete the selected tracks">
-          <StackPanel><PathIcon Data="{StaticResource IconDelete}" /><TextBlock Classes="caption" Text="Delete" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_DeleteTracks}" ToolTip.Tip="{x:Static res:Strings.Tooltip_DeleteTracks}">
+          <StackPanel><PathIcon Data="{StaticResource IconDelete}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Delete}" /></StackPanel>
         </Button>
-        <DropDownButton Classes="toolbar" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Track and chapter actions" ToolTip.Tip="Track and chapter actions">
-          <StackPanel><PathIcon Data="{StaticResource IconAction}" /><TextBlock Classes="caption" Text="Action" /></StackPanel>
+        <DropDownButton Classes="toolbar" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_Actions}" ToolTip.Tip="{x:Static res:Strings.Tooltip_Actions}">
+          <StackPanel><PathIcon Data="{StaticResource IconAction}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Action}" /></StackPanel>
           <DropDownButton.Flyout>
             <MenuFlyout>
-              <MenuItem Header="Insert a Chapter Every">
-                <MenuItem Header="At the Beginning" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="0" />
-                <MenuItem Header="5 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="5" />
-                <MenuItem Header="10 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="10" />
-                <MenuItem Header="15 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="15" />
+              <MenuItem Header="{x:Static res:Strings.Action_InsertChapterEvery}">
+                <MenuItem Header="{x:Static res:Strings.Menu_Chapters_AtBeginning}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="0" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Chapters_5Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="5" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Chapters_10Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="10" />
+                <MenuItem Header="{x:Static res:Strings.Menu_Chapters_15Minutes}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="15" />
               </MenuItem>
-              <MenuItem Header="Offset…" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
-              <MenuItem Header="Organize Alternate Groups" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
-              <MenuItem Header="Fix Audio Fallbacks" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
-              <MenuItem Header="Complete Track Languages…" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="{x:Static res:Strings.Action_Offset}" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="{x:Static res:Strings.Action_OrganizeGroups}" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="{x:Static res:Strings.Action_FixFallbacks}" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="{x:Static res:Strings.Action_CompleteLanguages}" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />
               <Separator />
-              <MenuItem Header="Clear Track Names" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
-              <MenuItem Header="Prettify Audio Track Names" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="{x:Static res:Strings.Action_ClearNames}" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="{x:Static res:Strings.Action_PrettifyAudioNames}" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
             </MenuFlyout>
           </DropDownButton.Flyout>
         </DropDownButton>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Undo" ToolTip.Tip="Undo">
-          <StackPanel><PathIcon Data="{StaticResource IconUndo}" /><TextBlock Classes="caption" Text="Undo" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Toolbar_Undo}" ToolTip.Tip="{x:Static res:Strings.Toolbar_Undo}">
+          <StackPanel><PathIcon Data="{StaticResource IconUndo}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Undo}" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.RedoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Redo" ToolTip.Tip="Redo">
-          <StackPanel><PathIcon Data="{StaticResource IconRedo}" /><TextBlock Classes="caption" Text="Redo" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.RedoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Toolbar_Redo}" ToolTip.Tip="{x:Static res:Strings.Toolbar_Redo}">
+          <StackPanel><PathIcon Data="{StaticResource IconRedo}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Redo}" /></StackPanel>
         </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" IsEnabled="False" AutomationProperties.Name="Search metadata online (coming soon)" ToolTip.Tip="Search metadata online (coming soon)">
-          <StackPanel><PathIcon Data="{StaticResource IconSearch}" /><TextBlock Classes="caption" Text="Search" /></StackPanel>
+        <Button Classes="toolbar" IsEnabled="False" AutomationProperties.Name="{x:Static res:Strings.Tooltip_SearchComingSoon}" ToolTip.Tip="{x:Static res:Strings.Tooltip_SearchComingSoon}">
+          <StackPanel><PathIcon Data="{StaticResource IconSearch}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Search}" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Send this file to the batch queue" ToolTip.Tip="Send this file to the batch queue">
-          <StackPanel><PathIcon Data="{StaticResource IconQueue}" /><TextBlock Classes="caption" Text="Send to Queue" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_SendToQueue}" ToolTip.Tip="{x:Static res:Strings.Tooltip_SendToQueue}">
+          <StackPanel><PathIcon Data="{StaticResource IconQueue}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_SendToQueue}" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding ShowQueueCommand}" AutomationProperties.Name="Show the batch queue" ToolTip.Tip="Show the batch queue">
-          <StackPanel><PathIcon Data="{StaticResource IconChapters}" /><TextBlock Classes="caption" Text="Queue" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding ShowQueueCommand}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_ShowQueue}" ToolTip.Tip="{x:Static res:Strings.Tooltip_ShowQueue}">
+          <StackPanel><PathIcon Data="{StaticResource IconChapters}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Queue}" /></StackPanel>
         </Button>
       </StackPanel>
     </Border>
@@ -173,10 +174,10 @@
       <Border x:Name="WelcomeZone" Classes="dropZone" Margin="40" IsVisible="{Binding HasNoDocuments}">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14" MaxWidth="520">
           <PathIcon Data="{StaticResource IconFilm}" Width="56" Height="56" Opacity="0.5" />
-          <TextBlock Text="Drop MP4 or Matroska files here" FontSize="20" HorizontalAlignment="Center" />
-          <TextBlock Text="Edit tags, artwork, chapters and track properties without re-encoding." Classes="dim" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
-          <Button Content="Open…" Command="{Binding OpenCommand}" HorizontalAlignment="Center" Classes="accent" />
-          <TextBlock Text="Recent files" Classes="groupHeader" IsVisible="{Binding RecentFiles.Count}" HorizontalAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.Welcome_DropHere}" FontSize="20" HorizontalAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.Welcome_Subtitle}" Classes="dim" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+          <Button Content="{x:Static res:Strings.Welcome_Open}" Command="{Binding OpenCommand}" HorizontalAlignment="Center" Classes="accent" />
+          <TextBlock Text="{x:Static res:Strings.Welcome_RecentFiles}" Classes="groupHeader" IsVisible="{Binding RecentFiles.Count}" HorizontalAlignment="Center" />
           <ItemsControl ItemsSource="{Binding RecentFiles}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="x:String">
@@ -196,7 +197,7 @@
           <DataTemplate x:DataType="vm:DocumentViewModel">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="13" />
-              <Button Classes="icon" Padding="2" AutomationProperties.Name="Close" ToolTip.Tip="Close"
+              <Button Classes="icon" Padding="2" AutomationProperties.Name="{x:Static res:Strings.Tooltip_CloseTab}" ToolTip.Tip="{x:Static res:Strings.Tooltip_CloseTab}"
                       Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseDocumentCommand}" CommandParameter="{Binding}">
                 <PathIcon Data="{StaticResource IconClose}" Width="10" Height="10" />
               </Button>

@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Diagnostics;
 using MMW.Core.Metadata;
@@ -24,8 +26,8 @@ public sealed partial class RemoteArtworkViewModel(RemoteArtwork artwork) : View
     private bool _isSelected;
 
     public string Description =>
-        Artwork.Kind + (Artwork.Width is { } w && Artwork.Height is { } h ? $" · {w}×{h}" : string.Empty) +
-        (Artwork.Season is { } s ? $" · Season {s}" : string.Empty) + $" · {Artwork.Provider}";
+        QueueViewModel.ArtworkKindName(Artwork.Kind) + (Artwork.Width is { } w && Artwork.Height is { } h ? $" · {w}×{h}" : string.Empty) +
+        (Artwork.Season is { } s ? " · " + string.Format(CultureInfo.CurrentCulture, Strings.Search_SeasonFormat, s) : string.Empty) + $" · {Artwork.Provider}";
 }
 
 /// <summary>Searches online providers and applies the chosen result to a document (Subler's search sheet).</summary>
@@ -59,7 +61,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
         SelectProviderForKind();
     }
 
-    public override string Title => "Search Metadata";
+    public override string Title => Strings.Search_Title;
 
     // ------------------------------------------------------------------ query
 
@@ -89,7 +91,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
     private string? _selectedLanguage;
 
     public string? ProviderWarning => SelectedProvider is { IsConfigured: false } p
-        ? $"{p.Name} needs an API key. Add it to appsettings.json or in Preferences → Metadata."
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Search_ProviderNeedsKeyFormat, p.Name)
         : null;
 
     [ObservableProperty]
@@ -174,7 +176,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
         _searchCts?.Dispose();
         _searchCts = new CancellationTokenSource();
         IsBusy = true;
-        Status = IsTv ? $"Searching {provider.Name} for episode information…" : $"Searching {provider.Name} for movie information…";
+        Status = string.Format(CultureInfo.CurrentCulture, IsTv ? Strings.Search_SearchingEpisodeFormat : Strings.Search_SearchingMovieFormat, provider.Name);
         Results.Clear();
         try
         {
@@ -184,9 +186,9 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
             _service.RecentSearches.Add(query);
             Status = results.Count switch
             {
-                0 => provider.IsConfigured ? "No results." : ProviderWarning ?? "No results.",
-                1 => "1 result.",
-                _ => $"{results.Count} results.",
+                0 => provider.IsConfigured ? Strings.Search_NoResults : ProviderWarning ?? Strings.Search_NoResults,
+                1 => Strings.Search_OneResult,
+                _ => string.Format(CultureInfo.CurrentCulture, Strings.Search_ResultsFormat, results.Count),
             };
             SelectedResult = Results.FirstOrDefault();
         }
@@ -210,7 +212,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
             return;
 
         var cts = _detailsCts = new CancellationTokenSource();
-        Status = "Loading details…";
+        Status = Strings.Search_LoadingDetails;
         try
         {
             var detailed = result.IsDetailed ? result : await provider.LoadDetailsAsync(result, SelectedLanguage ?? provider.DefaultLanguage, cts.Token);
@@ -228,7 +230,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
             }
 
             ShowPreview(detailed);
-            Status = $"{detailed.DisplayTitle} · {detailed.Artworks.Count} artwork(s)";
+            Status = string.Format(CultureInfo.CurrentCulture, Strings.Search_DetailsFormat, detailed.DisplayTitle, detailed.Artworks.Count);
             await LoadThumbnailsAsync(cts.Token);
         }
         catch (OperationCanceledException)
@@ -289,18 +291,18 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
             var chosen = Artworks.Where(a => a.IsSelected).Select(a => a.Artwork).ToList();
             if (chosen.Count > 0)
             {
-                Status = "Downloading artwork…";
+                Status = Strings.Search_DownloadingArtwork;
                 foreach (var art in await _service.Downloader.DownloadAllAsync(chosen))
                     set.Artworks.Add(art);
             }
 
             var options = _service.ApplyOptionsFor(result.Kind, ReplaceArtworks && set.Artworks.Count > 0);
-            _document.ApplyMetadata($"Apply {result.Provider} Result", doc => MMW.Metadata.Mapping.MetadataApplier.Apply(doc, set, options));
+            _document.ApplyMetadata(string.Format(CultureInfo.CurrentCulture, Strings.Undo_ApplyResultFormat, result.Provider), doc => MMW.Metadata.Mapping.MetadataApplier.Apply(doc, set, options));
             Close(true);
         }
         catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidDataException)
         {
-            Status = $"Could not download artwork: {ex.Message}";
+            Status = string.Format(CultureInfo.CurrentCulture, Strings.Search_CouldNotDownloadFormat, ex.Message);
         }
         finally
         {

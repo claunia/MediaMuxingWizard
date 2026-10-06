@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="using:MMW.App.Resources"
              xmlns:vm="using:MMW.App.ViewModels"
              xmlns:views="using:MMW.App.Views"
              xmlns:ch="using:MMW.Core.Chapters"
@@ -14,19 +15,19 @@
   </UserControl.Styles>
   <DockPanel Margin="8">
     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-      <Button Classes="icon" Command="{Binding AddCommand}" AutomationProperties.Name="Add a chapter" ToolTip.Tip="Add a chapter"><PathIcon Data="{StaticResource IconAdd}" /></Button>
-      <Button Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Delete the selected chapter" ToolTip.Tip="Delete the selected chapter"><PathIcon Data="{StaticResource IconDelete}" /></Button>
-      <Button Classes="icon" Command="{Binding RenameAllCommand}" AutomationProperties.Name="Rename every chapter “Chapter N”" ToolTip.Tip="Rename every chapter “Chapter N”"><PathIcon Data="{StaticResource IconRename}" /></Button>
-      <DropDownButton Content="Insert every…" AutomationProperties.Name="Replace chapters with marks at a fixed interval" ToolTip.Tip="Replace chapters with marks at a fixed interval">
+      <Button Classes="icon" Command="{Binding AddCommand}" AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_Add}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_Add}"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+      <Button Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_Delete}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_Delete}"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+      <Button Classes="icon" Command="{Binding RenameAllCommand}" AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_RenameAll}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_RenameAll}"><PathIcon Data="{StaticResource IconRename}" /></Button>
+      <DropDownButton Content="{x:Static res:Strings.Chapters_InsertEvery}" AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_InsertEvery}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_InsertEvery}">
         <DropDownButton.Flyout>
           <MenuFlyout ItemsSource="{Binding IntervalMenu}" />
         </DropDownButton.Flyout>
       </DropDownButton>
-      <Button Classes="icon" Command="{Binding ImportCommand}" AutomationProperties.Name="Import chapters (txt) or chapter titles (csv)" ToolTip.Tip="Import chapters (txt) or chapter titles (csv)"><PathIcon Data="{StaticResource IconImport}" /></Button>
+      <Button Classes="icon" Command="{Binding ImportCommand}" AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_Import}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_Import}"><PathIcon Data="{StaticResource IconImport}" /></Button>
       <Button Classes="icon" Command="{Binding MakeThumbnailsCommand}" IsVisible="{Binding CanMakeThumbnails}"
-              AutomationProperties.Name="Capture chapter preview images" ToolTip.Tip="Capture chapter preview images"><PathIcon Data="{StaticResource IconImage}" /></Button>
+              AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_Thumbnails}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_Thumbnails}"><PathIcon Data="{StaticResource IconImage}" /></Button>
       <ProgressBar IsIndeterminate="True" Width="60" IsVisible="{Binding IsMakingThumbnails}" VerticalAlignment="Center" />
-      <Button Classes="icon" Command="{Binding ExportCommand}" AutomationProperties.Name="Export chapters as text" ToolTip.Tip="Export chapters as text"><PathIcon Data="{StaticResource IconExport}" /></Button>
+      <Button Classes="icon" Command="{Binding ExportCommand}" AutomationProperties.Name="{x:Static res:Strings.Chapters_Tooltip_Export}" ToolTip.Tip="{x:Static res:Strings.Chapters_Tooltip_Export}"><PathIcon Data="{StaticResource IconExport}" /></Button>
     </StackPanel>
     <DataGrid ItemsSource="{Binding Chapters}" SelectedItem="{Binding Selected}" AutoGenerateColumns="False"
               CanUserSortColumns="False" CellEditEnded="OnCellEditEnded">
@@ -38,9 +39,9 @@
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
-        <DataGridTextColumn Header="Time" Width="140" x:DataType="ch:Chapter"
+        <DataGridTextColumn Header="{x:Static res:Strings.Chapters_Column_Time}" Width="140" x:DataType="ch:Chapter"
                             Binding="{Binding Start, Converter={x:Static views:Converters.ChapterTime}}" />
-        <DataGridTextColumn Header="Title" Width="*" x:DataType="ch:Chapter" Binding="{Binding Title}" />
+        <DataGridTextColumn Header="{x:Static res:Strings.Chapters_Column_Title}" Width="*" x:DataType="ch:Chapter" Binding="{Binding Title}" />
       </DataGrid.Columns>
     </DataGrid>
   </DockPanel>

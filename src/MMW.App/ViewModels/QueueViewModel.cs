@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Languages;
 using MMW.Core.Metadata;
@@ -60,7 +62,7 @@ public sealed partial class QueueViewModel : ViewModelBase
             Persist();
             OnPropertyChanged(nameof(Summary));
             if (NotifyWhenDone && r.Completed + r.Failed > 0)
-                _notifications.Notify("Queue finished", $"{r.Completed} completed, {r.Failed} failed.");
+                _notifications.Notify(Strings.Notification_QueueFinished_Title, string.Format(CultureInfo.CurrentCulture, Strings.Notification_QueueFinished_MessageFormat, r.Completed, r.Failed));
         };
     }
 
@@ -78,7 +80,8 @@ public sealed partial class QueueViewModel : ViewModelBase
             var ready = Items.Count(i => i.Status == QueueItemStatus.Ready);
             var done = Items.Count(i => i.Status == QueueItemStatus.Completed);
             var failed = Items.Count(i => i.Status == QueueItemStatus.Failed);
-            return (Runner.IsRunning ? "Running · " : string.Empty) + $"{Items.Count} items · {ready} ready · {done} done · {failed} failed";
+            var summary = string.Format(CultureInfo.CurrentCulture, Strings.Queue_SummaryFormat, Items.Count, ready, done, failed);
+            return Runner.IsRunning ? string.Format(CultureInfo.CurrentCulture, Strings.Queue_SummaryRunningFormat, summary) : summary;
         }
     }
 
@@ -89,7 +92,7 @@ public sealed partial class QueueViewModel : ViewModelBase
     // ------------------------------------------------------------------ options
 
     public static IReadOnlyList<Choice<string?>> FileTypes { get; } =
-        [new(null, "Same as source"), new(".m4v", "MPEG-4 Video (.m4v)"), new(".mp4", "MPEG-4 (.mp4)"), new(".mkv", "Matroska (.mkv)")];
+        [new(null, Strings.FileType_SameAsSource), new(".m4v", Strings.Format_M4v), new(".mp4", Strings.Format_Mp4), new(".mkv", Strings.Format_Mkv)];
 
     public static IReadOnlyList<Language> Languages => LanguageTable.All;
 
@@ -121,13 +124,25 @@ public sealed partial class QueueViewModel : ViewModelBase
 
     public static IReadOnlyList<Choice<MMW.Metadata.Search.ArtworkKind?>> ArtworkKinds { get; } =
     [
-        new(MMW.Metadata.Search.ArtworkKind.Poster, "Poster"),
-        new(MMW.Metadata.Search.ArtworkKind.Season, "Season"),
-        new(MMW.Metadata.Search.ArtworkKind.Episode, "Episode"),
-        new(MMW.Metadata.Search.ArtworkKind.Backdrop, "Backdrop"),
-        new(MMW.Metadata.Search.ArtworkKind.Square, "Square"),
-        new(null, "No artwork"),
+        new(MMW.Metadata.Search.ArtworkKind.Poster, ArtworkKindName(MMW.Metadata.Search.ArtworkKind.Poster)),
+        new(MMW.Metadata.Search.ArtworkKind.Season, ArtworkKindName(MMW.Metadata.Search.ArtworkKind.Season)),
+        new(MMW.Metadata.Search.ArtworkKind.Episode, ArtworkKindName(MMW.Metadata.Search.ArtworkKind.Episode)),
+        new(MMW.Metadata.Search.ArtworkKind.Backdrop, ArtworkKindName(MMW.Metadata.Search.ArtworkKind.Backdrop)),
+        new(MMW.Metadata.Search.ArtworkKind.Square, ArtworkKindName(MMW.Metadata.Search.ArtworkKind.Square)),
+        new(null, Strings.ArtworkKind_None),
     ];
+
+    /// <summary>Display name of an artwork kind.</summary>
+    public static string ArtworkKindName(MMW.Metadata.Search.ArtworkKind kind) => kind switch
+    {
+        MMW.Metadata.Search.ArtworkKind.Poster => Strings.ArtworkKind_Poster,
+        MMW.Metadata.Search.ArtworkKind.Season => Strings.ArtworkKind_Season,
+        MMW.Metadata.Search.ArtworkKind.Episode => Strings.ArtworkKind_Episode,
+        MMW.Metadata.Search.ArtworkKind.Backdrop => Strings.ArtworkKind_Backdrop,
+        MMW.Metadata.Search.ArtworkKind.Square => Strings.ArtworkKind_Square,
+        MMW.Metadata.Search.ArtworkKind.Rectangle => Strings.ArtworkKind_Rectangle,
+        _ => Strings.ArtworkKind_Other,
+    };
 
     [ObservableProperty]
     private Choice<MMW.Metadata.Search.ArtworkKind?> _fetchArtwork = ArtworkKinds[0];
@@ -337,14 +352,14 @@ public sealed partial class QueueViewModel : ViewModelBase
     [RelayCommand]
     private async Task Add()
     {
-        var files = await _dialogs.OpenFilesAsync("Add to Queue", [FileFilters.Media, FileFilters.All], allowMultiple: true);
+        var files = await _dialogs.OpenFilesAsync(Strings.Dialog_AddToQueue_Title, [FileFilters.Media, FileFilters.All], allowMultiple: true);
         AddFiles(files);
     }
 
     [RelayCommand]
     private async Task ChooseFolder()
     {
-        var folder = await _dialogs.PickFolderAsync("Output Folder");
+        var folder = await _dialogs.PickFolderAsync(Strings.Dialog_OutputFolder_Title);
         if (folder is not null)
         {
             Folder = folder;

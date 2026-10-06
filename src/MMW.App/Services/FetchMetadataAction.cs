@@ -1,3 +1,5 @@
+using System.Globalization;
+using MMW.App.Resources;
 using MMW.Metadata.Mapping;
 using MMW.Metadata.Search;
 using MMW.Queue;
@@ -10,29 +12,29 @@ public sealed class FetchMetadataAction : QueueAction
     /// <summary>Artwork to download; null downloads none.</summary>
     public ArtworkKind? Artwork { get; set; } = ArtworkKind.Poster;
 
-    public override string Description => "Search metadata online";
+    public override string Description => Strings.QueueAction_FetchMetadata;
 
     public override async Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(context);
         var service = context.Services?.GetService(typeof(MetadataService)) as MetadataService
-                      ?? throw new InvalidOperationException("Metadata search is not available.");
+                      ?? throw new InvalidOperationException(Strings.Error_MetadataSearchUnavailable);
         var document = context.Document;
 
         var prefill = SearchPrefill.From(document);
-        var provider = service.Registry.DefaultFor(prefill.Kind) ?? throw new InvalidOperationException($"No provider for {prefill.Kind}.");
+        var provider = service.Registry.DefaultFor(prefill.Kind) ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoProviderFormat, prefill.Kind));
         var language = service.LanguageFor(provider);
         var query = prefill with { Language = language };
         if (string.IsNullOrWhiteSpace(query.Title))
         {
-            context.Log("Nothing to search for (no title in the tags or file name).");
+            context.Log(Strings.QueueLog_NothingToSearch);
             return;
         }
 
         var results = await provider.SearchAsync(query, cancellationToken);
         if (results.Count == 0)
         {
-            context.Log($"{provider.Name}: no results for \"{query}\".");
+            context.Log(string.Format(CultureInfo.CurrentCulture, Strings.QueueLog_NoResultsFormat, provider.Name, query));
             return;
         }
 

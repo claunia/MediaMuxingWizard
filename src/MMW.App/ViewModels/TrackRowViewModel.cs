@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.Globalization;
+using MMW.App.Resources;
 using MMW.Core.Languages;
 using MMW.Core.Model;
 
@@ -46,7 +48,7 @@ public sealed class TrackRowViewModel : ViewModelBase
 
     public string Name
     {
-        get => Track is null ? "Metadata" : Track.Name;
+        get => Track is null ? Strings.Tracks_Row_Metadata : Track.Name;
         set
         {
             if (Track is not null && Track.Name != value)
@@ -60,8 +62,8 @@ public sealed class TrackRowViewModel : ViewModelBase
 
     public string Format => Track switch
     {
-        null => "Tags, artwork",
-        ChapterTrack c => c.FormatDetails.Length > 0 ? $"Chapters, {c.FormatDetails}" : "Chapters",
+        null => Strings.Tracks_Row_MetadataFormat,
+        ChapterTrack c => c.FormatDetails.Length > 0 ? string.Format(CultureInfo.CurrentCulture, Strings.Tracks_Row_ChaptersFormat, c.FormatDetails) : Strings.Tracks_Row_Chapters,
         _ => Track.DisplayFormat,
     };
 

@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Diagnostics;
 using MMW.Core.Metadata;
@@ -40,8 +42,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (SelectedDocument is null)
             return;
-        var filter = new FileFilter("Importable files", MMW.Media.Remux.MediaRemux.ImportExtensions.Select(e => e.TrimStart('.')).ToList());
-        var files = await _dialogs.OpenFilesAsync("Import Tracks", [filter, FileFilters.All], allowMultiple: true);
+        var filter = new FileFilter(Strings.FileFilter_Importable, MMW.Media.Remux.MediaRemux.ImportExtensions.Select(e => e.TrimStart('.')).ToList());
+        var files = await _dialogs.OpenFilesAsync(Strings.Dialog_ImportTracks_Title, [filter, FileFilters.All], allowMultiple: true);
         if (files.Count > 0)
             await ImportIntoSelectedAsync(files);
     }
@@ -112,14 +114,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     public IReadOnlyList<string> RecentFiles => Settings.RecentFiles;
 
-    public static string AppTitle => "Media Metadata Wizard";
+    public static string AppTitle => Strings.App_Name;
 
     // ------------------------------------------------------------------ opening
 
     [RelayCommand]
     private async Task Open()
     {
-        var files = await _dialogs.OpenFilesAsync("Open", [FileFilters.Media, FileFilters.Mp4, FileFilters.Matroska, FileFilters.All], allowMultiple: true);
+        var files = await _dialogs.OpenFilesAsync(Strings.Dialog_Open_Title, [FileFilters.Media, FileFilters.Mp4, FileFilters.Matroska, FileFilters.All], allowMultiple: true);
         await OpenPathsAsync(files);
     }
 
@@ -147,7 +149,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 }
                 catch (System.Xml.XmlException ex)
                 {
-                    await _dialogs.ShowMessageAsync("Could not import NFO", ex.Message);
+                    await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotImportNfo_Title, ex.Message);
                 }
 
                 continue;
@@ -194,7 +196,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or EndOfStreamException)
         {
             AppLog.Error($"Could not open '{path}'", ex);
-            await _dialogs.ShowMessageAsync("Could not open file", $"{Path.GetFileName(path)}: {ex.Message}");
+            await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotOpen_Title, $"{Path.GetFileName(path)}: {ex.Message}");
         }
         finally
         {
@@ -210,7 +212,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         if (RecentMenu.Count > 0)
         {
             RecentMenu.Add(MenuNode.Separator);
-            RecentMenu.Add(new MenuNode("Clear Menu", ClearRecentCommand));
+            RecentMenu.Add(new MenuNode(Strings.Menu_File_ClearRecent, ClearRecentCommand));
         }
 
         OnPropertyChanged(nameof(RecentFiles));
@@ -297,12 +299,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     [RelayCommand]
     private async Task About() =>
-        await _dialogs.ShowMessageAsync("About " + AppTitle,
+        await _dialogs.ShowMessageAsync(string.Format(CultureInfo.CurrentCulture, Strings.Dialog_About_TitleFormat, AppTitle),
             $"{AppTitle} {typeof(MainWindowViewModel).Assembly.GetName().Version?.ToString(3)}\n\n" +
-            "Edit metadata, chapters and tracks of MP4 and Matroska files.\n\n© 2026 Natalia Portillo\n" +
-            (MMW.Media.Conversion.MediaConversion.IsAvailable ? $"Audio conversion: FFmpeg {MMW.Media.Conversion.MediaConversion.Version} (LGPL).\n" : "Audio conversion: FFmpeg libraries not found.\n") +
-            (MMW.Ocr.SubtitleOcr.Factory.IsAvailable ? $"Subtitle OCR: {MMW.Ocr.SubtitleOcr.Factory.Name}.\n" : "Subtitle OCR: Tesseract not found.\n") +
-            "Icons: Material Design Icons (Apache 2.0).");
+            Strings.About_Description + "\n\n© 2026 Natalia Portillo\n" +
+            (MMW.Media.Conversion.MediaConversion.IsAvailable
+                ? string.Format(CultureInfo.CurrentCulture, Strings.About_FFmpegFormat, MMW.Media.Conversion.MediaConversion.Version)
+                : Strings.About_FFmpegMissing) + "\n" +
+            (MMW.Ocr.SubtitleOcr.Factory.IsAvailable
+                ? string.Format(CultureInfo.CurrentCulture, Strings.About_OcrFormat, MMW.Ocr.SubtitleOcr.Factory.Name)
+                : Strings.About_OcrMissing) + "\n" +
+            Strings.About_Icons);
 
     public static IReadOnlyList<string> RatingCountries => Ratings.Countries;
 

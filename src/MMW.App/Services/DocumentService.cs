@@ -1,3 +1,5 @@
+using System.Globalization;
+using MMW.App.Resources;
 using MMW.Core.Model;
 using MMW.Formats.Mp4;
 
@@ -22,7 +24,7 @@ public sealed class DocumentService
     public Task<MediaDocument> OpenAsync(string path, CancellationToken ct = default) => _registry.OpenAsync(path, ct);
 
     public IContainerHandler HandlerFor(MediaDocument doc) =>
-        _registry.Get(doc.Container) ?? throw new NotSupportedException($"No writer for {doc.Container} files.");
+        _registry.Get(doc.Container) ?? throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoWriterFormat, doc.Container));
 
     public static bool IsSupported(string path) => ContainerKinds.FromPath(path) != ContainerKind.Unknown;
 }
