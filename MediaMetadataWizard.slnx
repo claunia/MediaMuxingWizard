@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MMW.Core/MMW.Core.csproj" />
+    <Project Path="src/MMW.Formats.Mp4/MMW.Formats.Mp4.csproj" />
+    <Project Path="src/MMW.Formats.Matroska/MMW.Formats.Matroska.csproj" />
+    <Project Path="src/MMW.App/MMW.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MMW.Core.Tests/MMW.Core.Tests.csproj" />
+    <Project Path="tests/MMW.TestSupport/MMW.TestSupport.csproj" />
+    <Project Path="tests/MMW.Formats.Mp4.Tests/MMW.Formats.Mp4.Tests.csproj" />
+    <Project Path="tests/MMW.Formats.Matroska.Tests/MMW.Formats.Matroska.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path=".editorconfig" />
+  </Folder>
+</Solution>

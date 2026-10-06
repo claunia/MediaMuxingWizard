@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+TestResults/
+artifacts/
+tests/fixtures/generated/
+ApiKeys.props
+.DS_Store
