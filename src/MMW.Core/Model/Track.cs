@@ -60,8 +60,9 @@ public abstract partial class Track : ObservableObject
 
     public uint Timescale { get; set; }
 
-    /// <summary>Where the samples of this track come from.</summary>
-    public TrackSource? Source { get; set; }
+    /// <summary>Where the samples of this track come from (and how they are imported or converted).</summary>
+    [ObservableProperty]
+    private TrackSource? _source;
 
     /// <summary>True for tracks that are not yet in the file on disk (imported, waiting to be muxed).</summary>
     public bool IsPending => Id == 0;

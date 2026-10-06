@@ -86,3 +86,28 @@ public class UndoTransactionTests
         Assert.Equal(3, doc.Chapters.Count);
     }
 }
+
+public class ConversionUndoTests
+{
+    [Fact]
+    public void Choosing_a_conversion_can_be_undone()
+    {
+        var stack = new UndoStack();
+        var tracker = new ObservableUndoTracker(stack);
+        var doc = new MediaDocument("/tmp/movie.mkv", ContainerKind.Matroska);
+        var dts = new AudioTrack { Id = 2, Format = "DTS", CodecId = "A_DTS", Channels = 6, Enabled = true, Source = new TrackSource("/tmp/movie.mkv", ContainerKind.Matroska, 2) };
+        doc.Tracks.Add(new VideoTrack { Id = 1, Source = new TrackSource("/tmp/movie.mkv", ContainerKind.Matroska, 1) });
+        doc.Tracks.Add(dts);
+        tracker.TrackCollection(doc.Tracks, "Track");
+
+        using (stack.Transaction("Convert DTS"))
+            MMW.Core.Media.TrackConversions.SetAction(doc, dts, MMW.Core.Media.ImportAction.AacPlusPassthrough);
+        Assert.Equal(3, doc.Tracks.Count);
+
+        stack.Undo();
+        Assert.Equal(2, doc.Tracks.Count);
+        Assert.Null(dts.Source!.Import);
+        Assert.True(dts.Enabled);
+        Assert.Null(dts.Fallback);
+    }
+}
