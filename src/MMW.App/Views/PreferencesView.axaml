@@ -4,7 +4,7 @@
              xmlns:md="using:MMW.Core.Metadata"
              x:Class="MMW.App.Views.PreferencesView"
              x:DataType="vm:PreferencesViewModel">
-  <DockPanel Width="620" Height="440">
+  <DockPanel Width="680" Height="540">
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
       <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
       <Button Content="OK" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
@@ -29,6 +29,56 @@
           <CheckBox Content="Always use 64-bit chunk offsets (automatic above 4 GB)" IsChecked="{Binding Use64BitOffsets}" />
           <CheckBox Content="Use 64-bit times" IsChecked="{Binding Use64BitTimes}" />
         </StackPanel>
+      </TabItem>
+      <TabItem Header="Metadata" IsVisible="{Binding HasMetadata}">
+        <ScrollViewer>
+          <StackPanel Spacing="8" Margin="0,12,8,0">
+            <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8">
+              <TextBlock Text="Movies:" Classes="label" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding MovieProviders}" SelectedItem="{Binding DefaultMovieProvider}" MinWidth="200" />
+              <TextBlock Grid.Row="1" Text="TV shows:" Classes="label" />
+              <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding TvProviders}" SelectedItem="{Binding DefaultTvProvider}" MinWidth="200" />
+              <TextBlock Grid.Row="2" Text="TheMovieDB key:" Classes="label" />
+              <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TmdbApiKey}" PasswordChar="•" PlaceholderText="From appsettings.json or the environment" />
+              <TextBlock Grid.Row="3" Text="TheTVDB key:" Classes="label" />
+              <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TvdbApiKey}" PasswordChar="•" PlaceholderText="From appsettings.json or the environment" />
+            </Grid>
+            <CheckBox Content="Overwrite existing tags" IsChecked="{Binding MetadataOverwrite}" />
+            <CheckBox Content="Keep existing values the result does not provide" IsChecked="{Binding MetadataKeepEmpty}" />
+            <CheckBox Content="Replace existing artwork with the chosen artwork" IsChecked="{Binding ReplaceArtworkOnSearch}" />
+            <CheckBox Content="Detect 4K for HD Video (some Apple TV models then refuse 1080p streaming)" IsChecked="{Binding Autodetect4K}" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Content="Delete Cached Results" Command="{Binding ClearCacheCommand}" />
+              <TextBlock Text="{Binding CacheStatus}" Classes="dim" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <TextBlock Text="Map provider values to tags" Classes="groupHeader" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <RadioButton Content="Movies" IsChecked="{Binding !EditTvMap}" GroupName="map" />
+              <RadioButton Content="TV shows" IsChecked="{Binding EditTvMap}" GroupName="map" />
+            </StackPanel>
+            <ListBox ItemsSource="{Binding MapEntries}" SelectedItem="{Binding SelectedMapEntry}" Height="180">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:MapEntryViewModel">
+                  <Grid ColumnDefinitions="190,*">
+                    <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.MapTags}" SelectedItem="{Binding Tag}" HorizontalAlignment="Stretch" Margin="0,0,6,0">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="md:TagDefinition"><TextBlock Text="{Binding Name}" /></DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBox Grid.Column="1" Text="{Binding Template}" FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" />
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <Button Classes="icon" Command="{Binding AddMapEntryCommand}" AutomationProperties.Name="Add a mapping" ToolTip.Tip="Add a mapping"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+              <Button Classes="icon" Command="{Binding RemoveMapEntryCommand}" AutomationProperties.Name="Remove the mapping" ToolTip.Tip="Remove the mapping"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+              <Button Content="Restore Defaults" Command="{Binding RestoreMapCommand}" />
+              <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.MapTokens}" PlaceholderText="Available values" MinWidth="200" Margin="12,0,0,0" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
       </TabItem>
       <TabItem Header="Sets">
         <DockPanel Margin="0,12">

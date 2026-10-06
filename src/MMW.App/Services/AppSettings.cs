@@ -38,6 +38,30 @@ public sealed class AppSettings
 
     public bool LogIncludesDate { get; set; }
 
+    // Metadata search
+    public string? DefaultMovieProvider { get; set; }
+
+    public string? DefaultTvProvider { get; set; }
+
+    /// <summary>Last language used per provider name.</summary>
+    public Dictionary<string, string> ProviderLanguages { get; set; } = [];
+
+    /// <summary>Overwrite existing tags with search results.</summary>
+    public bool MetadataOverwrite { get; set; } = true;
+
+    /// <summary>Keep existing values for mapped tags the result does not provide.</summary>
+    public bool MetadataKeepEmpty { get; set; } = true;
+
+    public bool Autodetect4K { get; set; }
+
+    /// <summary>Replace existing artwork with the artwork chosen in the search window.</summary>
+    public bool ReplaceArtworkOnSearch { get; set; } = true;
+
+    /// <summary>User overrides for the provider API keys (empty = use appsettings.json or the environment).</summary>
+    public string? TmdbApiKey { get; set; }
+
+    public string? TvdbApiKey { get; set; }
+
     // File naming
     public bool UseFileNameFormat { get; set; } = true;
 

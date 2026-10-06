@@ -42,6 +42,8 @@
         <MenuItem Header="Save _As…" Command="{Binding SelectedDocument.SaveAsCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.SaveAs}" InputGesture="{x:Static app:Gestures.SaveAs}" IsEnabled="{Binding HasDocument}" />
         <MenuItem Header="Send to _Queue" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" />
         <Separator />
+        <MenuItem Header="Export _NFO…" Command="{Binding SelectedDocument.ExportNfoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" />
+        <Separator />
         <MenuItem Header="_Preferences…" Command="{Binding PreferencesCommand}" />
         <Separator />
         <MenuItem Header="E_xit" Click="OnExitClick" InputGesture="{x:Static app:Gestures.Quit}" />
@@ -51,6 +53,9 @@
                   Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Undo}" InputGesture="{x:Static app:Gestures.Undo}" />
         <MenuItem Header="{Binding SelectedDocument.Undo.RedoDescription, StringFormat='Redo {0}', FallbackValue='Redo', TargetNullValue='Redo'}"
                   Command="{Binding SelectedDocument.RedoCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Redo}" InputGesture="{x:Static app:Gestures.Redo}" />
+      </MenuItem>
+      <MenuItem Header="_Metadata" IsEnabled="{Binding HasDocument}">
+        <MenuItem Header="_Search Online…" Command="{Binding SearchMetadataCommand}" InputGesture="{x:Static app:Gestures.Search}" />
       </MenuItem>
       <MenuItem Header="_Tracks" IsEnabled="{Binding HasDocument}">
         <MenuItem Header="_Delete Selected Tracks" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" InputGesture="{x:Static app:Gestures.Delete}" />

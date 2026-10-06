@@ -25,11 +25,14 @@ public partial class App : Application
             };
 
             var dialogs = new AvaloniaDialogService();
+            MMW.Queue.QueueStore.RegisterAction<FetchMetadataAction>("fetchMetadata");
             var runner = new MMW.Queue.QueueRunner(new MMW.Core.Model.ContainerRegistry(DocumentService.DefaultHandlers()), new PowerService());
             var queuePath = Path.Combine(SettingsService.AppDataDirectory, "queue.json");
             MMW.Queue.QueueStore.Load(runner, queuePath);
             var queue = new QueueViewModel(runner, dialogs, settings, new NotificationService(), queuePath);
-            var vm = new MainWindowViewModel(new DocumentService(), dialogs, settings, queue);
+            var metadata = new MetadataService(settings);
+            runner.Services = new ServiceMap { metadata };
+            var vm = new MainWindowViewModel(new DocumentService(), dialogs, settings, queue, metadata);
             desktop.MainWindow = new MainWindow { DataContext = vm };
 
             var files = desktop.Args?.Where(File.Exists).ToList() ?? [];

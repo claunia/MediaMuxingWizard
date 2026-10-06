@@ -107,6 +107,22 @@ public sealed partial class QueueViewModel : ViewModelBase
 
     // Default actions
     [ObservableProperty]
+    private bool _fetchMetadata;
+
+    public static IReadOnlyList<Choice<MMW.Metadata.Search.ArtworkKind?>> ArtworkKinds { get; } =
+    [
+        new(MMW.Metadata.Search.ArtworkKind.Poster, "Poster"),
+        new(MMW.Metadata.Search.ArtworkKind.Season, "Season"),
+        new(MMW.Metadata.Search.ArtworkKind.Episode, "Episode"),
+        new(MMW.Metadata.Search.ArtworkKind.Backdrop, "Backdrop"),
+        new(MMW.Metadata.Search.ArtworkKind.Square, "Square"),
+        new(null, "No artwork"),
+    ];
+
+    [ObservableProperty]
+    private Choice<MMW.Metadata.Search.ArtworkKind?> _fetchArtwork = ArtworkKinds[0];
+
+    [ObservableProperty]
     private MetadataPreset? _applyPreset;
 
     [ObservableProperty]
@@ -186,6 +202,10 @@ public sealed partial class QueueViewModel : ViewModelBase
                 case ClearMetadataAction:
                     ClearMetadata = true;
                     break;
+                case FetchMetadataAction f:
+                    FetchMetadata = true;
+                    FetchArtwork = ArtworkKinds.FirstOrDefault(k => k.Value == f.Artwork) ?? ArtworkKinds[0];
+                    break;
                 case SetOutputFileNameAction:
                     SetOutputFileName = true;
                     break;
@@ -241,6 +261,8 @@ public sealed partial class QueueViewModel : ViewModelBase
         var actions = new List<QueueAction>();
         if (ClearMetadata)
             actions.Add(new ClearMetadataAction());
+        if (FetchMetadata)
+            actions.Add(new FetchMetadataAction { Artwork = FetchArtwork.Value });
         if (ApplyPresetEnabled && ApplyPreset is not null)
             actions.Add(new ApplyPresetAction { Preset = ApplyPreset });
         if (LoadChapters)

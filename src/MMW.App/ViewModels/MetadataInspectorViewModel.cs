@@ -229,6 +229,25 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
     /// <summary>Refreshes menus and pickers after the preferences changed (sets, ratings country).</summary>
     public void SettingsChanged() => Rebuild();
 
+    /// <summary>Applies a change to the whole metadata set (search results, NFO import) as one undo step.</summary>
+    public void ApplyExternal(string description, Action change)
+    {
+        var before = Metadata.Clone();
+        _suspendRefresh = true;
+        try
+        {
+            change();
+        }
+        finally
+        {
+            _suspendRefresh = false;
+        }
+
+        var after = Metadata.Clone();
+        _undo.Record(new DelegateEdit(description, () => Restore(after), () => Restore(before)));
+        Rebuild();
+    }
+
     /// <summary>Applies the n-th user preset (Ctrl/Cmd+1…9).</summary>
     public void ApplyPresetAt(int index)
     {

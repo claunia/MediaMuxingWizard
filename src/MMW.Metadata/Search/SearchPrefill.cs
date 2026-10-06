@@ -28,15 +28,19 @@ public static class SearchPrefill
         if (!string.IsNullOrWhiteSpace(name) && mediaKind == TagCatalog.MediaKindMovie)
             return new SearchQuery(MediaSearchKind.Movie, name.Trim(), YearOf(tags.GetString(TagId.ReleaseDate)), null, null, language);
 
-        if (!string.IsNullOrWhiteSpace(doc.Path))
+        // A file name with an episode pattern wins; otherwise an existing title is a better query than a file name.
+        var parsed = string.IsNullOrWhiteSpace(doc.Path) ? null : FileNameParser.Parse(doc.Path);
+        if (parsed is { Kind: MediaSearchKind.TvEpisode } && parsed.Title.Length > 0)
+            return parsed.ToQuery(language);
+
+        if (!string.IsNullOrWhiteSpace(name))
         {
-            var parsed = FileNameParser.Parse(doc.Path);
-            if (parsed.Title.Length > 0)
-                return parsed.ToQuery(language);
+            return new SearchQuery(mediaKind == TagCatalog.MediaKindTvShow ? MediaSearchKind.TvEpisode : MediaSearchKind.Movie,
+                name.Trim(), YearOf(tags.GetString(TagId.ReleaseDate)), null, null, language);
         }
 
-        return !string.IsNullOrWhiteSpace(name)
-            ? new SearchQuery(mediaKind == TagCatalog.MediaKindTvShow ? MediaSearchKind.TvEpisode : MediaSearchKind.Movie, name.Trim(), YearOf(tags.GetString(TagId.ReleaseDate)), null, null, language)
+        return parsed is { Title.Length: > 0 }
+            ? parsed.ToQuery(language)
             : new SearchQuery(MediaSearchKind.Movie, string.Empty, null, null, null, language);
     }
 

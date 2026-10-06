@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MMW.App.ViewModels"
+             xmlns:s="using:MMW.Metadata.Search"
+             x:Class="MMW.App.Views.MetadataSearchView"
+             x:DataType="vm:MetadataSearchViewModel">
+  <DockPanel Width="980" Height="640">
+    <!-- Query -->
+    <StackPanel DockPanel.Dock="Top" Spacing="10">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <RadioButton Content="Movie" IsChecked="{Binding !IsTv}" GroupName="kind" />
+          <RadioButton Content="TV Episode" IsChecked="{Binding IsTv}" GroupName="kind" Margin="8,0,0,0" />
+        </StackPanel>
+        <TextBlock Grid.Column="2" Text="Provider:" VerticalAlignment="Center" Margin="0,0,6,0" />
+        <ComboBox Grid.Column="3" ItemsSource="{Binding Providers}" SelectedItem="{Binding SelectedProvider}" MinWidth="150">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="s:IMetadataProvider"><TextBlock Text="{Binding Name}" /></DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBlock Grid.Column="4" Text="Language:" VerticalAlignment="Center" Margin="12,0,6,0" />
+        <ComboBox Grid.Column="5" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="150" MaxDropDownHeight="360" IsTextSearchEnabled="True" />
+      </Grid>
+
+      <Grid ColumnDefinitions="*,Auto,90,Auto" IsVisible="{Binding !IsTv}">
+        <TextBox Text="{Binding MovieTitle}" PlaceholderText="Movie title">
+          <TextBox.KeyBindings><KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" /></TextBox.KeyBindings>
+        </TextBox>
+        <TextBlock Grid.Column="1" Text="Year:" VerticalAlignment="Center" Margin="12,0,6,0" />
+        <TextBox Grid.Column="2" Text="{Binding Year}" PlaceholderText="Any" />
+        <Button Grid.Column="3" Content="Search" Command="{Binding SearchCommand}" Classes="accent" Margin="12,0,0,0" IsDefault="True" />
+      </Grid>
+
+      <Grid ColumnDefinitions="*,Auto,70,Auto,70,Auto" IsVisible="{Binding IsTv}">
+        <AutoCompleteBox x:Name="SeriesBox" Text="{Binding SeriesName}" PlaceholderText="TV show" MinimumPrefixLength="0" FilterMode="None" MinimumPopulateDelay="0:0:0.4" />
+        <TextBlock Grid.Column="1" Text="Season:" VerticalAlignment="Center" Margin="12,0,6,0" />
+        <TextBox Grid.Column="2" Text="{Binding Season}" PlaceholderText="All" />
+        <TextBlock Grid.Column="3" Text="Episode:" VerticalAlignment="Center" Margin="12,0,6,0" />
+        <TextBox Grid.Column="4" Text="{Binding Episode}" PlaceholderText="All">
+          <TextBox.KeyBindings><KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" /></TextBox.KeyBindings>
+        </TextBox>
+        <Button Grid.Column="5" Content="Search" Command="{Binding SearchCommand}" Classes="accent" Margin="12,0,0,0" />
+      </Grid>
+      <TextBlock Text="{Binding ProviderWarning}" Classes="error" IsVisible="{Binding ProviderWarning, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <!-- Buttons -->
+    <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
+        <TextBlock Text="{Binding Status}" Classes="dim" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <CheckBox Content="Replace existing artwork" IsChecked="{Binding ReplaceArtworks}" />
+        <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
+        <Button Content="Apply" Command="{Binding ApplyCommand}" Classes="accent" MinWidth="80" />
+      </StackPanel>
+    </Grid>
+
+    <!-- Artwork -->
+    <ListBox DockPanel.Dock="Bottom" ItemsSource="{Binding Artworks}" Height="190" Margin="0,10,0,0" SelectionMode="Multiple"
+             ScrollViewer.HorizontalScrollBarVisibility="Auto" Background="Transparent">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="vm:RemoteArtworkViewModel">
+          <StackPanel Width="130" Spacing="2">
+            <Border Height="130" Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" CornerRadius="4">
+              <Image Source="{Binding Thumbnail}" Stretch="Uniform" />
+            </Border>
+            <CheckBox IsChecked="{Binding IsSelected}" FontSize="11">
+              <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="11" MaxHeight="30" />
+            </CheckBox>
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+
+    <!-- Results and preview -->
+    <Grid ColumnDefinitions="2*,5,3*" Margin="0,10,0,0">
+      <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedResult}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="s:MetadataResult">
+            <StackPanel>
+              <TextBlock Text="{Binding DisplayTitle}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding Subtitle}" Classes="dim" FontSize="11" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+      <DataGrid Grid.Column="2" ItemsSource="{Binding Preview}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="False">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Tag" Binding="{Binding Tag}" Width="150" x:DataType="vm:PreviewRow" />
+          <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="*" x:DataType="vm:PreviewRow" />
+        </DataGrid.Columns>
+      </DataGrid>
+    </Grid>
+  </DockPanel>
+</UserControl>

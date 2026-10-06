@@ -17,15 +17,27 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IDialogService _dialogs;
     private readonly ISettingsService _settings;
 
-    public MainWindowViewModel(DocumentService documents, IDialogService dialogs, ISettingsService settings, QueueViewModel? queue = null)
+    public MainWindowViewModel(DocumentService documents, IDialogService dialogs, ISettingsService settings, QueueViewModel? queue = null, MetadataService? metadata = null)
     {
         _documents = documents;
         _dialogs = dialogs;
         _settings = settings;
         Queue = queue;
+        Metadata = metadata;
         if (queue is not null)
             queue.EditRequested += async (_, path) => await OpenPathsAsync([path]);
         RebuildRecentMenu();
+    }
+
+    /// <summary>Online metadata search (null in tests that do not need it).</summary>
+    public MetadataService? Metadata { get; }
+
+    [RelayCommand]
+    private async Task SearchMetadata()
+    {
+        if (Metadata is null || SelectedDocument is not { } doc)
+            return;
+        await _dialogs.ShowDialogAsync(new MetadataSearchViewModel(doc, Metadata));
     }
 
     /// <summary>The batch queue (null in tests that do not need it).</summary>
@@ -99,6 +111,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             {
                 doc.MetadataInspector.AddArtworkData([await File.ReadAllBytesAsync(path)]);
                 doc.SelectedRow = doc.Rows[0];
+                continue;
+            }
+
+            if (SelectedDocument is { } nfoDoc && ext == ".nfo")
+            {
+                try
+                {
+                    nfoDoc.ImportNfo(path);
+                }
+                catch (System.Xml.XmlException ex)
+                {
+                    await _dialogs.ShowMessageAsync("Could not import NFO", ex.Message);
+                }
+
                 continue;
             }
 
@@ -219,7 +245,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task Preferences()
     {
-        if (await _dialogs.ShowDialogAsync(new PreferencesViewModel(Settings)))
+        if (await _dialogs.ShowDialogAsync(new PreferencesViewModel(Settings, Metadata)))
         {
             _settings.Save();
             if (Avalonia.Application.Current is { } app)
@@ -234,6 +260,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
             foreach (var doc in Documents)
                 doc.MetadataInspector.SettingsChanged();
+            Metadata?.SettingsChanged();
         }
     }
 

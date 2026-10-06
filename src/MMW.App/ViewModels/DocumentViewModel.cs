@@ -277,6 +277,29 @@ public sealed partial class DocumentViewModel : ViewModelBase
         SelectedRow = Rows.FirstOrDefault(r => r.Track is ChapterTrack) ?? SelectedRow;
     }
 
+    /// <summary>Applies a metadata change (search result, NFO) with undo, and shows the metadata inspector.</summary>
+    public void ApplyMetadata(string description, Action<MediaDocument> change)
+    {
+        MetadataInspector.ApplyExternal(description, () => change(Document));
+        SelectedRow = Rows[0];
+    }
+
+    /// <summary>Merges the tags of a Kodi .nfo file.</summary>
+    public void ImportNfo(string path)
+    {
+        var set = MMW.Metadata.Nfo.NfoMetadata.Read(path);
+        ApplyMetadata("Import NFO", doc => doc.Metadata.Merge(set, overwrite: true, replaceArtworks: false));
+    }
+
+    [RelayCommand]
+    private async Task ExportNfo()
+    {
+        var suggested = Document.Path is { } p ? Path.GetFileName(MMW.Metadata.Nfo.NfoMetadata.NfoPathFor(p)) : "metadata.nfo";
+        var path = await _dialogs.SaveFileAsync("Export NFO", suggested, [new FileFilter("Kodi NFO", ["nfo"])]);
+        if (path is not null)
+            await File.WriteAllTextAsync(path, MMW.Metadata.Nfo.NfoMetadata.Export(Document.Metadata));
+    }
+
     /// <summary>Imports a chapter file dropped on the document.</summary>
     public async Task ImportChaptersAsync(string path)
     {

@@ -87,6 +87,10 @@
           <TextBlock Text="Metadata" Classes="groupHeader" />
           <CheckBox Content="Clear existing metadata" IsChecked="{Binding ClearMetadata}" />
           <StackPanel Orientation="Horizontal" Spacing="6">
+            <CheckBox Content="Search metadata online, artwork:" IsChecked="{Binding FetchMetadata}" />
+            <ComboBox ItemsSource="{x:Static vm:QueueViewModel.ArtworkKinds}" SelectedItem="{Binding FetchArtwork}" MinWidth="120" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="6">
             <CheckBox Content="Apply set:" IsChecked="{Binding ApplyPresetEnabled}" />
             <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding ApplyPreset}" MinWidth="160" PlaceholderText="No saved sets">
               <ComboBox.ItemTemplate>
