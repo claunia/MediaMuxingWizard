@@ -18,6 +18,18 @@ dotnet build MediaMetadataWizard.slnx
 dotnet run --project src/MMW.App
 ```
 
+## Optional native libraries
+
+Everything works without native dependencies except:
+
+- **Audio conversion and chapter previews** need FFmpeg 8 shared libraries (LGPL build: libavcodec,
+  libavformat, libavutil, libswresample, libswscale). They are looked up in `ffmpeg/` or `runtimes/<rid>/native`
+  next to the executable, `MMW_FFMPEG_PATH`, then the system (e.g. Homebrew, `/usr/lib`).
+- **OCR of bitmap subtitles** (PGS, VobSub) needs Tesseract 5.
+
+`packaging/publish.sh` bundles them when `MMW_BUNDLE_FFMPEG`, `MMW_BUNDLE_TESSERACT` and `MMW_BUNDLE_TESSDATA`
+point at the libraries; their licence notices are copied alongside.
+
 ## Command line
 
 `mmw` (project `src/MMW.Cli`) scripts the same operations: `mmw info file.m4v --json`,
