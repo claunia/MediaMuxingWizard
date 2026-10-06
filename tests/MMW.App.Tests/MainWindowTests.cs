@@ -310,3 +310,28 @@ public class OffsetTests
         Assert.Equal(TimeSpan.Zero, doc.Document.Tracks.OfType<AudioTrack>().First().StartOffset);
     }
 }
+
+public class SingleInstanceTests
+{
+    [Fact]
+    public async Task Paths_are_forwarded_to_the_running_instance()
+    {
+        SingleInstance.PipeName = "mmw-test-" + Guid.NewGuid().ToString("N");
+        using var cts = new CancellationTokenSource();
+        var received = new TaskCompletionSource<IReadOnlyList<string>>();
+        SingleInstance.StartServer(p => received.TrySetResult(p), cts.Token);
+
+        var forwarded = false;
+        for (var i = 0; i < 20 && !forwarded; i++)
+        {
+            forwarded = SingleInstance.TryForward(["/tmp/a.mkv", "/tmp/b c.m4v"]);
+            if (!forwarded)
+                await Task.Delay(50, TestContext.Current.CancellationToken);
+        }
+
+        Assert.True(forwarded);
+        var paths = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.Equal(["/tmp/a.mkv", "/tmp/b c.m4v"], paths);
+        cts.Cancel();
+    }
+}

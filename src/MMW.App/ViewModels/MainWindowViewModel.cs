@@ -61,7 +61,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (Metadata is null || SelectedDocument is not { } doc)
             return;
-        await _dialogs.ShowDialogAsync(new MetadataSearchViewModel(doc, Metadata));
+        using var search = new MetadataSearchViewModel(doc, Metadata);
+        await _dialogs.ShowDialogAsync(search);
     }
 
     /// <summary>The batch queue (null in tests that do not need it).</summary>

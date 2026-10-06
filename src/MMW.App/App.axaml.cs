@@ -1,5 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using MMW.App.Services;
@@ -36,9 +38,35 @@ public partial class App : Application
             var vm = new MainWindowViewModel(new DocumentService(), dialogs, settings, queue, metadata);
             desktop.MainWindow = new MainWindow { DataContext = vm };
 
+            var window = desktop.MainWindow;
             var files = desktop.Args?.Where(File.Exists).ToList() ?? [];
             if (files.Count > 0)
-                desktop.MainWindow.Opened += async (_, _) => await vm.OpenPathsAsync(files);
+                window.Opened += async (_, _) => await vm.OpenPathsAsync(files);
+
+            // Files opened while running: from later launches (pipe) or from Finder (activation).
+            async void OpenAndActivate(IReadOnlyList<string> paths)
+            {
+                await vm.OpenPathsAsync(paths);
+                window.Activate();
+            }
+
+            if (OperatingSystem.IsMacOS())
+            {
+                if (this.TryGetFeature<IActivatableLifetime>() is { } activatable)
+                {
+                    activatable.Activated += (_, e) =>
+                    {
+                        if (e is FileActivatedEventArgs fileArgs)
+                            OpenAndActivate(fileArgs.Files.Select(f => f.TryGetLocalPath()).OfType<string>().ToList());
+                    };
+                }
+            }
+            else
+            {
+                var cts = new CancellationTokenSource();
+                desktop.Exit += (_, _) => cts.Cancel();
+                SingleInstance.StartServer(paths => Dispatcher.UIThread.Post(() => OpenAndActivate(paths)), cts.Token);
+            }
         }
 
         base.OnFrameworkInitializationCompleted();

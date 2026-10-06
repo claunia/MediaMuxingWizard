@@ -29,7 +29,7 @@ public sealed partial class RemoteArtworkViewModel(RemoteArtwork artwork) : View
 }
 
 /// <summary>Searches online providers and applies the chosen result to a document (Subler's search sheet).</summary>
-public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>
+public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDisposable
 {
     private readonly DocumentViewModel _document;
     private readonly MetadataService _service;
@@ -132,7 +132,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>
 
     private void SelectProviderForKind()
     {
-        SelectedProvider = _service.Registry.DefaultFor(Kind) ?? Providers.FirstOrDefault();
+        SelectedProvider = _service.Registry.DefaultFor(Kind) ?? (Providers.Count > 0 ? Providers[0] : null);
     }
 
     // ------------------------------------------------------------------ results
@@ -171,6 +171,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>
         var query = new SearchQuery(Kind, IsTv ? SeriesName.Trim() : MovieTitle.Trim(), ParseInt(Year), IsTv ? ParseInt(Season) : null, IsTv ? ParseInt(Episode) : null, language);
 
         _searchCts?.Cancel();
+        _searchCts?.Dispose();
         _searchCts = new CancellationTokenSource();
         IsBusy = true;
         Status = IsTv ? $"Searching {provider.Name} for episode information…" : $"Searching {provider.Name} for movie information…";
@@ -305,6 +306,16 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>
         {
             IsBusy = false;
         }
+    }
+
+    public void Dispose()
+    {
+        _detailsCts?.Cancel();
+        _detailsCts?.Dispose();
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+        foreach (var a in Artworks)
+            a.Thumbnail?.Dispose();
     }
 
     private static int? ParseInt(string text) =>
