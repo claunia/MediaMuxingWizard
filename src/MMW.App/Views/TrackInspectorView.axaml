@@ -80,7 +80,6 @@
               <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:TrackInspectorViewModel.ForcedModes}" SelectedItem="{Binding SelectedForcedMode}" MinWidth="260" />
               <TextBlock Grid.Row="1" Text="Forced track:" Classes="label" />
               <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SubtitleChoices}" SelectedItem="{Binding SelectedForcedTrack}" MinWidth="260" />
-              <CheckBox Grid.Row="2" Grid.Column="1" Content="Place subtitles at the top" IsChecked="{Binding Subtitle.PlaceAtTop, FallbackValue=False}" />
             </Grid>
           </StackPanel>
         </StackPanel>

@@ -219,3 +219,30 @@ public class Mp4RoundTripTests
         Assert.Equal(before, Mp4Fixtures.PacketHashes(path));
     }
 }
+
+public class Mp4ColorTests
+{
+    [Fact]
+    public async Task Colour_description_is_written_to_the_sample_entry()
+    {
+        var path = TestSupport.Fixtures.CopyToTemp(Mp4Fixtures.FastStart());
+        var ct = TestContext.Current.CancellationToken;
+        var handler = new Mp4Handler();
+        var doc = await handler.ReadAsync(path, ct);
+        var video = doc.Tracks.OfType<MMW.Core.Model.VideoTrack>().Single();
+        video.Color = new MMW.Core.Model.ColorInfo(9, 16, 9, FullRange: false);
+        await handler.SaveAsync(doc, new MMW.Core.Model.SaveOptions(), cancellationToken: ct);
+
+        var reread = (await handler.ReadAsync(path, ct)).Tracks.OfType<MMW.Core.Model.VideoTrack>().Single();
+        Assert.Equal(new MMW.Core.Model.ColorInfo(9, 16, 9, false), reread.Color);
+        var stream = Mp4Fixtures.Probe(path).GetProperty("streams")[0];
+        Assert.Equal("bt2020", stream.GetProperty("color_primaries").GetString());
+        Assert.Equal("smpte2084", stream.GetProperty("color_transfer").GetString());
+        Assert.Empty(Mp4Fixtures.DemuxErrors(path));
+
+        var doc2 = await handler.ReadAsync(path, ct);
+        doc2.Tracks.OfType<MMW.Core.Model.VideoTrack>().Single().Color = MMW.Core.Model.ColorInfo.Unspecified;
+        await handler.SaveAsync(doc2, new MMW.Core.Model.SaveOptions(), cancellationToken: ct);
+        Assert.False((await handler.ReadAsync(path, ct)).Tracks.OfType<MMW.Core.Model.VideoTrack>().Single().Color.IsSpecified);
+    }
+}

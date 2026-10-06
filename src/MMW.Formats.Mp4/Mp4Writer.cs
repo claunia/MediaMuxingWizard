@@ -327,8 +327,11 @@ internal static class Mp4Writer
                 SetReferences(trak, "fall", audio.Fallback is { } f && keepIds.Contains(f.Id) ? [f.Id] : []);
                 SetReferences(trak, "folw", audio.FollowsSubtitle is { } s && keepIds.Contains(s.Id) ? [s.Id] : []);
                 break;
-            case VideoTrack video when video.DisplayWidth > 0 && video.DisplayHeight > 0:
-                HeaderBoxes.SetTkhdSize(tkhd, video.DisplayWidth, video.DisplayHeight);
+            case VideoTrack video:
+                if (video.DisplayWidth > 0 && video.DisplayHeight > 0)
+                    HeaderBoxes.SetTkhdSize(tkhd, video.DisplayWidth, video.DisplayHeight);
+                if (trak.FindPath("mdia/minf/stbl/stsd")?.Children?.FirstOrDefault(e => BoxParser.IsVisualSampleEntry(e.Type)) is { IsContainer: true } entry)
+                    ApplyColor(entry, video.Color);
                 break;
             case SubtitleTrack sub:
                 SetReferences(trak, "forc", sub.ForcedTrack is { } ft && keepIds.Contains(ft.Id) ? [ft.Id] : []);
@@ -383,6 +386,35 @@ internal static class Mp4Writer
             udta.Children!.Add(new Box("tagc", Encoding.UTF8.GetBytes(tag)));
         if (udta.Children!.Count == 0)
             trak.RemoveAll("udta");
+    }
+
+    /// <summary>Writes (or removes) the nclx colour box of a visual sample entry; ICC profiles are left alone.</summary>
+    private static void ApplyColor(Box entry, ColorInfo color)
+    {
+        var existing = entry.Children!.FirstOrDefault(c => c.Type == "colr");
+        var kind = existing is { Payload.Length: >= 4 } ? Box.Latin1.GetString(existing.Payload, 0, 4) : null;
+        if (kind is "prof" or "rICC")
+            return;
+
+        if (!color.IsSpecified)
+        {
+            entry.RemoveAll("colr");
+            return;
+        }
+
+        var builder = new PayloadBuilder().Type("nclx").U16(color.Primaries).U16(color.Transfer).U16(color.Matrix).U8(color.FullRange == true ? 0x80 : 0);
+        var box = new Box("colr", builder.ToArray());
+        var index = existing is null ? -1 : entry.Children!.IndexOf(existing);
+        if (index >= 0)
+        {
+            entry.Children![index] = box;
+        }
+        else
+        {
+            // Keep the codec configuration (avcC/hvcC/…) first, as some players expect.
+            var after = entry.Children!.FindLastIndex(c => c.Type is "avcC" or "hvcC" or "av1C" or "vvcC" or "esds" or "dvcC" or "dvvC" or "pasp");
+            entry.Children.Insert(after + 1, box);
+        }
     }
 
     private static void RemoveReferences(Box trak, string type) => SetReferences(trak, type, []);
