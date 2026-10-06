@@ -112,6 +112,16 @@ public sealed partial class VideoTrack : Track
     public HdrInfo? Hdr { get; set; }
 
     public DolbyVisionInfo? DolbyVision { get; set; }
+
+    /// <summary>
+    /// Raw Dolby Vision decoder configuration record as stored in (or to be written to) the container
+    /// (dvcC/dvvC/dvwC in MP4, BlockAdditionMapping in Matroska); null when the container has none.
+    /// </summary>
+    [ObservableProperty]
+    private byte[]? _dolbyVisionRecord;
+
+    partial void OnDolbyVisionRecordChanged(byte[]? value) =>
+        DolbyVision = value is { Length: >= 5 } ? Media.Codecs.DolbyVision.ParseConfigurationRecord(value) : null;
 }
 
 public sealed partial class AudioTrack : Track

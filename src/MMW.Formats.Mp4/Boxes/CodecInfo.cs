@@ -180,7 +180,9 @@ public static class CodecInfo
 
         track.ProfileLevel = ProfileLevel(entry);
         track.Hdr = ParseHdr(entry);
-        track.DolbyVision = ParseDolbyVision(entry);
+        var dvBox = entry.Find("dvcC") ?? entry.Find("dvvC") ?? entry.Find("dvwC");
+        if (dvBox is { Payload.Length: >= 5 })
+            track.DolbyVisionRecord = dvBox.Payload;
 
         var details = string.Create(CultureInfo.InvariantCulture, $"{track.PixelWidth}×{track.PixelHeight}");
         if (track.ParNumerator > 0 && track.ParDenominator > 0 && track.ParNumerator != track.ParDenominator)
@@ -282,12 +284,6 @@ public static class CodecInfo
             MaxFall = maxFall,
             AmbientIlluminance = ambient,
         };
-    }
-
-    private static DolbyVisionInfo? ParseDolbyVision(Box entry)
-    {
-        var dv = entry.Find("dvcC") ?? entry.Find("dvvC") ?? entry.Find("dvwC");
-        return dv is { Payload.Length: >= 5 } ? ParseDolbyVisionRecord(dv.Payload) : null;
     }
 
     /// <summary>Parses a DOVIDecoderConfigurationRecord (shared by MP4 and Matroska).</summary>

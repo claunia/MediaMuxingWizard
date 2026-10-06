@@ -6,8 +6,23 @@
              xmlns:views="using:MMW.App.Views"
              x:Class="MMW.App.Views.DocumentView"
              x:DataType="vm:DocumentViewModel">
-  <Grid RowDefinitions="2*,5,3*" Margin="8,6,8,4">
-    <DataGrid x:Name="TrackGrid"
+  <Grid RowDefinitions="Auto,2*,5,3*" Margin="8,6,8,4">
+    <Border IsVisible="{Binding HasDolbyVisionNotice}" Margin="0,0,0,6" Padding="10,6"
+            CornerRadius="4" BorderThickness="1"
+            Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+            BorderBrush="{DynamicResource SystemAccentColor}">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="10,0,0,0">
+          <Button Classes="accent" Content="{x:Static res:Strings.Button_RepairDolbyVision}"
+                  ToolTip.Tip="{x:Static res:Strings.Tooltip_RepairDolbyVision}"
+                  Command="{Binding RepairDolbyVisionCommand}" />
+          <Button Content="{x:Static res:Strings.Button_Dismiss}" Command="{Binding DismissDolbyVisionNoticeCommand}" />
+        </StackPanel>
+        <TextBlock Text="{Binding DolbyVisionNotice}" TextWrapping="Wrap" VerticalAlignment="Center" />
+      </DockPanel>
+    </Border>
+
+    <DataGrid x:Name="TrackGrid" Grid.Row="1"
               ItemsSource="{Binding Rows}"
               SelectedItem="{Binding SelectedRow}"
               SelectionMode="Extended"
@@ -52,9 +67,9 @@
       </DataGrid.Columns>
     </DataGrid>
 
-    <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="Transparent" />
+    <GridSplitter Grid.Row="2" ResizeDirection="Rows" Background="Transparent" />
 
-    <Border Grid.Row="2" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1" CornerRadius="4" MinHeight="160">
+    <Border Grid.Row="3" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1" CornerRadius="4" MinHeight="160">
       <ContentControl Content="{Binding Inspector}" />
     </Border>
   </Grid>

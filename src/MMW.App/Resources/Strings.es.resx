@@ -1506,4 +1506,31 @@ Si no los guardas, se perderán.</value>
   <data name="Ocr_DownloadFailed_Title" xml:space="preserve">
     <value>Error en la descarga</value>
   </data>
+  <data name="Notice_DolbyVisionMissingFormat" xml:space="preserve">
+    <value>Este vídeo contiene Dolby Vision (perfil {0}, nivel {1}), pero al archivo le falta la configuración de Dolby Vision, así que los reproductores lo mostrarán como {2}. La configuración se puede reconstruir a partir de la capa base y la RPU del flujo de vídeo.</value>
+  </data>
+  <data name="Button_RepairDolbyVision" xml:space="preserve">
+    <value>Reparar</value>
+  </data>
+  <data name="Button_Dismiss" xml:space="preserve">
+    <value>Descartar</value>
+  </data>
+  <data name="Undo_RepairDolbyVision" xml:space="preserve">
+    <value>Reparar Dolby Vision</value>
+  </data>
+  <data name="Tooltip_RepairDolbyVision" xml:space="preserve">
+    <value>Añadir la configuración de Dolby Vision reconstruida a partir del flujo de vídeo</value>
+  </data>
+  <data name="Fallback_Hdr10" xml:space="preserve">
+    <value>HDR10</value>
+  </data>
+  <data name="Fallback_Hlg" xml:space="preserve">
+    <value>HLG</value>
+  </data>
+  <data name="Fallback_Sdr" xml:space="preserve">
+    <value>SDR</value>
+  </data>
+  <data name="Fallback_Unwatchable" xml:space="preserve">
+    <value>vídeo con colores incorrectos</value>
+  </data>
 </root>

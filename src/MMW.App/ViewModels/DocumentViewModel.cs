@@ -53,6 +53,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             Rows.Add(TrackRowViewModel.ForTrack(t));
         document.Tracks.CollectionChanged += OnTracksChanged;
         SelectedRow = Rows[0];
+        _ = CheckDolbyVisionAsync();
     }
 
     public MediaDocument Document { get; }
@@ -146,6 +147,60 @@ public sealed partial class DocumentViewModel : ViewModelBase
             _trackInspectors[track] = vm = new TrackInspectorViewModel(track, Document, this);
         return vm;
     }
+
+    // ------------------------------------------------------------------ Dolby Vision repair
+
+    private (VideoTrack Track, MMW.Core.Media.Codecs.DolbyVisionDetection Detection)? _dolbyVisionRepair;
+
+    /// <summary>Notice shown when the bitstream has Dolby Vision but the container lacks its configuration.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDolbyVisionNotice))]
+    [NotifyCanExecuteChangedFor(nameof(RepairDolbyVisionCommand))]
+    private string? _dolbyVisionNotice;
+
+    public bool HasDolbyVisionNotice => DolbyVisionNotice is not null;
+
+    /// <summary>Scans the video bitstream for Dolby Vision RPUs when the container has no configuration record.</summary>
+    public async Task CheckDolbyVisionAsync()
+    {
+        if (Document.Tracks.OfType<VideoTrack>().FirstOrDefault(MMW.Core.Media.DolbyVisionDetector.NeedsCheck) is not { } video)
+            return;
+        try
+        {
+            if (await MMW.Core.Media.DolbyVisionDetector.DetectAsync(video) is not { } detection)
+                return;
+            _dolbyVisionRepair = (video, detection);
+            var fallback = detection.BlSignalCompatibilityId switch
+            {
+                1 or 6 => Strings.Fallback_Hdr10,
+                4 => Strings.Fallback_Hlg,
+                2 => Strings.Fallback_Sdr,
+                _ => Strings.Fallback_Unwatchable,
+            };
+            DolbyVisionNotice = string.Format(CultureInfo.CurrentCulture, Strings.Notice_DolbyVisionMissingFormat, detection.ProfileName, detection.Level, fallback);
+            AppLog.Info($"{Document.DisplayName}: Dolby Vision {detection.ProfileName} found in the bitstream but not signalled by the container.");
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+        {
+            AppLog.Debug($"Dolby Vision check skipped for {Document.DisplayName}: {ex.Message}");
+        }
+    }
+
+    private bool CanRepairDolbyVision() => _dolbyVisionRepair is not null && DolbyVisionNotice is not null;
+
+    /// <summary>Adds the rebuilt configuration record to the video track (undoable; written on save).</summary>
+    [RelayCommand(CanExecute = nameof(CanRepairDolbyVision))]
+    private void RepairDolbyVision()
+    {
+        var (video, detection) = _dolbyVisionRepair!.Value;
+        using (Undo.Transaction(Strings.Undo_RepairDolbyVision))
+            video.DolbyVisionRecord = detection.ConfigurationRecord;
+        DolbyVisionNotice = null;
+        AppLog.Info($"{Document.DisplayName}: Dolby Vision configuration rebuilt ({detection.ProfileName}, level {detection.Level}).");
+    }
+
+    [RelayCommand]
+    private void DismissDolbyVisionNotice() => DolbyVisionNotice = null;
 
     private Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>? _sourceTracks;
 

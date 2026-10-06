@@ -121,8 +121,8 @@ internal static class MatroskaTrackParser
                 continue;
             var m = EbmlParser.Children(child.Data);
             var addType = m.GetUInt(BlockAddIdType, 0);
-            if (addType is BlockAddTypeDvcC or BlockAddTypeDvvC && m.Child(BlockAddIdExtraData) is { } extra)
-                track.DolbyVision = MatroskaCodecs.DolbyVision(extra.Data.Span);
+            if (addType is BlockAddTypeDvcC or BlockAddTypeDvvC && m.Child(BlockAddIdExtraData) is { Data.Length: >= 5 } extra)
+                track.DolbyVisionRecord = extra.Data.ToArray();
         }
 
         var details = string.Create(CultureInfo.InvariantCulture, $"{track.PixelWidth}×{track.PixelHeight}");

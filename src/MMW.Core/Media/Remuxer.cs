@@ -338,6 +338,8 @@ public static class Remuxer
                 foreach (var o in outputs)
                 {
                     var cfg = o.Source.Config;
+                    if (o.Model is VideoTrack { DolbyVisionRecord: { Length: >= 5 } dvRecord })
+                        cfg = cfg with { DolbyVisionConfig = dvRecord }; // repaired or edited Dolby Vision configuration
                     var preRoll = o.Head is { } first && first.Pts + o.Offset < 0 ? TimeSpan.FromSeconds(-(first.Pts + o.Offset) / o.Timescale) : TimeSpan.Zero;
                     o.MuxIndex = muxer.AddTrack(cfg, new MuxTrackSettings
                     {

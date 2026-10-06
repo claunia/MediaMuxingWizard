@@ -31,7 +31,8 @@ internal sealed record TrackEditState(
     bool IsForced,
     string Characteristics,
     ColorInfo Color,
-    HdrInfo? Hdr)
+    HdrInfo? Hdr,
+    byte[]? DolbyVisionRecord)
 {
     public static TrackEditState Capture(Track track) => new(
         track.Name,
@@ -41,7 +42,8 @@ internal sealed record TrackEditState(
         track.IsForced,
         string.Join('|', track.MediaCharacteristics.Order(StringComparer.Ordinal)),
         track is VideoTrack v ? v.Color : ColorInfo.Unspecified,
-        track is VideoTrack h ? h.Hdr : null);
+        track is VideoTrack h ? h.Hdr : null,
+        track is VideoTrack d ? d.DolbyVisionRecord : null);
 }
 
 /// <summary>A TrackEntry as read from the file.</summary>

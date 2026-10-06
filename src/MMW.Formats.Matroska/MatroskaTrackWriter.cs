@@ -60,17 +60,33 @@ internal static class MatroskaTrackWriter
             replacements[Video] = RewriteVideo(oldVideo?.Data ?? ReadOnlyMemory<byte>.Empty, video, colorChanged, hdrChanged);
         }
 
-        if (replacements.Count == 0)
+        // Dolby Vision configuration: replace only the dvcC/dvvC mappings, keeping any other block additions.
+        byte[]? dolbyVision = null;
+        if (track is VideoTrack dv && dv.DolbyVisionRecord is { Length: >= 5 } record &&
+            (original.DolbyVisionRecord is null || !original.DolbyVisionRecord.AsSpan().SequenceEqual(record)))
+        {
+            var profile = record[2] >> 1;
+            dolbyVision = Encode(w => w.Master(BlockAdditionMapping, m =>
+            {
+                m.String(BlockAddIdName, "Dolby Vision configuration");
+                m.UInt(BlockAddIdType, profile <= 7 ? BlockAddTypeDvcC : BlockAddTypeDvvC);
+                m.Binary(BlockAddIdExtraData, record);
+            }));
+            children = children.Where(c => c.Id != BlockAdditionMapping ||
+                                           EbmlParser.Children(c.Data).GetUInt(BlockAddIdType, 0) is not (BlockAddTypeDvcC or BlockAddTypeDvvC)).ToList();
+        }
+
+        if (replacements.Count == 0 && dolbyVision is null)
             return null;
 
-        return ApplyReplacements(children, replacements);
+        return ApplyReplacements(children, replacements, dolbyVision is null ? [] : [dolbyVision]);
     }
 
     /// <summary>
     /// Copies <paramref name="children"/>, replacing the first occurrence of every ID in <paramref name="replacements"/>
     /// (null = remove), dropping later duplicates, appending replacements for absent IDs and recomputing a leading CRC-32.
     /// </summary>
-    public static byte[] ApplyReplacements(List<EbmlChild> children, Dictionary<ulong, byte[]?> replacements)
+    public static byte[] ApplyReplacements(List<EbmlChild> children, Dictionary<ulong, byte[]?> replacements, IReadOnlyList<byte[]>? append = null)
     {
         var hadCrc = children.Count > 0 && children[0].Id == Crc32Element;
         var done = new HashSet<ulong>();
@@ -94,6 +110,9 @@ internal static class MatroskaTrackWriter
             if (!done.Contains(id) && replacement is not null)
                 w.Raw(replacement);
         }
+
+        foreach (var element in append ?? [])
+            w.Raw(element);
 
         return hadCrc ? EbmlWriter.WithCrc32(w.WrittenSpan) : w.ToArray();
     }

@@ -334,7 +334,10 @@ internal static class Mp4Writer
                 if (video.DisplayWidth > 0 && video.DisplayHeight > 0)
                     HeaderBoxes.SetTkhdSize(tkhd, video.DisplayWidth, video.DisplayHeight);
                 if (trak.FindPath("mdia/minf/stbl/stsd")?.Children?.FirstOrDefault(e => BoxParser.IsVisualSampleEntry(e.Type)) is { IsContainer: true } entry)
+                {
                     ApplyColor(entry, video.Color);
+                    ApplyDolbyVision(entry, video.DolbyVisionRecord);
+                }
                 break;
             case SubtitleTrack sub:
                 SetReferences(trak, "forc", sub.ForcedTrack is { } ft && keepIds.Contains(ft.Id) ? [ft.Id] : []);
@@ -389,6 +392,41 @@ internal static class Mp4Writer
             udta.Children!.Add(new Box("tagc", Encoding.UTF8.GetBytes(tag)));
         if (udta.Children!.Count == 0)
             trak.RemoveAll("udta");
+    }
+
+    /// <summary>
+    /// Writes the Dolby Vision configuration box (dvcC/dvvC/dvwC by profile) when it differs from the file's, and
+    /// picks the sample entry type Dolby's ISO media format specification requires: the base codec's type
+    /// (hvc1/hev1/avc1/avc3/av01) for cross-compatible streams, dvh1/dvhe/dva1/dvav when there is no compatible
+    /// base layer (bl_signal_compatibility_id 0, e.g. profile 5).
+    /// </summary>
+    private static void ApplyDolbyVision(Box entry, byte[]? record)
+    {
+        var existing = entry.Children!.FirstOrDefault(c => c.Type is "dvcC" or "dvvC" or "dvwC");
+        if (record is null)
+            return; // Records are only added or replaced, never dropped silently.
+        if (existing is not null && existing.Payload.AsSpan().SequenceEqual(record))
+            return;
+
+        var info = MMW.Core.Media.Codecs.DolbyVision.ParseConfigurationRecord(record);
+        entry.Children!.RemoveAll(c => c.Type is "dvcC" or "dvvC" or "dvwC");
+        var box = new Box(MMW.Core.Media.Codecs.DolbyVision.Mp4BoxType(info.Profile), record);
+        var after = entry.Children.FindLastIndex(c => c.Type is "avcC" or "hvcC" or "av1C");
+        entry.Children.Insert(after + 1, box);
+
+        var compatible = info.BlSignalCompatibilityId != 0;
+        entry.Type = (entry.Type, compatible) switch
+        {
+            ("hvc1" or "dvh1", false) => "dvh1",
+            ("hev1" or "dvhe", false) => "dvhe",
+            ("avc1" or "dva1", false) => "dva1",
+            ("avc3" or "dvav", false) => "dvav",
+            ("dvh1", true) => "hvc1",
+            ("dvhe", true) => "hev1",
+            ("dva1", true) => "avc1",
+            ("dvav", true) => "avc3",
+            _ => entry.Type,
+        };
     }
 
     /// <summary>Writes (or removes) the nclx colour box of a visual sample entry; ICC profiles are left alone.</summary>

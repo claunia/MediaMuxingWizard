@@ -1506,4 +1506,31 @@ Your changes will be lost if you don't save them.</value>
   <data name="Ocr_DownloadFailed_Title" xml:space="preserve">
     <value>Download failed</value>
   </data>
+  <data name="Notice_DolbyVisionMissingFormat" xml:space="preserve">
+    <value>This video contains Dolby Vision (profile {0}, level {1}), but the file is missing the Dolby Vision configuration, so players will show it as {2}. The configuration can be rebuilt from the base layer and the RPU in the video bitstream.</value>
+  </data>
+  <data name="Button_RepairDolbyVision" xml:space="preserve">
+    <value>Repair</value>
+  </data>
+  <data name="Button_Dismiss" xml:space="preserve">
+    <value>Dismiss</value>
+  </data>
+  <data name="Undo_RepairDolbyVision" xml:space="preserve">
+    <value>Repair Dolby Vision</value>
+  </data>
+  <data name="Tooltip_RepairDolbyVision" xml:space="preserve">
+    <value>Add the Dolby Vision configuration rebuilt from the video bitstream</value>
+  </data>
+  <data name="Fallback_Hdr10" xml:space="preserve">
+    <value>HDR10</value>
+  </data>
+  <data name="Fallback_Hlg" xml:space="preserve">
+    <value>HLG</value>
+  </data>
+  <data name="Fallback_Sdr" xml:space="preserve">
+    <value>SDR</value>
+  </data>
+  <data name="Fallback_Unwatchable" xml:space="preserve">
+    <value>video with wrong colours</value>
+  </data>
 </root>

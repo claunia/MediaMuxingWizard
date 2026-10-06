@@ -4396,5 +4396,86 @@ namespace MMW.App.Resources {
                 return ResourceManager.GetString("Window_TitleFormat", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized string similar to This video contains Dolby Vision (profile {0}, level {1}), b.
+        /// </summary>
+        public static string Notice_DolbyVisionMissingFormat {
+            get {
+                return ResourceManager.GetString("Notice_DolbyVisionMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repair.
+        /// </summary>
+        public static string Button_RepairDolbyVision {
+            get {
+                return ResourceManager.GetString("Button_RepairDolbyVision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dismiss.
+        /// </summary>
+        public static string Button_Dismiss {
+            get {
+                return ResourceManager.GetString("Button_Dismiss", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repair Dolby Vision.
+        /// </summary>
+        public static string Undo_RepairDolbyVision {
+            get {
+                return ResourceManager.GetString("Undo_RepairDolbyVision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add the Dolby Vision configuration rebuilt from the video bi.
+        /// </summary>
+        public static string Tooltip_RepairDolbyVision {
+            get {
+                return ResourceManager.GetString("Tooltip_RepairDolbyVision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HDR10.
+        /// </summary>
+        public static string Fallback_Hdr10 {
+            get {
+                return ResourceManager.GetString("Fallback_Hdr10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HLG.
+        /// </summary>
+        public static string Fallback_Hlg {
+            get {
+                return ResourceManager.GetString("Fallback_Hlg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SDR.
+        /// </summary>
+        public static string Fallback_Sdr {
+            get {
+                return ResourceManager.GetString("Fallback_Sdr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to video with wrong colours.
+        /// </summary>
+        public static string Fallback_Unwatchable {
+            get {
+                return ResourceManager.GetString("Fallback_Unwatchable", resourceCulture);
+            }
+        }
+        
     }
 }
