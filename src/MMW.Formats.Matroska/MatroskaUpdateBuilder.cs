@@ -30,16 +30,27 @@ internal static class MatroskaUpdateBuilder
     /// </summary>
     public static void ValidateTracks(MediaDocument document, MatroskaLayout layout)
     {
+        if (TrackListChange(document, layout) is { } change)
+            throw new NotSupportedException(change + " requires remuxing.");
+    }
+
+    /// <summary>
+    /// Describes how the document's track list differs from the file's (tracks added, removed or reordered), or
+    /// returns null when it is the same.
+    /// </summary>
+    public static string? TrackListChange(MediaDocument document, MatroskaLayout layout)
+    {
         var tracks = document.Tracks.Where(t => t is not ChapterTrack).ToList();
         if (tracks.Any(t => t.IsPending))
-            throw new NotSupportedException("Adding tracks to a Matroska file requires remuxing, which is not supported yet.");
+            return "Adding tracks to a Matroska file";
 
         var fileOrder = layout.Tracks.Select(t => t.TrackNumber).ToList();
         var docOrder = tracks.Select(t => (ulong)t.Id).ToList();
         if (docOrder.Count != fileOrder.Count || docOrder.Except(fileOrder).Any() || fileOrder.Except(docOrder).Any())
-            throw new NotSupportedException("Removing or replacing tracks of a Matroska file requires remuxing, which is not supported yet.");
+            return "Removing or replacing tracks of a Matroska file";
         if (!docOrder.SequenceEqual(fileOrder))
-            throw new NotSupportedException("Reordering the tracks of a Matroska file requires remuxing, which is not supported yet.");
+            return "Reordering the tracks of a Matroska file";
+        return null;
     }
 
     /// <summary>Builds the updates needed to bring the file in line with <paramref name="document"/>.</summary>

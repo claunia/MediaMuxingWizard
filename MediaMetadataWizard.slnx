@@ -3,6 +3,8 @@
     <Project Path="src/MMW.Core/MMW.Core.csproj" />
     <Project Path="src/MMW.Formats.Mp4/MMW.Formats.Mp4.csproj" />
     <Project Path="src/MMW.Formats.Matroska/MMW.Formats.Matroska.csproj" />
+    <Project Path="src/MMW.Formats.Elementary/MMW.Formats.Elementary.csproj" />
+    <Project Path="src/MMW.Media.Remux/MMW.Media.Remux.csproj" />
     <Project Path="src/MMW.Queue/MMW.Queue.csproj" />
     <Project Path="src/MMW.App/MMW.App.csproj" />
     <Project Path="src/MMW.Cli/MMW.Cli.csproj" />
@@ -13,6 +15,8 @@
     <Project Path="tests/MMW.TestSupport/MMW.TestSupport.csproj" />
     <Project Path="tests/MMW.Formats.Mp4.Tests/MMW.Formats.Mp4.Tests.csproj" />
     <Project Path="tests/MMW.Formats.Matroska.Tests/MMW.Formats.Matroska.Tests.csproj" />
+    <Project Path="tests/MMW.Formats.Elementary.Tests/MMW.Formats.Elementary.Tests.csproj" />
+    <Project Path="tests/MMW.Media.Remux.Tests/MMW.Media.Remux.Tests.csproj" />
     <Project Path="tests/MMW.Queue.Tests/MMW.Queue.Tests.csproj" />
     <Project Path="tests/MMW.App.Tests/MMW.App.Tests.csproj" />
     <Project Path="tests/MMW.Cli.Tests/MMW.Cli.Tests.csproj" />

@@ -357,23 +357,22 @@ public sealed class MatroskaSaveTests
         }
     }
 
+    /// <summary>
+    /// Track list changes are remuxed (see <see cref="MatroskaRemuxTests"/>); a pending track that has no source file
+    /// to read its samples from is still rejected, and the file is left untouched.
+    /// </summary>
     [Fact]
-    public async Task TrackListChanges_AreRejected()
+    public async Task PendingTrackWithoutSource_IsRejected()
     {
         var path = Fixtures.CopyToTemp(MkvFixtures.Basic());
         try
         {
+            var hash = await HashAsync(path);
             var doc = await s_handler.ReadAsync(path, Ct);
             doc.Tracks.Add(new SubtitleTrack());
-            await Assert.ThrowsAsync<NotSupportedException>(() => s_handler.SaveAsync(doc, s_inPlace, null, Ct));
-
-            doc = await s_handler.ReadAsync(path, Ct);
-            doc.Tracks.RemoveAt(1);
-            await Assert.ThrowsAsync<NotSupportedException>(() => s_handler.SaveAsync(doc, s_inPlace, null, Ct));
-
-            doc = await s_handler.ReadAsync(path, Ct);
-            doc.Tracks.Move(0, 1);
-            await Assert.ThrowsAsync<NotSupportedException>(() => s_handler.SaveAsync(doc, s_inPlace, null, Ct));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => s_handler.SaveAsync(doc, s_inPlace, null, Ct));
+            Assert.Equal(hash, await HashAsync(path));
+            Assert.Empty(Directory.EnumerateFiles(Path.GetDirectoryName(path)!, "." + Path.GetFileName(path) + ".*.tmp"));
         }
         finally
         {

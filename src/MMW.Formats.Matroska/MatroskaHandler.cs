@@ -1,5 +1,7 @@
+using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Media;
 
 namespace MMW.Formats.Matroska;
 
@@ -9,11 +11,13 @@ namespace MMW.Formats.Matroska;
 /// </summary>
 /// <remarks>
 /// Saving to a different path copies the file first and then edits the copy; afterwards the document refers to the
-/// new file. Adding, removing or reordering tracks requires remuxing and is not supported.
+/// new file. Adding, removing or reordering tracks, and saving as MP4, remux the file through <see cref="Remuxer"/>.
 /// </remarks>
 public sealed class MatroskaHandler : IContainerHandler
 {
     private const int CopyBufferSize = 1024 * 1024;
+
+    static MatroskaHandler() => MatroskaMediaFormat.Register();
 
     /// <inheritdoc />
     public ContainerKind Kind => ContainerKind.Matroska;
@@ -34,10 +38,16 @@ public sealed class MatroskaHandler : IContainerHandler
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(options);
 
+        var targetKind = RemuxPolicy.TargetKind(document, options);
+        if (targetKind != ContainerKind.Matroska || RemuxPolicy.HasImportedTracks(document) ||
+            document.ContainerState is not MatroskaLayout state || MatroskaUpdateBuilder.TrackListChange(document, state) is not null)
+        {
+            await Remuxer.SaveAsync(document, options, targetKind, progress, cancellationToken);
+            return;
+        }
+
         var source = document.Path ?? throw new InvalidOperationException("The document has no file to update.");
-        if (document.ContainerState is not MatroskaLayout layout)
-            throw new NotSupportedException("Only documents read from a Matroska file can be saved as Matroska; remuxing is not supported yet.");
-        MatroskaUpdateBuilder.ValidateTracks(document, layout);
+        var layout = state;
 
         var target = options.OutputPath is null || SamePath(options.OutputPath, source) ? source : Path.GetFullPath(options.OutputPath);
 

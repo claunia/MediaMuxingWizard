@@ -70,7 +70,11 @@ public abstract partial class Track : ObservableObject
 }
 
 /// <summary>Identifies a track in a source file.</summary>
-public sealed record TrackSource(string Path, ContainerKind Container, uint TrackId);
+public sealed record TrackSource(string Path, ContainerKind Container, uint TrackId)
+{
+    /// <summary>Import settings of a pending track (null for tracks already in the document's file).</summary>
+    public Media.TrackImportOptions? Import { get; init; }
+}
 
 public sealed partial class VideoTrack : Track
 {

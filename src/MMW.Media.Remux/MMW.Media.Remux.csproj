@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MMW.Media.Remux</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMW.Core\MMW.Core.csproj" />
+    <ProjectReference Include="..\MMW.Formats.Mp4\MMW.Formats.Mp4.csproj" />
+    <ProjectReference Include="..\MMW.Formats.Matroska\MMW.Formats.Matroska.csproj" />
+    <ProjectReference Include="..\MMW.Formats.Elementary\MMW.Formats.Elementary.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MMW.Media.Remux.Tests" />
+  </ItemGroup>
+</Project>
