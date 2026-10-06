@@ -57,7 +57,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         Track = track;
         _document = document;
         _owner = owner;
-        if (owner is not null && track is AudioTrack && !track.IsPending)
+        if (owner is not null && track is AudioTrack or SubtitleTrack && !track.IsPending)
             _ = LoadConversionChoicesAsync();
         Characteristics = new ObservableCollection<CharacteristicItemViewModel>(
             MediaCharacteristics.For(track.Kind).Select(c => new CharacteristicItemViewModel(track, c)));
@@ -177,7 +177,13 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     public bool HasConversionChoices => ConversionChoices.Count > 1;
 
     [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty]
+    [CommunityToolkit.Mvvm.ComponentModel.NotifyPropertyChangedFor(nameof(IsOcr))]
     private MMW.Core.Media.ImportChoice? _selectedConversion;
+
+    /// <summary>True when the chosen conversion uses OCR (show the Subtitle Edit advice).</summary>
+    public bool IsOcr => OcrAdvice.IsOcr(SelectedConversion);
+
+    public static string OcrWarning => OcrAdvice.Warning;
 
     partial void OnSelectedConversionChanged(MMW.Core.Media.ImportChoice? value)
     {

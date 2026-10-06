@@ -335,3 +335,14 @@ public class SingleInstanceTests
         cts.Cancel();
     }
 }
+
+public class OcrAdviceTests
+{
+    [Fact]
+    public void Ocr_choices_trigger_the_subtitle_edit_advice()
+    {
+        Assert.True(OcrAdvice.IsOcr(new MMW.Core.Media.ImportChoice(MMW.Core.Media.ImportAction.ConvertToTx3g, "Tx3g (OCR)")));
+        Assert.False(OcrAdvice.IsOcr(new MMW.Core.Media.ImportChoice(MMW.Core.Media.ImportAction.ConvertToTx3g, "Tx3g")));
+        Assert.Contains("Subtitle Edit", OcrAdvice.Warning, StringComparison.Ordinal);
+    }
+}

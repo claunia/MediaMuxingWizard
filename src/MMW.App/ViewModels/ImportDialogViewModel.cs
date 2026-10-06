@@ -44,6 +44,11 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
 
     public bool CanImport => Actions.Any(a => a.Action != ImportAction.Skip);
 
+    /// <summary>True when the chosen action reads bitmap subtitles with OCR.</summary>
+    public bool IsOcr => OcrAdvice.IsOcr(SelectedAction);
+
+    public static string OcrWarning => OcrAdvice.Warning;
+
     public IReadOnlyList<ImportChoice> Actions { get; }
 
     public static IReadOnlyList<Choice<double>> FrameRates { get; } =
@@ -60,6 +65,7 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
     private bool _selected;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOcr))]
     private ImportChoice _selectedAction;
 
     [ObservableProperty]

@@ -47,6 +47,8 @@
                           <TextBlock Text="{Binding Info}" TextTrimming="CharacterEllipsis" />
                           <TextBlock Text="{Binding Problem}" Classes="error" TextWrapping="Wrap"
                                      IsVisible="{Binding Problem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                          <TextBlock Text="{x:Static vm:ImportTrackViewModel.OcrWarning}" Classes="error" TextWrapping="Wrap"
+                                     IsVisible="{Binding IsOcr}" />
                         </StackPanel>
                         <TextBlock Grid.Column="4" Text="{Binding Duration}" VerticalAlignment="Center" Classes="dim" />
                         <ComboBox Grid.Column="5" ItemsSource="{x:Static vm:ImportTrackViewModel.Languages}" SelectedItem="{Binding Language}"

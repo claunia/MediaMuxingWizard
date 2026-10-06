@@ -25,7 +25,9 @@ Everything works without native dependencies except:
 - **Audio conversion and chapter previews** need FFmpeg 8 shared libraries (LGPL build: libavcodec,
   libavformat, libavutil, libswresample, libswscale). They are looked up in `ffmpeg/` or `runtimes/<rid>/native`
   next to the executable, `MMW_FFMPEG_PATH`, then the system (e.g. Homebrew, `/usr/lib`).
-- **OCR of bitmap subtitles** (PGS, VobSub) needs Tesseract 5.
+- **OCR of bitmap subtitles** (PGS, VobSub) needs Tesseract 5. The built-in OCR is basic:
+  [Subtitle Edit](https://www.nikse.dk/subtitleedit) does a much better job, and we recommend converting image
+  subtitles with it and importing the resulting SRT file.
 
 `packaging/publish.sh` bundles them when `MMW_BUNDLE_FFMPEG`, `MMW_BUNDLE_TESSERACT` and `MMW_BUNDLE_TESSDATA`
 point at the libraries; their licence notices are copied alongside.
