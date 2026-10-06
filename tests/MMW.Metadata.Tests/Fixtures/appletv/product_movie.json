@@ -1,0 +1,9 @@
+{"data":{"content":{"id":"umc.cmc.af8k9kcq9r1s1qmmdxpq4itn","type":"Movie","title":"The Matrix","description":"Neo believes that Morpheus can answer his question.","releaseDate":922838400000,"genres":[{"name":"Sci-Fi","id":"umc.gnr.mov.scifi","type":"Genre"}],"rating":{"name":"R","value":400,"system":"mpaa","displayName":"R","reason":"for sci-fi violence"},"images":{"coverArt":{"width":2000,"height":3000,"url":"https://is1-ssl.mzstatic.com/image/thumb/Video115/v4/a2/pr_source.lsr/{w}x{h}.{f}"}},"studio":"Warner Home Video","duration":8160},
+ "roles":[
+  {"type":"Actor","roleTitle":"Actor","characterName":"Neo","personName":"Keanu Reeves","personId":"umc.cpc.1"},
+  {"type":"Actor","roleTitle":"Actor","characterName":"Morpheus","personName":"Laurence Fishburne","personId":"umc.cpc.2"},
+  {"type":"Director","roleTitle":"Director","personName":"Lana Wachowski"},
+  {"type":"Director","roleTitle":"Director","personName":"Lilly Wachowski"},
+  {"type":"Producer","roleTitle":"Producer","personName":"Joel Silver"},
+  {"type":"Writer","roleTitle":"Writer","personName":"Lana Wachowski"}
+ ]}}

@@ -1,0 +1,26 @@
+{
+  "data": {
+    "id": 349235,
+    "seriesId": 81189,
+    "name": "Cat's in the Bag...",
+    "aired": "2008-01-27",
+    "runtime": 48,
+    "overview": "Walt and Jesse try to dispose of the bodies.",
+    "image": "https://artworks.thetvdb.com/banners/episodes/81189/349235.jpg",
+    "number": 2,
+    "seasonNumber": 1,
+    "productionCode": "BB-102",
+    "networks": [ { "id": 23, "name": "AMC" } ],
+    "characters": [
+      { "name": "Krazy-8", "peopleType": "Guest Star", "personName": "Max Arciniega", "sort": 0, "type": 4 },
+      { "name": null, "peopleType": "Director", "personName": "Adam Bernstein", "sort": 0, "type": 1 },
+      { "name": null, "peopleType": "Writer", "personName": "Vince Gilligan", "sort": 0, "type": 2 },
+      { "name": null, "peopleType": "Executive Producer", "personName": "Mark Johnson", "sort": 0, "type": 9 }
+    ],
+    "translations": {
+      "nameTranslations": [ { "name": "Die Katze ist im Sack...", "language": "deu" } ],
+      "overviewTranslations": [ { "overview": "Walt und Jesse...", "language": "deu" } ]
+    }
+  },
+  "status": "success"
+}

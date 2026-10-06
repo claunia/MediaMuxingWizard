@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "objectID": "series-81189",
+      "aliases": ["Breaking Bad (2008)"],
+      "country": "usa",
+      "id": "series-81189",
+      "image_url": "https://artworks.thetvdb.com/banners/posters/81189-10.jpg",
+      "name": "Breaking Bad",
+      "first_air_time": "2008-01-20",
+      "overview": "Walter White, a struggling high school chemistry teacher, is diagnosed with advanced lung cancer.",
+      "primary_language": "eng",
+      "primary_type": "series",
+      "status": "Ended",
+      "type": "series",
+      "tvdb_id": "81189",
+      "year": "2008",
+      "slug": "breaking-bad",
+      "overviews": { "eng": "Walter White, a struggling high school chemistry teacher...", "deu": "Walter White ist Chemielehrer..." },
+      "translations": { "eng": "Breaking Bad", "deu": "Breaking Bad – Die Serie" },
+      "network": "AMC",
+      "thumbnail": "https://artworks.thetvdb.com/banners/posters/81189-10_t.jpg"
+    },
+    {
+      "objectID": "series-999999",
+      "id": "series-999999",
+      "name": "Breaking Bad Habits",
+      "tvdb_id": 999999,
+      "type": "series",
+      "year": 2019
+    }
+  ],
+  "status": "success",
+  "links": { "prev": null, "self": "https://api4.thetvdb.com/v4/search?query=breaking%20bad&page=0", "next": null, "total_items": 2, "page_size": 50 }
+}

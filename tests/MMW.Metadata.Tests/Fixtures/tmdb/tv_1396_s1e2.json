@@ -1,0 +1,21 @@
+{
+  "id": 62086,
+  "name": "Cat's in the Bag...",
+  "overview": "Walt and Jesse attempt to tie up loose ends.",
+  "air_date": "2008-01-27",
+  "episode_number": 2,
+  "season_number": 1,
+  "still_path": "/tjDyH1pbEYk6MxyGoi1Cbl5XRrn.jpg",
+  "crew": [ { "name": "Adam Bernstein", "job": "Director", "department": "Directing" } ],
+  "guest_stars": [ { "name": "Max Arciniega", "character": "Krazy-8", "order": 500 } ],
+  "credits": {
+    "cast": [ { "name": "Bryan Cranston", "order": 0 } ],
+    "crew": [
+      { "name": "Adam Bernstein", "job": "Director", "department": "Directing" },
+      { "name": "Vince Gilligan", "job": "Writer", "department": "Writing" },
+      { "name": "Mark Johnson", "job": "Executive Producer", "department": "Production" }
+    ],
+    "guest_stars": [ { "name": "Max Arciniega", "character": "Krazy-8", "order": 500 } ]
+  },
+  "images": { "stills": [ { "file_path": "/still_hi.jpg", "width": 1920, "height": 1080, "iso_639_1": null } ] }
+}

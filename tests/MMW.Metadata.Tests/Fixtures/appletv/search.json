@@ -1,0 +1,10 @@
+{"data":{"q":"the matrix","canvas":{"id":"uts.cvs.search","type":"Canvas","shelves":[
+ {"title":"Movies","id":"uts.col.search.MV","items":[
+  {"id":"umc.cmc.af8k9kcq9r1s1qmmdxpq4itn","type":"Movie","title":"The Matrix","description":"Neo believes that Morpheus can answer his question.","releaseDate":922838400000,"rating":{"name":"R","value":400,"system":"mpaa","systemType":"movies","displayName":"R"},"images":{"coverArt":{"width":2000,"height":3000,"url":"https://is1-ssl.mzstatic.com/image/thumb/Video115/v4/a2/pr_source.lsr/{w}x{h}.{f}"},"previewFrame":{"width":3840,"height":2160,"url":"https://is1-ssl.mzstatic.com/image/thumb/nRcyao2dJodjxUvElgJFIg/{w}x{h}.{f}"}},"url":"https://tv.apple.com/us/movie/the-matrix/umc.cmc.af8k9kcq9r1s1qmmdxpq4itn"},
+  {"id":"umc.cmr.its.bun.6c7be7df7p7dzjf6mw08mm9zd","type":"MovieBundle","title":"The Matrix Trilogy","adamId":"585557627"}
+ ]},
+ {"title":"TV Shows","id":"uts.col.search.SH","items":[
+  {"id":"umc.cmc.1v90fu25sgywa1e14jwnrt9uc","type":"Show","title":"Breaking Bad","rating":{"name":"TV_MA","value":600,"system":"us_tv","systemType":"tv","displayName":"TV-MA"},"images":{"coverArt":{"width":3000,"height":3000,"url":"https://is1-ssl.mzstatic.com/image/thumb/show/{w}x{h}.{f}"}}},
+  {"id":"umc.cmc.7e2b1ty6wj072dnoi77lacew9","type":"Show","title":"Escape the Matrix"}
+ ]}
+]}},"utsk":"x"}

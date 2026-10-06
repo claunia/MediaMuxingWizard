@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<episodedetails>
+  <title>Cat's in the Bag...</title>
+  <showtitle>Breaking Bad</showtitle>
+  <season>1</season>
+  <episode>2</episode>
+  <aired>2008-01-27</aired>
+  <plot>Walt and Jesse attempt to tie up loose ends.</plot>
+  <mpaa>TV-MA</mpaa>
+  <director>Adam Bernstein</director>
+  <credits>Vince Gilligan</credits>
+  <uniqueid type="tvdb" default="true">349235</uniqueid>
+  <actor><name>Bryan Cranston</name><order>0</order></actor>
+  <thumb>https://artworks.thetvdb.com/banners/episodes/81189/349235.jpg</thumb>
+</episodedetails>

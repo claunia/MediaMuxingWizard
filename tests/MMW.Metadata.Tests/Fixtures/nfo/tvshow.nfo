@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tvshow>
+  <title>Breaking Bad</title>
+  <plot>A high school chemistry teacher turned methamphetamine producer.</plot>
+  <genre>Drama / Crime</genre>
+  <studio>AMC</studio>
+  <mpaa>US:TV-MA / DE:16</mpaa>
+  <uniqueid type="tvdb" default="true">81189</uniqueid>
+  <thumb aspect="poster">https://artworks.thetvdb.com/banners/posters/81189-10.jpg</thumb>
+  <thumb aspect="poster" type="season" season="1">https://artworks.thetvdb.com/banners/seasons/81189-1.jpg</thumb>
+</tvshow>

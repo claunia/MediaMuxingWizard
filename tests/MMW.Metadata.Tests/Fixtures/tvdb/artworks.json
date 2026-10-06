@@ -1,0 +1,14 @@
+{
+  "data": {
+    "id": 81189,
+    "name": "Breaking Bad",
+    "artworks": [
+      { "id": 1, "image": "https://artworks.thetvdb.com/banners/posters/81189-1.jpg", "thumbnail": "https://artworks.thetvdb.com/banners/posters/81189-1_t.jpg", "language": "eng", "type": 2, "score": 100, "width": 680, "height": 1000 },
+      { "id": 2, "image": "https://artworks.thetvdb.com/banners/posters/81189-2.jpg", "thumbnail": "https://artworks.thetvdb.com/banners/posters/81189-2_t.jpg", "language": "deu", "type": 2, "score": 500, "width": 680, "height": 1000 },
+      { "id": 3, "image": "https://artworks.thetvdb.com/banners/fanart/original/81189-1.jpg", "thumbnail": "https://artworks.thetvdb.com/banners/fanart/original/81189-1_t.jpg", "language": null, "type": 3, "score": 10, "width": 1920, "height": 1080 },
+      { "id": 4, "image": "https://artworks.thetvdb.com/banners/graphical/81189-g.jpg", "thumbnail": null, "language": "eng", "type": 1, "width": 758, "height": 140 },
+      { "id": 5, "image": "https://artworks.thetvdb.com/banners/clearlogo/81189.png", "language": "eng", "type": 23 }
+    ]
+  },
+  "status": "success"
+}

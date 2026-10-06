@@ -1,0 +1,12 @@
+{
+  "data": {
+    "series": { "id": 81189, "name": "Breaking Bad" },
+    "episodes": [
+      { "id": 349232, "seriesId": 81189, "name": "Pilot", "aired": "2008-01-20", "runtime": 58, "overview": "Walter White, a 50-year-old chemistry teacher...", "image": "https://artworks.thetvdb.com/banners/episodes/81189/349232.jpg", "number": 1, "seasonNumber": 1, "absoluteNumber": 1 },
+      { "id": 349235, "seriesId": 81189, "name": "Cat's in the Bag...", "aired": "2008-01-27", "overview": "Walt and Jesse try to dispose of the bodies.", "image": "/banners/episodes/81189/349235.jpg", "number": 2, "seasonNumber": 1, "absoluteNumber": 2 },
+      { "id": 349236, "seriesId": 81189, "name": "...And the Bag's in the River", "aired": "2008-02-10", "overview": null, "image": null, "number": 3, "seasonNumber": 1 }
+    ]
+  },
+  "status": "success",
+  "links": { "prev": null, "self": "x", "next": null, "total_items": 3, "page_size": 500 }
+}

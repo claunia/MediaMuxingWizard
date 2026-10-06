@@ -6,6 +6,7 @@
     <Project Path="src/MMW.Queue/MMW.Queue.csproj" />
     <Project Path="src/MMW.App/MMW.App.csproj" />
     <Project Path="src/MMW.Cli/MMW.Cli.csproj" />
+    <Project Path="src/MMW.Metadata/MMW.Metadata.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MMW.Core.Tests/MMW.Core.Tests.csproj" />
@@ -15,6 +16,7 @@
     <Project Path="tests/MMW.Queue.Tests/MMW.Queue.Tests.csproj" />
     <Project Path="tests/MMW.App.Tests/MMW.App.Tests.csproj" />
     <Project Path="tests/MMW.Cli.Tests/MMW.Cli.Tests.csproj" />
+    <Project Path="tests/MMW.Metadata.Tests/MMW.Metadata.Tests.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />

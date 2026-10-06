@@ -1,0 +1,932 @@
+[
+ {
+  "name": "Albania",
+  "iso": "AL",
+  "id": 143575,
+  "locale": "en-AL"
+ },
+ {
+  "name": "Algeria",
+  "iso": "DZ",
+  "id": 143563,
+  "locale": "en-DZ"
+ },
+ {
+  "name": "Angola",
+  "iso": "AO",
+  "id": 143564,
+  "locale": "en-AO"
+ },
+ {
+  "name": "Anguilla",
+  "iso": "AI",
+  "id": 143538,
+  "locale": "en-AI"
+ },
+ {
+  "name": "Antigua and Barbuda",
+  "iso": "AG",
+  "id": 143540,
+  "locale": "en-AG"
+ },
+ {
+  "name": "Argentina",
+  "iso": "AR",
+  "id": 143505,
+  "locale": "es-AR"
+ },
+ {
+  "name": "Armenia",
+  "iso": "AM",
+  "id": 143524,
+  "locale": "en-AM"
+ },
+ {
+  "name": "Australia",
+  "iso": "AU",
+  "id": 143460,
+  "locale": "en-AU"
+ },
+ {
+  "name": "Austria",
+  "iso": "AT",
+  "id": 143445,
+  "locale": "de-AT"
+ },
+ {
+  "name": "Azerbaijan",
+  "iso": "AZ",
+  "id": 143568,
+  "locale": "en-AZ"
+ },
+ {
+  "name": "Bahamas",
+  "iso": "BS",
+  "id": 143539,
+  "locale": "en-BS"
+ },
+ {
+  "name": "Bahrain",
+  "iso": "BH",
+  "id": 143559,
+  "locale": "ar-BH"
+ },
+ {
+  "name": "Barbados",
+  "iso": "BB",
+  "id": 143541,
+  "locale": "en-BB"
+ },
+ {
+  "name": "Belarus",
+  "iso": "BY",
+  "id": 143565,
+  "locale": "ru-BY"
+ },
+ {
+  "name": "Belgium",
+  "iso": "BE",
+  "id": 143446,
+  "locale": "fr-BE"
+ },
+ {
+  "name": "Belize",
+  "iso": "BZ",
+  "id": 143555,
+  "locale": "en-BZ"
+ },
+ {
+  "name": "Benin",
+  "iso": "BJ",
+  "id": 143576,
+  "locale": "en-BJ"
+ },
+ {
+  "name": "Bermuda",
+  "iso": "BM",
+  "id": 143542,
+  "locale": "en-BM"
+ },
+ {
+  "name": "Bhutan",
+  "iso": "BT",
+  "id": 143577,
+  "locale": "en-BT"
+ },
+ {
+  "name": "Bolivia",
+  "iso": "BO",
+  "id": 143556,
+  "locale": "es-BO"
+ },
+ {
+  "name": "Botswana",
+  "iso": "BW",
+  "id": 143525,
+  "locale": "en-BW"
+ },
+ {
+  "name": "Brazil",
+  "iso": "BR",
+  "id": 143503,
+  "locale": "pt-BR"
+ },
+ {
+  "name": "British Virgin Islands",
+  "iso": "VG",
+  "id": 143543,
+  "locale": "en-VG"
+ },
+ {
+  "name": "Brunei",
+  "iso": "BN",
+  "id": 143560,
+  "locale": "en-BN"
+ },
+ {
+  "name": "Bulgaria",
+  "iso": "BG",
+  "id": 143526,
+  "locale": "bg-BG"
+ },
+ {
+  "name": "Burkina Faso",
+  "iso": "BF",
+  "id": 143578,
+  "locale": "en-BF"
+ },
+ {
+  "name": "Cambodia",
+  "iso": "KH",
+  "id": 143579,
+  "locale": "en-KH"
+ },
+ {
+  "name": "Canada",
+  "iso": "CA",
+  "id": 143455,
+  "locale": "en-CA"
+ },
+ {
+  "name": "Cape Verde",
+  "iso": "CV",
+  "id": 143580,
+  "locale": "en-CV"
+ },
+ {
+  "name": "Cayman Islands",
+  "iso": "KY",
+  "id": 143544,
+  "locale": "en-KY"
+ },
+ {
+  "name": "Chad",
+  "iso": "TD",
+  "id": 143581,
+  "locale": "en-TD"
+ },
+ {
+  "name": "Chile",
+  "iso": "CL",
+  "id": 143483,
+  "locale": "es-CL"
+ },
+ {
+  "name": "China",
+  "iso": "CN",
+  "id": 143465,
+  "locale": "zh-CN"
+ },
+ {
+  "name": "Colombia",
+  "iso": "CO",
+  "id": 143501,
+  "locale": "es-CO"
+ },
+ {
+  "name": "Costa Rica",
+  "iso": "CR",
+  "id": 143495,
+  "locale": "es-CR"
+ },
+ {
+  "name": "Croatia",
+  "iso": "HR",
+  "id": 143494,
+  "locale": "hr-HR"
+ },
+ {
+  "name": "Cyprus",
+  "iso": "CY",
+  "id": 143557,
+  "locale": "en-CY"
+ },
+ {
+  "name": "Czech Republic",
+  "iso": "CZ",
+  "id": 143489,
+  "locale": "cs-CZ"
+ },
+ {
+  "name": "Denmark",
+  "iso": "DK",
+  "id": 143458,
+  "locale": "da-DK"
+ },
+ {
+  "name": "Dominica",
+  "iso": "DM",
+  "id": 143545,
+  "locale": "en-DM"
+ },
+ {
+  "name": "Dominican Republic",
+  "iso": "DO",
+  "id": 143508,
+  "locale": "es-DO"
+ },
+ {
+  "name": "Ecuador",
+  "iso": "EC",
+  "id": 143509,
+  "locale": "es-EC"
+ },
+ {
+  "name": "Egypt",
+  "iso": "EG",
+  "id": 143516,
+  "locale": "ar-EG"
+ },
+ {
+  "name": "El Salvador",
+  "iso": "SV",
+  "id": 143506,
+  "locale": "es-SV"
+ },
+ {
+  "name": "Estonia",
+  "iso": "EE",
+  "id": 143518,
+  "locale": "et-EE"
+ },
+ {
+  "name": "Eswatini",
+  "iso": "SZ",
+  "id": 143602,
+  "locale": "en-SZ"
+ },
+ {
+  "name": "Fiji",
+  "iso": "FJ",
+  "id": 143583,
+  "locale": "en-FJ"
+ },
+ {
+  "name": "Finland",
+  "iso": "FI",
+  "id": 143447,
+  "locale": "fi-FI"
+ },
+ {
+  "name": "France",
+  "iso": "FR",
+  "id": 143442,
+  "locale": "fr-FR"
+ },
+ {
+  "name": "Gambia",
+  "iso": "GM",
+  "id": 143584,
+  "locale": "en-GM"
+ },
+ {
+  "name": "Germany",
+  "iso": "DE",
+  "id": 143443,
+  "locale": "de-DE"
+ },
+ {
+  "name": "Ghana",
+  "iso": "GH",
+  "id": 143573,
+  "locale": "en-GH"
+ },
+ {
+  "name": "Greece",
+  "iso": "GR",
+  "id": 143448,
+  "locale": "el-GR"
+ },
+ {
+  "name": "Grenada",
+  "iso": "GD",
+  "id": 143546,
+  "locale": "en-GD"
+ },
+ {
+  "name": "Guatemala",
+  "iso": "GT",
+  "id": 143504,
+  "locale": "es-GT"
+ },
+ {
+  "name": "Guinea-Bissau",
+  "iso": "GW",
+  "id": 143585,
+  "locale": "en-GW"
+ },
+ {
+  "name": "Guyana",
+  "iso": "GY",
+  "id": 143553,
+  "locale": "en-GY"
+ },
+ {
+  "name": "Honduras",
+  "iso": "HN",
+  "id": 143510,
+  "locale": "es-HN"
+ },
+ {
+  "name": "Hong Kong",
+  "iso": "HK",
+  "id": 143463,
+  "locale": "zh-HK"
+ },
+ {
+  "name": "Hungary",
+  "iso": "HU",
+  "id": 143482,
+  "locale": "hu-HU"
+ },
+ {
+  "name": "Iceland",
+  "iso": "IS",
+  "id": 143558,
+  "locale": "is-IS"
+ },
+ {
+  "name": "India",
+  "iso": "IN",
+  "id": 143467,
+  "locale": "en-IN"
+ },
+ {
+  "name": "Indonesia",
+  "iso": "ID",
+  "id": 143476,
+  "locale": "id-ID"
+ },
+ {
+  "name": "Ireland",
+  "iso": "IE",
+  "id": 143449,
+  "locale": "en-IE"
+ },
+ {
+  "name": "Israel",
+  "iso": "IL",
+  "id": 143491,
+  "locale": "he-IL"
+ },
+ {
+  "name": "Italy",
+  "iso": "IT",
+  "id": 143450,
+  "locale": "it-IT"
+ },
+ {
+  "name": "Jamaica",
+  "iso": "JM",
+  "id": 143511,
+  "locale": "en-JM"
+ },
+ {
+  "name": "Japan",
+  "iso": "JP",
+  "id": 143462,
+  "locale": "ja-JP"
+ },
+ {
+  "name": "Jordan",
+  "iso": "JO",
+  "id": 143528,
+  "locale": "ar-JO"
+ },
+ {
+  "name": "Kazakhstan",
+  "iso": "KZ",
+  "id": 143517,
+  "locale": "ru-KZ"
+ },
+ {
+  "name": "Kenya",
+  "iso": "KE",
+  "id": 143529,
+  "locale": "en-KE"
+ },
+ {
+  "name": "Kuwait",
+  "iso": "KW",
+  "id": 143493,
+  "locale": "ar-KW"
+ },
+ {
+  "name": "Kyrgyzstan",
+  "iso": "KG",
+  "id": 143586,
+  "locale": "en-KG"
+ },
+ {
+  "name": "Laos",
+  "iso": "LA",
+  "id": 143587,
+  "locale": "en-LA"
+ },
+ {
+  "name": "Latvia",
+  "iso": "LV",
+  "id": 143519,
+  "locale": "lv-LV"
+ },
+ {
+  "name": "Lebanon",
+  "iso": "LB",
+  "id": 143497,
+  "locale": "ar-LB"
+ },
+ {
+  "name": "Liberia",
+  "iso": "LR",
+  "id": 143588,
+  "locale": "en-LR"
+ },
+ {
+  "name": "Lithuania",
+  "iso": "LT",
+  "id": 143520,
+  "locale": "lt-LT"
+ },
+ {
+  "name": "Luxembourg",
+  "iso": "LU",
+  "id": 143451,
+  "locale": "fr-LU"
+ },
+ {
+  "name": "Macau",
+  "iso": "MO",
+  "id": 143515,
+  "locale": "zh-MO"
+ },
+ {
+  "name": "Madagascar",
+  "iso": "MG",
+  "id": 143531,
+  "locale": "en-MG"
+ },
+ {
+  "name": "Malawi",
+  "iso": "MW",
+  "id": 143589,
+  "locale": "en-MW"
+ },
+ {
+  "name": "Malaysia",
+  "iso": "MY",
+  "id": 143473,
+  "locale": "ms-MY"
+ },
+ {
+  "name": "Mali",
+  "iso": "ML",
+  "id": 143532,
+  "locale": "en-ML"
+ },
+ {
+  "name": "Malta",
+  "iso": "MT",
+  "id": 143521,
+  "locale": "en-MT"
+ },
+ {
+  "name": "Mauritania",
+  "iso": "MR",
+  "id": 143590,
+  "locale": "en-MR"
+ },
+ {
+  "name": "Mauritius",
+  "iso": "MU",
+  "id": 143533,
+  "locale": "en-MU"
+ },
+ {
+  "name": "Mexico",
+  "iso": "MX",
+  "id": 143468,
+  "locale": "es-MX"
+ },
+ {
+  "name": "Micronesia",
+  "iso": "FM",
+  "id": 143591,
+  "locale": "en-FM"
+ },
+ {
+  "name": "Moldova",
+  "iso": "MD",
+  "id": 143523,
+  "locale": "en-MD"
+ },
+ {
+  "name": "Mongolia",
+  "iso": "MN",
+  "id": 143592,
+  "locale": "en-MN"
+ },
+ {
+  "name": "Montserrat",
+  "iso": "MS",
+  "id": 143547,
+  "locale": "en-MS"
+ },
+ {
+  "name": "Mozambique",
+  "iso": "MZ",
+  "id": 143593,
+  "locale": "en-MZ"
+ },
+ {
+  "name": "Namibia",
+  "iso": "NA",
+  "id": 143594,
+  "locale": "en-NA"
+ },
+ {
+  "name": "Nepal",
+  "iso": "NP",
+  "id": 143484,
+  "locale": "en-NP"
+ },
+ {
+  "name": "Netherlands",
+  "iso": "NL",
+  "id": 143452,
+  "locale": "nl-NL"
+ },
+ {
+  "name": "New Zealand",
+  "iso": "NZ",
+  "id": 143461,
+  "locale": "en-NZ"
+ },
+ {
+  "name": "Nicaragua",
+  "iso": "NI",
+  "id": 143512,
+  "locale": "es-NI"
+ },
+ {
+  "name": "Niger",
+  "iso": "NE",
+  "id": 143534,
+  "locale": "en-NE"
+ },
+ {
+  "name": "Nigeria",
+  "iso": "NG",
+  "id": 143561,
+  "locale": "en-NG"
+ },
+ {
+  "name": "North Macedonia",
+  "iso": "MK",
+  "id": 143530,
+  "locale": "en-MK"
+ },
+ {
+  "name": "Norway",
+  "iso": "NO",
+  "id": 143457,
+  "locale": "nb-NO"
+ },
+ {
+  "name": "Oman",
+  "iso": "OM",
+  "id": 143562,
+  "locale": "ar-OM"
+ },
+ {
+  "name": "Pakistan",
+  "iso": "PK",
+  "id": 143477,
+  "locale": "en-PK"
+ },
+ {
+  "name": "Palau",
+  "iso": "PW",
+  "id": 143595,
+  "locale": "en-PW"
+ },
+ {
+  "name": "Panama",
+  "iso": "PA",
+  "id": 143485,
+  "locale": "es-PA"
+ },
+ {
+  "name": "Papua New Guinea",
+  "iso": "PG",
+  "id": 143597,
+  "locale": "en-PG"
+ },
+ {
+  "name": "Paraguay",
+  "iso": "PY",
+  "id": 143513,
+  "locale": "es-PY"
+ },
+ {
+  "name": "Peru",
+  "iso": "PE",
+  "id": 143507,
+  "locale": "es-PE"
+ },
+ {
+  "name": "Philippines",
+  "iso": "PH",
+  "id": 143474,
+  "locale": "en-PH"
+ },
+ {
+  "name": "Poland",
+  "iso": "PL",
+  "id": 143478,
+  "locale": "pl-PL"
+ },
+ {
+  "name": "Portugal",
+  "iso": "PT",
+  "id": 143453,
+  "locale": "pt-PT"
+ },
+ {
+  "name": "Qatar",
+  "iso": "QA",
+  "id": 143498,
+  "locale": "ar-QA"
+ },
+ {
+  "name": "Republic of the Congo",
+  "iso": "CG",
+  "id": 143582,
+  "locale": "en-CG"
+ },
+ {
+  "name": "Romania",
+  "iso": "RO",
+  "id": 143487,
+  "locale": "ro-RO"
+ },
+ {
+  "name": "Russia",
+  "iso": "RU",
+  "id": 143469,
+  "locale": "ru-RU"
+ },
+ {
+  "name": "Sao Tome and Principe",
+  "iso": "ST",
+  "id": 143598,
+  "locale": "en-ST"
+ },
+ {
+  "name": "Saudi Arabia",
+  "iso": "SA",
+  "id": 143479,
+  "locale": "ar-SA"
+ },
+ {
+  "name": "Senegal",
+  "iso": "SN",
+  "id": 143535,
+  "locale": "en-SN"
+ },
+ {
+  "name": "Seychelles",
+  "iso": "SC",
+  "id": 143599,
+  "locale": "en-SC"
+ },
+ {
+  "name": "Sierra Leone",
+  "iso": "SL",
+  "id": 143600,
+  "locale": "en-SL"
+ },
+ {
+  "name": "Singapore",
+  "iso": "SG",
+  "id": 143464,
+  "locale": "en-SG"
+ },
+ {
+  "name": "Slovakia",
+  "iso": "SK",
+  "id": 143496,
+  "locale": "sk-SK"
+ },
+ {
+  "name": "Slovenia",
+  "iso": "SI",
+  "id": 143499,
+  "locale": "sl-SI"
+ },
+ {
+  "name": "Solomon Islands",
+  "iso": "SB",
+  "id": 143601,
+  "locale": "en-SB"
+ },
+ {
+  "name": "South Africa",
+  "iso": "ZA",
+  "id": 143472,
+  "locale": "en-ZA"
+ },
+ {
+  "name": "South Korea",
+  "iso": "KR",
+  "id": 143466,
+  "locale": "ko-KR"
+ },
+ {
+  "name": "Spain",
+  "iso": "ES",
+  "id": 143454,
+  "locale": "es-ES"
+ },
+ {
+  "name": "Sri Lanka",
+  "iso": "LK",
+  "id": 143486,
+  "locale": "en-LK"
+ },
+ {
+  "name": "St. Kitts and Nevis",
+  "iso": "KN",
+  "id": 143548,
+  "locale": "en-KN"
+ },
+ {
+  "name": "St. Lucia",
+  "iso": "LC",
+  "id": 143549,
+  "locale": "en-LC"
+ },
+ {
+  "name": "St. Vincent and the Grenadines",
+  "iso": "VC",
+  "id": 143550,
+  "locale": "en-VC"
+ },
+ {
+  "name": "Suriname",
+  "iso": "SR",
+  "id": 143554,
+  "locale": "en-SR"
+ },
+ {
+  "name": "Sweden",
+  "iso": "SE",
+  "id": 143456,
+  "locale": "sv-SE"
+ },
+ {
+  "name": "Switzerland",
+  "iso": "CH",
+  "id": 143459,
+  "locale": "de-CH"
+ },
+ {
+  "name": "Taiwan",
+  "iso": "TW",
+  "id": 143470,
+  "locale": "zh-TW"
+ },
+ {
+  "name": "Tajikistan",
+  "iso": "TJ",
+  "id": 143603,
+  "locale": "en-TJ"
+ },
+ {
+  "name": "Tanzania",
+  "iso": "TZ",
+  "id": 143572,
+  "locale": "en-TZ"
+ },
+ {
+  "name": "Thailand",
+  "iso": "TH",
+  "id": 143475,
+  "locale": "th-TH"
+ },
+ {
+  "name": "Trinidad and Tobago",
+  "iso": "TT",
+  "id": 143551,
+  "locale": "en-TT"
+ },
+ {
+  "name": "Tunisia",
+  "iso": "TN",
+  "id": 143536,
+  "locale": "en-TN"
+ },
+ {
+  "name": "Turkey",
+  "iso": "TR",
+  "id": 143480,
+  "locale": "tr-TR"
+ },
+ {
+  "name": "Turkmenistan",
+  "iso": "TM",
+  "id": 143604,
+  "locale": "en-TM"
+ },
+ {
+  "name": "Turks and Caicos Islands",
+  "iso": "TC",
+  "id": 143552,
+  "locale": "en-TC"
+ },
+ {
+  "name": "Uganda",
+  "iso": "UG",
+  "id": 143537,
+  "locale": "en-UG"
+ },
+ {
+  "name": "Ukraine",
+  "iso": "UA",
+  "id": 143492,
+  "locale": "uk-UA"
+ },
+ {
+  "name": "United Arab Emirates",
+  "iso": "AE",
+  "id": 143481,
+  "locale": "ar-AE"
+ },
+ {
+  "name": "United Kingdom",
+  "iso": "GB",
+  "id": 143444,
+  "locale": "en-GB"
+ },
+ {
+  "name": "United States",
+  "iso": "US",
+  "id": 143441,
+  "locale": "en-US"
+ },
+ {
+  "name": "Uruguay",
+  "iso": "UY",
+  "id": 143514,
+  "locale": "es-UY"
+ },
+ {
+  "name": "Uzbekistan",
+  "iso": "UZ",
+  "id": 143566,
+  "locale": "en-UZ"
+ },
+ {
+  "name": "Venezuela",
+  "iso": "VE",
+  "id": 143502,
+  "locale": "es-VE"
+ },
+ {
+  "name": "Vietnam",
+  "iso": "VN",
+  "id": 143471,
+  "locale": "vi-VN"
+ },
+ {
+  "name": "Yemen",
+  "iso": "YE",
+  "id": 143571,
+  "locale": "en-YE"
+ },
+ {
+  "name": "Zimbabwe",
+  "iso": "ZW",
+  "id": 143605,
+  "locale": "en-ZW"
+ }
+]

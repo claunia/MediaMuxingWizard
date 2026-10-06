@@ -1,0 +1,12 @@
+{
+  "_id": "52542282760ee313280017f9",
+  "air_date": "2008-01-20",
+  "name": "Season 1",
+  "season_number": 1,
+  "poster_path": "/season1.jpg",
+  "episodes": [
+    { "id": 62085, "name": "Pilot", "overview": "When an unassuming high school chemistry teacher discovers he has a rare form of lung cancer...", "air_date": "2008-01-20", "episode_number": 1, "season_number": 1, "still_path": "/ydlY3iPfeOAvu8gVqrxPoMvzNCn.jpg", "production_code": "" },
+    { "id": 62086, "name": "Cat's in the Bag...", "overview": "Walt and Jesse attempt to tie up loose ends.", "air_date": "2008-01-27", "episode_number": 2, "season_number": 1, "still_path": "/tjDyH1pbEYk6MxyGoi1Cbl5XRrn.jpg", "production_code": "" },
+    { "id": 62087, "name": "...And the Bag's in the River", "overview": "Walter fights with Jesse over his drug use.", "air_date": "2008-02-10", "episode_number": 3, "season_number": 1, "still_path": null, "production_code": "103" }
+  ]
+}
