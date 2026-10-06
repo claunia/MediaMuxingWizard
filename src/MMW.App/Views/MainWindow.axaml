@@ -54,6 +54,19 @@
         <MenuItem Header="Move Track _Up" Command="{Binding SelectedDocument.MoveTrackUpCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="Move Track Do_wn" Command="{Binding SelectedDocument.MoveTrackDownCommand, FallbackValue={x:Null}}" />
         <Separator />
+        <MenuItem Header="_Organize Alternate Groups" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="_Fix Audio Fallbacks" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="Complete Track _Languages…" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="Apply Colour _Space" ItemsSource="{Binding SelectedDocument.ColorSpaceMenu, FallbackValue={x:Null}}">
+          <MenuItem.Styles>
+            <Style Selector="MenuItem" x:DataType="vm:MenuNode">
+              <Setter Property="Header" Value="{Binding Header}" />
+              <Setter Property="Command" Value="{Binding Command}" />
+              <Setter Property="CommandParameter" Value="{Binding CommandParameter}" />
+            </Style>
+          </MenuItem.Styles>
+        </MenuItem>
+        <Separator />
         <MenuItem Header="_Clear Track Names" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="_Prettify Audio Track Names" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
         <Separator />
@@ -102,6 +115,10 @@
                 <MenuItem Header="10 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="10" />
                 <MenuItem Header="15 Minutes" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="15" />
               </MenuItem>
+              <MenuItem Header="Organize Alternate Groups" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="Fix Audio Fallbacks" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />
+              <MenuItem Header="Complete Track Languages…" Command="{Binding SelectedDocument.CompleteLanguagesCommand, FallbackValue={x:Null}}" />
+              <Separator />
               <MenuItem Header="Clear Track Names" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
               <MenuItem Header="Prettify Audio Track Names" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
             </MenuFlyout>

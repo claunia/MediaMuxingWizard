@@ -129,7 +129,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         Inspector = rows.Count switch
         {
             0 => MetadataInspector,
-            > 1 => new MultiSelectionViewModel(rows.Count),
+            > 1 => new MultiSelectionViewModel(rows.Where(r => r.Track is not null and not ChapterTrack).Select(r => r.Track!).ToList(), Undo),
             _ => rows[0].Track switch
             {
                 null => MetadataInspector,
@@ -236,6 +236,40 @@ public sealed partial class DocumentViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void OrganizeGroups()
+    {
+        using (Undo.Transaction("Organize Alternate Groups"))
+            GroupActions.OrganizeAlternateGroups(Document, inferMediaCharacteristics: true);
+    }
+
+    [RelayCommand]
+    private void FixFallbacks()
+    {
+        using (Undo.Transaction("Fix Audio Fallbacks"))
+            GroupActions.FixAudioFallbacks(Document);
+    }
+
+    [RelayCommand]
+    private async Task CompleteLanguages()
+    {
+        var language = await _dialogs.ShowDialogAsync(new LanguagePickerDialogViewModel("Complete Track Languages",
+            "Set this language on every track whose language is undetermined."));
+        if (language is null)
+            return;
+        using (Undo.Transaction("Complete Languages"))
+            GroupActions.CompleteLanguages(Document, language);
+    }
+
+    public IReadOnlyList<MenuNode> ColorSpaceMenu => ColorPreset.All.Select(p => new MenuNode(p.Name, ApplyColorSpaceCommand, p)).ToList();
+
+    [RelayCommand]
+    private void ApplyColorSpace(ColorPreset preset)
+    {
+        using (Undo.Transaction("Apply Colour Space"))
+            GroupActions.ApplyColorSpace(Document, preset.Color);
+    }
+
+    [RelayCommand]
     private void InsertChaptersEvery(int minutes)
     {
         using (Undo.Transaction("Insert Chapters"))
@@ -307,10 +341,4 @@ public sealed partial class DocumentViewModel : ViewModelBase
             IsBusy = false;
         }
     }
-}
-
-/// <summary>Shown in the inspector when several rows are selected.</summary>
-public sealed class MultiSelectionViewModel(int count) : ViewModelBase
-{
-    public string Text { get; } = $"{count} tracks selected";
 }

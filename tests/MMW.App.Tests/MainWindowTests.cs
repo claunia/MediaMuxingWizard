@@ -138,3 +138,37 @@ public class MainWindowTests
         Assert.Empty(vm.Documents);
     }
 }
+
+public class DocumentActionTests
+{
+    [AvaloniaFact]
+    public async Task Organize_groups_is_one_undo_step_and_multi_selection_edits_all()
+    {
+        var dialogs = new FakeDialogService();
+        var settings = new SettingsService(Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"), "settings.json"));
+        var vm = new MainWindowViewModel(new DocumentService(), dialogs, settings);
+        var path = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(path))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        await vm.OpenPathsAsync([Fixtures.CopyToTemp(path)]);
+        var doc = vm.Documents.Single();
+        var audio = doc.Document.Tracks.OfType<AudioTrack>().ToList();
+
+        audio[1].Enabled = true;
+        var before = doc.Document.Tracks.Select(t => (t.Enabled, t.AlternateGroup, t.MediaCharacteristics.Count)).ToList();
+
+        doc.OrganizeGroupsCommand.Execute(null);
+        Assert.True(audio[0].Enabled);
+        Assert.False(audio[1].Enabled);
+        Assert.Equal("Organize Alternate Groups", doc.Undo.UndoDescription);
+        doc.UndoCommand.Execute(null);
+        Assert.Equal(before, doc.Document.Tracks.Select(t => (t.Enabled, t.AlternateGroup, t.MediaCharacteristics.Count)).ToList());
+
+        doc.SelectedRows = doc.Rows.Where(r => r.Track is AudioTrack).ToList();
+        var multi = Assert.IsType<MultiSelectionViewModel>(doc.Inspector);
+        multi.SelectedLanguage = MMW.Core.Languages.LanguageTable.Find("de");
+        Assert.All(audio, a => Assert.Equal("de", a.Language));
+        doc.UndoCommand.Execute(null);
+        Assert.Equal(["en", "fr"], audio.Select(a => a.Language));
+    }
+}

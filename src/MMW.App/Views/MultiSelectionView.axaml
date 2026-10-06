@@ -3,5 +3,18 @@
              xmlns:vm="using:MMW.App.ViewModels"
              x:Class="MMW.App.Views.MultiSelectionView"
              x:DataType="vm:MultiSelectionViewModel">
-  <TextBlock Text="{Binding Text}" Classes="dim" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" />
+  <StackPanel Margin="16" Spacing="12">
+    <TextBlock Text="{Binding Text}" FontWeight="SemiBold" FontSize="15" />
+    <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8" MaxWidth="640" HorizontalAlignment="Left" IsVisible="{Binding HasTracks}">
+      <TextBlock Text="Language:" Classes="label" />
+      <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" PlaceholderText="Multiple values"
+                IsTextSearchEnabled="True" MinWidth="300" MaxDropDownHeight="400" />
+      <TextBlock Grid.Row="1" Text="Enabled:" Classes="label" />
+      <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Enabled}" IsThreeState="False" Content="Enabled" />
+      <TextBlock Grid.Row="2" Text="Alternate group:" Classes="label" />
+      <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{x:Static vm:TrackInspectorViewModel.AlternateGroups}"
+                SelectedItem="{Binding SelectedAlternateGroup}" PlaceholderText="Multiple values" MinWidth="140" />
+      <Button Grid.Row="3" Grid.Column="1" Content="Clear Names" Command="{Binding ClearNamesCommand}" />
+    </Grid>
+  </StackPanel>
 </UserControl>
