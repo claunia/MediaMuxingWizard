@@ -40,7 +40,7 @@
           <DataGridTemplateColumn.CellTemplate>
             <DataTemplate x:DataType="vm:TrackRowViewModel">
               <CheckBox IsChecked="{Binding Enabled}" IsVisible="{Binding CanToggleEnabled}" HorizontalAlignment="Center"
-                        ToolTip.Tip="Enable or disable the track" />
+                        AutomationProperties.Name="Enable or disable the track" ToolTip.Tip="Enable or disable the track" />
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>

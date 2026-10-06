@@ -11,17 +11,17 @@
     <!-- Toolbar -->
     <Border DockPanel.Dock="Top" Classes="toolbarBar">
       <StackPanel Orientation="Horizontal" Spacing="2">
-        <Button Classes="toolbar" Command="{Binding AddCommand}" ToolTip.Tip="Add files to the queue">
+        <Button Classes="toolbar" Command="{Binding AddCommand}" AutomationProperties.Name="Add files to the queue" ToolTip.Tip="Add files to the queue">
           <StackPanel><PathIcon Data="{StaticResource IconAdd}" /><TextBlock Classes="caption" Text="Add" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove the selected item">
+        <Button Classes="toolbar" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove the selected item" ToolTip.Tip="Remove the selected item">
           <StackPanel><PathIcon Data="{StaticResource IconDelete}" /><TextBlock Classes="caption" Text="Remove" /></StackPanel>
         </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" Command="{Binding StartCommand}" ToolTip.Tip="Process every ready item">
+        <Button Classes="toolbar" Command="{Binding StartCommand}" AutomationProperties.Name="Process every ready item" ToolTip.Tip="Process every ready item">
           <StackPanel><PathIcon Data="M8,5.14V19.14L19,12.14L8,5.14Z" /><TextBlock Classes="caption" Text="Start" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding StopCommand}" ToolTip.Tip="Stop after cancelling the current item">
+        <Button Classes="toolbar" Command="{Binding StopCommand}" AutomationProperties.Name="Stop after cancelling the current item" ToolTip.Tip="Stop after cancelling the current item">
           <StackPanel><PathIcon Data="M18,18H6V6H18V18Z" /><TextBlock Classes="caption" Text="Stop" /></StackPanel>
         </Button>
       </StackPanel>

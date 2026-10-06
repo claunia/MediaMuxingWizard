@@ -96,20 +96,20 @@
     <!-- Toolbar -->
     <Border DockPanel.Dock="Top" Classes="toolbarBar">
       <StackPanel Orientation="Horizontal" Spacing="2">
-        <Button Classes="toolbar" Command="{Binding OpenCommand}" ToolTip.Tip="Open a file">
+        <Button Classes="toolbar" Command="{Binding OpenCommand}" AutomationProperties.Name="Open a file" ToolTip.Tip="Open a file">
           <StackPanel><PathIcon Data="{StaticResource IconOpen}" /><TextBlock Classes="caption" Text="Open" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Save changes">
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Save changes" ToolTip.Tip="Save changes">
           <StackPanel><PathIcon Data="{StaticResource IconSave}" /><TextBlock Classes="caption" Text="Save" /></StackPanel>
         </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" IsEnabled="False" ToolTip.Tip="Import tracks from other files (coming with muxing support)">
+        <Button Classes="toolbar" IsEnabled="False" AutomationProperties.Name="Import tracks from other files (coming with muxing support)" ToolTip.Tip="Import tracks from other files (coming with muxing support)">
           <StackPanel><PathIcon Data="{StaticResource IconImport}" /><TextBlock Classes="caption" Text="Import" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Delete the selected tracks">
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Delete the selected tracks" ToolTip.Tip="Delete the selected tracks">
           <StackPanel><PathIcon Data="{StaticResource IconDelete}" /><TextBlock Classes="caption" Text="Delete" /></StackPanel>
         </Button>
-        <DropDownButton Classes="toolbar" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Track and chapter actions">
+        <DropDownButton Classes="toolbar" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Track and chapter actions" ToolTip.Tip="Track and chapter actions">
           <StackPanel><PathIcon Data="{StaticResource IconAction}" /><TextBlock Classes="caption" Text="Action" /></StackPanel>
           <DropDownButton.Flyout>
             <MenuFlyout>
@@ -129,20 +129,20 @@
           </DropDownButton.Flyout>
         </DropDownButton>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Undo">
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Undo" ToolTip.Tip="Undo">
           <StackPanel><PathIcon Data="{StaticResource IconUndo}" /><TextBlock Classes="caption" Text="Undo" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SelectedDocument.RedoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Redo">
+        <Button Classes="toolbar" Command="{Binding SelectedDocument.RedoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Redo" ToolTip.Tip="Redo">
           <StackPanel><PathIcon Data="{StaticResource IconRedo}" /><TextBlock Classes="caption" Text="Redo" /></StackPanel>
         </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" IsEnabled="False" ToolTip.Tip="Search metadata online (coming soon)">
+        <Button Classes="toolbar" IsEnabled="False" AutomationProperties.Name="Search metadata online (coming soon)" ToolTip.Tip="Search metadata online (coming soon)">
           <StackPanel><PathIcon Data="{StaticResource IconSearch}" /><TextBlock Classes="caption" Text="Search" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Send this file to the batch queue">
+        <Button Classes="toolbar" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Send this file to the batch queue" ToolTip.Tip="Send this file to the batch queue">
           <StackPanel><PathIcon Data="{StaticResource IconQueue}" /><TextBlock Classes="caption" Text="Send to Queue" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" Command="{Binding ShowQueueCommand}" ToolTip.Tip="Show the batch queue">
+        <Button Classes="toolbar" Command="{Binding ShowQueueCommand}" AutomationProperties.Name="Show the batch queue" ToolTip.Tip="Show the batch queue">
           <StackPanel><PathIcon Data="{StaticResource IconChapters}" /><TextBlock Classes="caption" Text="Queue" /></StackPanel>
         </Button>
       </StackPanel>
@@ -187,7 +187,7 @@
           <DataTemplate x:DataType="vm:DocumentViewModel">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <TextBlock Text="{Binding Title}" VerticalAlignment="Center" FontSize="13" />
-              <Button Classes="icon" Padding="2" ToolTip.Tip="Close"
+              <Button Classes="icon" Padding="2" AutomationProperties.Name="Close" ToolTip.Tip="Close"
                       Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseDocumentCommand}" CommandParameter="{Binding}">
                 <PathIcon Data="{StaticResource IconClose}" Width="10" Height="10" />
               </Button>

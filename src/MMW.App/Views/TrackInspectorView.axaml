@@ -58,10 +58,10 @@
               </StackPanel>
               <TextBlock Grid.Row="1" Text="Fallback:" Classes="label" IsVisible="{Binding IsMp4}" />
               <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FallbackChoices}" SelectedItem="{Binding SelectedFallback}"
-                        IsVisible="{Binding IsMp4}" MinWidth="260" ToolTip.Tip="Track played by devices that cannot decode this one" />
+                        IsVisible="{Binding IsMp4}" MinWidth="260" AutomationProperties.Name="Track played by devices that cannot decode this one" ToolTip.Tip="Track played by devices that cannot decode this one" />
               <TextBlock Grid.Row="2" Text="Subtitles:" Classes="label" IsVisible="{Binding IsMp4}" />
               <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding SubtitleChoices}" SelectedItem="{Binding SelectedFollowsSubtitle}"
-                        IsVisible="{Binding IsMp4}" MinWidth="260" ToolTip.Tip="Subtitle track that follows this audio track" />
+                        IsVisible="{Binding IsMp4}" MinWidth="260" AutomationProperties.Name="Subtitle track that follows this audio track" ToolTip.Tip="Subtitle track that follows this audio track" />
             </Grid>
           </StackPanel>
 

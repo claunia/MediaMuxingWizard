@@ -14,16 +14,16 @@
   </UserControl.Styles>
   <DockPanel Margin="8">
     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-      <Button Classes="icon" Command="{Binding AddCommand}" ToolTip.Tip="Add a chapter"><PathIcon Data="{StaticResource IconAdd}" /></Button>
-      <Button Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Delete the selected chapter"><PathIcon Data="{StaticResource IconDelete}" /></Button>
-      <Button Classes="icon" Command="{Binding RenameAllCommand}" ToolTip.Tip="Rename every chapter “Chapter N”"><PathIcon Data="{StaticResource IconRename}" /></Button>
-      <DropDownButton Content="Insert every…" ToolTip.Tip="Replace chapters with marks at a fixed interval">
+      <Button Classes="icon" Command="{Binding AddCommand}" AutomationProperties.Name="Add a chapter" ToolTip.Tip="Add a chapter"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+      <Button Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Delete the selected chapter" ToolTip.Tip="Delete the selected chapter"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+      <Button Classes="icon" Command="{Binding RenameAllCommand}" AutomationProperties.Name="Rename every chapter “Chapter N”" ToolTip.Tip="Rename every chapter “Chapter N”"><PathIcon Data="{StaticResource IconRename}" /></Button>
+      <DropDownButton Content="Insert every…" AutomationProperties.Name="Replace chapters with marks at a fixed interval" ToolTip.Tip="Replace chapters with marks at a fixed interval">
         <DropDownButton.Flyout>
           <MenuFlyout ItemsSource="{Binding IntervalMenu}" />
         </DropDownButton.Flyout>
       </DropDownButton>
-      <Button Classes="icon" Command="{Binding ImportCommand}" ToolTip.Tip="Import chapters (txt) or chapter titles (csv)"><PathIcon Data="{StaticResource IconImport}" /></Button>
-      <Button Classes="icon" Command="{Binding ExportCommand}" ToolTip.Tip="Export chapters as text"><PathIcon Data="{StaticResource IconExport}" /></Button>
+      <Button Classes="icon" Command="{Binding ImportCommand}" AutomationProperties.Name="Import chapters (txt) or chapter titles (csv)" ToolTip.Tip="Import chapters (txt) or chapter titles (csv)"><PathIcon Data="{StaticResource IconImport}" /></Button>
+      <Button Classes="icon" Command="{Binding ExportCommand}" AutomationProperties.Name="Export chapters as text" ToolTip.Tip="Export chapters as text"><PathIcon Data="{StaticResource IconExport}" /></Button>
     </StackPanel>
     <DataGrid ItemsSource="{Binding Chapters}" SelectedItem="{Binding Selected}" AutoGenerateColumns="False"
               CanUserSortColumns="False" CellEditEnded="OnCellEditEnded">

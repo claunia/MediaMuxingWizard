@@ -17,7 +17,7 @@
     <TabItem Header="Tags">
       <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,6">
-          <DropDownButton ToolTip.Tip="Apply or save a set of tags">
+          <DropDownButton AutomationProperties.Name="Apply or save a set of tags" ToolTip.Tip="Apply or save a set of tags">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <PathIcon Data="{StaticResource IconSets}" Width="14" Height="14" />
               <TextBlock Text="Sets" />
@@ -26,7 +26,7 @@
               <MenuFlyout ItemsSource="{Binding SetsMenu}" />
             </DropDownButton.Flyout>
           </DropDownButton>
-          <DropDownButton ToolTip.Tip="Add a tag">
+          <DropDownButton AutomationProperties.Name="Add a tag" ToolTip.Tip="Add a tag">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <PathIcon Data="{StaticResource IconAdd}" Width="14" Height="14" />
               <TextBlock Text="Add Tag" />
@@ -59,7 +59,7 @@
                                                FilterMode="ContainsOrdinal" MinimumPrefixLength="0" />
                               <TextBlock Text="{Binding Error}" Classes="error" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
                             </StackPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -73,7 +73,7 @@
                                        MaxHeight="160" />
                               <TextBlock Text="{Binding Error}" Classes="error" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
                             </StackPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove tag" Margin="4,0,0,0" VerticalAlignment="Top">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0" VerticalAlignment="Top">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -91,7 +91,7 @@
                                     <Border Background="{DynamicResource SystemControlBackgroundBaseLowBrush}" CornerRadius="12" Padding="10,3,4,3" Margin="0,2,6,2">
                                       <StackPanel Orientation="Horizontal" Spacing="4">
                                         <TextBlock Text="{Binding}" VerticalAlignment="Center" />
-                                        <Button Classes="icon" Padding="3" ToolTip.Tip="Remove"
+                                        <Button Classes="icon" Padding="3" AutomationProperties.Name="Remove" ToolTip.Tip="Remove"
                                                 Command="{Binding $parent[ItemsControl;1].((vm:PeopleTagViewModel)DataContext).RemovePersonCommand}"
                                                 CommandParameter="{Binding}">
                                           <PathIcon Data="{StaticResource IconClose}" Width="8" Height="8" />
@@ -107,7 +107,7 @@
                                 </TextBox.KeyBindings>
                               </TextBox>
                             </WrapPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove tag" Margin="4,0,0,0" VerticalAlignment="Top">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0" VerticalAlignment="Top">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -116,7 +116,7 @@
                           <Grid ColumnDefinitions="170,*,Auto" Margin="0,2">
                             <TextBlock Text="{Binding Name}" Classes="label" />
                             <CheckBox Grid.Column="1" IsChecked="{Binding Value}" />
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -125,7 +125,7 @@
                           <Grid ColumnDefinitions="170,*,Auto" Margin="0,2">
                             <TextBlock Text="{Binding Name}" Classes="label" />
                             <ComboBox Grid.Column="1" ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" MinWidth="200" PlaceholderText="Choose…" />
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -137,7 +137,7 @@
                               <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" MinWidth="260" PlaceholderText="Choose a rating…" />
                               <TextBlock Text="{Binding Raw}" VerticalAlignment="Center" Classes="dim" />
                             </StackPanel>
-                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
+                            <Button Grid.Column="2" Classes="icon" Command="{Binding RemoveCommand}" AutomationProperties.Name="Remove tag" ToolTip.Tip="Remove tag" Margin="4,0,0,0">
                               <PathIcon Data="{StaticResource IconClose}" />
                             </Button>
                           </Grid>
@@ -157,11 +157,11 @@
     <TabItem Header="Artwork">
       <DockPanel>
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
-          <Button Classes="icon" Command="{Binding AddArtworkCommand}" ToolTip.Tip="Add artwork from files"><PathIcon Data="{StaticResource IconAdd}" /></Button>
-          <Button Classes="icon" Command="{Binding RemoveArtworkCommand}" ToolTip.Tip="Remove the selected artwork"><PathIcon Data="{StaticResource IconDelete}" /></Button>
-          <Button Classes="icon" Command="{Binding MoveArtworkUpCommand}" ToolTip.Tip="Move earlier (the first image is the cover)"><PathIcon Data="{StaticResource IconUp}" /></Button>
-          <Button Classes="icon" Command="{Binding MoveArtworkDownCommand}" ToolTip.Tip="Move later"><PathIcon Data="{StaticResource IconDown}" /></Button>
-          <Button Classes="icon" Command="{Binding ExportArtworkCommand}" ToolTip.Tip="Export the selected artwork"><PathIcon Data="{StaticResource IconExport}" /></Button>
+          <Button Classes="icon" Command="{Binding AddArtworkCommand}" AutomationProperties.Name="Add artwork from files" ToolTip.Tip="Add artwork from files"><PathIcon Data="{StaticResource IconAdd}" /></Button>
+          <Button Classes="icon" Command="{Binding RemoveArtworkCommand}" AutomationProperties.Name="Remove the selected artwork" ToolTip.Tip="Remove the selected artwork"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+          <Button Classes="icon" Command="{Binding MoveArtworkUpCommand}" AutomationProperties.Name="Move earlier (the first image is the cover)" ToolTip.Tip="Move earlier (the first image is the cover)"><PathIcon Data="{StaticResource IconUp}" /></Button>
+          <Button Classes="icon" Command="{Binding MoveArtworkDownCommand}" AutomationProperties.Name="Move later" ToolTip.Tip="Move later"><PathIcon Data="{StaticResource IconDown}" /></Button>
+          <Button Classes="icon" Command="{Binding ExportArtworkCommand}" AutomationProperties.Name="Export the selected artwork" ToolTip.Tip="Export the selected artwork"><PathIcon Data="{StaticResource IconExport}" /></Button>
           <TextBlock Text="Size" VerticalAlignment="Center" Margin="12,0,4,0" Classes="dim" />
           <Slider Minimum="80" Maximum="400" Value="{Binding ThumbnailSize}" Width="160" VerticalAlignment="Center" />
         </StackPanel>
