@@ -18,6 +18,16 @@ public sealed partial class QueueViewModel : ViewModelBase
     private readonly string _storePath;
     private bool _loading;
 
+    static QueueViewModel() => RegisterActions();
+
+    /// <summary>Registers the app's queue actions with the queue store (must precede any queue load or save).</summary>
+    public static void RegisterActions()
+    {
+        QueueStore.RegisterAction<FetchMetadataAction>("fetchMetadata");
+        QueueStore.RegisterAction<LoadExternalSubtitlesAction>("loadExternalSubtitles");
+        QueueStore.RegisterAction<PrepareTracksForTargetAction>("prepareTracks");
+    }
+
     public QueueViewModel(QueueRunner runner, IDialogService dialogs, ISettingsService settings, INotificationService notifications, string storePath)
     {
         Runner = runner;
@@ -138,6 +148,9 @@ public sealed partial class QueueViewModel : ViewModelBase
     private bool _loadChapters;
 
     [ObservableProperty]
+    private bool _loadSubtitles;
+
+    [ObservableProperty]
     private bool _organizeGroups;
 
     [ObservableProperty]
@@ -212,6 +225,9 @@ public sealed partial class QueueViewModel : ViewModelBase
                 case ImportChaptersFileAction:
                     LoadChapters = true;
                     break;
+                case LoadExternalSubtitlesAction:
+                    LoadSubtitles = true;
+                    break;
                 case OrganizeGroupsAction:
                     OrganizeGroups = true;
                     break;
@@ -267,6 +283,8 @@ public sealed partial class QueueViewModel : ViewModelBase
             actions.Add(new ApplyPresetAction { Preset = ApplyPreset });
         if (LoadChapters)
             actions.Add(new ImportChaptersFileAction());
+        if (LoadSubtitles)
+            actions.Add(new LoadExternalSubtitlesAction());
         if (CompleteLanguages && CompleteLanguage is not null)
             actions.Add(new CompleteLanguagesAction { Language = CompleteLanguage.Tag });
         if (OrganizeGroups)
@@ -287,6 +305,9 @@ public sealed partial class QueueViewModel : ViewModelBase
             actions.Add(new ApplyColorSpaceAction { Primaries = ColorPreset.Color.Primaries, Transfer = ColorPreset.Color.Transfer, Matrix = ColorPreset.Color.Matrix });
         if (SetOutputFileName)
             actions.Add(new SetOutputFileNameAction { MovieFormat = _settings.Settings.MovieFileNameFormat, TvFormat = _settings.Settings.TvFileNameFormat });
+
+        // Always last: makes tracks fit the output format (default conversions, or dropping what cannot be stored).
+        actions.Add(new PrepareTracksForTargetAction());
         o.DefaultActions = actions;
         Persist();
     }

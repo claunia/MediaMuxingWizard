@@ -214,12 +214,12 @@ public class QueueWindowTests
         vm.OrganizeGroups = true;
         vm.ClearTrackNames = true;
         vm.CompleteLanguages = true;
-        Assert.Equal(3, runner.Options.DefaultActions.Count);
+        Assert.Equal(4, runner.Options.DefaultActions.Count); // + the automatic "prepare tracks" step
 
         var window = new QueueWindow { DataContext = vm, Width = 1000, Height = 640 };
         window.Show();
         vm.AddFiles([Fixtures.CopyToTemp(path)]);
-        Assert.Equal(3, runner.Items[0].Actions.Count);
+        Assert.Equal(4, runner.Items[0].Actions.Count);
         await vm.StartCommand.ExecuteAsync(null);
 
         Assert.Equal(MMW.Queue.QueueItemStatus.Completed, runner.Items[0].Status);

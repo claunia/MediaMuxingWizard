@@ -9,6 +9,9 @@ public sealed class QueueContext(QueueItem item, MediaDocument document)
 
     public MediaDocument Document { get; } = document;
 
+    /// <summary>Container family the item is written as (from the queue's file type, or the source's).</summary>
+    public ContainerKind TargetContainer { get; init; }
+
     /// <summary>Output file name without extension, when an action decided one.</summary>
     public string? OutputBaseName { get; set; }
 

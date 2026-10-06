@@ -108,3 +108,51 @@ public class ChapterPreviewOnSaveTests
         Assert.All(reread.Chapters, c => Assert.NotNull(c.Thumbnail));
     }
 }
+
+public class QueueContainerChangeTests
+{
+    [Fact]
+    public void Languages_are_read_from_subtitle_file_names()
+    {
+        Assert.Equal("fr", LoadExternalSubtitlesAction.LanguageFromName(".fr"));
+        Assert.Equal("de", LoadExternalSubtitlesAction.LanguageFromName(".ger.forced"));
+        Assert.Equal("es", LoadExternalSubtitlesAction.LanguageFromName(".Spanish"));
+        Assert.Null(LoadExternalSubtitlesAction.LanguageFromName(".forced"));
+    }
+
+    [AvaloniaFact]
+    public async Task Queue_converts_to_m4v_with_external_subtitles()
+    {
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        if (!MMW.Media.Conversion.MediaConversion.IsAvailable || !Fixtures.HasTool("ffmpeg"))
+            Assert.Skip("FFmpeg libraries or the ffmpeg tool are not available.");
+        var source = Fixtures.CopyToTemp(Fixtures.Get("vorbis-audio.mkv", "ffmpeg",
+            "-y -v error -f lavfi -i testsrc=duration=2:size=160x120:rate=25 -f lavfi -i sine=f=440:d=2 -c:v libx264 -preset ultrafast -c:a vorbis -strict -2 -ac 2 -f matroska {out}"));
+        var srt = Path.Combine(Path.GetDirectoryName(source)!, Path.GetFileNameWithoutExtension(source) + ".fr.srt");
+        await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nBonjour\n", TestContext.Current.CancellationToken);
+
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        var settings = new SettingsService(Path.Combine(dir, "settings.json"));
+        var runner = new MMW.Queue.QueueRunner(new ContainerRegistry(DocumentService.DefaultHandlers()));
+        var queue = new QueueViewModel(runner, new FakeDialogService(), settings, new SilentNotifications(), Path.Combine(dir, "queue.json"))
+        {
+            FileType = QueueViewModel.FileTypes.First(f => f.Value == ".m4v"),
+            LoadSubtitles = true,
+        };
+        queue.AddFiles([source]);
+        await queue.StartCommand.ExecuteAsync(null);
+
+        var item = runner.Items.Single();
+        Assert.True(item.Status == MMW.Queue.QueueItemStatus.Completed, item.Error + "\n" + string.Join("\n", item.Log));
+        var output = await new MMW.Formats.Mp4.Mp4Handler().ReadAsync(item.DestinationPath!, TestContext.Current.CancellationToken);
+        Assert.StartsWith("AAC", Assert.Single(output.Tracks.OfType<AudioTrack>()).Format, StringComparison.Ordinal);
+        Assert.Equal("fr", Assert.Single(output.Tracks.OfType<SubtitleTrack>()).Language);
+    }
+
+    private sealed class SilentNotifications : INotificationService
+    {
+        public void Notify(string title, string message)
+        {
+        }
+    }
+}

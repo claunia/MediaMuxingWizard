@@ -101,7 +101,12 @@ public sealed partial class QueueRunner : ObservableObject
         try
         {
             var document = await _registry.OpenAsync(item.SourcePath, cancellationToken);
-            var context = new QueueContext(item, document) { Services = Services };
+            var target = Options.FileType is { } type ? ContainerKinds.FromPath("x" + type) : document.Container;
+            var context = new QueueContext(item, document)
+            {
+                Services = Services,
+                TargetContainer = target == ContainerKind.Unknown ? document.Container : target,
+            };
             context.Log($"Opened {item.Name}.");
 
             foreach (var action in item.Actions)

@@ -100,6 +100,7 @@
           </StackPanel>
           <CheckBox Content="Name output files from tags" IsChecked="{Binding SetOutputFileName}" />
           <CheckBox Content="Load chapters from a .txt next to the file" IsChecked="{Binding LoadChapters}" />
+          <CheckBox Content="Load subtitles (.srt, .ass, .vtt) named like the file" IsChecked="{Binding LoadSubtitles}" />
 
           <TextBlock Text="Tracks" Classes="groupHeader" />
           <StackPanel Orientation="Horizontal" Spacing="6">
