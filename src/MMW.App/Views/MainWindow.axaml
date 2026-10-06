@@ -118,9 +118,9 @@
         <Button Classes="toolbar" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_DeleteTracks}" ToolTip.Tip="{x:Static res:Strings.Tooltip_DeleteTracks}">
           <StackPanel><PathIcon Data="{StaticResource IconDelete}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Delete}" /></StackPanel>
         </Button>
-        <DropDownButton Classes="toolbar" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_Actions}" ToolTip.Tip="{x:Static res:Strings.Tooltip_Actions}">
-          <StackPanel><PathIcon Data="{StaticResource IconAction}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Action}" /></StackPanel>
-          <DropDownButton.Flyout>
+        <Button Classes="toolbar" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Tooltip_Actions}" ToolTip.Tip="{x:Static res:Strings.Tooltip_Actions}">
+          <StackPanel><PathIcon Data="{StaticResource IconAction}" /><StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="2"><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Action}" /><PathIcon Data="{StaticResource IconDown}" Width="8" Height="8" Margin="0,2,0,0" /></StackPanel></StackPanel>
+          <Button.Flyout>
             <MenuFlyout>
               <MenuItem Header="{x:Static res:Strings.Action_InsertChapterEvery}">
                 <MenuItem Header="{x:Static res:Strings.Menu_Chapters_AtBeginning}" Command="{Binding SelectedDocument.InsertChaptersEveryCommand, FallbackValue={x:Null}}" CommandParameter="0" />
@@ -136,8 +136,8 @@
               <MenuItem Header="{x:Static res:Strings.Action_ClearNames}" Command="{Binding SelectedDocument.ClearTrackNamesCommand, FallbackValue={x:Null}}" />
               <MenuItem Header="{x:Static res:Strings.Action_PrettifyAudioNames}" Command="{Binding SelectedDocument.PrettifyAudioNamesCommand, FallbackValue={x:Null}}" />
             </MenuFlyout>
-          </DropDownButton.Flyout>
-        </DropDownButton>
+          </Button.Flyout>
+        </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
         <Button Classes="toolbar" Command="{Binding SelectedDocument.UndoCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="{x:Static res:Strings.Toolbar_Undo}" ToolTip.Tip="{x:Static res:Strings.Toolbar_Undo}">
           <StackPanel><PathIcon Data="{StaticResource IconUndo}" /><TextBlock Classes="caption" Text="{x:Static res:Strings.Toolbar_Undo}" /></StackPanel>
