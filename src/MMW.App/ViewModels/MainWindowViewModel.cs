@@ -17,12 +17,43 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private readonly IDialogService _dialogs;
     private readonly ISettingsService _settings;
 
-    public MainWindowViewModel(DocumentService documents, IDialogService dialogs, ISettingsService settings)
+    public MainWindowViewModel(DocumentService documents, IDialogService dialogs, ISettingsService settings, QueueViewModel? queue = null)
     {
         _documents = documents;
         _dialogs = dialogs;
         _settings = settings;
+        Queue = queue;
+        if (queue is not null)
+            queue.EditRequested += async (_, path) => await OpenPathsAsync([path]);
         RebuildRecentMenu();
+    }
+
+    /// <summary>The batch queue (null in tests that do not need it).</summary>
+    public QueueViewModel? Queue { get; }
+
+    /// <summary>Raised to ask the view to show the queue window.</summary>
+    public event EventHandler? ShowQueueRequested;
+
+    [RelayCommand]
+    private void ShowQueue() => ShowQueueRequested?.Invoke(this, EventArgs.Empty);
+
+    [RelayCommand]
+    private async Task SendToQueue()
+    {
+        if (Queue is null || SelectedDocument is not { Document.Path: { } path } doc)
+            return;
+        if (doc.IsDirty)
+        {
+            switch (await _dialogs.AskSaveChangesAsync(doc.Document.DisplayName))
+            {
+                case SaveChangesChoice.Save when !await doc.Save():
+                case SaveChangesChoice.Cancel:
+                    return;
+            }
+        }
+
+        Queue.AddFiles([path]);
+        ShowQueue();
     }
 
     public ObservableCollection<DocumentViewModel> Documents { get; } = [];

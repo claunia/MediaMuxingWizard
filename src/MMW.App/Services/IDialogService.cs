@@ -17,6 +17,8 @@ public interface IDialogService
 
     Task<string?> SaveFileAsync(string title, string suggestedName, IReadOnlyList<FileFilter> filters);
 
+    Task<string?> PickFolderAsync(string title);
+
     Task ShowMessageAsync(string title, string message);
 
     Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK");

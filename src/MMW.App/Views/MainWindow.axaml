@@ -40,6 +40,7 @@
         <MenuItem Header="_Close" Command="{Binding CloseDocumentCommand}" HotKey="{x:Static app:Gestures.Close}" InputGesture="{x:Static app:Gestures.Close}" IsEnabled="{Binding HasDocument}" />
         <MenuItem Header="_Save" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Save}" InputGesture="{x:Static app:Gestures.Save}" IsEnabled="{Binding HasDocument}" />
         <MenuItem Header="Save _As…" Command="{Binding SelectedDocument.SaveAsCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.SaveAs}" InputGesture="{x:Static app:Gestures.SaveAs}" IsEnabled="{Binding HasDocument}" />
+        <MenuItem Header="Send to _Queue" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" />
         <Separator />
         <MenuItem Header="_Preferences…" Command="{Binding PreferencesCommand}" />
         <Separator />
@@ -84,6 +85,7 @@
         </MenuItem>
       </MenuItem>
       <MenuItem Header="_Window">
+        <MenuItem Header="_Queue" Command="{Binding ShowQueueCommand}" />
         <MenuItem Header="Message _Log" Click="OnShowLogClick" HotKey="{x:Static app:Gestures.Log}" InputGesture="{x:Static app:Gestures.Log}" />
       </MenuItem>
       <MenuItem Header="_Help">
@@ -137,8 +139,11 @@
         <Button Classes="toolbar" IsEnabled="False" ToolTip.Tip="Search metadata online (coming soon)">
           <StackPanel><PathIcon Data="{StaticResource IconSearch}" /><TextBlock Classes="caption" Text="Search" /></StackPanel>
         </Button>
-        <Button Classes="toolbar" IsEnabled="False" ToolTip.Tip="Send to the batch queue (coming soon)">
-          <StackPanel><PathIcon Data="{StaticResource IconQueue}" /><TextBlock Classes="caption" Text="Queue" /></StackPanel>
+        <Button Classes="toolbar" Command="{Binding SendToQueueCommand}" IsEnabled="{Binding HasDocument}" ToolTip.Tip="Send this file to the batch queue">
+          <StackPanel><PathIcon Data="{StaticResource IconQueue}" /><TextBlock Classes="caption" Text="Send to Queue" /></StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding ShowQueueCommand}" ToolTip.Tip="Show the batch queue">
+          <StackPanel><PathIcon Data="{StaticResource IconChapters}" /><TextBlock Classes="caption" Text="Queue" /></StackPanel>
         </Button>
       </StackPanel>
     </Border>

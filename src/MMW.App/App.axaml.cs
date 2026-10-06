@@ -24,7 +24,12 @@ public partial class App : Application
                 _ => ThemeVariant.Default,
             };
 
-            var vm = new MainWindowViewModel(new DocumentService(), new AvaloniaDialogService(), settings);
+            var dialogs = new AvaloniaDialogService();
+            var runner = new MMW.Queue.QueueRunner(new MMW.Core.Model.ContainerRegistry(DocumentService.DefaultHandlers()), new PowerService());
+            var queuePath = Path.Combine(SettingsService.AppDataDirectory, "queue.json");
+            MMW.Queue.QueueStore.Load(runner, queuePath);
+            var queue = new QueueViewModel(runner, dialogs, settings, new NotificationService(), queuePath);
+            var vm = new MainWindowViewModel(new DocumentService(), dialogs, settings, queue);
             desktop.MainWindow = new MainWindow { DataContext = vm };
 
             var files = desktop.Args?.Where(File.Exists).ToList() ?? [];

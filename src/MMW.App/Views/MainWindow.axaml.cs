@@ -20,7 +20,32 @@ public partial class MainWindow : Window
         DragDrop.AddDragLeaveHandler(this, (_, _) => WelcomeZone.Classes.Remove("dragOver"));
     }
 
+    private QueueWindow? _queue;
+
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        if (ViewModel is { } vm)
+            vm.ShowQueueRequested += (_, _) => ShowQueueWindow();
+    }
+
+    private void ShowQueueWindow()
+    {
+        if (ViewModel?.Queue is not { } queue)
+            return;
+        if (_queue is null)
+        {
+            _queue = new QueueWindow { DataContext = queue };
+            _queue.Closed += (_, _) => _queue = null;
+            _queue.Show(this);
+        }
+        else
+        {
+            _queue.Activate();
+        }
+    }
 
     private void OnDragOver(object? sender, DragEventArgs e) =>
         e.DragEffects = e.DataTransfer.Contains(DataFormat.File) ? DragDropEffects.Copy : DragDropEffects.None;

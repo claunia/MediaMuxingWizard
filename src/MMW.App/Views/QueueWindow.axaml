@@ -1,0 +1,126 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MMW.App.ViewModels"
+        xmlns:q="using:MMW.Queue"
+        xmlns:md="using:MMW.Core.Metadata"
+        x:Class="MMW.App.Views.QueueWindow"
+        x:DataType="vm:QueueViewModel"
+        Title="Queue" Width="1000" Height="640" MinWidth="760" MinHeight="420"
+        DragDrop.AllowDrop="True">
+  <DockPanel>
+    <!-- Toolbar -->
+    <Border DockPanel.Dock="Top" Classes="toolbarBar">
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <Button Classes="toolbar" Command="{Binding AddCommand}" ToolTip.Tip="Add files to the queue">
+          <StackPanel><PathIcon Data="{StaticResource IconAdd}" /><TextBlock Classes="caption" Text="Add" /></StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove the selected item">
+          <StackPanel><PathIcon Data="{StaticResource IconDelete}" /><TextBlock Classes="caption" Text="Remove" /></StackPanel>
+        </Button>
+        <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+        <Button Classes="toolbar" Command="{Binding StartCommand}" ToolTip.Tip="Process every ready item">
+          <StackPanel><PathIcon Data="M8,5.14V19.14L19,12.14L8,5.14Z" /><TextBlock Classes="caption" Text="Start" /></StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding StopCommand}" ToolTip.Tip="Stop after cancelling the current item">
+          <StackPanel><PathIcon Data="M18,18H6V6H18V18Z" /><TextBlock Classes="caption" Text="Stop" /></StackPanel>
+        </Button>
+      </StackPanel>
+    </Border>
+
+    <Border DockPanel.Dock="Bottom" Classes="statusBar">
+      <TextBlock Text="{Binding Summary}" Classes="dim" />
+    </Border>
+
+    <Grid ColumnDefinitions="3*,5,2*">
+      <!-- Items -->
+      <Panel Margin="8">
+        <TextBlock Text="Drop files here or use Add. Each file gets the actions chosen on the right."
+                   Classes="dim" IsVisible="{Binding !Items.Count}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="320" TextAlignment="Center" />
+        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" Background="Transparent">
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Edit…" Command="{Binding EditCommand}" />
+              <MenuItem Header="Show in File Manager" Command="{Binding RevealCommand}" />
+              <MenuItem Header="Run Again" Command="{Binding RetryCommand}" />
+              <Separator />
+              <MenuItem Header="Remove from Queue" Command="{Binding RemoveCommand}" />
+              <MenuItem Header="Remove Completed Items" Command="{Binding RemoveCompletedCommand}" />
+            </ContextMenu>
+          </ListBox.ContextMenu>
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="q:QueueItem">
+              <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" Margin="2,4">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="1" Text="{Binding Status}" Classes="dim" Margin="12,0,0,0" />
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding DestinationPath, StringFormat='→ {0}'}" Classes="dim" FontSize="11"
+                           IsVisible="{Binding DestinationPath, Converter={x:Static ObjectConverters.IsNotNull}}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Error}" Classes="error"
+                           IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" TextWrapping="Wrap" />
+                <ProgressBar Grid.Row="2" Grid.ColumnSpan="2" Minimum="0" Maximum="1" Value="{Binding Progress}" Height="4" MinHeight="4" Margin="0,4,0,0"
+                             IsVisible="{Binding Status, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static q:QueueItemStatus.Working}}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Panel>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+
+      <!-- Options -->
+      <ScrollViewer Grid.Column="2">
+        <StackPanel Margin="8,8,12,12" Spacing="6">
+          <TextBlock Text="Output" Classes="groupHeader" />
+          <RadioButton Content="Same folder as the source" IsChecked="{Binding !UseFolder}" GroupName="loc" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <RadioButton Content="Folder:" IsChecked="{Binding UseFolder}" GroupName="loc" />
+            <Button Content="Choose…" Command="{Binding ChooseFolderCommand}" />
+          </StackPanel>
+          <TextBlock Text="{Binding Folder}" Classes="dim" FontSize="11" TextTrimming="CharacterEllipsis" IsVisible="{Binding UseFolder}" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="File type:" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{x:Static vm:QueueViewModel.FileTypes}" SelectedItem="{Binding FileType}" MinWidth="200" />
+          </StackPanel>
+          <CheckBox Content="Optimize MP4 output" IsChecked="{Binding Optimize}" />
+          <CheckBox Content="Start automatically when files are added" IsChecked="{Binding AutoStart}" />
+          <CheckBox Content="Notify when done" IsChecked="{Binding NotifyWhenDone}" />
+
+          <TextBlock Text="Metadata" Classes="groupHeader" />
+          <CheckBox Content="Clear existing metadata" IsChecked="{Binding ClearMetadata}" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <CheckBox Content="Apply set:" IsChecked="{Binding ApplyPresetEnabled}" />
+            <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding ApplyPreset}" MinWidth="160" PlaceholderText="No saved sets">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="md:MetadataPreset"><TextBlock Text="{Binding Name}" /></DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <CheckBox Content="Name output files from tags" IsChecked="{Binding SetOutputFileName}" />
+          <CheckBox Content="Load chapters from a .txt next to the file" IsChecked="{Binding LoadChapters}" />
+
+          <TextBlock Text="Tracks" Classes="groupHeader" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <CheckBox Content="Complete languages:" IsChecked="{Binding CompleteLanguages}" />
+            <ComboBox ItemsSource="{x:Static vm:QueueViewModel.Languages}" SelectedItem="{Binding CompleteLanguage}" IsTextSearchEnabled="True" MaxDropDownHeight="360" MinWidth="150" />
+          </StackPanel>
+          <CheckBox Content="Organize alternate groups" IsChecked="{Binding OrganizeGroups}" />
+          <CheckBox Content="Fix audio fallbacks" IsChecked="{Binding FixFallbacks}" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <CheckBox Content="Enable audio in:" IsChecked="{Binding EnableAudio}" />
+            <ComboBox ItemsSource="{x:Static vm:QueueViewModel.Languages}" SelectedItem="{Binding AudioLanguage}" IsTextSearchEnabled="True" MaxDropDownHeight="360" MinWidth="150" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <CheckBox Content="Enable subtitles in:" IsChecked="{Binding EnableSubtitles}" />
+            <ComboBox ItemsSource="{x:Static vm:QueueViewModel.Languages}" SelectedItem="{Binding SubtitleLanguage}" IsTextSearchEnabled="True" MaxDropDownHeight="360" MinWidth="150" />
+          </StackPanel>
+          <CheckBox Content="Clear track names" IsChecked="{Binding ClearTrackNames}" />
+          <CheckBox Content="Prettify audio track names" IsChecked="{Binding PrettifyAudioNames}" />
+          <CheckBox Content="Rename chapters" IsChecked="{Binding RenameChapters}" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <CheckBox Content="Colour space:" IsChecked="{Binding ApplyColorSpace}" />
+            <ComboBox ItemsSource="{x:Static vm:QueueViewModel.ColorPresets}" SelectedItem="{Binding ColorPreset}" MinWidth="150" />
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </DockPanel>
+</Window>

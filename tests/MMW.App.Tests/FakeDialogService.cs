@@ -17,6 +17,10 @@ internal sealed class FakeDialogService : IDialogService
 
     public Task<string?> SaveFileAsync(string title, string suggestedName, IReadOnlyList<FileFilter> filters) => Task.FromResult<string?>(null);
 
+    public string? FolderAnswer { get; set; }
+
+    public Task<string?> PickFolderAsync(string title) => Task.FromResult(FolderAnswer);
+
     public Task ShowMessageAsync(string title, string message)
     {
         Messages.Add($"{title}: {message}");

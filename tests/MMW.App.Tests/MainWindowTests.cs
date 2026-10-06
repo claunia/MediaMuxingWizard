@@ -197,3 +197,44 @@ public class PreferencesTests
         window.CaptureRenderedFrame()?.Save(Path.Combine(dir, "07-preferences.png"));
     }
 }
+
+public class QueueWindowTests
+{
+    [AvaloniaFact]
+    public async Task Queue_options_become_default_actions_and_items_run()
+    {
+        var path = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(path))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        var settings = new SettingsService(Path.Combine(dir, "settings.json"));
+        var runner = new MMW.Queue.QueueRunner(new ContainerRegistry(DocumentService.DefaultHandlers()));
+        var vm = new QueueViewModel(runner, new FakeDialogService(), settings, new NullNotifications(), Path.Combine(dir, "queue.json"));
+
+        vm.OrganizeGroups = true;
+        vm.ClearTrackNames = true;
+        vm.CompleteLanguages = true;
+        Assert.Equal(3, runner.Options.DefaultActions.Count);
+
+        var window = new QueueWindow { DataContext = vm, Width = 1000, Height = 640 };
+        window.Show();
+        vm.AddFiles([Fixtures.CopyToTemp(path)]);
+        Assert.Equal(3, runner.Items[0].Actions.Count);
+        await vm.StartCommand.ExecuteAsync(null);
+
+        Assert.Equal(MMW.Queue.QueueItemStatus.Completed, runner.Items[0].Status);
+        Assert.True(File.Exists(Path.Combine(dir, "queue.json")));
+
+        Dispatcher.UIThread.RunJobs();
+        var shots = Environment.GetEnvironmentVariable("MMW_SCREENSHOTS") ?? Path.Combine(Path.GetTempPath(), "mmw-screenshots");
+        Directory.CreateDirectory(shots);
+        window.CaptureRenderedFrame()?.Save(Path.Combine(shots, "08-queue.png"));
+    }
+
+    private sealed class NullNotifications : INotificationService
+    {
+        public void Notify(string title, string message)
+        {
+        }
+    }
+}

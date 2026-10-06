@@ -41,6 +41,12 @@ public sealed class AvaloniaDialogService : IDialogService
         return file?.TryGetLocalPath();
     }
 
+    public async Task<string?> PickFolderAsync(string title)
+    {
+        var folders = await Owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false });
+        return folders.FirstOrDefault()?.TryGetLocalPath();
+    }
+
     public Task ShowMessageAsync(string title, string message) =>
         ShowDialogAsync(new MessageDialogViewModel(title, message, ["OK"]));
 
