@@ -7,6 +7,9 @@ public static class Gestures
 {
     private static readonly KeyModifiers s_cmd = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
 
+    /// <summary>The platform's command modifier (Cmd on macOS, Ctrl elsewhere).</summary>
+    public static KeyModifiers Command => s_cmd;
+
     public static KeyGesture Open { get; } = new(Key.O, s_cmd);
 
     public static KeyGesture Save { get; } = new(Key.S, s_cmd);

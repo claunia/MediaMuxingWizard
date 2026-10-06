@@ -44,7 +44,7 @@ public sealed class AvaloniaDialogService : IDialogService
     public async Task<string?> PickFolderAsync(string title)
     {
         var folders = await Owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false });
-        return folders.FirstOrDefault()?.TryGetLocalPath();
+        return folders.Count > 0 ? folders[0].TryGetLocalPath() : null;
     }
 
     public Task ShowMessageAsync(string title, string message) =>

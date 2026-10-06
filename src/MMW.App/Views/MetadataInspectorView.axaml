@@ -169,7 +169,16 @@
           <TextBlock Text="Drop images here or use + to add artwork." Classes="dim"
                      IsVisible="{Binding !Artworks.Count}" HorizontalAlignment="Center" VerticalAlignment="Center" />
           <ListBox x:Name="ArtworkList" ItemsSource="{Binding Artworks}" SelectedItem="{Binding SelectedArtwork}"
-                   Background="Transparent" DragDrop.AllowDrop="True">
+                   Background="Transparent" DragDrop.AllowDrop="True" KeyDown="OnArtworkKeyDown">
+            <ListBox.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="Copy" Click="OnCopyArtwork" />
+                <MenuItem Header="Paste" Click="OnPasteArtwork" />
+                <Separator />
+                <MenuItem Header="Export…" Command="{Binding ExportArtworkCommand}" />
+                <MenuItem Header="Remove" Command="{Binding RemoveArtworkCommand}" />
+              </ContextMenu>
+            </ListBox.ContextMenu>
             <ListBox.ItemsPanel>
               <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
             </ListBox.ItemsPanel>

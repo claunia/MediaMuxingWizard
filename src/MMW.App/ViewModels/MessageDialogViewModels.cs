@@ -13,7 +13,7 @@ public sealed partial class MessageDialogViewModel(string title, string message,
 
     public IReadOnlyList<string> Buttons { get; } = buttons;
 
-    public string? DefaultButton { get; } = defaultButton ?? buttons.FirstOrDefault();
+    public string? DefaultButton { get; } = defaultButton ?? (buttons.Count > 0 ? buttons[0] : null);
 
     [RelayCommand]
     private void Choose(string button) => Close(button);
