@@ -40,6 +40,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         _theme = Themes.First(t => t.Value == settings.Theme);
         _rememberWindowSize = settings.RememberWindowSize;
         _createChapterPreviews = settings.CreateChapterPreviews;
+        _ocrLanguage = OcrLanguageChoices.FirstOrDefault(c => c.Value == settings.OcrLanguage) ?? OcrLanguageChoices[0];
         _chapterPreviewPosition = PreviewPositions.OrderBy(p => Math.Abs(p.Value - settings.ChapterPreviewPosition)).First();
         _ratingsCountry = settings.RatingsCountry;
         _use64BitOffsets = settings.Use64BitOffsets;
@@ -147,6 +148,39 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         if (i > 0)
             Presets.Move(i, i - 1);
     }
+
+    // ------------------------------------------------------------------ OCR
+
+    public static string OcrStatus => MMW.Ocr.SubtitleOcr.Factory.IsAvailable
+        ? $"{MMW.Ocr.SubtitleOcr.Factory.Name} is available. Models are stored in {MMW.Ocr.SubtitleOcr.Factory.Tessdata.Directory}."
+        : $"OCR is not available: {MMW.Ocr.SubtitleOcr.Factory.UnavailableReason}";
+
+    public static string OcrAdviceText => OcrAdvice.Warning;
+
+    public static IReadOnlyList<Choice<string?>> OcrLanguageChoices { get; } =
+        [new(null, "Same as the subtitle track"), .. MMW.Ocr.TesseractLanguages.All.Select(l => new Choice<string?>(l.Code, l.Name))];
+
+    [ObservableProperty]
+    private Choice<string?> _ocrLanguage;
+
+    [ObservableProperty]
+    private string _ocrFilter = string.Empty;
+
+    private List<OcrLanguageViewModel>? _ocrLanguages;
+
+    /// <summary>Language models, installed first, filtered by name.</summary>
+    public IEnumerable<OcrLanguageViewModel> OcrLanguages
+    {
+        get
+        {
+            _ocrLanguages ??= MMW.Ocr.TesseractLanguages.All.Select(l => new OcrLanguageViewModel(l, MMW.Ocr.SubtitleOcr.Factory.Tessdata)).ToList();
+            return _ocrLanguages
+                .Where(l => OcrFilter.Length == 0 || l.Name.Contains(OcrFilter, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(l => l.IsInstalled ? 0 : 1).ThenBy(l => l.Language.Name, StringComparer.CurrentCulture);
+        }
+    }
+
+    partial void OnOcrFilterChanged(string value) => OnPropertyChanged(nameof(OcrLanguages));
 
     // ------------------------------------------------------------------ audio
 
@@ -283,6 +317,7 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         _settings.Theme = Theme.Value;
         _settings.RememberWindowSize = RememberWindowSize;
         _settings.CreateChapterPreviews = CreateChapterPreviews;
+        _settings.OcrLanguage = OcrLanguage.Value;
         _settings.ChapterPreviewPosition = ChapterPreviewPosition.Value;
         _settings.RatingsCountry = RatingsCountry;
         _settings.Use64BitOffsets = Use64BitOffsets;

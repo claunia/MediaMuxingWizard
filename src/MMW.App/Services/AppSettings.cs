@@ -62,6 +62,10 @@ public sealed class AppSettings
 
     public string? TvdbApiKey { get; set; }
 
+    // OCR
+    /// <summary>Tesseract language for OCR ("eng", "fra+eng"…); null derives it from each track's language.</summary>
+    public string? OcrLanguage { get; set; }
+
     // Chapters
     /// <summary>Create missing chapter preview images when saving MP4 files.</summary>
     public bool CreateChapterPreviews { get; set; }

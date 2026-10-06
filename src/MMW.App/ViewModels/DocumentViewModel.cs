@@ -155,10 +155,16 @@ public sealed partial class DocumentViewModel : ViewModelBase
             : Task.FromResult<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>([]);
 
     /// <summary>Sets how a track is converted on the next save (may add an AAC companion track).</summary>
-    public void SetConversion(Track track, MMW.Core.Media.ImportChoice choice)
+    public async Task SetConversionAsync(Track track, MMW.Core.Media.ImportChoice choice)
     {
+        if (choice.Ocr && !await OcrAdvice.EnsureModelsAsync(_dialogs, _settings.Settings, [track.Language]))
+            return;
         using (Undo.Transaction($"Convert {track.Format}"))
-            MMW.Core.Media.TrackConversions.SetAction(Document, track, choice.Action, choice.SettingsFrom(MMW.Core.Media.ConversionDefaults.Settings));
+        {
+            MMW.Core.Media.TrackConversions.SetAction(Document, track, choice.Action, choice.SettingsFrom(MMW.Core.Media.ConversionDefaults.Settings),
+                choice.OcrFrom(OcrAdvice.Options(_settings.Settings)));
+        }
+
         Document.IsDirty = true;
         OnPropertyChanged(nameof(StatusText));
     }

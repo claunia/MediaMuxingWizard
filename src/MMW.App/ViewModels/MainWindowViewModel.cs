@@ -51,7 +51,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (SelectedDocument is not { } doc)
             return;
-        var dialog = new ImportDialogViewModel(doc, files);
+        var dialog = new ImportDialogViewModel(doc, files, _dialogs, Settings);
         _ = dialog.LoadAsync();
         await _dialogs.ShowDialogAsync(dialog);
     }
@@ -301,6 +301,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             $"{AppTitle} {typeof(MainWindowViewModel).Assembly.GetName().Version?.ToString(3)}\n\n" +
             "Edit metadata, chapters and tracks of MP4 and Matroska files.\n\n© 2026 Natalia Portillo\n" +
             (MMW.Media.Conversion.MediaConversion.IsAvailable ? $"Audio conversion: FFmpeg {MMW.Media.Conversion.MediaConversion.Version} (LGPL).\n" : "Audio conversion: FFmpeg libraries not found.\n") +
+            (MMW.Ocr.SubtitleOcr.Factory.IsAvailable ? $"Subtitle OCR: {MMW.Ocr.SubtitleOcr.Factory.Name}.\n" : "Subtitle OCR: Tesseract not found.\n") +
             "Icons: Material Design Icons (Apache 2.0).");
 
     public static IReadOnlyList<string> RatingCountries => Ratings.Countries;

@@ -188,7 +188,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     partial void OnSelectedConversionChanged(MMW.Core.Media.ImportChoice? value)
     {
         if (!_loadingConversion && value is not null && _owner is not null)
-            _owner.SetConversion(Track, value);
+            _ = _owner.SetConversionAsync(Track, value);
     }
 
     private async Task LoadConversionChoicesAsync()

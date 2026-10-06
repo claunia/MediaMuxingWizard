@@ -1,3 +1,4 @@
+using Avalonia.VisualTree;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
@@ -195,6 +196,13 @@ public class PreferencesTests
         var dir = Environment.GetEnvironmentVariable("MMW_SCREENSHOTS") ?? Path.Combine(Path.GetTempPath(), "mmw-screenshots");
         Directory.CreateDirectory(dir);
         window.CaptureRenderedFrame()?.Save(Path.Combine(dir, "07-preferences.png"));
+
+        // OCR tab.
+        var tabs = window.GetVisualDescendants().OfType<TabControl>().First();
+        tabs.SelectedIndex = tabs.Items.Cast<TabItem>().ToList().FindIndex(t => (string?)t.Header == "OCR");
+        Dispatcher.UIThread.RunJobs();
+        Assert.Contains(vm.OcrLanguages, l => l.Language.Code == "eng");
+        window.CaptureRenderedFrame()?.Save(Path.Combine(dir, "12-preferences-ocr.png"));
     }
 }
 
@@ -341,7 +349,7 @@ public class OcrAdviceTests
     [Fact]
     public void Ocr_choices_trigger_the_subtitle_edit_advice()
     {
-        Assert.True(OcrAdvice.IsOcr(new MMW.Core.Media.ImportChoice(MMW.Core.Media.ImportAction.ConvertToTx3g, "Tx3g (OCR)")));
+        Assert.True(OcrAdvice.IsOcr(new MMW.Core.Media.ImportChoice(MMW.Core.Media.ImportAction.ConvertToTx3g, "Tx3g (OCR)", Ocr: true)));
         Assert.False(OcrAdvice.IsOcr(new MMW.Core.Media.ImportChoice(MMW.Core.Media.ImportAction.ConvertToTx3g, "Tx3g")));
         Assert.Contains("Subtitle Edit", OcrAdvice.Warning, StringComparison.Ordinal);
     }

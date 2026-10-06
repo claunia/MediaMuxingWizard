@@ -105,10 +105,15 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
     private readonly DocumentViewModel _document;
     private readonly IReadOnlyList<string> _paths;
 
-    public ImportDialogViewModel(DocumentViewModel document, IReadOnlyList<string> paths)
+    private readonly Services.IDialogService? _dialogs;
+    private readonly Services.AppSettings? _settings;
+
+    public ImportDialogViewModel(DocumentViewModel document, IReadOnlyList<string> paths, Services.IDialogService? dialogs = null, Services.AppSettings? settings = null)
     {
         _document = document;
         _paths = paths;
+        _dialogs = dialogs;
+        _settings = settings;
     }
 
     public override string Title => "Import Tracks";
@@ -187,6 +192,16 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
         foreach (var t in AllTracks)
             t.Commit();
         var selected = AllTracks.Where(t => t.Track.Selected).Select(t => t.Track).ToList();
+
+        // OCR needs the language models of the subtitle tracks.
+        var ocr = selected.Where(t => t.Choice?.Ocr == true).ToList();
+        if (ocr.Count > 0 && _dialogs is not null && _settings is not null)
+        {
+            if (!await OcrAdvice.EnsureModelsAsync(_dialogs, _settings, ocr.Select(t => t.Language)))
+                return;
+            foreach (var t in ocr)
+                t.Ocr = OcrAdvice.Options(_settings);
+        }
 
         using (_document.Undo.Transaction("Import Tracks"))
         {
