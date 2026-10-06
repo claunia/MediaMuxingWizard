@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.claunia.MediaMetadataWizard</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Media Metadata Wizard</name>
+  <summary>Edit tags, artwork, chapters and tracks of MP4 and Matroska files</summary>
+  <developer id="com.claunia">
+    <name>Natalia Portillo</name>
+  </developer>
+  <description>
+    <p>
+      Media Metadata Wizard edits the metadata of MP4 (M4V, M4A, M4B) and Matroska (MKV, MKA, WebM) files
+      without re-encoding: iTunes-style tags, cover art, chapters, track names, languages, alternate groups,
+      fallbacks and accessibility characteristics. A batch queue applies the same changes to many files.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.claunia.MediaMetadataWizard.desktop</launchable>
+  <provides>
+    <binary>MediaMetadataWizard</binary>
+    <binary>mmw</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+</component>

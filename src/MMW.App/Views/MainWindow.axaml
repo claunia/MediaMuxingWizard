@@ -5,7 +5,7 @@
         xmlns:views="using:MMW.App.Views"
         x:Class="MMW.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/app.ico"
         Title="{Binding SelectedDocument.Title, StringFormat='{}{0} — Media Metadata Wizard', FallbackValue='Media Metadata Wizard', TargetNullValue='Media Metadata Wizard'}"
         Width="1100" Height="760" MinWidth="720" MinHeight="480"
         DragDrop.AllowDrop="True">

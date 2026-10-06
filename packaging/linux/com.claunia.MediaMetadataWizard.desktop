@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Media Metadata Wizard
+GenericName=Video Metadata Editor
+Comment=Edit tags, artwork, chapters and tracks of MP4 and Matroska files
+Exec=MediaMetadataWizard %F
+Icon=com.claunia.MediaMetadataWizard
+Terminal=false
+Categories=AudioVideo;Video;AudioVideoEditing;
+Keywords=mp4;m4v;mkv;matroska;tags;metadata;chapters;subler;
+MimeType=video/mp4;video/x-m4v;audio/mp4;audio/x-m4a;audio/x-m4b;video/quicktime;video/x-matroska;audio/x-matroska;video/webm;
+StartupWMClass=MediaMetadataWizard
