@@ -58,6 +58,8 @@
         <MenuItem Header="_Search Online…" Command="{Binding SearchMetadataCommand}" InputGesture="{x:Static app:Gestures.Search}" />
       </MenuItem>
       <MenuItem Header="_Tracks" IsEnabled="{Binding HasDocument}">
+        <MenuItem Header="_Import…" Command="{Binding ImportTracksCommand}" InputGesture="{x:Static app:Gestures.Import}" />
+        <Separator />
         <MenuItem Header="_Delete Selected Tracks" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" InputGesture="{x:Static app:Gestures.Delete}" />
         <MenuItem Header="Move Track _Up" Command="{Binding SelectedDocument.MoveTrackUpCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="Move Track Do_wn" Command="{Binding SelectedDocument.MoveTrackDownCommand, FallbackValue={x:Null}}" />
@@ -108,7 +110,7 @@
           <StackPanel><PathIcon Data="{StaticResource IconSave}" /><TextBlock Classes="caption" Text="Save" /></StackPanel>
         </Button>
         <Rectangle Width="1" Margin="6,6" Fill="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-        <Button Classes="toolbar" IsEnabled="False" AutomationProperties.Name="Import tracks from other files (coming with muxing support)" ToolTip.Tip="Import tracks from other files (coming with muxing support)">
+        <Button Classes="toolbar" Command="{Binding ImportTracksCommand}" IsEnabled="{Binding HasDocument}" HotKey="{x:Static app:Gestures.Import}" AutomationProperties.Name="Import tracks from other files" ToolTip.Tip="Import tracks from other files">
           <StackPanel><PathIcon Data="{StaticResource IconImport}" /><TextBlock Classes="caption" Text="Import" /></StackPanel>
         </Button>
         <Button Classes="toolbar" Command="{Binding SelectedDocument.DeleteTracksCommand, FallbackValue={x:Null}}" IsEnabled="{Binding HasDocument}" AutomationProperties.Name="Delete the selected tracks" ToolTip.Tip="Delete the selected tracks">

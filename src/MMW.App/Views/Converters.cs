@@ -10,6 +10,18 @@ public static class Converters
 
     public static readonly IValueConverter ChapterTime = new ChapterTimeConverter();
 
+    /// <summary>Icon for a track kind.</summary>
+    public static readonly IValueConverter KindIcon = new FuncValueConverter<Core.Model.TrackKind, Avalonia.Media.Geometry?>(kind =>
+        IconResource.Convert(kind switch
+        {
+            Core.Model.TrackKind.Video => "IconFilm",
+            Core.Model.TrackKind.Audio => "IconAudio",
+            Core.Model.TrackKind.Subtitle => "IconSubtitles",
+            Core.Model.TrackKind.ClosedCaption => "IconCaptions",
+            Core.Model.TrackKind.Chapters => "IconChapters",
+            _ => "IconAction",
+        }, typeof(Avalonia.Media.Geometry), null, System.Globalization.CultureInfo.InvariantCulture) as Avalonia.Media.Geometry);
+
     /// <summary>Looks up a geometry resource (e.g. "IconAudio") by key.</summary>
     public static readonly IValueConverter IconResource = new FuncValueConverter<string?, Avalonia.Media.Geometry?>(key =>
         key is not null && Avalonia.Application.Current?.TryFindResource(key, out var value) == true ? value as Avalonia.Media.Geometry : null);

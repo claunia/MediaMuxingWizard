@@ -16,6 +16,7 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            MMW.Media.Remux.MediaRemux.EnsureRegistered();
             var settings = new SettingsService();
             RequestedThemeVariant = settings.Settings.Theme switch
             {

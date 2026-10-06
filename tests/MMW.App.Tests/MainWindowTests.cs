@@ -238,3 +238,48 @@ public class QueueWindowTests
         }
     }
 }
+
+public class ImportTests
+{
+    [AvaloniaFact]
+    public async Task Importing_an_srt_adds_a_subtitle_track_that_is_saved()
+    {
+        var fixture = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(fixture))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var srt = Path.Combine(dir, "extra.fr.srt");
+        await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nBonjour\n\n2\n00:00:01,500 --> 00:00:02,500\nAu revoir\n", TestContext.Current.CancellationToken);
+        var main = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), new SettingsService(Path.Combine(dir, "settings.json")));
+        var media = Fixtures.CopyToTemp(fixture);
+        await main.OpenPathsAsync([media]);
+        var doc = main.Documents.Single();
+        var before = doc.Document.Tracks.OfType<SubtitleTrack>().Count();
+
+        var dialog = new ImportDialogViewModel(doc, [srt]);
+        await dialog.LoadAsync();
+        var track = Assert.Single(dialog.AllTracks);
+        Assert.True(track.CanImport);
+        track.Selected = true;
+        track.Language = MMW.Core.Languages.LanguageTable.Find("fr")!;
+
+        var window = new Window { Content = new ImportDialogView { DataContext = dialog }, Width = 940, Height = 580 };
+        window.Show();
+        Dispatcher.UIThread.RunJobs();
+        var shots = Environment.GetEnvironmentVariable("MMW_SCREENSHOTS") ?? Path.Combine(Path.GetTempPath(), "mmw-screenshots");
+        Directory.CreateDirectory(shots);
+        window.CaptureRenderedFrame()?.Save(Path.Combine(shots, "10-import.png"));
+
+        await dialog.ImportCommand.ExecuteAsync(null);
+        Assert.Equal(before + 1, doc.Document.Tracks.OfType<SubtitleTrack>().Count());
+        Assert.Contains(doc.Rows, r => r.IdText == "na");
+
+        Assert.True(await doc.Save());
+        var reread = await new MMW.Formats.Mp4.Mp4Handler().ReadAsync(media, TestContext.Current.CancellationToken);
+        Assert.Equal(before + 1, reread.Tracks.OfType<SubtitleTrack>().Count());
+        Assert.Contains(reread.Tracks.OfType<SubtitleTrack>(), s => s.Language == "fr");
+        Assert.DoesNotContain(doc.Rows, r => r.IdText == "na");
+    }
+}

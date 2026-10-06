@@ -12,7 +12,7 @@
       <TextBlock Grid.Row="1" Text="Format:" Classes="label" />
       <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}" HorizontalAlignment="Stretch" />
     </Grid>
-    <StackPanel Spacing="4" IsVisible="{Binding IsMp4}">
+    <StackPanel Spacing="4" IsVisible="{Binding TargetIsMp4}">
       <CheckBox Content="Optimize (interleave and put the header first for streaming)" IsChecked="{Binding Optimize}" />
       <CheckBox Content="64-bit chunk offsets (needed for files larger than 4 GB)" IsChecked="{Binding Use64BitOffsets}" />
       <CheckBox Content="64-bit times" IsChecked="{Binding Use64BitTimes}" />

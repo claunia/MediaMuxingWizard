@@ -13,6 +13,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private static readonly string[] s_imageExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif"];
     private static readonly string[] s_chapterExtensions = [".txt", ".csv"];
 
+    /// <summary>Files that only contain tracks (no document of their own): dropping them imports into the open document.</summary>
+    private static readonly string[] s_trackExtensions = [".srt", ".ass", ".ssa", ".vtt", ".aac", ".ac3", ".eac3", ".ec3", ".264", ".h264", ".265", ".h265", ".hevc"];
+
     private readonly DocumentService _documents;
     private readonly IDialogService _dialogs;
     private readonly ISettingsService _settings;
@@ -31,6 +34,27 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Online metadata search (null in tests that do not need it).</summary>
     public MetadataService? Metadata { get; }
+
+    [RelayCommand]
+    private async Task ImportTracks()
+    {
+        if (SelectedDocument is null)
+            return;
+        var filter = new FileFilter("Importable files", MMW.Media.Remux.MediaRemux.ImportExtensions.Select(e => e.TrimStart('.')).ToList());
+        var files = await _dialogs.OpenFilesAsync("Import Tracks", [filter, FileFilters.All], allowMultiple: true);
+        if (files.Count > 0)
+            await ImportIntoSelectedAsync(files);
+    }
+
+    /// <summary>Shows the import dialog for <paramref name="files"/> and the current document.</summary>
+    public async Task ImportIntoSelectedAsync(IReadOnlyList<string> files)
+    {
+        if (SelectedDocument is not { } doc)
+            return;
+        var dialog = new ImportDialogViewModel(doc, files);
+        _ = dialog.LoadAsync();
+        await _dialogs.ShowDialogAsync(dialog);
+    }
 
     [RelayCommand]
     private async Task SearchMetadata()
@@ -125,6 +149,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                     await _dialogs.ShowMessageAsync("Could not import NFO", ex.Message);
                 }
 
+                continue;
+            }
+
+            if (SelectedDocument is not null && s_trackExtensions.Contains(ext))
+            {
+                await ImportIntoSelectedAsync([path]);
                 continue;
             }
 

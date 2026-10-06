@@ -15,9 +15,12 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
     {
         _dialogs = dialogs;
         IsMp4 = document.Container == ContainerKind.Mp4;
-        Formats = IsMp4
-            ? [new(".m4v", "MPEG-4 Video (.m4v)"), new(".mp4", "MPEG-4 (.mp4)"), new(".m4a", "MPEG-4 Audio (.m4a)"), new(".m4b", "Audiobook (.m4b)"), new(".m4r", "Ringtone (.m4r)")]
-            : [new(".mkv", "Matroska (.mkv)"), new(".mka", "Matroska Audio (.mka)"), new(".webm", "WebM (.webm)")];
+        IReadOnlyList<Choice<string>> mp4 =
+            [new(".m4v", "MPEG-4 Video (.m4v)"), new(".mp4", "MPEG-4 (.mp4)"), new(".m4a", "MPEG-4 Audio (.m4a)"), new(".m4b", "Audiobook (.m4b)"), new(".m4r", "Ringtone (.m4r)")];
+        IReadOnlyList<Choice<string>> mkv = [new(".mkv", "Matroska (.mkv)"), new(".mka", "Matroska Audio (.mka)"), new(".webm", "WebM (.webm)")];
+
+        // Saving to the other container family remuxes the file (no re-encoding).
+        Formats = IsMp4 ? [.. mp4, .. mkv] : [.. mkv, .. mp4];
 
         var source = document.Path ?? "Untitled.m4v";
         var ext = System.IO.Path.GetExtension(source).ToLowerInvariant();
@@ -35,6 +38,9 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
     public override string Title => "Save As";
 
     public bool IsMp4 { get; }
+
+    /// <summary>True when the chosen format is MPEG-4 (MP4 save options apply).</summary>
+    public bool TargetIsMp4 => SelectedFormat.Value is ".m4v" or ".mp4" or ".m4a" or ".m4b" or ".m4r";
 
     public IReadOnlyList<Choice<string>> Formats { get; }
 
@@ -56,6 +62,7 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
 
     partial void OnSelectedFormatChanged(Choice<string> value)
     {
+        OnPropertyChanged(nameof(TargetIsMp4));
         if (!string.IsNullOrEmpty(Path))
             Path = System.IO.Path.ChangeExtension(Path, value.Value);
     }
