@@ -229,7 +229,7 @@ public static partial class FileNameParser
     [GeneratedRegex(@"(?<![A-Za-z])S(?<s>\d{1,2})" + Sep + @"+(?:Episode|Ep\.?)" + Sep + @"*(?<e>\d{1,4})(?!\d)", RegexOptions.IgnoreCase)]
     private static partial Regex SeasonOnlyEpisodeWord();
 
-    [GeneratedRegex(@"(?<![A-Za-z0-9])(?:Episode|Ep\.?|E)" + Sep + @"*(?<e>\d{1,4})(?![\dp])", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(?<![A-Za-z0-9])(?:Episode|Ep\.?|E)" + Sep + @"*(?<e>\d{1,4})(?![\dA-Za-z])", RegexOptions.IgnoreCase)]
     private static partial Regex EpisodeOnly();
 
     [GeneratedRegex(@"(?<!\d)(?<y>(?:19|20)\d{2})[.\-_ ](?<m>0[1-9]|1[0-2])[.\-_ ](?<d>0[1-9]|[12]\d|3[01])(?!\d)")]
