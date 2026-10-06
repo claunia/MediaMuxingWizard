@@ -1,0 +1,35 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install ffmpeg and mkvtoolnix (test fixtures only)
+        shell: bash
+        run: |
+          case "${{ runner.os }}" in
+            Linux)   sudo apt-get update && sudo apt-get install -y ffmpeg mkvtoolnix ;;
+            macOS)   brew install ffmpeg mkvtoolnix ;;
+            Windows) choco install -y ffmpeg mkvtoolnix && echo "C:\Program Files\MKVToolNix" >> $GITHUB_PATH ;;
+          esac
+
+      - name: Build
+        run: dotnet build MediaMetadataWizard.slnx -c Release
+
+      - name: Test
+        run: dotnet test --solution MediaMetadataWizard.slnx -c Release --no-build
