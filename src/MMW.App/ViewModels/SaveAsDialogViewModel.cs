@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MMW.App.Services;
+using MMW.Core.Metadata;
 using MMW.Core.Model;
 
 namespace MMW.App.ViewModels;
@@ -21,8 +22,11 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
         var source = document.Path ?? "Untitled.m4v";
         var ext = System.IO.Path.GetExtension(source).ToLowerInvariant();
         _selectedFormat = Formats.FirstOrDefault(f => f.Value == ext) ?? Formats[0];
-        _path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(source) ?? string.Empty,
-            System.IO.Path.GetFileNameWithoutExtension(source) + " copy" + _selectedFormat.Value);
+        var baseName = settings.UseFileNameFormat
+            ? FileNameFormatter.FormatFor(document.Metadata, settings.MovieFileNameFormat, settings.TvFileNameFormat)
+            : null;
+        baseName ??= System.IO.Path.GetFileNameWithoutExtension(source) + " copy";
+        _path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(source) ?? string.Empty, baseName + _selectedFormat.Value);
         _optimize = settings.OptimizeOnSave;
         _use64BitOffsets = settings.Use64BitOffsets || document.FileSize > 3_900_000_000L;
         _use64BitTimes = settings.Use64BitTimes;

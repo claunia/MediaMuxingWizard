@@ -38,6 +38,13 @@ public sealed class AppSettings
 
     public bool LogIncludesDate { get; set; }
 
+    // File naming
+    public bool UseFileNameFormat { get; set; } = true;
+
+    public string MovieFileNameFormat { get; set; } = FileNameFormatter.DefaultMovieFormat;
+
+    public string TvFileNameFormat { get; set; } = FileNameFormatter.DefaultTvFormat;
+
     public const int MaxRecentFiles = 15;
 
     public void AddRecent(string path)

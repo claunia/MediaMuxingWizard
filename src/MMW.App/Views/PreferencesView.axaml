@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MMW.App.ViewModels"
+             xmlns:md="using:MMW.Core.Metadata"
+             x:Class="MMW.App.Views.PreferencesView"
+             x:DataType="vm:PreferencesViewModel">
+  <DockPanel Width="620" Height="440">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,12,0,0">
+      <Button Content="Cancel" Command="{Binding CancelCommand}" MinWidth="80" />
+      <Button Content="OK" Command="{Binding AcceptCommand}" IsDefault="True" Classes="accent" MinWidth="80" />
+    </StackPanel>
+    <TabControl>
+      <TabItem Header="General">
+        <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" Margin="0,12">
+          <TextBlock Text="Appearance:" Classes="label" />
+          <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.Themes}" SelectedItem="{Binding Theme}" MinWidth="220" />
+          <TextBlock Grid.Row="1" Text="Window:" Classes="label" />
+          <CheckBox Grid.Row="1" Grid.Column="1" Content="Remember size" IsChecked="{Binding RememberWindowSize}" />
+          <TextBlock Grid.Row="2" Text="Show ratings for:" Classes="label" />
+          <StackPanel Grid.Row="2" Grid.Column="1" Spacing="4">
+            <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.RatingCountries}" SelectedItem="{Binding RatingsCountry}" MinWidth="220" />
+            <TextBlock Text="USA ratings are always shown." Classes="dim" FontSize="12" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
+      <TabItem Header="Saving">
+        <StackPanel Spacing="8" Margin="0,12">
+          <CheckBox Content="Optimize when saving (interleave, header first)" IsChecked="{Binding OptimizeOnSave}" />
+          <CheckBox Content="Always use 64-bit chunk offsets (automatic above 4 GB)" IsChecked="{Binding Use64BitOffsets}" />
+          <CheckBox Content="Use 64-bit times" IsChecked="{Binding Use64BitTimes}" />
+        </StackPanel>
+      </TabItem>
+      <TabItem Header="Sets">
+        <DockPanel Margin="0,12">
+          <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="4" Margin="0,8,0,0">
+            <Button Classes="icon" Command="{Binding RemovePresetCommand}" ToolTip.Tip="Remove the selected set"><PathIcon Data="{StaticResource IconDelete}" /></Button>
+            <Button Classes="icon" Command="{Binding MovePresetUpCommand}" ToolTip.Tip="Move up (sets 1–9 have keyboard shortcuts)"><PathIcon Data="{StaticResource IconUp}" /></Button>
+          </StackPanel>
+          <TextBlock DockPanel.Dock="Top" Text="Saved sets are applied from the Sets button in the metadata inspector." Classes="dim" Margin="0,0,0,8" />
+          <ListBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="md:MetadataPreset">
+                <StackPanel>
+                  <TextBlock Text="{Binding Name}" />
+                  <TextBlock Classes="dim" FontSize="11" Text="{Binding Values.Count, StringFormat='{}{0} tags'}" />
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+      </TabItem>
+      <TabItem Header="File Name">
+        <StackPanel Spacing="10" Margin="0,12">
+          <CheckBox Content="Name saved files from their tags" IsChecked="{Binding UseFileNameFormat}" />
+          <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6" IsEnabled="{Binding UseFileNameFormat}">
+            <TextBlock Text="Movies:" Classes="label" />
+            <TextBox Grid.Column="1" Text="{Binding MovieFormat}" FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MoviePreview}" Classes="dim" FontSize="12" />
+            <TextBlock Grid.Row="2" Text="TV shows:" Classes="label" />
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TvFormat}" FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TvPreview}" Classes="dim" FontSize="12" />
+          </Grid>
+          <TextBlock TextWrapping="Wrap" Classes="dim" FontSize="12"
+                     Text="Use {Tag Name} tokens. Add :00 for leading zeros, :yyyy for a date's year, and |upper, |lower, |capitalize, |camel, |snake, |train or |dot to change case." />
+          <Button Content="Restore Defaults" Command="{Binding RestoreFormatsCommand}" HorizontalAlignment="Left" />
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

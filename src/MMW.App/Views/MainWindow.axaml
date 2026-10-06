@@ -41,6 +41,8 @@
         <MenuItem Header="_Save" Command="{Binding SelectedDocument.SaveCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.Save}" InputGesture="{x:Static app:Gestures.Save}" IsEnabled="{Binding HasDocument}" />
         <MenuItem Header="Save _As…" Command="{Binding SelectedDocument.SaveAsCommand, FallbackValue={x:Null}}" HotKey="{x:Static app:Gestures.SaveAs}" InputGesture="{x:Static app:Gestures.SaveAs}" IsEnabled="{Binding HasDocument}" />
         <Separator />
+        <MenuItem Header="_Preferences…" Command="{Binding PreferencesCommand}" />
+        <Separator />
         <MenuItem Header="E_xit" Click="OnExitClick" InputGesture="{x:Static app:Gestures.Quit}" />
       </MenuItem>
       <MenuItem Header="_Edit" IsEnabled="{Binding HasDocument}">

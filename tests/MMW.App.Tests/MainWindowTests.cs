@@ -172,3 +172,28 @@ public class DocumentActionTests
         Assert.Equal(["en", "fr"], audio.Select(a => a.Language));
     }
 }
+
+public class PreferencesTests
+{
+    [AvaloniaFact]
+    public void Preferences_render_and_apply_changes()
+    {
+        var settings = new AppSettings();
+        var vm = new PreferencesViewModel(settings);
+        var window = new Window { Content = new PreferencesView { DataContext = vm }, Width = 700, Height = 540 };
+        window.Show();
+
+        vm.TvFormat = "{TV Show|dot}.S{TV Season:00}E{TV Episode #:00}";
+        Assert.Equal("The.Show.S01E02.m4v", vm.TvPreview);
+        vm.RatingsCountry = "UK";
+        vm.AcceptCommand.Execute(null);
+
+        Assert.Equal("UK", settings.RatingsCountry);
+        Assert.Equal("{TV Show|dot}.S{TV Season:00}E{TV Episode #:00}", settings.TvFileNameFormat);
+
+        Dispatcher.UIThread.RunJobs();
+        var dir = Environment.GetEnvironmentVariable("MMW_SCREENSHOTS") ?? Path.Combine(Path.GetTempPath(), "mmw-screenshots");
+        Directory.CreateDirectory(dir);
+        window.CaptureRenderedFrame()?.Save(Path.Combine(dir, "07-preferences.png"));
+    }
+}

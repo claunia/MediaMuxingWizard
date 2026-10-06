@@ -226,6 +226,9 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         Rebuild();
     }
 
+    /// <summary>Refreshes menus and pickers after the preferences changed (sets, ratings country).</summary>
+    public void SettingsChanged() => Rebuild();
+
     /// <summary>Applies the n-th user preset (Ctrl/Cmd+1…9).</summary>
     public void ApplyPresetAt(int index)
     {

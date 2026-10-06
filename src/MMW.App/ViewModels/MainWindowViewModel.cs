@@ -186,6 +186,27 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task Preferences()
+    {
+        if (await _dialogs.ShowDialogAsync(new PreferencesViewModel(Settings)))
+        {
+            _settings.Save();
+            if (Avalonia.Application.Current is { } app)
+            {
+                app.RequestedThemeVariant = Settings.Theme switch
+                {
+                    ThemeChoice.Light => Avalonia.Styling.ThemeVariant.Light,
+                    ThemeChoice.Dark => Avalonia.Styling.ThemeVariant.Dark,
+                    _ => Avalonia.Styling.ThemeVariant.Default,
+                };
+            }
+
+            foreach (var doc in Documents)
+                doc.MetadataInspector.SettingsChanged();
+        }
+    }
+
+    [RelayCommand]
     private async Task About() =>
         await _dialogs.ShowMessageAsync("About " + AppTitle,
             $"{AppTitle} {typeof(MainWindowViewModel).Assembly.GetName().Version?.ToString(3)}\n\n" +
