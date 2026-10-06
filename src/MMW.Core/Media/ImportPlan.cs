@@ -14,14 +14,30 @@ public enum ImportAction
     /// <summary>Convert text subtitles to SubRip text (Matroska S_TEXT/UTF8).</summary>
     ConvertToSrt,
 
-    /// <summary>Transcode audio to AAC (not implemented yet).</summary>
+    /// <summary>
+    /// Transcode audio to AAC with the mixdown of <see cref="TrackImportOptions.Conversion"/> (requires the registered
+    /// <see cref="IAudioConverterFactory"/>, i.e. FFmpeg).
+    /// </summary>
     ConvertToAac,
 
-    /// <summary>Transcode audio to AC-3 (not implemented yet).</summary>
+    /// <summary>Transcode audio to AC-3 (multichannel up to 5.1; requires FFmpeg).</summary>
     ConvertToAc3,
 
     /// <summary>Do not import the track.</summary>
     Skip,
+
+    /// <summary>
+    /// Subler's "AAC + Passthru": the track is kept unchanged (disabled) and an AAC conversion of it is added before it
+    /// (enabled, same alternate group); the original's fallback (MP4 <c>tref/fall</c>) points at the AAC track. The
+    /// document is expanded into the two tracks by <see cref="TrackConversions.Expand"/>.
+    /// </summary>
+    AacPlusPassthrough,
+
+    /// <summary>
+    /// Subler's "AAC + AC3": like <see cref="AacPlusPassthrough"/>, but the original is converted to AC-3 instead of
+    /// being copied (for DTS and other codecs Apple devices cannot play).
+    /// </summary>
+    AacPlusAc3,
 }
 
 /// <summary>How well a container can store a codec.</summary>
@@ -58,6 +74,9 @@ public sealed record TrackImportOptions
 
     /// <summary>Frame rate for raw video streams without timing (H.264/HEVC Annex B).</summary>
     public double? FrameRate { get; init; }
+
+    /// <summary>Audio conversion settings for the conversion actions (null = <see cref="AudioConversionSettings.Default"/>).</summary>
+    public AudioConversionSettings? Conversion { get; init; }
 }
 
 /// <summary>One track to take from a source file.</summary>
@@ -68,6 +87,9 @@ public sealed record TrackImport(string SourcePath, uint TrackId, ImportAction A
 {
     /// <summary>Frame rate for raw H.264/HEVC streams.</summary>
     public double? FrameRate { get; init; }
+
+    /// <summary>Audio conversion settings for the conversion actions.</summary>
+    public AudioConversionSettings? Conversion { get; init; }
 }
 
 /// <summary>The tracks a save will read, grouped by source file.</summary>
@@ -94,6 +116,7 @@ public sealed class ImportPlan
             plan.Add(new TrackImport(source.Path, source.TrackId, source.Import?.Action ?? ImportAction.Passthrough)
             {
                 FrameRate = source.Import?.FrameRate,
+                Conversion = source.Import?.Conversion,
             });
         }
 

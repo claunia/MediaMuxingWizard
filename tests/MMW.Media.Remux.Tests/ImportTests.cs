@@ -226,21 +226,41 @@ public sealed class ImportTests
         var mkv = Fixtures.Get("remux-vorbis-pcm.mkv", "ffmpeg",
             "-v error -y -f lavfi -i sine=d=1 -f lavfi -i sine=d=1 -map 0:a -map 1:a -ac 2 -c:a:0 vorbis -strict experimental -c:a:1 pcm_s16le {out}");
         var forMp4 = await TrackImporter.InspectAsync(mkv, ContainerKind.Mp4, Ct);
+        var canConvert = MediaFormatRegistry.AvailableAudioConverter is not null;
         Assert.All(forMp4, t =>
         {
             Assert.True(t.ConversionRequired);
-            Assert.Equal(ImportAction.ConvertToAac, t.Action);
-            Assert.False(t.Selected);
             Assert.NotNull(t.Support.Reason);
+            Assert.Equal(canConvert, t.CanConvert);
+            Assert.Equal(canConvert ? ImportAction.ConvertToAac : ImportAction.Skip, t.Action);
+            Assert.Equal(canConvert, t.Selected);
+            Assert.Equal(ImportAction.Skip, t.Choices[^1].Action);
         });
         var forMkv = await TrackImporter.InspectAsync(mkv, ContainerKind.Matroska, Ct);
         Assert.All(forMkv, t => Assert.Equal(TrackSupportLevel.Passthrough, t.Support.Level));
 
-        // Saving a track that needs a conversion fails cleanly.
+        // With FFmpeg the tracks are converted to AAC; without it, the save fails cleanly.
         var output = MediaProbe.TempPath(".mp4");
-        var doc = new MediaDocument(null, ContainerKind.Mp4);
-        TrackImporter.AddToDocument(doc, forMp4);
-        await Assert.ThrowsAsync<NotSupportedException>(() => Mp4.SaveAsync(doc, new SaveOptions { OutputPath = output }, cancellationToken: Ct));
-        Assert.False(File.Exists(output));
+        try
+        {
+            var doc = new MediaDocument(null, ContainerKind.Mp4);
+            foreach (var t in forMp4)
+                t.Action = ImportAction.ConvertToAac;
+            TrackImporter.AddToDocument(doc, forMp4);
+            if (canConvert)
+            {
+                await Mp4.SaveAsync(doc, new SaveOptions { OutputPath = output }, cancellationToken: Ct);
+                Assert.Equal(["aac", "aac"], MediaProbe.Streams(output).Select(s => s.Codec));
+            }
+            else
+            {
+                await Assert.ThrowsAsync<NotSupportedException>(() => Mp4.SaveAsync(doc, new SaveOptions { OutputPath = output }, cancellationToken: Ct));
+                Assert.False(File.Exists(output));
+            }
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
     }
 }

@@ -5,6 +5,7 @@ using MMW.Core.Model;
 using MMW.Formats.Elementary;
 using MMW.Formats.Matroska.Media;
 using MMW.Formats.Mp4.Media;
+using MMW.Media.Conversion;
 
 namespace MMW.Media.Remux;
 
@@ -12,14 +13,17 @@ namespace MMW.Media.Remux;
 public static class MediaRemux
 {
     /// <summary>
-    /// Registers the MP4, Matroska and elementary stream formats (idempotent). The MP4 and Matroska handlers register
-    /// their own formats; call this at start-up so files imported from elementary streams can be remuxed too.
+    /// Registers the MP4, Matroska and elementary stream formats and the FFmpeg audio converter (idempotent). The MP4
+    /// and Matroska handlers register their own formats; call this at start-up so files imported from elementary
+    /// streams can be remuxed and audio conversions are offered. FFmpeg itself is loaded lazily (a missing FFmpeg only
+    /// disables the conversion actions).
     /// </summary>
     public static void EnsureRegistered()
     {
         Mp4MediaFormat.Register();
         MatroskaMediaFormat.Register();
         ElementaryFormat.Register();
+        MediaConversion.Register();
     }
 
     /// <summary>Every file extension that can be inspected for tracks to import.</summary>
@@ -59,11 +63,40 @@ public sealed class ImportableTrack
     /// <summary>How the document's container can store the track.</summary>
     public required TrackSupport Support { get; init; }
 
-    /// <summary>True when the track can only be imported after a conversion that is not available yet.</summary>
+    /// <summary>True when the container cannot store the track as is: it needs one of the conversion actions.</summary>
     public bool ConversionRequired => Support.Level == TrackSupportLevel.NeedsConversion;
+
+    /// <summary>True when the audio converter (FFmpeg) can convert this track (the conversion actions are offered).</summary>
+    public bool CanConvert { get; init; }
+
+    /// <summary>
+    /// The actions to offer, with Subler's labels ("Passthru", "AAC - Dolby Pro Logic II", …, "AAC + Passthru",
+    /// "AAC + AC3", "Skip"/"Not available"); the last entry is always <see cref="ImportAction.Skip"/>.
+    /// </summary>
+    public IReadOnlyList<ImportChoice> Choices { get; init; } = [];
+
+    /// <summary>
+    /// The chosen entry of <see cref="Choices"/>. Setting it updates <see cref="Action"/> and the mixdown of
+    /// <see cref="Conversion"/>.
+    /// </summary>
+    public ImportChoice? Choice
+    {
+        get => field;
+        set
+        {
+            field = value;
+            if (value is null)
+                return;
+            Action = value.Action;
+            Conversion = value.SettingsFrom(Conversion ?? ConversionDefaults.Settings);
+        }
+    }
 
     /// <summary>The action to take (initially the suggested one).</summary>
     public ImportAction Action { get; set; }
+
+    /// <summary>Conversion settings for the conversion actions (bitrate, DRC, mixdown); null for other actions.</summary>
+    public AudioConversionSettings? Conversion { get; set; }
 
     /// <summary>Raw H.264/HEVC without timing: the frame rate the UI should ask for.</summary>
     public bool RequiresFrameRate { get; init; }
@@ -107,6 +140,9 @@ public static class TrackImporter
             if (config.Kind is TrackKind.Chapters)
                 continue;
             var support = muxer.CheckSupport(config);
+            var canConvert = ConversionDefaults.CanConvert(config);
+            var choices = ConversionDefaults.Choices(config, support, target, canConvert);
+            var choice = ConversionDefaults.Suggest(config, support, target, choices);
             result.Add(new ImportableTrack
             {
                 SourcePath = full,
@@ -119,9 +155,11 @@ public static class TrackImporter
                 Language = string.IsNullOrWhiteSpace(config.Language) ? "und" : config.Language,
                 Name = config.Name,
                 Support = support,
-                Action = support.SuggestedAction,
+                CanConvert = canConvert,
+                Choices = choices,
+                Choice = choice,
                 RequiresFrameRate = needsRate && config.Kind == TrackKind.Video,
-                Selected = support.CanMux,
+                Selected = support.CanMux || ConversionDefaults.IsConversion(choice.Action),
             });
         }
 
@@ -157,6 +195,10 @@ public static class TrackImporter
                 document.Tracks.Insert(chapterIndex, track);
             else
                 document.Tracks.Add(track);
+
+            // "AAC + Passthru" / "AAC + AC3": the AAC track is inserted before the original.
+            if (item.Action is ImportAction.AacPlusPassthrough or ImportAction.AacPlusAc3)
+                added.AddRange(TrackConversions.SetAction(document, track, item.Action, item.Conversion));
             added.Add(track);
         }
 
@@ -216,10 +258,26 @@ public static class TrackImporter
         track.FormatDetails = item.Details;
         track.Duration = item.Duration;
         track.Timescale = c.Timescale;
+        var conversion = ConversionDefaults.IsConversion(item.Action) ? item.Conversion ?? ConversionDefaults.Settings : null;
         track.Source = new TrackSource(item.SourcePath, item.SourceContainer, item.TrackId)
         {
-            Import = new TrackImportOptions { Action = item.Action, FrameRate = item.FrameRate },
+            Import = new TrackImportOptions { Action = item.Action, FrameRate = item.FrameRate, Conversion = conversion },
         };
+
+        // A converted track is shown with the codec, channels and rate it will have once saved.
+        if (conversion is not null && track is AudioTrack audio && item.Action is ImportAction.ConvertToAac or ImportAction.ConvertToAc3)
+        {
+            var output = conversion.PredictOutput(c, item.Action == ImportAction.ConvertToAac ? AudioConversionTarget.Aac : AudioConversionTarget.Ac3);
+            audio.Channels = output.Channels;
+            audio.SampleRate = output.SampleRate;
+            audio.ChannelLayout = TrackConversions.ChannelName(output.Channels);
+            audio.IsAtmos = false;
+            track.Format = output.FormatName;
+            track.CodecId = output.SourceCodecId;
+            track.FormatDetails = TrackConversions.Details(output.Channels, output.SampleRate);
+            track.Timescale = output.Timescale;
+        }
+
         return track;
     }
 

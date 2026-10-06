@@ -17,13 +17,15 @@ public static class RemuxPolicy
     }
 
     /// <summary>
-    /// True when a track is pending (not yet written) or its samples live in a file other than the document's.
+    /// True when a track is pending (not yet written), its samples live in a file other than the document's, or it
+    /// is to be converted (<see cref="ConversionDefaults.IsConversion"/>).
     /// </summary>
     public static bool HasImportedTracks(MediaDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
         return document.Tracks.Any(t => t is not ChapterTrack &&
-                                        (t.IsPending || (t.Source is { } s && (document.Path is null || !SamePath(s.Path, document.Path)))));
+                                        (t.IsPending || (t.Source is { } s && (document.Path is null || !SamePath(s.Path, document.Path)))))
+               || TrackConversions.HasConversions(document);
     }
 
     /// <summary>True when a track has a start offset to apply (only possible by rewriting the timeline).</summary>
@@ -57,6 +59,9 @@ public static class Remuxer
         var output = Path.GetFullPath(options.OutputPath ?? document.Path ?? throw new InvalidOperationException("The document has no destination path."));
         var factory = MediaFormatRegistry.GetMuxer(target) ??
                       throw new NotSupportedException($"Writing {target} files requires the remux component, which is not registered.");
+
+        // "AAC + Passthru" / "AAC + AC3" become two document tracks (on the caller's context: the document is changed).
+        TrackConversions.Expand(document);
         var tracks = document.Tracks.Where(t => t is not ChapterTrack && t.Source?.Import?.Action != ImportAction.Skip).ToList();
 
         // The heavy lifting runs off the caller's thread; the document is only read there.
@@ -105,7 +110,7 @@ public static class Remuxer
                     var sample = demuxer.Tracks.FirstOrDefault(t => t.TrackId == source.TrackId);
                     result.Add((track, sample is null
                         ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the track was not found in its source file")
-                        : factory.CheckSupport(sample.Config)));
+                        : CheckConverted(factory, sample.Config, source.Import)));
                 }
             }
             finally
@@ -117,6 +122,35 @@ public static class Remuxer
             return result;
         }, cancellationToken);
     }
+
+    /// <summary>Support of a track after its conversion action (if any) is applied.</summary>
+    private static TrackSupport CheckConverted(IMuxerFactory factory, CodecConfig config, TrackImportOptions? import)
+    {
+        var action = import?.Action ?? ImportAction.Passthrough;
+        if (ConversionTarget(action) is not { } target)
+            return factory.CheckSupport(config);
+
+        var label = ConversionDefaults.DisplayName(action, import?.Conversion?.Mixdown);
+        if (MediaFormatRegistry.AvailableAudioConverter is not { } converter)
+        {
+            var reason = MediaFormatRegistry.AudioConverter?.UnavailableReason ?? "no audio converter is installed";
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, action, $"converting to {label} is not available: {reason}");
+        }
+
+        if (!converter.CanDecode(config))
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, action, $"{config.FormatName} audio cannot be decoded by {converter.Name}");
+
+        var output = factory.CheckSupport((import?.Conversion ?? ConversionDefaults.Settings).PredictOutput(config, target));
+        return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, $"converted to {label}") : output;
+    }
+
+    /// <summary>The codec a single-track conversion action produces, or null for other actions.</summary>
+    private static AudioConversionTarget? ConversionTarget(ImportAction action) => action switch
+    {
+        ImportAction.ConvertToAac => AudioConversionTarget.Aac,
+        ImportAction.ConvertToAc3 => AudioConversionTarget.Ac3,
+        _ => null,
+    };
 
     private sealed class Output
     {
@@ -140,6 +174,20 @@ public static class Remuxer
         IProgress<double>? progress, CancellationToken ct)
     {
         var demuxers = new Dictionary<(string Path, double? FrameRate), IDemuxer>();
+        var extraDemuxers = new List<IDemuxer>();
+        var converters = new List<IDisposable>();
+        var used = new HashSet<(string Path, double? FrameRate, uint TrackId)>();
+        void Release()
+        {
+            foreach (var c in converters)
+                c.Dispose();
+            converters.Clear();
+            foreach (var d in demuxers.Values.Concat(extraDemuxers))
+                d.Dispose();
+            demuxers.Clear();
+            extraDemuxers.Clear();
+        }
+
         var directory = Path.GetDirectoryName(output)!;
         var temp = Path.Combine(directory, "." + Path.GetFileName(output) + "." + Guid.NewGuid().ToString("N")[..8] + ".tmp");
         try
@@ -150,11 +198,15 @@ public static class Remuxer
                 ct.ThrowIfCancellationRequested();
                 var source = track.Source ?? throw new InvalidOperationException($"Track '{track.Name}' ({track.Format}) has no source file.");
                 var action = source.Import?.Action ?? ImportAction.Passthrough;
-                if (action is ImportAction.ConvertToAac or ImportAction.ConvertToAc3)
-                    throw new NotSupportedException($"Converting '{track.Format}' audio to {(action == ImportAction.ConvertToAac ? "AAC" : "AC-3")} is not available yet.");
-
                 var key = (Path.GetFullPath(source.Path), source.Import?.FrameRate);
-                if (!demuxers.TryGetValue(key, out var demuxer))
+                IDemuxer? demuxer;
+                if (!used.Add((key.Item1, key.FrameRate, source.TrackId)))
+                {
+                    // The same source track feeds two outputs ("AAC + Passthru"): each needs its own read position.
+                    demuxer = MediaFormatRegistry.OpenDemuxer(key.Item1, new DemuxOptions { FrameRate = key.FrameRate });
+                    extraDemuxers.Add(demuxer);
+                }
+                else if (!demuxers.TryGetValue(key, out demuxer))
                 {
                     demuxer = MediaFormatRegistry.OpenDemuxer(key.Item1, new DemuxOptions { FrameRate = key.FrameRate });
                     demuxers.Add(key, demuxer);
@@ -162,11 +214,22 @@ public static class Remuxer
 
                 var sampleSource = demuxer.Tracks.FirstOrDefault(t => t.TrackId == source.TrackId) ??
                                    throw new InvalidDataException($"Track {source.TrackId} was not found in '{Path.GetFileName(source.Path)}'.");
-                var support = factory.CheckSupport(sampleSource.Config);
+                var support = CheckConverted(factory, sampleSource.Config, source.Import);
                 if (!support.CanMux)
                     throw new NotSupportedException($"{sampleSource.Config.FormatName} track '{track.Name}' cannot be written to {factory.Kind}: {support.Reason}");
 
                 sampleSource.Reset();
+                if (ConversionTarget(action) is { } target)
+                {
+                    var settings = source.Import?.Conversion ?? ConversionDefaults.Settings;
+                    var converter = MediaFormatRegistry.AvailableAudioConverter!.Create(sampleSource, target, settings);
+                    if (converter is IDisposable disposable)
+                        converters.Add(disposable);
+                    AppLog.Info($"Converting {sampleSource.Config.FormatName} track '{track.Name}' to {converter.Config.FormatName} " +
+                                $"({converter.Config.Channels} ch, {converter.Config.SampleRate} Hz).");
+                    sampleSource = converter;
+                }
+
                 outputs.Add(new Output { Model = track, Source = sampleSource, Timescale = Math.Max(1u, sampleSource.Config.Timescale) });
             }
 
@@ -217,16 +280,13 @@ public static class Remuxer
             }
 
             // Release the sources before replacing the destination (it may be one of them).
-            foreach (var d in demuxers.Values)
-                d.Dispose();
-            demuxers.Clear();
+            Release();
             File.Move(temp, output, overwrite: true);
             AppLog.Info($"Remuxed {tracks.Count} track(s) into '{Path.GetFileName(output)}'.");
         }
         catch
         {
-            foreach (var d in demuxers.Values)
-                d.Dispose();
+            Release();
             TryDelete(temp);
             throw;
         }

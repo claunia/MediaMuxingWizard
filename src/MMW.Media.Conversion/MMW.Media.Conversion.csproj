@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MMW.Media.Conversion</RootNamespace>
+    <!-- Pointer code is confined to the Interop folder (MMW.Media.Conversion.Interop). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FFmpeg.AutoGen" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMW.Core\MMW.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MMW.Media.Conversion.Tests" />
+  </ItemGroup>
+</Project>

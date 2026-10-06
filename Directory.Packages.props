@@ -13,6 +13,8 @@
     <PackageVersion Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
     <PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <!-- 8.1.0 binds libavcodec 62 / libavformat 62 / libavutil 60 / libswresample 6 / libswscale 9 (FFmpeg 8.1). -->
+    <PackageVersion Include="FFmpeg.AutoGen" Version="8.1.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.1" />
     <PackageVersion Include="xunit.v3.assert" Version="4.0.1" />
   </ItemGroup>

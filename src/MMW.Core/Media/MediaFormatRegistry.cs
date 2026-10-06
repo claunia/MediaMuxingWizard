@@ -10,6 +10,7 @@ public static class MediaFormatRegistry
     private static readonly Lock s_lock = new();
     private static readonly List<IDemuxerFactory> s_demuxers = [];
     private static readonly Dictionary<Model.ContainerKind, IMuxerFactory> s_muxers = [];
+    private static IAudioConverterFactory? s_audioConverter;
 
     /// <summary>Registers a demuxer factory (once per factory type).</summary>
     public static void Register(IDemuxerFactory factory)
@@ -29,6 +30,27 @@ public static class MediaFormatRegistry
         lock (s_lock)
             s_muxers[factory.Kind] = factory;
     }
+
+    /// <summary>Registers (or replaces) the audio converter used for the conversion import actions.</summary>
+    public static void Register(IAudioConverterFactory factory)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        lock (s_lock)
+            s_audioConverter = factory;
+    }
+
+    /// <summary>The registered audio converter, or null (check <see cref="IAudioConverterFactory.IsAvailable"/> too).</summary>
+    public static IAudioConverterFactory? AudioConverter
+    {
+        get
+        {
+            lock (s_lock)
+                return s_audioConverter;
+        }
+    }
+
+    /// <summary>The registered audio converter when it is available, otherwise null.</summary>
+    public static IAudioConverterFactory? AvailableAudioConverter => AudioConverter is { IsAvailable: true } c ? c : null;
 
     public static IReadOnlyList<IDemuxerFactory> Demuxers
     {
