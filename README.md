@@ -18,6 +18,13 @@ dotnet build MediaMetadataWizard.slnx
 dotnet run --project src/MMW.App
 ```
 
+## Metadata search API keys
+
+TheMovieDB and TheTVDB keys are read from `appsettings.json` next to the executable. Copy
+`appsettings.example.json` to `appsettings.json` at the repository root and fill in your keys; the build
+copies it to the output directory. The file is git-ignored, so keys are never committed. The environment
+variables `MMW_TMDB_API_KEY` and `MMW_TVDB_API_KEY` override the file.
+
 ## Tests
 
 ```sh

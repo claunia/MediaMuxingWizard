@@ -7,5 +7,6 @@ obj/
 TestResults/
 artifacts/
 tests/fixtures/generated/
-ApiKeys.props
+appsettings.json
+!appsettings.example.json
 .DS_Store

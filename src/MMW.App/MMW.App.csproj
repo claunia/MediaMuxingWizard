@@ -12,6 +12,12 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  <!-- API keys for metadata providers live in a git-ignored appsettings.json at the repository root
+       (copy appsettings.example.json); it is copied next to the executable when present. -->
+  <ItemGroup>
+    <None Include="..\..\appsettings.json" Condition="Exists('..\..\appsettings.json')" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
@@ -29,6 +35,7 @@
     <ProjectReference Include="..\MMW.Core\MMW.Core.csproj" />
     <ProjectReference Include="..\MMW.Formats.Mp4\MMW.Formats.Mp4.csproj" />
     <ProjectReference Include="..\MMW.Formats.Matroska\MMW.Formats.Matroska.csproj" />
+    <ProjectReference Include="..\MMW.Queue\MMW.Queue.csproj" />
   </ItemGroup>
 
   <ItemGroup>
