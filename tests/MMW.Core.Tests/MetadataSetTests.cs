@@ -100,3 +100,15 @@ public class MetadataSetTests
         Assert.Equal("Chinese (Simplified)", LanguageTable.DisplayName("zh-Hans"));
     }
 }
+
+public class RatingsTests
+{
+    [Fact]
+    public void Ratings_load_and_round_trip_through_their_encoding()
+    {
+        Assert.Contains("USA", Ratings.Countries);
+        var pg13 = Assert.Single(Ratings.All, r => r.Prefix == "mpaa" && r.Code == "PG-13");
+        Assert.Equal("mpaa|PG-13|300|", pg13.Encoded);
+        Assert.Same(pg13, Ratings.Find("mpaa|PG-13|300|Some annotation"));
+    }
+}

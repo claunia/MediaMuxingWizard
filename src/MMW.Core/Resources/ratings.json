@@ -1,0 +1,1484 @@
+[
+ {
+  "country": "USA",
+  "store": 143441,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "NR",
+    "value": "000",
+    "name": "NR"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "PG-13",
+    "value": "300",
+    "name": "PG-13"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "R",
+    "value": "400",
+    "name": "R"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "NC-17",
+    "value": "500",
+    "name": "NC-17"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mpaa",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "TV-Y",
+    "value": "100",
+    "name": "TV-Y"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "TV-Y7",
+    "value": "200",
+    "name": "TV-Y7"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "TV-G",
+    "value": "300",
+    "name": "TV-G"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "TV-PG",
+    "value": "400",
+    "name": "TV-PG"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "TV-14",
+    "value": "500",
+    "name": "TV-14"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "TV-MA",
+    "value": "600",
+    "name": "TV-MA"
+   },
+   {
+    "media": "TV",
+    "prefix": "us-tv",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   }
+  ]
+ },
+ {
+  "country": "Australia",
+  "store": 143460,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "au-movie",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie",
+    "prefix": "au-movie",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "Movie",
+    "prefix": "au-movie",
+    "code": "M",
+    "value": "350",
+    "name": "M"
+   },
+   {
+    "media": "Movie",
+    "prefix": "au-movie",
+    "code": "MA15+",
+    "value": "375",
+    "name": "MA15+"
+   },
+   {
+    "media": "Movie",
+    "prefix": "au-movie",
+    "code": "R18+",
+    "value": "400",
+    "name": "R18+"
+   },
+   {
+    "media": "Movie",
+    "prefix": "au-movie",
+    "code": "Not Rated",
+    "value": "???",
+    "name": "Not Rated"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "P",
+    "value": "100",
+    "name": "P"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "C",
+    "value": "200",
+    "name": "C"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "G",
+    "value": "300",
+    "name": "G"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "PG",
+    "value": "400",
+    "name": "PG"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "M",
+    "value": "500",
+    "name": "M"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "MA15+",
+    "value": "550",
+    "name": "MA15+"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "AV15+",
+    "value": "575",
+    "name": "AV15+"
+   },
+   {
+    "media": "TV",
+    "prefix": "au-tv",
+    "code": "R18+",
+    "value": "160",
+    "name": "R18+"
+   }
+  ]
+ },
+ {
+  "country": "Brasil",
+  "store": 143503,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "br-movie",
+    "code": "L",
+    "value": "000",
+    "name": "L"
+   },
+   {
+    "media": "Movie",
+    "prefix": "br-movie",
+    "code": "12",
+    "value": "100",
+    "name": "12"
+   },
+   {
+    "media": "Movie",
+    "prefix": "br-movie",
+    "code": "14",
+    "value": "300",
+    "name": "14"
+   },
+   {
+    "media": "Movie",
+    "prefix": "br-movie",
+    "code": "16",
+    "value": "350",
+    "name": "16"
+   },
+   {
+    "media": "Movie",
+    "prefix": "br-movie",
+    "code": "18",
+    "value": "400",
+    "name": "18"
+   }
+  ]
+ },
+ {
+  "country": "Paraguay",
+  "store": 143513,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "py-movie",
+    "code": "ATP",
+    "value": "0",
+    "name": "ATP"
+   },
+   {
+    "media": "Movie",
+    "prefix": "py-movie",
+    "code": "SAM13",
+    "value": "300",
+    "name": "SAM 13"
+   },
+   {
+    "media": "Movie",
+    "prefix": "py-movie",
+    "code": "15",
+    "value": "350",
+    "name": "15"
+   },
+   {
+    "media": "Movie",
+    "prefix": "py-movie",
+    "code": "SAM16",
+    "value": "375",
+    "name": "SAM 16"
+   },
+   {
+    "media": "Movie",
+    "prefix": "py-movie",
+    "code": "SAM18",
+    "value": "400",
+    "name": "SAM 18"
+   },
+   {
+    "media": "Movie",
+    "prefix": "py-movie",
+    "code": "UR",
+    "value": "900",
+    "name": "Sin Calificación"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "0+",
+    "value": "100",
+    "name": "0+"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "5+",
+    "value": "150",
+    "name": "5+"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "7+",
+    "value": "200",
+    "name": "7+"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "9+",
+    "value": "250",
+    "name": "9+"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "12+",
+    "value": "350",
+    "name": "12+"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "15+",
+    "value": "450",
+    "name": "15+"
+   },
+   {
+    "media": "TV",
+    "prefix": "py-tv",
+    "code": "18+",
+    "value": "600",
+    "name": "18+"
+   }
+  ]
+ },
+ {
+  "country": "Canada",
+  "store": 143455,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "14A",
+    "value": "300",
+    "name": "14A"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "18A",
+    "value": "350",
+    "name": "18A"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "R",
+    "value": "400",
+    "name": "R"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "A",
+    "value": "500",
+    "name": "A"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ca-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Not Rated"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "E",
+    "value": "000",
+    "name": "E"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "C",
+    "value": "050",
+    "name": "C"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "C8",
+    "value": "075",
+    "name": "C8"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "14+",
+    "value": "300",
+    "name": "14+"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "18+",
+    "value": "350",
+    "name": "18+"
+   },
+   {
+    "media": "TV",
+    "prefix": "ca-tv",
+    "code": "21+",
+    "value": "500",
+    "name": "21+"
+   }
+  ]
+ },
+ {
+  "country": "Deutschland",
+  "store": 143443,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "de-movie",
+    "code": "Ab 0 Jahren",
+    "value": "075",
+    "name": "Ab 0 Jahren"
+   },
+   {
+    "media": "Movie",
+    "prefix": "de-movie",
+    "code": "Ab 6 Jahren",
+    "value": "100",
+    "name": "Ab 6 Jahren"
+   },
+   {
+    "media": "Movie",
+    "prefix": "de-movie",
+    "code": "Ab 12 Jahren",
+    "value": "200",
+    "name": "Ab 12 Jahren"
+   },
+   {
+    "media": "Movie",
+    "prefix": "de-movie",
+    "code": "Ab 16 Jahren",
+    "value": "500",
+    "name": "Ab 16 Jahren"
+   },
+   {
+    "media": "Movie",
+    "prefix": "de-movie",
+    "code": "Ab 18 Jahren",
+    "value": "600",
+    "name": "Ab 18 Jahren"
+   },
+   {
+    "media": "TV",
+    "prefix": "de-tv",
+    "code": "Ab 0 Jahren",
+    "value": "075",
+    "name": "Ab 0 Jahren"
+   },
+   {
+    "media": "TV",
+    "prefix": "de-tv",
+    "code": "Ab 6 Jahren",
+    "value": "100",
+    "name": "Ab 6 Jahren"
+   },
+   {
+    "media": "TV",
+    "prefix": "de-tv",
+    "code": "Ab 12 Jahren",
+    "value": "200",
+    "name": "Ab 12 Jahren"
+   },
+   {
+    "media": "TV",
+    "prefix": "de-tv",
+    "code": "Ab 16 Jahren",
+    "value": "500",
+    "name": "Ab 16 Jahren"
+   },
+   {
+    "media": "TV",
+    "prefix": "de-tv",
+    "code": "Ab 18 Jahren",
+    "value": "600",
+    "name": "Ab 18 Jahren"
+   }
+  ]
+ },
+ {
+  "country": "France",
+  "store": 143442,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "fr-movie",
+    "code": "Tout public",
+    "value": "000",
+    "name": "Tout public"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "fr-movie",
+    "code": "-10",
+    "value": "100",
+    "name": "-10"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "fr-movie",
+    "code": "-12",
+    "value": "300",
+    "name": "-12"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "fr-movie",
+    "code": "-16",
+    "value": "375",
+    "name": "-16"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "fr-movie",
+    "code": "-18",
+    "value": "400",
+    "name": "-18"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "fr-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   }
+  ]
+ },
+ {
+  "country": "Italia",
+  "store": 143450,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "it-movie",
+    "code": "T",
+    "value": "100",
+    "name": "T"
+   },
+   {
+    "media": "Movie",
+    "prefix": "it-movie",
+    "code": "VPA",
+    "value": "125",
+    "name": "VPA"
+   },
+   {
+    "media": "Movie",
+    "prefix": "it-movie",
+    "code": "VM10",
+    "value": "150",
+    "name": "VM10"
+   },
+   {
+    "media": "Movie",
+    "prefix": "it-movie",
+    "code": "VM12",
+    "value": "200",
+    "name": "VM12"
+   },
+   {
+    "media": "Movie",
+    "prefix": "it-movie",
+    "code": "VM14",
+    "value": "325",
+    "name": "VM14"
+   },
+   {
+    "media": "Movie",
+    "prefix": "it-movie",
+    "code": "VM18",
+    "value": "400",
+    "name": "VM18"
+   }
+  ]
+ },
+ {
+  "country": "Ireland",
+  "store": 143449,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "Not Rated",
+    "value": "000",
+    "name": "Not Rated"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "12",
+    "value": "300",
+    "name": "12"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "15",
+    "value": "350",
+    "name": "15"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "16",
+    "value": "375",
+    "name": "16"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "18",
+    "value": "400",
+    "name": "18"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ie-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   },
+   {
+    "media": "TV",
+    "prefix": "ie-tv",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "TV",
+    "prefix": "ie-tv",
+    "code": "PG",
+    "value": "350",
+    "name": "PG"
+   },
+   {
+    "media": "TV",
+    "prefix": "ie-tv",
+    "code": "12",
+    "value": "400",
+    "name": "12"
+   },
+   {
+    "media": "TV",
+    "prefix": "ie-tv",
+    "code": "15",
+    "value": "500",
+    "name": "15"
+   },
+   {
+    "media": "TV",
+    "prefix": "ie-tv",
+    "code": "18",
+    "value": "600",
+    "name": "18"
+   }
+  ]
+ },
+ {
+  "country": "日本",
+  "store": 143462,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "jp-movie",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie",
+    "prefix": "jp-movie",
+    "code": "PG12",
+    "value": "200",
+    "name": "PG12"
+   },
+   {
+    "media": "Movie",
+    "prefix": "jp-movie",
+    "code": "R15+",
+    "value": "300",
+    "name": "R15+"
+   },
+   {
+    "media": "Movie",
+    "prefix": "jp-movie",
+    "code": "R18+",
+    "value": "400",
+    "name": "R18+"
+   },
+   {
+    "media": "Movie",
+    "prefix": "jp-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "未審査"
+   }
+  ]
+ },
+ {
+  "country": "México",
+  "store": 143468,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "mx-movie",
+    "code": "AA",
+    "value": "000",
+    "name": "AA"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mx-movie",
+    "code": "A",
+    "value": "100",
+    "name": "A"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mx-movie",
+    "code": "B",
+    "value": "300",
+    "name": "B"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mx-movie",
+    "code": "B-15",
+    "value": "500",
+    "name": "B-15"
+   },
+   {
+    "media": "Movie",
+    "prefix": "mx-movie",
+    "code": "C",
+    "value": "600",
+    "name": "C"
+   }
+  ]
+ },
+ {
+  "country": "Nederland",
+  "store": 143452,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "nl-movie",
+    "code": "AL/G",
+    "value": "000",
+    "name": "AL/G"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nl-movie",
+    "code": "6",
+    "value": "100",
+    "name": "6"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nl-movie",
+    "code": "9",
+    "value": "200",
+    "name": "9"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nl-movie",
+    "code": "12",
+    "value": "300",
+    "name": "12"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nl-movie",
+    "code": "16",
+    "value": "500",
+    "name": "16"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nl-movie",
+    "code": "18",
+    "value": "600",
+    "name": "18"
+   }
+  ]
+ },
+ {
+  "country": "New Zealand",
+  "store": 143461,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "M",
+    "value": "300",
+    "name": "M"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "R13",
+    "value": "325",
+    "name": "R13"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "RP13",
+    "value": "325",
+    "name": "RP13"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "R15",
+    "value": "350",
+    "name": "R15"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "R16",
+    "value": "375",
+    "name": "R16"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "RP16",
+    "value": "375",
+    "name": "RP16"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "R18",
+    "value": "400",
+    "name": "R18"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "R",
+    "value": "500",
+    "name": "R"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "U",
+    "value": "900",
+    "name": "U"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "nz-movie",
+    "code": "Not Rated",
+    "value": "???",
+    "name": "Not Rated"
+   }
+  ]
+ },
+ {
+  "country": "Sverige",
+  "store": 143456,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "se-movie",
+    "code": "Barntillåten",
+    "value": "000",
+    "name": "Barntillåten"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "se-movie",
+    "code": "Från 7 År",
+    "value": "125",
+    "name": "Från 7 år"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "se-movie",
+    "code": "Från 11 År",
+    "value": "225",
+    "name": "Från 11 år"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "se-movie",
+    "code": "Från 15 År",
+    "value": "400",
+    "name": "Från 15 år"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "se-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Ocensurerad"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "se-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Inte klassificerad"
+   }
+  ]
+ },
+ {
+  "country": "Schweiz",
+  "store": 143459,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "0",
+    "value": "050",
+    "name": "0"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "6",
+    "value": "075",
+    "name": "6"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "7",
+    "value": "125",
+    "name": "7"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "10",
+    "value": "150",
+    "name": "10"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "12",
+    "value": "200",
+    "name": "12"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "14",
+    "value": "325",
+    "name": "14"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "16",
+    "value": "375",
+    "name": "16"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "18",
+    "value": "400",
+    "name": "18"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "keine alterseinstufung"
+   }
+  ]
+ },
+ {
+  "country": "Suisse",
+  "store": 143459,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "0",
+    "value": "050",
+    "name": "0"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "6",
+    "value": "075",
+    "name": "6"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "7",
+    "value": "125",
+    "name": "7"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "10",
+    "value": "150",
+    "name": "10"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "12",
+    "value": "200",
+    "name": "12"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "14",
+    "value": "325",
+    "name": "14"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "16",
+    "value": "375",
+    "name": "16"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "18",
+    "value": "400",
+    "name": "18"
+   },
+   {
+    "media": "Movie",
+    "prefix": "ch-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "keine alterseinstufung"
+   }
+  ]
+ },
+ {
+  "country": "UK",
+  "store": 143444,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "NR",
+    "value": "000",
+    "name": "Not Rated"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "U",
+    "value": "100",
+    "name": "U"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "Uc",
+    "value": "150",
+    "name": "Uc"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "PG",
+    "value": "200",
+    "name": "PG"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "12",
+    "value": "300",
+    "name": "12"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "12A",
+    "value": "325",
+    "name": "12A"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "15",
+    "value": "350",
+    "name": "15"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "18",
+    "value": "400",
+    "name": "18"
+   },
+   {
+    "media": "TV",
+    "prefix": "uk-tv",
+    "code": "Caution",
+    "value": "500",
+    "name": "Caution"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "R18",
+    "value": "600",
+    "name": "R18"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "E",
+    "value": "0",
+    "name": "Exempt"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "uk-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "TBC"
+   }
+  ]
+ },
+ {
+  "country": "Россия",
+  "store": 143469,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "ru-movie",
+    "code": "0+",
+    "value": "000",
+    "name": "0+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ru-movie",
+    "code": "6+",
+    "value": "150",
+    "name": "6+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ru-movie",
+    "code": "12+",
+    "value": "200",
+    "name": "12+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ru-movie",
+    "code": "16+",
+    "value": "375",
+    "name": "16+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ru-movie",
+    "code": "18+",
+    "value": "400",
+    "name": "18+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ru-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   }
+  ]
+ },
+ {
+  "country": "Pilipinas",
+  "store": 143474,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "ph-movie",
+    "code": "G",
+    "value": "100",
+    "name": "G"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ph-movie",
+    "code": "PG",
+    "value": "300",
+    "name": "PG"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ph-movie",
+    "code": "R-13",
+    "value": "325",
+    "name": "R-13"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ph-movie",
+    "code": "R-16",
+    "value": "375",
+    "name": "R-16"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ph-movie",
+    "code": "R-18",
+    "value": "400",
+    "name": "R-18"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "ph-movie",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unrated"
+   }
+  ]
+ },
+ {
+  "country": "Hong Kong",
+  "store": 143463,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "hk-movie",
+    "code": "第i類",
+    "value": "100",
+    "name": "第i類"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "hk-movie",
+    "code": "第ii類",
+    "value": "400",
+    "name": "第ii類"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "hk-movie",
+    "code": "未作評級",
+    "value": "???",
+    "name": "未作評級"
+   }
+  ]
+ },
+ {
+  "country": "Česká republika",
+  "store": 143489,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "cz-movies",
+    "code": "U",
+    "value": "100",
+    "name": "U"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "cz-movies",
+    "code": "12+",
+    "value": "200",
+    "name": "12+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "cz-movies",
+    "code": "15+",
+    "value": "350",
+    "name": "15+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "cz-movies",
+    "code": "18+",
+    "value": "400",
+    "name": "18+"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "cz-movies",
+    "code": "neklasifikováno",
+    "value": "???",
+    "name": "Neklasifikováno"
+   }
+  ]
+ },
+ {
+  "country": "India",
+  "store": 143467,
+  "ratings": [
+   {
+    "media": "Movie",
+    "prefix": "in-movies",
+    "code": "U",
+    "value": "000",
+    "name": "U"
+   },
+   {
+    "media": "Movie",
+    "prefix": "in-movies",
+    "code": "UA",
+    "value": "200",
+    "name": "UA"
+   },
+   {
+    "media": "Movie",
+    "prefix": "in-movies",
+    "code": "A",
+    "value": "500",
+    "name": "A"
+   },
+   {
+    "media": "Movie",
+    "prefix": "in-movies",
+    "code": "S",
+    "value": "600",
+    "name": "S"
+   },
+   {
+    "media": "TV",
+    "prefix": "in-tv",
+    "code": "U",
+    "value": "100",
+    "name": "U"
+   },
+   {
+    "media": "TV",
+    "prefix": "in-tv",
+    "code": "UA",
+    "value": "200",
+    "name": "UA"
+   },
+   {
+    "media": "TV",
+    "prefix": "in-tv",
+    "code": "A",
+    "value": "600",
+    "name": "A"
+   },
+   {
+    "media": "TV",
+    "prefix": "in-tv",
+    "code": "S",
+    "value": "800",
+    "name": "S"
+   },
+   {
+    "media": "Movie & TV",
+    "prefix": "in-movies",
+    "code": "रेट नहीं की गई",
+    "value": "???",
+    "name": "रेट नहीं की गई"
+   }
+  ]
+ },
+ {
+  "country": "All countries",
+  "store": 0,
+  "ratings": [
+   {
+    "media": "Movie & TV",
+    "prefix": "mpaa",
+    "code": "Unrated",
+    "value": "???",
+    "name": "Unknown"
+   }
+  ]
+ }
+]
