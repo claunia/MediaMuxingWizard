@@ -52,6 +52,34 @@ public sealed partial class ChaptersInspectorViewModel : ViewModelBase
         Selected = Chapters.Count > 0 ? Chapters[Math.Min(index, Chapters.Count - 1)] : null;
     }
 
+    public bool CanMakeThumbnails => MMW.Media.Conversion.MediaConversion.IsAvailable && _document.Path is not null &&
+                                     _document.Tracks.OfType<VideoTrack>().Any();
+
+    [ObservableProperty]
+    private bool _isMakingThumbnails;
+
+    /// <summary>Captures a frame at every chapter start (preview images shown in the list).</summary>
+    [RelayCommand]
+    private async Task MakeThumbnails()
+    {
+        if (!CanMakeThumbnails || IsMakingThumbnails)
+            return;
+        IsMakingThumbnails = true;
+        try
+        {
+            var chapters = Chapters.ToList();
+            var video = _document.Tracks.OfType<VideoTrack>().First();
+            var images = await MMW.Media.Conversion.ThumbnailGenerator.CaptureManyAsync(_document.Path!, video.Source?.TrackId ?? video.Id,
+                chapters.Select(c => c.Start).ToList(), 240);
+            for (var i = 0; i < chapters.Count && i < images.Count; i++)
+                chapters[i].Thumbnail = images[i];
+        }
+        finally
+        {
+            IsMakingThumbnails = false;
+        }
+    }
+
     [RelayCommand]
     private void RenameAll() => TrackActions.RenameChapters(_document);
 

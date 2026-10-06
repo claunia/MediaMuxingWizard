@@ -26,6 +26,11 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         _autodetect4K = settings.Autodetect4K;
         _replaceArtworkOnSearch = settings.ReplaceArtworkOnSearch;
         _tmdbApiKey = settings.TmdbApiKey ?? string.Empty;
+        _mixdown = Mixdowns.First(m => m.Value == settings.Mixdown);
+        _bitratePerChannel = settings.BitratePerChannel;
+        _drc = settings.Drc;
+        _convertAc3 = settings.ConvertAc3;
+        _convertDts = settings.ConvertDts;
         _tvdbApiKey = settings.TvdbApiKey ?? string.Empty;
         if (metadata is not null)
         {
@@ -133,6 +138,30 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
             Presets.Move(i, i - 1);
     }
 
+    // ------------------------------------------------------------------ audio
+
+    public static IReadOnlyList<Choice<MMW.Core.Media.AudioMixdown>> Mixdowns { get; } =
+        Enum.GetValues<MMW.Core.Media.AudioMixdown>().Select(m => new Choice<MMW.Core.Media.AudioMixdown>(m, MMW.Core.Media.ConversionDefaults.MixdownName(m))).ToList();
+
+    public static string FFmpegStatus => MMW.Media.Conversion.MediaConversion.IsAvailable
+        ? $"FFmpeg {MMW.Media.Conversion.MediaConversion.Version} is available."
+        : $"FFmpeg libraries were not found: {MMW.Media.Conversion.MediaConversion.Error}";
+
+    [ObservableProperty]
+    private Choice<MMW.Core.Media.AudioMixdown> _mixdown;
+
+    [ObservableProperty]
+    private int _bitratePerChannel;
+
+    [ObservableProperty]
+    private double _drc;
+
+    [ObservableProperty]
+    private bool _convertAc3;
+
+    [ObservableProperty]
+    private bool _convertDts;
+
     // ------------------------------------------------------------------ metadata
 
     public bool HasMetadata => _metadata is not null;
@@ -226,6 +255,12 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
         _settings.MetadataKeepEmpty = MetadataKeepEmpty;
         _settings.Autodetect4K = Autodetect4K;
         _settings.ReplaceArtworkOnSearch = ReplaceArtworkOnSearch;
+        _settings.Mixdown = Mixdown.Value;
+        _settings.BitratePerChannel = Math.Clamp(BitratePerChannel, MMW.Core.Media.AudioConversionSettings.MinBitratePerChannel, MMW.Core.Media.AudioConversionSettings.MaxBitratePerChannel);
+        _settings.Drc = Math.Clamp(Drc, 0, MMW.Core.Media.AudioConversionSettings.MaxDrc);
+        _settings.ConvertAc3 = ConvertAc3;
+        _settings.ConvertDts = ConvertDts;
+        _settings.ApplyConversionDefaults();
         _settings.TmdbApiKey = string.IsNullOrWhiteSpace(TmdbApiKey) ? null : TmdbApiKey.Trim();
         _settings.TvdbApiKey = string.IsNullOrWhiteSpace(TvdbApiKey) ? null : TvdbApiKey.Trim();
         if (_metadata is not null)

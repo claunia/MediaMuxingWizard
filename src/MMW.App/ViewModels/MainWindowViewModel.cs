@@ -300,6 +300,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         await _dialogs.ShowMessageAsync("About " + AppTitle,
             $"{AppTitle} {typeof(MainWindowViewModel).Assembly.GetName().Version?.ToString(3)}\n\n" +
             "Edit metadata, chapters and tracks of MP4 and Matroska files.\n\n© 2026 Natalia Portillo\n" +
+            (MMW.Media.Conversion.MediaConversion.IsAvailable ? $"Audio conversion: FFmpeg {MMW.Media.Conversion.MediaConversion.Version} (LGPL).\n" : "Audio conversion: FFmpeg libraries not found.\n") +
             "Icons: Material Design Icons (Apache 2.0).");
 
     public static IReadOnlyList<string> RatingCountries => Ratings.Countries;

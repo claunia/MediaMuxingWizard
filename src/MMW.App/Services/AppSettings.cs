@@ -62,6 +62,27 @@ public sealed class AppSettings
 
     public string? TvdbApiKey { get; set; }
 
+    // Audio conversion
+    public MMW.Core.Media.AudioMixdown Mixdown { get; set; } = MMW.Core.Media.AudioMixdown.DolbyProLogicII;
+
+    public int BitratePerChannel { get; set; } = MMW.Core.Media.AudioConversionSettings.DefaultBitratePerChannel;
+
+    public double Drc { get; set; }
+
+    /// <summary>Suggest converting AC-3 to AAC when importing into MP4.</summary>
+    public bool ConvertAc3 { get; set; }
+
+    /// <summary>Suggest "AAC + Passthru" for DTS when importing into MP4.</summary>
+    public bool ConvertDts { get; set; } = true;
+
+    /// <summary>Pushes the conversion preferences to the shared defaults used by the importer.</summary>
+    public void ApplyConversionDefaults()
+    {
+        MMW.Core.Media.ConversionDefaults.Settings = new MMW.Core.Media.AudioConversionSettings { Mixdown = Mixdown, BitratePerChannel = BitratePerChannel, Drc = Drc };
+        MMW.Core.Media.ConversionDefaults.ConvertAc3 = ConvertAc3;
+        MMW.Core.Media.ConversionDefaults.ConvertDts = ConvertDts;
+    }
+
     // File naming
     public bool UseFileNameFormat { get; set; } = true;
 

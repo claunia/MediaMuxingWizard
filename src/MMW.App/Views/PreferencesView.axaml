@@ -30,6 +30,27 @@
           <CheckBox Content="Use 64-bit times" IsChecked="{Binding Use64BitTimes}" />
         </StackPanel>
       </TabItem>
+      <TabItem Header="Audio">
+        <StackPanel Spacing="10" Margin="0,12">
+          <TextBlock Text="{x:Static vm:PreferencesViewModel.FFmpegStatus}" Classes="dim" TextWrapping="Wrap" />
+          <Grid ColumnDefinitions="190,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+            <TextBlock Text="Downmix audio to:" Classes="label" />
+            <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PreferencesViewModel.Mixdowns}" SelectedItem="{Binding Mixdown}" MinWidth="240" />
+            <TextBlock Grid.Row="1" Text="AAC bitrate per channel:" Classes="label" />
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+              <NumericUpDown Value="{Binding BitratePerChannel}" Minimum="64" Maximum="320" Increment="16" FormatString="0" Width="140" />
+              <TextBlock Text="kbit/s" VerticalAlignment="Center" Classes="dim" />
+            </StackPanel>
+            <TextBlock Grid.Row="2" Text="Dynamic range compression:" Classes="label" />
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+              <Slider Minimum="0" Maximum="4" Value="{Binding Drc}" Width="200" TickFrequency="0.5" IsSnapToTickEnabled="True" />
+              <TextBlock Text="{Binding Drc, StringFormat='{}{0:0.0}'}" VerticalAlignment="Center" />
+            </StackPanel>
+          </Grid>
+          <CheckBox Content="Suggest converting AC-3 audio to AAC when importing into MP4" IsChecked="{Binding ConvertAc3}" />
+          <CheckBox Content="Suggest AAC + Passthru for DTS audio when importing into MP4" IsChecked="{Binding ConvertDts}" />
+        </StackPanel>
+      </TabItem>
       <TabItem Header="Metadata" IsVisible="{Binding HasMetadata}">
         <ScrollViewer>
           <StackPanel Spacing="8" Margin="0,12,8,0">

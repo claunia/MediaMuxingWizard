@@ -49,11 +49,16 @@ public sealed partial class CharacteristicItemViewModel : ViewModelBase
 public sealed partial class TrackInspectorViewModel : ViewModelBase
 {
     private readonly MediaDocument _document;
+    private readonly DocumentViewModel? _owner;
+    private bool _loadingConversion;
 
-    public TrackInspectorViewModel(Track track, MediaDocument document)
+    public TrackInspectorViewModel(Track track, MediaDocument document, DocumentViewModel? owner = null)
     {
         Track = track;
         _document = document;
+        _owner = owner;
+        if (owner is not null && track is AudioTrack && !track.IsPending)
+            _ = LoadConversionChoicesAsync();
         Characteristics = new ObservableCollection<CharacteristicItemViewModel>(
             MediaCharacteristics.For(track.Kind).Select(c => new CharacteristicItemViewModel(track, c)));
         track.MediaCharacteristics.CollectionChanged += OnCharacteristicsChanged;
@@ -162,6 +167,43 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
             var offset = TimeSpan.FromMilliseconds(Math.Round(value));
             if (offset != Track.StartOffset)
                 Track.StartOffset = offset;
+        }
+    }
+
+    // ------------------------------------------------------------------ conversion
+
+    public System.Collections.ObjectModel.ObservableCollection<MMW.Core.Media.ImportChoice> ConversionChoices { get; } = [];
+
+    public bool HasConversionChoices => ConversionChoices.Count > 1;
+
+    [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty]
+    private MMW.Core.Media.ImportChoice? _selectedConversion;
+
+    partial void OnSelectedConversionChanged(MMW.Core.Media.ImportChoice? value)
+    {
+        if (!_loadingConversion && value is not null && _owner is not null)
+            _owner.SetConversion(Track, value);
+    }
+
+    private async Task LoadConversionChoicesAsync()
+    {
+        try
+        {
+            var tracks = await _owner!.GetSourceTracksAsync();
+            var source = tracks.FirstOrDefault(t => t.TrackId == (Track.Source?.TrackId ?? Track.Id));
+            if (source is null)
+                return;
+            _loadingConversion = true;
+            foreach (var c in source.Choices.Where(c => c.Action != MMW.Core.Media.ImportAction.Skip))
+                ConversionChoices.Add(c);
+            var current = Track.Source?.Import?.Action ?? MMW.Core.Media.ImportAction.Passthrough;
+            SelectedConversion = ConversionChoices.FirstOrDefault(c => c.Action == current) ?? ConversionChoices.FirstOrDefault();
+            _loadingConversion = false;
+            OnPropertyChanged(nameof(HasConversionChoices));
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            MMW.Core.Diagnostics.AppLog.Debug($"No conversion choices for track {Track.Id}: {ex.Message}");
         }
     }
 

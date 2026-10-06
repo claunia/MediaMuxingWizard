@@ -10,6 +10,15 @@ public static class Converters
 
     public static readonly IValueConverter ChapterTime = new ChapterTimeConverter();
 
+    /// <summary>Decodes JPEG/PNG bytes (chapter thumbnails) to a bitmap.</summary>
+    public static readonly IValueConverter ImageBytes = new FuncValueConverter<byte[]?, Avalonia.Media.Imaging.Bitmap?>(bytes =>
+    {
+        if (bytes is not { Length: > 0 })
+            return null;
+        using var ms = new MemoryStream(bytes);
+        return new Avalonia.Media.Imaging.Bitmap(ms);
+    });
+
     /// <summary>Icon for a track kind.</summary>
     public static readonly IValueConverter KindIcon = new FuncValueConverter<Core.Model.TrackKind, Avalonia.Media.Geometry?>(kind =>
         IconResource.Convert(kind switch

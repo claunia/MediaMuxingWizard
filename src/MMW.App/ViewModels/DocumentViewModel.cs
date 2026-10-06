@@ -142,8 +142,25 @@ public sealed partial class DocumentViewModel : ViewModelBase
     private TrackInspectorViewModel InspectorFor(Track track)
     {
         if (!_trackInspectors.TryGetValue(track, out var vm))
-            _trackInspectors[track] = vm = new TrackInspectorViewModel(track, Document);
+            _trackInspectors[track] = vm = new TrackInspectorViewModel(track, Document, this);
         return vm;
+    }
+
+    private Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>? _sourceTracks;
+
+    /// <summary>The document's own tracks as the importer sees them (codec details and conversion choices).</summary>
+    public Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>> GetSourceTracksAsync() =>
+        _sourceTracks ??= Document.Path is { } path
+            ? MMW.Media.Remux.TrackImporter.InspectAsync(path, Document.Container)
+            : Task.FromResult<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>([]);
+
+    /// <summary>Sets how a track is converted on the next save (may add an AAC companion track).</summary>
+    public void SetConversion(Track track, MMW.Core.Media.ImportChoice choice)
+    {
+        using (Undo.Transaction($"Convert {track.Format}"))
+            MMW.Core.Media.TrackConversions.SetAction(Document, track, choice.Action, choice.SettingsFrom(MMW.Core.Media.ConversionDefaults.Settings));
+        Document.IsDirty = true;
+        OnPropertyChanged(nameof(StatusText));
     }
 
     private void OnTracksChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -374,6 +391,8 @@ public sealed partial class DocumentViewModel : ViewModelBase
             var handler = _documents.HandlerFor(Document);
             var progress = new Progress<double>(p => Progress = p);
             await handler.SaveAsync(Document, options, progress);
+            _sourceTracks = null;
+            _trackInspectors.Clear();
             OnPropertyChanged(nameof(StatusText));
             foreach (var row in Rows)
                 row.Refresh();

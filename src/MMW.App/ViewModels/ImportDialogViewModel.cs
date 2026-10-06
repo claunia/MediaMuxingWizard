@@ -17,8 +17,8 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
     {
         Track = track;
         _selected = track.Selected;
-        Actions = AvailableActions(track);
-        _selectedAction = Actions.FirstOrDefault(a => a.Value == track.Action) ?? Actions[0];
+        Actions = track.Choices;
+        _selectedAction = track.Choice ?? Actions[0];
         _language = LanguageTable.Find(track.Language) ?? LanguageTable.All[0];
         _name = track.Name;
         if (track.RequiresFrameRate)
@@ -35,11 +35,16 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
 
     public TrackKind Kind => Track.Kind;
 
-    public string? Problem => Track.Support.Level is TrackSupportLevel.NeedsConversion or TrackSupportLevel.Unsupported ? Track.Support.Reason : null;
+    public string? Problem => Track.Support.Level switch
+    {
+        TrackSupportLevel.NeedsConversion when Track.CanConvert => null,
+        TrackSupportLevel.NeedsConversion or TrackSupportLevel.Unsupported => Track.Support.Reason,
+        _ => null,
+    };
 
-    public bool CanImport => Actions.Any(a => a.Value != ImportAction.Skip);
+    public bool CanImport => Actions.Any(a => a.Action != ImportAction.Skip);
 
-    public IReadOnlyList<Choice<ImportAction>> Actions { get; }
+    public IReadOnlyList<ImportChoice> Actions { get; }
 
     public static IReadOnlyList<Choice<double>> FrameRates { get; } =
     [
@@ -55,7 +60,7 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
     private bool _selected;
 
     [ObservableProperty]
-    private Choice<ImportAction> _selectedAction;
+    private ImportChoice _selectedAction;
 
     [ObservableProperty]
     private Language _language;
@@ -69,34 +74,12 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
     /// <summary>Writes the user's choices back to the importable track.</summary>
     public void Commit()
     {
-        Track.Selected = Selected && SelectedAction.Value != ImportAction.Skip;
-        Track.Action = SelectedAction.Value;
+        Track.Choice = SelectedAction;
+        Track.Selected = Selected && SelectedAction.Action != ImportAction.Skip;
         Track.Language = Language.Tag;
         Track.Name = Name;
         if (FrameRate is { } f)
             Track.FrameRate = f.Value;
-    }
-
-    private static List<Choice<ImportAction>> AvailableActions(ImportableTrack track)
-    {
-        var list = new List<Choice<ImportAction>>();
-        switch (track.Support.Level)
-        {
-            case TrackSupportLevel.Passthrough:
-                list.Add(new(ImportAction.Passthrough, "Passthru"));
-                break;
-            case TrackSupportLevel.Converted:
-                list.Add(new(track.Support.SuggestedAction, track.Support.SuggestedAction switch
-                {
-                    ImportAction.ConvertToTx3g => "Tx3g",
-                    ImportAction.ConvertToSrt => "SRT",
-                    _ => "Convert",
-                }));
-                break;
-        }
-
-        list.Add(new(ImportAction.Skip, list.Count == 0 ? "Not available" : "Skip"));
-        return list;
     }
 }
 
@@ -161,7 +144,9 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
 
         IsLoading = false;
         var count = AllTracks.Count();
-        Status = errors.Count > 0 ? string.Join("\n", errors) : $"{count} track(s) found. Converting audio is not available yet.";
+        Status = errors.Count > 0
+            ? string.Join("\n", errors)
+            : $"{count} track(s) found." + (MMW.Media.Conversion.MediaConversion.IsAvailable ? string.Empty : " Audio conversion needs FFmpeg 8 libraries, which were not found.");
     }
 
     [RelayCommand]

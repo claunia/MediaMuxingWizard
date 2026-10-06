@@ -20,6 +20,7 @@ public partial class App : Application
         {
             MMW.Media.Remux.MediaRemux.EnsureRegistered();
             var settings = new SettingsService();
+            settings.Settings.ApplyConversionDefaults();
             RequestedThemeVariant = settings.Settings.Theme switch
             {
                 ThemeChoice.Light => ThemeVariant.Light,

@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MMW.App\MMW.App.csproj" />
     <ProjectReference Include="..\..\src\MMW.Metadata\MMW.Metadata.csproj" />
+    <ProjectReference Include="..\..\src\MMW.Media.Conversion\MMW.Media.Conversion.csproj" />
     <ProjectReference Include="..\MMW.TestSupport\MMW.TestSupport.csproj" />
   </ItemGroup>
 </Project>

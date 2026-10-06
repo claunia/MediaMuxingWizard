@@ -23,11 +23,21 @@
         </DropDownButton.Flyout>
       </DropDownButton>
       <Button Classes="icon" Command="{Binding ImportCommand}" AutomationProperties.Name="Import chapters (txt) or chapter titles (csv)" ToolTip.Tip="Import chapters (txt) or chapter titles (csv)"><PathIcon Data="{StaticResource IconImport}" /></Button>
+      <Button Classes="icon" Command="{Binding MakeThumbnailsCommand}" IsVisible="{Binding CanMakeThumbnails}"
+              AutomationProperties.Name="Capture chapter preview images" ToolTip.Tip="Capture chapter preview images"><PathIcon Data="{StaticResource IconImage}" /></Button>
+      <ProgressBar IsIndeterminate="True" Width="60" IsVisible="{Binding IsMakingThumbnails}" VerticalAlignment="Center" />
       <Button Classes="icon" Command="{Binding ExportCommand}" AutomationProperties.Name="Export chapters as text" ToolTip.Tip="Export chapters as text"><PathIcon Data="{StaticResource IconExport}" /></Button>
     </StackPanel>
     <DataGrid ItemsSource="{Binding Chapters}" SelectedItem="{Binding Selected}" AutoGenerateColumns="False"
               CanUserSortColumns="False" CellEditEnded="OnCellEditEnded">
       <DataGrid.Columns>
+        <DataGridTemplateColumn Header="" Width="Auto" IsReadOnly="True">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate x:DataType="ch:Chapter">
+              <Image Source="{Binding Thumbnail, Converter={x:Static views:Converters.ImageBytes}}" MaxHeight="68" MaxWidth="120" Margin="2" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
         <DataGridTextColumn Header="Time" Width="140" x:DataType="ch:Chapter"
                             Binding="{Binding Start, Converter={x:Static views:Converters.ChapterTime}}" />
         <DataGridTextColumn Header="Title" Width="*" x:DataType="ch:Chapter" Binding="{Binding Title}" />
