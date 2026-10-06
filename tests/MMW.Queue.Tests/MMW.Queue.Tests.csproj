@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3.mtp-v2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MMW.Queue\MMW.Queue.csproj" />
+    <ProjectReference Include="..\..\src\MMW.Formats.Mp4\MMW.Formats.Mp4.csproj" />
+    <ProjectReference Include="..\..\src\MMW.Formats.Matroska\MMW.Formats.Matroska.csproj" />
+    <ProjectReference Include="..\MMW.TestSupport\MMW.TestSupport.csproj" />
+  </ItemGroup>
+</Project>
