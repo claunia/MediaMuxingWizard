@@ -139,3 +139,14 @@ public class PresetTests
         Assert.False(preset.ReplaceAnnotations);
     }
 }
+
+public class ArtworkTests
+{
+    [Theory]
+    [InlineData(new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0 }, ArtworkFormat.Png)]
+    [InlineData(new byte[] { 0xFF, 0xD8, 0xFF, 0xE0 }, ArtworkFormat.Jpeg)]
+    [InlineData(new byte[] { (byte)'G', (byte)'I', (byte)'F', (byte)'8', (byte)'9' }, ArtworkFormat.Gif)]
+    [InlineData(new byte[] { (byte)'B', (byte)'M', 0, 0 }, ArtworkFormat.Bmp)]
+    [InlineData(new byte[] { 1, 2, 3 }, ArtworkFormat.Unknown)]
+    public void Detects_image_formats(byte[] data, ArtworkFormat expected) => Assert.Equal(expected, Artwork.Detect(data));
+}

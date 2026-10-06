@@ -42,11 +42,14 @@ public sealed class Artwork
         _ => ".jpg",
     };
 
+    // Not a UTF-8 literal: "\x89" would encode as two bytes there.
+    private static readonly byte[] s_pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+
     public static ArtworkFormat Detect(ReadOnlySpan<byte> data)
     {
         if (data.Length >= 3 && data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF)
             return ArtworkFormat.Jpeg;
-        if (data.Length >= 8 && data[..8].SequenceEqual("\x89PNG\r\n\x1a\n"u8))
+        if (data.Length >= 8 && data[..8].SequenceEqual(s_pngSignature))
             return ArtworkFormat.Png;
         if (data.Length >= 2 && data[0] == 'B' && data[1] == 'M')
             return ArtworkFormat.Bmp;
