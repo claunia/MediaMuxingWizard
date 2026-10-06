@@ -364,10 +364,11 @@ internal sealed class Mp4Muxer : IMuxer
 
         // Chapter text samples go at the end of the media data.
         var chapters = _settings.Document.Chapters.OrderBy(c => c.Start).ToList();
-        var chapterSamples = chapters.Select(c => Mp4Chapters.EncodeSample(c.Title)).ToList();
         var chapterOffset = _out.Position;
-        foreach (var s in chapterSamples)
-            _out.Write(s);
+        var chapterData = chapters.Count > 0
+            ? Mp4Chapters.Build(1, chapters, TimeSpan.Zero, MovieTimescale, 0, false).Data
+            : [];
+        _out.Write(chapterData);
 
         var mdatEnd = _out.Position;
         var mdatSize = mdatEnd - _mdatStart;
@@ -375,7 +376,7 @@ internal sealed class Mp4Muxer : IMuxer
         cancellationToken.ThrowIfCancellationRequested();
 
         // Fast start when the header fits in the reserved space (no copy).
-        var moov = BuildMoov(chapters, chapterSamples, chapterOffset, 0);
+        var moov = BuildMoov(chapters, chapterOffset, 0);
         var moovBytes = BoxWriter.ToArray(moov);
         if (moovBytes.Length == _reservedSize || moovBytes.Length + 8 <= _reservedSize)
         {
@@ -404,7 +405,7 @@ internal sealed class Mp4Muxer : IMuxer
         while (true)
         {
             delta = moovBytes.Length + 1024 - _reservedSize;
-            var shifted = BoxWriter.ToArray(BuildMoov(chapters, chapterSamples, chapterOffset, delta));
+            var shifted = BoxWriter.ToArray(BuildMoov(chapters, chapterOffset, delta));
             if (shifted.Length == moovBytes.Length || ++attempts > 4)
             {
                 moovBytes = shifted;
@@ -460,7 +461,7 @@ internal sealed class Mp4Muxer : IMuxer
 
     // ------------------------------------------------------------------ moov
 
-    private Box BuildMoov(List<Chapter> chapters, List<byte[]> chapterSamples, long chapterOffset, long offsetDelta)
+    private Box BuildMoov(List<Chapter> chapters, long chapterOffset, long offsetDelta)
     {
         var options = _settings.Options;
         var document = _settings.Document;
@@ -479,17 +480,16 @@ internal sealed class Mp4Muxer : IMuxer
         var nextId = (uint)_tracks.Count + 1;
         if (chapters.Count > 0)
         {
-            var chapterId = nextId++;
             var total = TimeSpan.FromSeconds((double)movieDuration / MovieTimescale);
             if (document.Duration > total)
                 total = document.Duration;
-            var chapterTrak = Mp4Chapters.BuildTextTrack(chapterId, chapters, total, MovieTimescale, chapterSamples.Select(s => s.Length).ToList(),
-                chapterOffset + offsetDelta, force64);
-            traks.Add(chapterTrak);
+            var built = Mp4Chapters.Build(nextId, chapters, total, MovieTimescale, chapterOffset + offsetDelta, force64);
+            nextId += (uint)built.TrackIds.Count;
+            traks.AddRange(built.Traks);
             foreach (var target in new[] { _tracks.FirstOrDefault(t => t.Config.Kind == TrackKind.Video), _tracks.FirstOrDefault(t => t.Config.Kind == TrackKind.Audio) })
             {
                 if (target is not null)
-                    AddReference(traks[_tracks.IndexOf(target)], "chap", [chapterId]);
+                    AddReference(traks[_tracks.IndexOf(target)], "chap", [.. built.TrackIds]);
             }
         }
 

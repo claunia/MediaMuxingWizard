@@ -246,3 +246,62 @@ public class Mp4ColorTests
         Assert.False((await handler.ReadAsync(path, ct)).Tracks.OfType<MMW.Core.Model.VideoTrack>().Single().Color.IsSpecified);
     }
 }
+
+public class Mp4ChapterImageTests
+{
+    private static byte[] Jpeg() => Mp4Fixtures.Jpeg();
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Chapter_preview_images_round_trip(bool fastStart)
+    {
+        var path = TestSupport.Fixtures.CopyToTemp(fastStart ? Mp4Fixtures.FastStart() : Mp4Fixtures.MoovAtEnd());
+        var ct = TestContext.Current.CancellationToken;
+        var handler = new Mp4Handler();
+        var before = Mp4Fixtures.PacketHashes(path);
+        var doc = await handler.ReadAsync(path, ct);
+        var jpeg = Jpeg();
+        foreach (var c in doc.Chapters)
+            c.Thumbnail = jpeg;
+        await handler.SaveAsync(doc, new MMW.Core.Model.SaveOptions(), cancellationToken: ct);
+
+        var reread = await handler.ReadAsync(path, ct);
+        Assert.Equal(3, reread.Chapters.Count);
+        Assert.All(reread.Chapters, c => Assert.Equal(jpeg, c.Thumbnail));
+        Assert.Single(reread.Tracks.OfType<MMW.Core.Model.VideoTrack>()); // the image track is not listed
+        Assert.Equal(["Opening", "Middle", "Ending"], reread.Chapters.Select(c => c.Title));
+        Assert.Empty(Mp4Fixtures.DemuxErrors(path));
+        Assert.Equal(before, Mp4Fixtures.PacketHashes(path)); // ffmpeg does not count the chapter image track as main video
+
+        // Saving again without changes keeps them.
+        reread.Metadata.Set(MMW.Core.Metadata.TagId.Name, "Again");
+        await handler.SaveAsync(reread, new MMW.Core.Model.SaveOptions(), cancellationToken: ct);
+        Assert.All((await handler.ReadAsync(path, ct)).Chapters, c => Assert.Equal(jpeg, c.Thumbnail));
+    }
+
+    [Fact]
+    public async Task Remuxing_writes_chapter_preview_images()
+    {
+        var path = TestSupport.Fixtures.CopyToTemp(Mp4Fixtures.MoovAtEnd());
+        var ct = TestContext.Current.CancellationToken;
+        var handler = new Mp4Handler();
+        var doc = await handler.ReadAsync(path, ct);
+        var jpeg = Jpeg();
+        foreach (var c in doc.Chapters)
+            c.Thumbnail = jpeg;
+        var output = System.IO.Path.ChangeExtension(path, ".remuxed.m4v");
+        await MMW.Core.Media.Remuxer.SaveAsync(doc, new MMW.Core.Model.SaveOptions { OutputPath = output }, MMW.Core.Model.ContainerKind.Mp4, null, ct);
+
+        var reread = await handler.ReadAsync(output, ct);
+        Assert.All(reread.Chapters, c => Assert.Equal(jpeg, c.Thumbnail));
+        Assert.Empty(Mp4Fixtures.DemuxErrors(output));
+    }
+
+    [Fact]
+    public void Jpeg_size_is_read_from_the_frame_header()
+    {
+        Assert.Equal((64, 64), Mp4Chapters.JpegSize(Jpeg()));
+        Assert.Null(Mp4Chapters.JpegSize([1, 2, 3]));
+    }
+}

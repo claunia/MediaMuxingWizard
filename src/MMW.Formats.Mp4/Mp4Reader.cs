@@ -61,10 +61,20 @@ internal static class Mp4Reader
         }
 
         // Chapters: prefer the QuickTime text track; fall back to Nero chpl.
-        var chapterTrak = traks.FirstOrDefault(t => t.Find("tkhd") is { } h && state.ChapterTrackIds.Contains(HeaderBoxes.TkhdTrackId(h)));
+        // Chapter references can point at a text track and a JPEG preview-image track.
+        var chapterTraks = traks.Where(t => t.Find("tkhd") is { } h && state.ChapterTrackIds.Contains(HeaderBoxes.TkhdTrackId(h))).ToList();
+        var chapterTrak = chapterTraks.FirstOrDefault(t => t.FindPath("mdia/hdlr") is { } h && HeaderBoxes.HdlrType(h) != "vide") ?? chapterTraks.FirstOrDefault(t => t.FindPath("mdia/hdlr") is null);
+        var imageTrak = chapterTraks.FirstOrDefault(t => t.FindPath("mdia/hdlr") is { } h && HeaderBoxes.HdlrType(h) == "vide");
         var chapters = chapterTrak is not null ? Mp4Chapters.ReadTextTrack(chapterTrak, fs, movieTimescale) : [];
         if (chapters.Count == 0 && moov.FindPath("udta/chpl") is { } chpl)
             chapters = Mp4Chapters.ReadChpl(chpl);
+        if (imageTrak is not null && chapters.Count > 0)
+        {
+            var images = Mp4Chapters.ReadImageTrack(imageTrak, fs);
+            for (var i = 0; i < chapters.Count && i < images.Count; i++)
+                chapters[i].Thumbnail = images[i].Length > 0 ? images[i] : null;
+        }
+
         foreach (var c in chapters)
             doc.Chapters.Add(c);
         if (chapters.Count > 0)

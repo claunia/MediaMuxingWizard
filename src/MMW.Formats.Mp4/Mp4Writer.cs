@@ -29,8 +29,8 @@ internal static class Mp4Writer
         /// <summary>Extra media data (chapter samples) to store in a new mdat.</summary>
         public byte[] Extra { get; init; } = [];
 
-        /// <summary>ID of the generated chapter track (0 when there is none).</summary>
-        public uint ChapterTrackId { get; init; }
+        /// <summary>Generated chapter tracks and the position of their first chunk relative to <see cref="Extra"/>.</summary>
+        public IReadOnlyDictionary<uint, long> ChapterChunks { get; init; } = new Dictionary<uint, long>();
     }
 
     public static void Save(MediaDocument doc, SaveOptions options, IProgress<double>? progress, CancellationToken ct)
@@ -121,7 +121,7 @@ internal static class Mp4Writer
         var result = new List<long>();
         foreach (var trak in plan.Moov.FindAll("trak"))
         {
-            if (plan.ChapterTrackId != 0 && HeaderBoxes.TkhdTrackId(trak.Find("tkhd")!) == plan.ChapterTrackId)
+            if (plan.ChapterChunks.ContainsKey(HeaderBoxes.TkhdTrackId(trak.Find("tkhd")!)))
                 continue;
             if (trak.FindPath("mdia/minf/stbl") is { } stbl)
                 result.AddRange(SampleTable.ChunkOffsets(stbl));
@@ -274,25 +274,28 @@ internal static class Mp4Writer
         var udta = moov.Find("udta");
         udta?.RemoveAll("chpl");
         byte[] extra = [];
-        uint chapterId = 0;
+        var chapterChunks = new Dictionary<uint, long>();
         var chapters = doc.Chapters.OrderBy(c => c.Start).ToList();
         if (chapters.Count > 0)
         {
-            chapterId = Math.Max(HeaderBoxes.MvhdNextTrackId(mvhd), newTraks.Select(t => HeaderBoxes.TkhdTrackId(t.Find("tkhd")!)).DefaultIfEmpty(0u).Max() + 1);
-            var samples = chapters.Select(c => Mp4Chapters.EncodeSample(c.Title)).ToList();
-            extra = samples.SelectMany(s => s).ToArray();
+            var chapterId = Math.Max(HeaderBoxes.MvhdNextTrackId(mvhd), newTraks.Select(t => HeaderBoxes.TkhdTrackId(t.Find("tkhd")!)).DefaultIfEmpty(0u).Max() + 1);
             var movieTimescale = HeaderBoxes.MvhdTimescale(mvhd);
             var duration = doc.Duration > TimeSpan.Zero ? doc.Duration : TimeSpan.FromSeconds((double)HeaderBoxes.MvhdDuration(mvhd) / Math.Max(1u, movieTimescale));
-            var chapterTrak = Mp4Chapters.BuildTextTrack(chapterId, chapters, duration, movieTimescale, samples.Select(s => s.Length).ToList(), 0, options.Use64BitOffsets);
-            var insertAt = moov.Children.FindLastIndex(c => c.Type == "trak") + 1;
-            moov.Children.Insert(insertAt, chapterTrak);
-            HeaderBoxes.SetMvhdNextTrackId(mvhd, chapterId + 1);
 
-            // Reference the chapter track from the first video and the first audio track.
+            // Offsets are relative to the extra data block here and rebased in Finalize.
+            var built = Mp4Chapters.Build(chapterId, chapters, duration, movieTimescale, 0, options.Use64BitOffsets);
+            extra = built.Data;
+            var insertAt = moov.Children.FindLastIndex(c => c.Type == "trak") + 1;
+            moov.Children.InsertRange(insertAt, built.Traks);
+            foreach (var (trak, id) in built.Traks.Zip(built.TrackIds))
+                chapterChunks[id] = SampleTable.ChunkOffsets(trak.FindPath("mdia/minf/stbl")!)[0];
+            HeaderBoxes.SetMvhdNextTrackId(mvhd, built.TrackIds.Max() + 1);
+
+            // Reference the chapter tracks from the first video and the first audio track.
             foreach (var target in new[] { FirstWithHandler(newTraks, "vide"), FirstWithHandler(newTraks, "soun") })
             {
                 if (target is not null)
-                    SetReferences(target, "chap", [chapterId]);
+                    SetReferences(target, "chap", built.TrackIds);
             }
 
             udta = moov.GetOrAddContainer("udta");
@@ -300,7 +303,7 @@ internal static class Mp4Writer
         }
 
         ApplyMetadata(moov, doc, doc.ContainerState as Mp4State);
-        return new Plan { Moov = moov, Extra = extra, ChapterTrackId = chapterId };
+        return new Plan { Moov = moov, Extra = extra, ChapterChunks = chapterChunks };
     }
 
     private static bool IsListedKind(Box trak)
@@ -492,8 +495,8 @@ internal static class Mp4Writer
             if (stbl is null)
                 continue;
             var id = HeaderBoxes.TkhdTrackId(trak.Find("tkhd")!);
-            if (id == plan.ChapterTrackId && plan.ChapterTrackId != 0)
-                SampleTable.RemapChunkOffsets(stbl, _ => extraOffset, force64);
+            if (plan.ChapterChunks.TryGetValue(id, out var relative))
+                SampleTable.RemapChunkOffsets(stbl, _ => extraOffset + relative, force64);
             else
                 SampleTable.RemapChunkOffsets(stbl, map, force64);
         }
