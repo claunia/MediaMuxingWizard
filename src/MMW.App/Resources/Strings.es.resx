@@ -1594,4 +1594,76 @@ Si no los guardas, se perderán.</value>
   <data name="Dialog_CannotExportTrack" xml:space="preserve">
     <value>Las pistas {0} no se pueden exportar como flujo sin contenedor.</value>
   </data>
+  <data name="Log_UnknownInterfaceLanguageFormat" xml:space="preserve">
+    <value>Idioma de interfaz desconocido «{0}»: {1}</value>
+  </data>
+  <data name="Log_CannotPreventSleepFormat" xml:space="preserve">
+    <value>No se puede impedir la suspensión ({0}: {1}).</value>
+  </data>
+  <data name="Log_CannotPreventSleepWindows" xml:space="preserve">
+    <value>No se puede impedir la suspensión (SetThreadExecutionState ha fallado).</value>
+  </data>
+  <data name="Log_SingleInstancePipeFormat" xml:space="preserve">
+    <value>Canalización de instancia única: {0}</value>
+  </data>
+  <data name="Log_CouldNotOpenFileManagerFormat" xml:space="preserve">
+    <value>No se ha podido abrir el gestor de archivos: {0}</value>
+  </data>
+  <data name="Log_OpenedFormat" xml:space="preserve">
+    <value>Se ha abierto «{0}».</value>
+  </data>
+  <data name="Log_CouldNotOpenFormat" xml:space="preserve">
+    <value>No se ha podido abrir «{0}»</value>
+  </data>
+  <data name="Log_CouldNotSaveSettings" xml:space="preserve">
+    <value>No se ha podido guardar la configuración</value>
+  </data>
+  <data name="Log_CouldNotReadSettings" xml:space="preserve">
+    <value>No se ha podido leer la configuración; se usan los valores predeterminados</value>
+  </data>
+  <data name="Log_SavedSetFormat" xml:space="preserve">
+    <value>Se ha guardado el conjunto «{0}».</value>
+  </data>
+  <data name="Log_ThumbnailFailedFormat" xml:space="preserve">
+    <value>No se ha podido cargar la miniatura {0}: {1}</value>
+  </data>
+  <data name="Log_CouldNotDecodeArtworkFormat" xml:space="preserve">
+    <value>No se ha podido decodificar la carátula: {0}</value>
+  </data>
+  <data name="Log_CannotImportFromFormat" xml:space="preserve">
+    <value>No se puede importar de «{0}»</value>
+  </data>
+  <data name="Log_NoMetadataImportedFormat" xml:space="preserve">
+    <value>No se han importado metadatos de {0}: {1}</value>
+  </data>
+  <data name="Log_NoConversionChoicesFormat" xml:space="preserve">
+    <value>No hay opciones de conversión para la pista {0}: {1}</value>
+  </data>
+  <data name="Log_VideoScanSkippedFormat" xml:space="preserve">
+    <value>Se ha omitido el análisis del vídeo de {0}: {1}</value>
+  </data>
+  <data name="Log_AudioScanSkippedFormat" xml:space="preserve">
+    <value>Se ha omitido el análisis del audio de {0}: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionNotSignalledFormat" xml:space="preserve">
+    <value>{0}: se ha encontrado Dolby Vision {1} en el flujo de bits, pero el contenedor no lo indica.</value>
+  </data>
+  <data name="Log_DolbyVisionRebuiltFormat" xml:space="preserve">
+    <value>{0}: se ha reconstruido la configuración de Dolby Vision ({1}, nivel {2}).</value>
+  </data>
+  <data name="Log_TrackNotInspectedFormat" xml:space="preserve">
+    <value>No se ha podido examinar la pista {0} de «{1}»; la copia se pasa sin convertir: {2}</value>
+  </data>
+  <data name="Log_ExportedTrackFormat" xml:space="preserve">
+    <value>Se ha exportado la pista {1} ({0}) a «{2}».</value>
+  </data>
+  <data name="Log_ExportTrackFailedFormat" xml:space="preserve">
+    <value>No se ha podido exportar la pista {0} de «{1}»</value>
+  </data>
+  <data name="Log_SaveFailedFormat" xml:space="preserve">
+    <value>No se ha podido guardar «{0}»</value>
+  </data>
+  <data name="Log_CouldNotSaveQueue" xml:space="preserve">
+    <value>No se ha podido guardar la cola</value>
+  </data>
 </root>

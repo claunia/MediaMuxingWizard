@@ -20,7 +20,7 @@ public sealed class ArtworkItemViewModel : ViewModelBase, IDisposable
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or NotSupportedException or IOException)
         {
-            AppLog.Warn($"Could not decode artwork: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_CouldNotDecodeArtworkFormat, ex.Message));
             Description = string.Format(CultureInfo.CurrentCulture, Strings.Artwork_UnreadableFormat, artwork.Format, artwork.Data.Length / 1024);
         }
     }

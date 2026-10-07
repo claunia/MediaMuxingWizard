@@ -151,7 +151,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
             catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
             {
                 errors.Add($"{Path.GetFileName(path)}: {ex.Message}");
-                AppLog.Error($"Cannot import from '{path}'", ex);
+                AppLog.Error(string.Format(CultureInfo.CurrentCulture, Strings.Log_CannotImportFromFormat, path), ex);
             }
         }
 
@@ -227,7 +227,7 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
                 }
                 catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
                 {
-                    AppLog.Warn($"No metadata imported from {file.FileName}: {ex.Message}");
+                    AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_NoMetadataImportedFormat, file.FileName, ex.Message));
                 }
             }
         }

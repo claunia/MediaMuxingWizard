@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.IO.Pipes;
 using System.Text;
+using MMW.App.Resources;
 using MMW.Core.Diagnostics;
 
 namespace MMW.App.Services;
@@ -59,7 +61,7 @@ public static class SingleInstance
                 catch (IOException ex)
                 {
                     // Another instance owns the pipe (or it broke); retry a little later.
-                    AppLog.Debug($"Single-instance pipe: {ex.Message}");
+                    AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_SingleInstancePipeFormat, ex.Message));
                     await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken).ConfigureAwait(false);
                 }
             }

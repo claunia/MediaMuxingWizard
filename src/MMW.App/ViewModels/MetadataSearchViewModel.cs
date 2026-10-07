@@ -273,7 +273,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
             }
             catch (Exception ex) when (ex is HttpRequestException or ArgumentException or InvalidOperationException or NotSupportedException)
             {
-                AppLog.Debug($"Thumbnail {item.Artwork.ThumbnailUrl} failed: {ex.Message}");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_ThumbnailFailedFormat, item.Artwork.ThumbnailUrl, ex.Message));
             }
         }
     }

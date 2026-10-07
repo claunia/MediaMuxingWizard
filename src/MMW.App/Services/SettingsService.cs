@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MMW.App.Resources;
 using MMW.Core.Diagnostics;
 
 namespace MMW.App.Services;
@@ -39,7 +40,7 @@ public sealed class SettingsService : ISettingsService
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            AppLog.Error("Could not save settings", ex);
+            AppLog.Error(Strings.Log_CouldNotSaveSettings, ex);
         }
     }
 
@@ -52,7 +53,7 @@ public sealed class SettingsService : ISettingsService
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
         {
-            AppLog.Error("Could not read settings; using defaults", ex);
+            AppLog.Error(Strings.Log_CouldNotReadSettings, ex);
         }
 
         return new AppSettings();

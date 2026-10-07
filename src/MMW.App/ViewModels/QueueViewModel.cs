@@ -335,7 +335,7 @@ public sealed partial class QueueViewModel : ViewModelBase
         }
         catch (IOException ex)
         {
-            Core.Diagnostics.AppLog.Error("Could not save the queue", ex);
+            Core.Diagnostics.AppLog.Error(Strings.Log_CouldNotSaveQueue, ex);
         }
     }
 

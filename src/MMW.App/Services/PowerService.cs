@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using MMW.App.Resources;
 using MMW.Core.Diagnostics;
 using MMW.Queue;
 
@@ -42,7 +44,7 @@ public sealed partial class PowerService : IPowerService
             }
             catch (System.ComponentModel.Win32Exception ex)
             {
-                AppLog.Warn($"Cannot prevent sleep ({tool}: {ex.Message}).");
+                AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_CannotPreventSleepFormat, tool, ex.Message));
                 return new NoAssertion();
             }
         }
@@ -70,7 +72,7 @@ public sealed partial class PowerService : IPowerService
         public WindowsAssertion()
         {
             if (SetThreadExecutionState(EsContinuous | EsSystemRequired) == 0)
-                AppLog.Warn("Cannot prevent sleep (SetThreadExecutionState failed).");
+                AppLog.Warn(Strings.Log_CannotPreventSleepWindows);
         }
 
         public void Dispose() => _ = SetThreadExecutionState(EsContinuous);

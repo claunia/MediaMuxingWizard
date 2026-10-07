@@ -4648,5 +4648,221 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown interface language '{0}': {1}.
+        /// </summary>
+        public static string Log_UnknownInterfaceLanguageFormat {
+            get {
+                return ResourceManager.GetString("Log_UnknownInterfaceLanguageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot prevent sleep ({0}: {1})..
+        /// </summary>
+        public static string Log_CannotPreventSleepFormat {
+            get {
+                return ResourceManager.GetString("Log_CannotPreventSleepFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot prevent sleep (SetThreadExecutionState failed)..
+        /// </summary>
+        public static string Log_CannotPreventSleepWindows {
+            get {
+                return ResourceManager.GetString("Log_CannotPreventSleepWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Single-instance pipe: {0}.
+        /// </summary>
+        public static string Log_SingleInstancePipeFormat {
+            get {
+                return ResourceManager.GetString("Log_SingleInstancePipeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open the file manager: {0}.
+        /// </summary>
+        public static string Log_CouldNotOpenFileManagerFormat {
+            get {
+                return ResourceManager.GetString("Log_CouldNotOpenFileManagerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Opened '{0}'..
+        /// </summary>
+        public static string Log_OpenedFormat {
+            get {
+                return ResourceManager.GetString("Log_OpenedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not open '{0}'.
+        /// </summary>
+        public static string Log_CouldNotOpenFormat {
+            get {
+                return ResourceManager.GetString("Log_CouldNotOpenFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not save settings.
+        /// </summary>
+        public static string Log_CouldNotSaveSettings {
+            get {
+                return ResourceManager.GetString("Log_CouldNotSaveSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not read settings; using defaults.
+        /// </summary>
+        public static string Log_CouldNotReadSettings {
+            get {
+                return ResourceManager.GetString("Log_CouldNotReadSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saved set "{0}"..
+        /// </summary>
+        public static string Log_SavedSetFormat {
+            get {
+                return ResourceManager.GetString("Log_SavedSetFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thumbnail {0} failed: {1}.
+        /// </summary>
+        public static string Log_ThumbnailFailedFormat {
+            get {
+                return ResourceManager.GetString("Log_ThumbnailFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not decode artwork: {0}.
+        /// </summary>
+        public static string Log_CouldNotDecodeArtworkFormat {
+            get {
+                return ResourceManager.GetString("Log_CouldNotDecodeArtworkFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot import from '{0}'.
+        /// </summary>
+        public static string Log_CannotImportFromFormat {
+            get {
+                return ResourceManager.GetString("Log_CannotImportFromFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No metadata imported from {0}: {1}.
+        /// </summary>
+        public static string Log_NoMetadataImportedFormat {
+            get {
+                return ResourceManager.GetString("Log_NoMetadataImportedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No conversion choices for track {0}: {1}.
+        /// </summary>
+        public static string Log_NoConversionChoicesFormat {
+            get {
+                return ResourceManager.GetString("Log_NoConversionChoicesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Video scan skipped for {0}: {1}.
+        /// </summary>
+        public static string Log_VideoScanSkippedFormat {
+            get {
+                return ResourceManager.GetString("Log_VideoScanSkippedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Audio scan skipped for {0}: {1}.
+        /// </summary>
+        public static string Log_AudioScanSkippedFormat {
+            get {
+                return ResourceManager.GetString("Log_AudioScanSkippedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: Dolby Vision {1} found in the bitstream but not signalled by the container..
+        /// </summary>
+        public static string Log_DolbyVisionNotSignalledFormat {
+            get {
+                return ResourceManager.GetString("Log_DolbyVisionNotSignalledFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: Dolby Vision configuration rebuilt ({1}, level {2})..
+        /// </summary>
+        public static string Log_DolbyVisionRebuiltFormat {
+            get {
+                return ResourceManager.GetString("Log_DolbyVisionRebuiltFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Track {0} of '{1}' could not be inspected; the copy is passed through: {2}.
+        /// </summary>
+        public static string Log_TrackNotInspectedFormat {
+            get {
+                return ResourceManager.GetString("Log_TrackNotInspectedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exported {0} track {1} to '{2}'..
+        /// </summary>
+        public static string Log_ExportedTrackFormat {
+            get {
+                return ResourceManager.GetString("Log_ExportedTrackFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exporting track {0} of '{1}' failed.
+        /// </summary>
+        public static string Log_ExportTrackFailedFormat {
+            get {
+                return ResourceManager.GetString("Log_ExportTrackFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saving '{0}' failed.
+        /// </summary>
+        public static string Log_SaveFailedFormat {
+            get {
+                return ResourceManager.GetString("Log_SaveFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not save the queue.
+        /// </summary>
+        public static string Log_CouldNotSaveQueue {
+            get {
+                return ResourceManager.GetString("Log_CouldNotSaveQueue", resourceCulture);
+            }
+        }
+        
     }
 }

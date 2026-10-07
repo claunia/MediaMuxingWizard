@@ -198,11 +198,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             Settings.AddRecent(path);
             _settings.Save();
             RebuildRecentMenu();
-            AppLog.Info($"Opened '{path}'.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_OpenedFormat, path));
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or EndOfStreamException)
         {
-            AppLog.Error($"Could not open '{path}'", ex);
+            AppLog.Error(string.Format(CultureInfo.CurrentCulture, Strings.Log_CouldNotOpenFormat, path), ex);
             await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotOpen_Title, $"{Path.GetFileName(path)}: {ex.Message}");
         }
         finally

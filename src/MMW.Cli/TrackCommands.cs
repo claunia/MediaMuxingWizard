@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using MMW.Cli.Resources;
 using MMW.Core.Languages;
 using MMW.Core.Media;
 using MMW.Core.Model;
@@ -73,7 +74,7 @@ internal static partial class TrackCommands
 
         if (match is null && key == "ocr")
             match = choices.FirstOrDefault(c => c.Ocr);
-        return match ?? throw new UsageException($"'{name}' is not offered for {what}; choose one of: {string.Join(", ", choices.Select(Name))}.");
+        return match ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ActionNotOffered, name, what, string.Join(", ", choices.Select(Name))));
     }
 
     // ------------------------------------------------------------------ track references
@@ -119,7 +120,7 @@ internal static partial class TrackCommands
             }
             else
             {
-                throw new UsageException($"'{text}' is not a list of track numbers (e.g. 2 or 1,3-5).");
+                throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotTrackList, text));
             }
         }
 
@@ -134,14 +135,14 @@ internal static partial class TrackCommands
         var colon = spec.LastIndexOf(':');
         if (colon > 0 && File.Exists(spec[..colon]) && IdListRegex().IsMatch(spec[(colon + 1)..]))
             return (spec[..colon], Ids(spec[(colon + 1)..]));
-        throw new FileNotFoundException($"'{spec}' does not exist.", spec);
+        throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, spec), spec);
     }
 
     private static bool Bool(string value, string option) => value.Trim().ToLowerInvariant() switch
     {
         "true" or "yes" or "1" or "on" => true,
         "false" or "no" or "0" or "off" => false,
-        _ => throw new UsageException($"--{option} takes true or false, not '{value}'."),
+        _ => throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_BoolOption, option, value)),
     };
 
     // ------------------------------------------------------------------ probe
@@ -150,20 +151,20 @@ internal static partial class TrackCommands
     public static async Task<int> ProbeAsync(Arguments a, TextWriter output)
     {
         if (a.Positional.Count == 0)
-            throw new UsageException("Usage: mmw probe <source>... [--target mp4|mkv] [--json]");
+            throw new UsageException(Strings.Error_ProbeUsage);
         MediaRemux.EnsureRegistered();
         var targets = a.Value("target")?.ToLowerInvariant() switch
         {
             null => new[] { ContainerKind.Mp4, ContainerKind.Matroska },
             "mp4" or "m4v" or "mov" => [ContainerKind.Mp4],
             "mkv" or "matroska" or "webm" => [ContainerKind.Matroska],
-            var t => throw new UsageException($"Unknown target '{t}' (use mp4 or mkv)."),
+            var t => throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownTarget, t)),
         };
         var result = new List<object>();
         foreach (var source in a.Positional)
         {
             if (!File.Exists(source))
-                throw new FileNotFoundException($"'{source}' does not exist.", source);
+                throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, source), source);
             var byTarget = new Dictionary<ContainerKind, IReadOnlyList<ImportableTrack>>();
             foreach (var target in targets)
                 byTarget[target] = await TrackImporter.InspectAsync(source, target);
@@ -193,7 +194,7 @@ internal static partial class TrackCommands
                 continue;
             }
 
-            await output.WriteLineAsync($"{source} ({(first.Count > 0 ? first[0].SourceFormat : "no tracks")})");
+            await output.WriteLineAsync($"{source} ({(first.Count > 0 ? first[0].SourceFormat : Strings.Probe_NoTracks)})");
             foreach (var t in first)
             {
                 var name = t.Name.Length > 0 ? $" \"{t.Name}\"" : string.Empty;
@@ -211,7 +212,7 @@ internal static partial class TrackCommands
         if (a.Has("json"))
             await output.WriteLineAsync(JsonSerializer.Serialize(result, s_json));
         else
-            await output.WriteLineAsync("(* = recommended; pass another with --action <track>=<name>)");
+            await output.WriteLineAsync(Strings.Probe_Legend);
         return 0;
     }
 
@@ -225,7 +226,7 @@ internal static partial class TrackCommands
     public static async Task<int> ImportAsync(Arguments a, TextWriter output, ContainerRegistry registry)
     {
         if (a.Positional.Count < 2)
-            throw new UsageException("Usage: mmw import <file> <source[:tracks]>... (see 'mmw --help')");
+            throw new UsageException(Strings.Error_ImportUsage);
         MediaRemux.EnsureRegistered();
         var doc = await registry.OpenAsync(a.Positional[0]);
         var only = a.Value("only")?.ToLowerInvariant();
@@ -261,7 +262,7 @@ internal static partial class TrackCommands
             {
                 var missing = ids.Where(id => tracks.All(t => t.TrackId != id)).ToList();
                 if (missing.Count > 0)
-                    throw new UsageException($"{file} has no track {string.Join(", ", missing)}; its tracks are {string.Join(", ", tracks.Select(t => $"{t.TrackId} ({t.Kind} {t.Format})"))}.");
+                    throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoSuchTracks, file, string.Join(", ", missing), string.Join(", ", tracks.Select(t => $"{t.TrackId} ({t.Kind} {t.Format})"))));
                 selected = tracks.Where(t => ids.Contains(t.TrackId)).ToList();
             }
             else
@@ -271,7 +272,7 @@ internal static partial class TrackCommands
 
             foreach (var t in selected)
             {
-                var what = $"{file} track {t.TrackId} ({t.Format})";
+                var what = string.Format(CultureInfo.CurrentCulture, Strings.Track_OfFile, file, t.TrackId, t.Format);
                 // An action for this track must be offered; one for every track applies where it is.
                 var specific = actions.Where(x => x.Track is not null && x.Matches(n, t.TrackId)).OrderByDescending(x => x.Rank).FirstOrDefault();
                 if (specific is not null)
@@ -288,7 +289,9 @@ internal static partial class TrackCommands
                     }
                 }
                 if (t.Action == ImportAction.Skip)
-                    throw new UsageException($"{what} cannot be stored in {doc.Container}{(t.Support.Reason is { } r ? $": {r}" : string.Empty)}; offered: {string.Join(", ", t.Choices.Select(Name))}.");
+                    throw new UsageException(t.Support.Reason is { } r
+                        ? string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotStoreReason, what, doc.Container, r, string.Join(", ", t.Choices.Select(Name)))
+                        : string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotStore, what, doc.Container, string.Join(", ", t.Choices.Select(Name))));
                 if (Pick(languages, n, t.TrackId) is { } lang)
                     t.Language = LanguageTable.ToBcp47(lang);
                 if (Pick(names, n, t.TrackId) is { } name)
@@ -297,16 +300,16 @@ internal static partial class TrackCommands
                     t.Ocr = t.Ocr with { Language = ocr };
                 if (t.RequiresFrameRate)
                 {
-                    var rate = Pick(frameRates, n, t.TrackId) ?? throw new UsageException($"{file} needs --frame-rate.");
+                    var rate = Pick(frameRates, n, t.TrackId) ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NeedsFrameRate, file));
                     t.FrameRate = double.Parse(rate, CultureInfo.InvariantCulture);
                 }
 
                 t.Selected = true;
-                plan.Add($"{file} track {t.TrackId}: {t.Kind} {t.Format} ({t.Language}) → {Name(t.Choice!)}");
+                plan.Add(string.Format(CultureInfo.CurrentCulture, Strings.Plan_Import, file, t.TrackId, t.Kind, t.Format, t.Language, Name(t.Choice!)));
             }
 
             foreach (var skipped in tracks.Except(selected).Where(t => ids is null && t.Support.Reason is not null))
-                await output.WriteLineAsync($"Skipping {file} track {skipped.TrackId}: {skipped.Support.Reason}");
+                await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Import_Skipping, file, skipped.TrackId, skipped.Support.Reason));
             if (a.Has("dry-run"))
                 continue;
 
@@ -330,12 +333,12 @@ internal static partial class TrackCommands
             return 0;
         if (added == 0)
         {
-            await output.WriteLineAsync("Nothing to import.");
+            await output.WriteLineAsync(Strings.Import_Nothing);
             return 1;
         }
 
         await registry.Get(doc.Container)!.SaveAsync(doc, new SaveOptions { OutputPath = a.Value("output"), Optimize = a.Has("optimize") });
-        await output.WriteLineAsync($"Imported {added} track(s) into {a.Value("output") ?? doc.Path}.");
+        await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Import_Done, added, a.Value("output") ?? doc.Path));
         return 0;
     }
 
@@ -353,12 +356,12 @@ internal static partial class TrackCommands
     private static int Duplicate(MediaDocument doc, Track track, ImportableTrack inspected, string actionName, List<string> plan, string file)
     {
         if (track is not SubtitleTrack subtitle || !TrackImporter.CanDuplicate(subtitle))
-            throw new UsageException($"{file} track {inspected.TrackId} ({inspected.Format}) is not a subtitle track; only subtitles can be duplicated.");
-        var choice = Resolve(inspected.Choices, actionName, 0, $"{file} track {inspected.TrackId} ({inspected.Format})");
+            throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotSubtitle, string.Format(CultureInfo.CurrentCulture, Strings.Track_OfFile, file, inspected.TrackId, inspected.Format)));
+        var choice = Resolve(inspected.Choices, actionName, 0, string.Format(CultureInfo.CurrentCulture, Strings.Track_OfFile, file, inspected.TrackId, inspected.Format));
         var copy = TrackImporter.Duplicate(doc, subtitle, inspected);
         TrackConversions.SetAction(doc, copy, choice.Action, ocr: choice.OcrFrom(inspected.Ocr));
         copy.Enabled = true;
-        plan.Add($"{file} track {inspected.TrackId}: duplicated → {Name(choice)}");
+        plan.Add(string.Format(CultureInfo.CurrentCulture, Strings.Plan_Duplicated, file, inspected.TrackId, Name(choice)));
         return 1;
     }
 
@@ -371,21 +374,21 @@ internal static partial class TrackCommands
     public static async Task<int> RemuxAsync(Arguments a, TextWriter output, ContainerRegistry registry)
     {
         if (a.Positional.Count != 2)
-            throw new UsageException("Usage: mmw remux <file> <output.mkv|output.m4v|…> [options] (see 'mmw --help')");
+            throw new UsageException(Strings.Error_RemuxUsage);
         MediaRemux.EnsureRegistered();
         var doc = await registry.OpenAsync(a.Positional[0]);
         var target = ContainerKinds.FromPath(a.Positional[1]);
         if (target == ContainerKind.Unknown)
-            throw new UsageException("The output extension must be an MP4 or Matroska type.");
+            throw new UsageException(Strings.Error_OutputExtension);
         var plan = new List<string>();
         await ApplyTrackOptionsAsync(doc, a, target, plan, dropUnsupported: a.Has("drop-unsupported"), keepOnlyPicked: true);
 
         var checks = await Remuxer.CheckAsync(doc, target);
         foreach (var (track, support) in checks.Where(c => c.Support.Level == TrackSupportLevel.Passthrough && c.Support.Reason is not null))
-            await output.WriteLineAsync($"Warning: track {track.Id} ({track.Format}): {support.Reason}");
+            await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Remux_Warning, track.Id, track.Format, support.Reason));
         foreach (var (track, support) in checks.Where(p => p.Support.Level is TrackSupportLevel.NeedsConversion or TrackSupportLevel.Unsupported))
         {
-            plan.Add($"Dropping track {track.Id} ({track.Format}): {support.Reason}");
+            plan.Add(string.Format(CultureInfo.CurrentCulture, Strings.Plan_Dropping, track.Id, track.Format, support.Reason));
             track.Source = track.Source! with { Import = new TrackImportOptions { Action = ImportAction.Skip } };
         }
 
@@ -394,7 +397,7 @@ internal static partial class TrackCommands
         if (a.Has("dry-run"))
             return 0;
         await registry.Get(doc.Container)!.SaveAsync(doc, new SaveOptions { OutputPath = Path.GetFullPath(a.Positional[1]), Optimize = a.Has("optimize") });
-        await output.WriteLineAsync($"Wrote {a.Positional[1]}.");
+        await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Output_Wrote, a.Positional[1]));
         return 0;
     }
 
@@ -408,7 +411,7 @@ internal static partial class TrackCommands
         var picks = keepOnlyPicked ? a.Values("track").SelectMany(v => Ids(v)).ToHashSet() : [];
         var actions = Assignments(a, "action");
         if (actions.Any(x => x.Track is null))
-            throw new UsageException("Name the track the action is for: --action <track>=<name> (see 'mmw probe' for the tracks and their actions).");
+            throw new UsageException(Strings.Error_ActionNeedsTrack);
         var duplicates = Assignments(a, "duplicate");
         var forced = Assignments(a, "forced");
         var defaults = Assignments(a, "default");
@@ -425,10 +428,10 @@ internal static partial class TrackCommands
         {
             if (track.Source is null)
                 continue;
-            var what = $"track {track.Id} ({track.Format})";
+            var what = string.Format(CultureInfo.CurrentCulture, Strings.Track_Short, track.Id, track.Format);
             if (picks.Count > 0 && !picks.Contains(track.Id))
             {
-                plan.Add($"Leaving out {what}");
+                plan.Add(string.Format(CultureInfo.CurrentCulture, Strings.Plan_LeavingOut, what));
                 track.Source = track.Source with { Import = (track.Source.Import ?? new TrackImportOptions()) with { Action = ImportAction.Skip } };
                 continue;
             }
@@ -442,7 +445,7 @@ internal static partial class TrackCommands
             var info = inspected.GetValueOrDefault(track.Id);
             ImportChoice? choice = null;
             if (Pick(actions, 1, track.Id) is { } actionName)
-                choice = Resolve(info?.Choices ?? throw new UsageException($"No actions are known for {what}."), actionName, info.Config.Channels, what);
+                choice = Resolve(info?.Choices ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoActionsKnown, what)), actionName, info.Config.Channels, what);
             else if (!dropUnsupported && support.TryGetValue(track, out var s) && s.Level is TrackSupportLevel.NeedsConversion or TrackSupportLevel.Unsupported &&
                      info?.Choice is { Action: not ImportAction.Skip } recommended)
                 choice = recommended; // what the editor preselects for a track the target cannot hold as it is
@@ -468,9 +471,9 @@ internal static partial class TrackCommands
     /// </summary>
     public static async Task<int> TracksAsync(Arguments a, TextWriter output, ContainerRegistry registry, Action<MediaDocument, Arguments> edit)
     {
-        var file = a.Positional.FirstOrDefault() ?? throw new UsageException("Missing file argument.");
+        var file = a.Positional.FirstOrDefault() ?? throw new UsageException(Strings.Error_MissingFile);
         if (!File.Exists(file))
-            throw new FileNotFoundException($"'{file}' does not exist.", file);
+            throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, file), file);
         MediaRemux.EnsureRegistered();
         var doc = await registry.OpenAsync(file);
         edit(doc, a);
@@ -482,7 +485,7 @@ internal static partial class TrackCommands
             return 0;
         var destination = a.Value("output");
         await registry.Get(doc.Container)!.SaveAsync(doc, new SaveOptions { OutputPath = destination, Optimize = a.Has("optimize") });
-        await output.WriteLineAsync($"Saved {destination ?? doc.Path}.");
+        await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Edit_Saved, destination ?? doc.Path));
         return 0;
     }
 
@@ -495,10 +498,10 @@ internal static partial class TrackCommands
     public static async Task<int> ExtractAsync(Arguments a, TextWriter output)
     {
         if (a.Positional.Count < 1 || a.Positional.Count == 1 && !a.Has("all"))
-            throw new UsageException("Usage: mmw extract <file> <track-ids>... [output] | mmw extract <file> --all [--output-dir dir]");
+            throw new UsageException(Strings.Error_ExtractUsage);
         var file = a.Positional[0];
         if (!File.Exists(file))
-            throw new FileNotFoundException($"'{file}' does not exist.", file);
+            throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, file), file);
         MediaRemux.EnsureRegistered();
         using var demuxer = MediaFormatRegistry.OpenDemuxer(Path.GetFullPath(file));
         var rest = a.Positional.Skip(1).ToList();
@@ -513,19 +516,19 @@ internal static partial class TrackCommands
             ? demuxer.Tracks.Where(t => TrackExport.CanExport(t.Config)).Select(t => t.TrackId).ToHashSet()
             : rest.SelectMany(Ids).ToHashSet();
         if (single is not null && ids.Count != 1)
-            throw new UsageException("An output file name can only be given for one track; use --output-dir for several.");
+            throw new UsageException(Strings.Error_OutputForOneTrack);
         var directory = a.Value("output-dir") ?? Path.GetDirectoryName(Path.GetFullPath(file))!;
         Directory.CreateDirectory(directory);
         foreach (var id in ids.Order())
         {
             var track = demuxer.Tracks.FirstOrDefault(t => t.TrackId == id)
-                        ?? throw new UsageException($"No track with id {id}; tracks: {string.Join(", ", demuxer.Tracks.Select(t => $"{t.TrackId} ({t.Config.FormatName})"))}.");
+                        ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoTrackWithIdList, id, string.Join(", ", demuxer.Tracks.Select(t => $"{t.TrackId} ({t.Config.FormatName})"))));
             var extension = TrackExport.Extension(track.Config)
-                            ?? throw new NotSupportedException($"{track.Config.FormatName} tracks cannot be exported as a raw stream.");
+                            ?? throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotExportRaw, track.Config.FormatName));
             var target = single ?? Path.Combine(directory, string.Create(CultureInfo.InvariantCulture, $"{Path.GetFileNameWithoutExtension(file)} - {id}{extension}"));
             await TrackExport.ExportAsync(track, Path.GetFullPath(target));
             track.Reset();
-            await output.WriteLineAsync($"Wrote {target} ({track.Config.FormatName}).");
+            await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Extract_Wrote, target, track.Config.FormatName));
         }
 
         return 0;

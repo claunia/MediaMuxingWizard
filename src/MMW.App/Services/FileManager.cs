@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Globalization;
+using MMW.App.Resources;
 
 namespace MMW.App.Services;
 
@@ -30,7 +32,7 @@ public static class FileManager
         }
         catch (System.ComponentModel.Win32Exception ex)
         {
-            Core.Diagnostics.AppLog.Warn($"Could not open the file manager: {ex.Message}");
+            Core.Diagnostics.AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_CouldNotOpenFileManagerFormat, ex.Message));
         }
     }
 }

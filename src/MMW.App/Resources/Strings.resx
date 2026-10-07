@@ -1595,4 +1595,76 @@ Save anyway?</value>
   <data name="Dialog_CannotExportTrack" xml:space="preserve">
     <value>{0} tracks cannot be exported as a raw stream.</value>
   </data>
+  <data name="Log_UnknownInterfaceLanguageFormat" xml:space="preserve">
+    <value>Unknown interface language '{0}': {1}</value>
+  </data>
+  <data name="Log_CannotPreventSleepFormat" xml:space="preserve">
+    <value>Cannot prevent sleep ({0}: {1}).</value>
+  </data>
+  <data name="Log_CannotPreventSleepWindows" xml:space="preserve">
+    <value>Cannot prevent sleep (SetThreadExecutionState failed).</value>
+  </data>
+  <data name="Log_SingleInstancePipeFormat" xml:space="preserve">
+    <value>Single-instance pipe: {0}</value>
+  </data>
+  <data name="Log_CouldNotOpenFileManagerFormat" xml:space="preserve">
+    <value>Could not open the file manager: {0}</value>
+  </data>
+  <data name="Log_OpenedFormat" xml:space="preserve">
+    <value>Opened '{0}'.</value>
+  </data>
+  <data name="Log_CouldNotOpenFormat" xml:space="preserve">
+    <value>Could not open '{0}'</value>
+  </data>
+  <data name="Log_CouldNotSaveSettings" xml:space="preserve">
+    <value>Could not save settings</value>
+  </data>
+  <data name="Log_CouldNotReadSettings" xml:space="preserve">
+    <value>Could not read settings; using defaults</value>
+  </data>
+  <data name="Log_SavedSetFormat" xml:space="preserve">
+    <value>Saved set "{0}".</value>
+  </data>
+  <data name="Log_ThumbnailFailedFormat" xml:space="preserve">
+    <value>Thumbnail {0} failed: {1}</value>
+  </data>
+  <data name="Log_CouldNotDecodeArtworkFormat" xml:space="preserve">
+    <value>Could not decode artwork: {0}</value>
+  </data>
+  <data name="Log_CannotImportFromFormat" xml:space="preserve">
+    <value>Cannot import from '{0}'</value>
+  </data>
+  <data name="Log_NoMetadataImportedFormat" xml:space="preserve">
+    <value>No metadata imported from {0}: {1}</value>
+  </data>
+  <data name="Log_NoConversionChoicesFormat" xml:space="preserve">
+    <value>No conversion choices for track {0}: {1}</value>
+  </data>
+  <data name="Log_VideoScanSkippedFormat" xml:space="preserve">
+    <value>Video scan skipped for {0}: {1}</value>
+  </data>
+  <data name="Log_AudioScanSkippedFormat" xml:space="preserve">
+    <value>Audio scan skipped for {0}: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionNotSignalledFormat" xml:space="preserve">
+    <value>{0}: Dolby Vision {1} found in the bitstream but not signalled by the container.</value>
+  </data>
+  <data name="Log_DolbyVisionRebuiltFormat" xml:space="preserve">
+    <value>{0}: Dolby Vision configuration rebuilt ({1}, level {2}).</value>
+  </data>
+  <data name="Log_TrackNotInspectedFormat" xml:space="preserve">
+    <value>Track {0} of '{1}' could not be inspected; the copy is passed through: {2}</value>
+  </data>
+  <data name="Log_ExportedTrackFormat" xml:space="preserve">
+    <value>Exported {0} track {1} to '{2}'.</value>
+  </data>
+  <data name="Log_ExportTrackFailedFormat" xml:space="preserve">
+    <value>Exporting track {0} of '{1}' failed</value>
+  </data>
+  <data name="Log_SaveFailedFormat" xml:space="preserve">
+    <value>Saving '{0}' failed</value>
+  </data>
+  <data name="Log_CouldNotSaveQueue" xml:space="preserve">
+    <value>Could not save the queue</value>
+  </data>
 </root>

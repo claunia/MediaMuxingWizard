@@ -216,7 +216,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            MMW.Core.Diagnostics.AppLog.Debug($"No conversion choices for track {Track.Id}: {ex.Message}");
+            MMW.Core.Diagnostics.AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_NoConversionChoicesFormat, Track.Id, ex.Message));
         }
     }
 

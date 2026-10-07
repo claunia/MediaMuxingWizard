@@ -5,6 +5,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.App.ViewModels;
 using MMW.App.Views;
@@ -91,7 +92,7 @@ public partial class App : Application
         }
         catch (CultureNotFoundException ex)
         {
-            MMW.Core.Diagnostics.AppLog.Warn($"Unknown interface language '{name}': {ex.Message}");
+            MMW.Core.Diagnostics.AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_UnknownInterfaceLanguageFormat, name, ex.Message));
         }
     }
 }

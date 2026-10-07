@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using MMW.Cli.Resources;
 using MMW.Core.Actions;
 using MMW.Core.Chapters;
 using MMW.Core.Languages;
@@ -14,61 +15,11 @@ namespace MMW.Cli;
 /// <summary>The <c>mmw</c> command line: scriptable access to everything the editor does.</summary>
 internal static class CommandLine
 {
-    private const string Usage = """
-        Usage: mmw <command> [arguments]
-
-          info <file> [--json]                 Show tracks, tags and chapters
-          tags <file> [--json]                 List tags
-          set <file> "Tag=value"...            Set tags (empty value removes the tag)
-          clear-tags <file>                    Remove all tags and artwork
-          artwork <file> --add <image>... [--replace] | --export <dir> | --remove-all
-          chapters <file> --import <txt> | --export <txt> | --every <minutes> | --clear
-          tracks <file> [--organize-groups] [--fix-fallbacks] [--clear-names] [--prettify-audio-names]
-                        [--complete-languages <lang>] [--enable-audio <lang>] [--enable-subtitles <lang>]
-                        [--track <id> --name <name> --language <lang> --enabled <true|false>]
-                        [--action <id>=<action>] [--duplicate <id>=<action>] [--forced|--default <id>=<bool>]
-                                               Edit tracks; actions and duplicates remux the file on save
-          queue add <file>... | queue start | queue status | queue clear-completed
-                                               Use the editor's saved queue (and its options)
-          search <file> [--title t] [--year y] [--season n] [--episode n] [--provider p] [--language l]
-                        [--apply [--result n] [--artwork poster|season|episode|backdrop|none]]
-                                               Search online metadata; --apply writes the chosen result
-          nfo <file> --import [nfo] | --export [nfo]
-                                               Merge tags from a Kodi .nfo, or write one
-          probe <source>... [--target mp4|mkv] [--json]
-                                               List a file's tracks and the actions offered for each
-                                               (* = recommended), for MP4 and Matroska
-          import <file> <source[:tracks]>... [--track [n:]<tracks>] [--only video|audio|subtitle]
-                        [--action [<track>=]<action>] [--language [<track>=]<lang>] [--name <track>=<name>]
-                        [--forced|--default|--enabled <track>=<bool>] [--ocr-language [<track>=]<lang>]
-                        [--frame-rate [<track>=]<fps>] [--duplicate <track>=<action>] [--dry-run]
-                                               Add tracks from other files (remuxes on save). Pick tracks
-                                               with "movie.mkv:2,4-5" or --track; without, every track that
-                                               can be stored is taken with its recommended action
-          remux <file> <output> [--track <ids>] [--action <id>=<action>] [--duplicate <id>=<action>]
-                        [--name|--language <id>=<value>] [--forced|--default|--enabled <id>=<bool>]
-                        [--drop-unsupported] [--dry-run]
-                                               Rewrite as MP4 or Matroska (by extension); tracks the target
-                                               cannot hold as they are get their recommended conversion
-                                               (--drop-unsupported leaves them out instead)
-          extract <file> <track-ids>... [output] | extract <file> --all [--output-dir <dir>]
-                                               Write tracks as raw streams (.h264, .aac, .flac, .srt …)
-          tag-names                            List the tag names accepted by "set"
-
-        Tracks are the numbers "info" or "probe" show; with several import sources, "<n>:<track>" names track
-        <track> of source <n> (counted from 1). Actions: copy, aac, aac-stereo, aac-mono, aac-dpl2, aac-dpl,
-        aac-multichannel, ac3, aac+copy, aac+ac3, pcm, alac, tx3g, srt, ass, ssa, webvtt, tx3g-ocr, srt-ocr,
-        skip, as "probe" offers them for each track.
-
-        Every editing command saves the file in place, or to --output <path> when given (--optimize for
-        fast start); --dry-run prints what would be done without saving.
-        """;
-
     public static async Task<int> RunAsync(string[] args, TextWriter output, TextWriter error, string? queuePath = null)
     {
         if (args.Length == 0 || args[0] is "-h" or "--help" or "help")
         {
-            await output.WriteLineAsync(Usage);
+            await output.WriteLineAsync(Strings.Help_Usage);
             return args.Length == 0 ? 1 : 0;
         }
 
@@ -91,18 +42,18 @@ internal static class CommandLine
                 "remux" => await TrackCommands.RemuxAsync(Arguments.Parse(args[1..]), output, Registry()),
                 "extract" => await TrackCommands.ExtractAsync(Arguments.Parse(args[1..]), output),
                 "probe" => await TrackCommands.ProbeAsync(Arguments.Parse(args[1..]), output),
-                _ => throw new UsageException($"Unknown command '{args[0]}'."),
+                _ => throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownCommand, args[0])),
             };
         }
         catch (UsageException ex)
         {
             await error.WriteLineAsync(ex.Message);
-            await error.WriteLineAsync("Run 'mmw --help' for usage.");
+            await error.WriteLineAsync(Strings.Error_RunHelp);
             return 2;
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or FormatException or HttpRequestException)
         {
-            await error.WriteLineAsync($"Error: {ex.Message}");
+            await error.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Error_Generic, ex.Message));
             return 1;
         }
     }
@@ -113,9 +64,9 @@ internal static class CommandLine
 
     private static string RequireFile(Arguments a)
     {
-        var file = a.Positional.FirstOrDefault() ?? throw new UsageException("Missing file argument.");
+        var file = a.Positional.FirstOrDefault() ?? throw new UsageException(Strings.Error_MissingFile);
         if (!File.Exists(file))
-            throw new FileNotFoundException($"'{file}' does not exist.", file);
+            throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, file), file);
         return file;
     }
 
@@ -164,17 +115,17 @@ internal static class CommandLine
             foreach (var t in doc.Tracks.Where(t => t is not ChapterTrack))
             {
                 await output.WriteLineAsync(string.Create(CultureInfo.InvariantCulture,
-                    $"  #{t.Id,-3} {t.Kind,-13} {t.DisplayFormat,-40} {LanguageTable.DisplayName(t.Language),-14} {(t.Enabled ? "on " : "off")} {t.Name}"));
+                    $"  #{t.Id,-3} {t.Kind,-13} {t.DisplayFormat,-40} {LanguageTable.DisplayName(t.Language),-14} {(t.Enabled ? Strings.Info_TrackOn : Strings.Info_TrackOff),-3} {t.Name}"));
             }
 
             if (doc.Chapters.Count > 0)
             {
-                await output.WriteLineAsync($"Chapters ({doc.Chapters.Count}):");
+                await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Info_Chapters, doc.Chapters.Count));
                 foreach (var c in doc.Chapters)
                     await output.WriteLineAsync($"  {ChapterTime.Format(c.Start)}  {c.Title}");
             }
 
-            await output.WriteLineAsync("Tags:");
+            await output.WriteLineAsync(Strings.Info_Tags);
         }
 
         foreach (var (name, value) in tags)
@@ -182,7 +133,7 @@ internal static class CommandLine
         foreach (var (key, value) in doc.Metadata.CustomItems)
             await output.WriteLineAsync($"  [{key}]: {value}");
         if (doc.Metadata.Artworks.Count > 0)
-            await output.WriteLineAsync($"  Artwork: {doc.Metadata.Artworks.Count} image(s)");
+            await output.WriteLineAsync("  " + string.Format(CultureInfo.CurrentCulture, Strings.Info_Artwork, doc.Metadata.Artworks.Count));
         return 0;
     }
 
@@ -213,7 +164,7 @@ internal static class CommandLine
         var handler = registry.Get(doc.Container)!;
         var destination = a.Value("output");
         await handler.SaveAsync(doc, new SaveOptions { OutputPath = destination, Optimize = a.Has("optimize") });
-        await output.WriteLineAsync($"Saved {destination ?? doc.Path}.");
+        await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Edit_Saved, destination ?? doc.Path));
         return 0;
     }
 
@@ -221,21 +172,21 @@ internal static class CommandLine
     {
         var assignments = a.Positional.Skip(1).ToList();
         if (assignments.Count == 0)
-            throw new UsageException("Give at least one \"Tag=value\" assignment.");
+            throw new UsageException(Strings.Error_SetNeedsAssignment);
         foreach (var assignment in assignments)
         {
             var eq = assignment.IndexOf('=', StringComparison.Ordinal);
             if (eq <= 0)
-                throw new UsageException($"'{assignment}' is not in Tag=value form.");
+                throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotAssignment, assignment));
             var name = assignment[..eq].Trim();
             var value = assignment[(eq + 1)..];
             var def = TagCatalog.All.FirstOrDefault(d => string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase) ||
                                                          string.Equals(d.Id.ToString(), name, StringComparison.OrdinalIgnoreCase))
-                      ?? throw new UsageException($"Unknown tag '{name}'. Run 'mmw tag-names' for the list.");
+                      ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownTag, name));
             if (def.Choices is { } choices && !int.TryParse(value, out _) && value.Length > 0)
             {
                 value = (choices.FirstOrDefault(c => string.Equals(c.Name, value, StringComparison.OrdinalIgnoreCase))
-                         ?? throw new UsageException($"'{value}' is not a valid {def.Name}.")).Value.ToString(CultureInfo.InvariantCulture);
+                         ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_InvalidChoice, value, def.Name))).Value.ToString(CultureInfo.InvariantCulture);
             }
 
             doc.Metadata.Set(def.Id, value.Length == 0 ? null : value);
@@ -260,14 +211,14 @@ internal static class CommandLine
         {
             var images = a.Values("add");
             if (images.Count == 0)
-                throw new UsageException("Use --add <image>, --export <dir> or --remove-all.");
+                throw new UsageException(Strings.Error_ArtworkUsage);
             if (a.Has("replace"))
                 doc.Metadata.Artworks.Clear();
             foreach (var path in images)
             {
                 var data = File.ReadAllBytes(path);
                 if (Core.Metadata.Artwork.Detect(data) == ArtworkFormat.Unknown)
-                    throw new FormatException($"'{path}' is not a JPEG, PNG, BMP or GIF image.");
+                    throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotAnImage, path));
                 doc.Metadata.Artworks.Add(new Core.Metadata.Artwork(data));
             }
         }
@@ -290,7 +241,7 @@ internal static class CommandLine
         else if (a.Has("clear"))
             TrackActions.RemoveAll(doc.Chapters);
         else
-            throw new UsageException("Use --import <txt>, --export <txt>, --every <minutes> or --clear.");
+            throw new UsageException(Strings.Error_ChaptersUsage);
     }
 
     internal static void Tracks(MediaDocument doc, Arguments a)
@@ -306,14 +257,14 @@ internal static class CommandLine
         if (a.Has("prettify-audio-names"))
             TrackActions.PrettifyAudioNames(doc);
         if (a.Value("enable-audio") is { } audio && !GroupActions.EnableTrackWithLanguage(doc, TrackKind.Audio, audio))
-            throw new UsageException($"No audio track in '{audio}'.");
+            throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoAudioInLanguage, audio));
         if (a.Value("enable-subtitles") is { } subs && !GroupActions.EnableTrackWithLanguage(doc, TrackKind.Subtitle, subs))
-            throw new UsageException($"No subtitle track in '{subs}'.");
+            throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoSubtitleInLanguage, subs));
 
         if (a.Value("track") is { } idText)
         {
             var id = uint.Parse(idText, CultureInfo.InvariantCulture);
-            var track = doc.Tracks.FirstOrDefault(t => t.Id == id && t is not ChapterTrack) ?? throw new UsageException($"No track with id {id}.");
+            var track = doc.Tracks.FirstOrDefault(t => t.Id == id && t is not ChapterTrack) ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoTrackWithId, id));
             // "--name 3=…" / "--language 3=…" name their track themselves (applied with the other per-track options).
             if (a.Values("name").LastOrDefault(v => !PerTrack(v)) is { } name)
                 track.Name = name;
@@ -331,7 +282,7 @@ internal static class CommandLine
     private static async Task<int> QueueAsync(string[] args, TextWriter output, string queuePath)
     {
         if (args.Length == 0)
-            throw new UsageException("Use 'queue add <file>...', 'queue start', 'queue status' or 'queue clear-completed'.");
+            throw new UsageException(Strings.Error_QueueUsage);
         var runner = new QueueRunner(Registry());
         QueueStore.Load(runner, queuePath);
         switch (args[0])
@@ -339,7 +290,7 @@ internal static class CommandLine
             case "add":
                 var added = runner.Add(args[1..].Select(Path.GetFullPath).Where(File.Exists));
                 QueueStore.Save(runner, queuePath);
-                await output.WriteLineAsync($"Added {added.Count} item(s); {runner.Items.Count} in the queue.");
+                await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Queue_Added, added.Count, runner.Items.Count));
                 return 0;
             case "start":
                 using (var cts = new CancellationTokenSource())
@@ -363,7 +314,7 @@ internal static class CommandLine
                 QueueStore.Save(runner, queuePath);
                 return 0;
             default:
-                throw new UsageException($"Unknown queue command '{args[0]}'.");
+                throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownQueueCommand, args[0]));
         }
     }
 
@@ -377,4 +328,4 @@ internal static class CommandLine
 internal sealed class UsageException(string message) : Exception(message);
 
 /// <summary>Thrown by read-only sub-commands (exports) to skip saving.</summary>
-internal sealed class NothingToSaveException() : IOException("Nothing to save.");
+internal sealed class NothingToSaveException() : IOException(Strings.Error_NothingToSave);

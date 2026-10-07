@@ -268,7 +268,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         presets.Add(MetadataPreset.FromSet(result.Name, Metadata, !result.KeepArtworks, !result.KeepAnnotations));
         _settings.Save();
         RebuildMenus();
-        AppLog.Info($"Saved set \"{result.Name}\".");
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_SavedSetFormat, result.Name));
     }
 
     private void Restore(MetadataSet snapshot)

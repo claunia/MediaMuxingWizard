@@ -219,7 +219,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
             {
-                AppLog.Debug($"Video scan skipped for {Document.DisplayName}: {ex.Message}");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_VideoScanSkippedFormat, Document.DisplayName, ex.Message));
             }
         }
 
@@ -245,7 +245,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
             {
-                AppLog.Debug($"Audio scan skipped for {Document.DisplayName}: {ex.Message}");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_AudioScanSkippedFormat, Document.DisplayName, ex.Message));
             }
         }
     }
@@ -261,7 +261,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             _ => Strings.Fallback_Unwatchable,
         };
         DolbyVisionNotice = string.Format(CultureInfo.CurrentCulture, Strings.Notice_DolbyVisionMissingFormat, detection.ProfileName, detection.Level, fallback);
-        AppLog.Info($"{Document.DisplayName}: Dolby Vision {detection.ProfileName} found in the bitstream but not signalled by the container.");
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_DolbyVisionNotSignalledFormat, Document.DisplayName, detection.ProfileName));
     }
 
     private bool CanRepairDolbyVision() => _dolbyVisionRepair is not null && DolbyVisionNotice is not null;
@@ -274,7 +274,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         using (Undo.Transaction(Strings.Undo_RepairDolbyVision))
             video.DolbyVisionRecord = detection.ConfigurationRecord;
         DolbyVisionNotice = null;
-        AppLog.Info($"{Document.DisplayName}: Dolby Vision configuration rebuilt ({detection.ProfileName}, level {detection.Level}).");
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_DolbyVisionRebuiltFormat, Document.DisplayName, detection.ProfileName, detection.Level));
     }
 
     [RelayCommand]
@@ -512,7 +512,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
             {
-                AppLog.Debug($"Track {source.TrackId} of '{source.Path}' could not be inspected; the copy is passed through: {ex.Message}");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_TrackNotInspectedFormat, source.TrackId, source.Path, ex.Message));
             }
         }
 
@@ -572,11 +572,11 @@ public sealed partial class DocumentViewModel : ViewModelBase
                 var sampleSource = demuxer.Tracks.First(t => t.TrackId == source.TrackId);
                 await TrackExport.ExportAsync(sampleSource, path, progress);
             });
-            AppLog.Info($"Exported {config.FormatName} track {track.Id} to '{path}'.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_ExportedTrackFormat, config.FormatName, track.Id, path));
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
         {
-            AppLog.Error($"Exporting track {track.Id} of '{Document.DisplayName}' failed", ex);
+            AppLog.Error(string.Format(CultureInfo.CurrentCulture, Strings.Log_ExportTrackFailedFormat, track.Id, Document.DisplayName), ex);
             await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotExport_Title, ex.Message);
         }
         finally
@@ -698,7 +698,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or InvalidOperationException)
         {
-            AppLog.Error($"Saving '{Document.DisplayName}' failed", ex);
+            AppLog.Error(string.Format(CultureInfo.CurrentCulture, Strings.Log_SaveFailedFormat, Document.DisplayName), ex);
             await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotSave_Title, ex.Message);
             return false;
         }
