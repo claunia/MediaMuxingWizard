@@ -600,6 +600,9 @@
   <data name="Menu_Window" xml:space="preserve">
     <value>窗口(_W)</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>文档(_D)</value>
+  </data>
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>消息日志(_L)</value>
   </data>
@@ -1253,9 +1256,6 @@
   </data>
   <data name="Tooltip_Actions" xml:space="preserve">
     <value>轨道和章节行为</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>关闭</value>
   </data>
   <data name="Tooltip_DeleteTracks" xml:space="preserve">
     <value>删除所选轨道</value>

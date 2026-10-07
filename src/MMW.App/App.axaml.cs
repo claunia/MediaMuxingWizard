@@ -1,5 +1,6 @@
 using System.Globalization;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
@@ -39,19 +40,30 @@ public partial class App : Application
             var queue = new QueueViewModel(runner, dialogs, settings, new NotificationService(), queuePath);
             var metadata = new MetadataService(settings);
             runner.Services = new ServiceMap { metadata };
-            var vm = new MainWindowViewModel(new DocumentService(), dialogs, settings, queue, metadata);
-            desktop.MainWindow = new MainWindow { DataContext = vm };
+            var app = new AppController(new DocumentService(), dialogs, settings, queue, metadata);
+            ConnectWindows(desktop, app, queue);
 
-            var window = desktop.MainWindow;
+            // The app ends with its last window (AppController decides, counting the queue window); macOS apps keep
+            // running without windows.
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var first = app.NewWindow();
+            desktop.MainWindow = desktop.Windows.Count > 0 ? desktop.Windows[0] : null;
             var files = desktop.Args?.Where(File.Exists).ToList() ?? [];
-            if (files.Count > 0)
-                window.Opened += async (_, _) => await vm.OpenPathsAsync(files);
+            if (files.Count > 0 && desktop.MainWindow is { } main)
+                main.Opened += async (_, _) => await first.OpenPathsAsync(files);
 
             // Files opened while running: from later launches (pipe) or from Finder (activation).
             async void OpenAndActivate(IReadOnlyList<string> paths)
             {
-                await vm.OpenPathsAsync(paths);
-                window.Activate();
+                if (paths.Count == 0)
+                {
+                    // macOS Dock click with no window open: show the home screen.
+                    if (app.Windows.Count == 0)
+                        app.NewWindow();
+                    return;
+                }
+
+                await app.OpenPathsAsync(paths);
             }
 
             if (OperatingSystem.IsMacOS())
@@ -62,6 +74,8 @@ public partial class App : Application
                     {
                         if (e is FileActivatedEventArgs fileArgs)
                             OpenAndActivate(fileArgs.Files.Select(f => f.TryGetLocalPath()).OfType<string>().ToList());
+                        else if (e.Kind == ActivationKind.Reopen)
+                            OpenAndActivate([]);
                     };
                 }
             }
@@ -74,6 +88,68 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    /// <summary>Creates the views of the windows the application asks for: documents, the queue and the log.</summary>
+    private static void ConnectWindows(IClassicDesktopStyleApplicationLifetime desktop, AppController app, QueueViewModel queue)
+    {
+        app.ShowWindow = vm =>
+        {
+            var window = new MainWindow { DataContext = vm };
+            window.Show();
+        };
+
+        // The queue and log windows belong to no document window, so closing a document leaves them open.
+        QueueWindow? queueWindow = null;
+        app.ShowQueueRequested += (_, _) =>
+        {
+            if (queueWindow is not null)
+            {
+                if (queueWindow.WindowState == WindowState.Minimized)
+                    queueWindow.WindowState = WindowState.Normal;
+                queueWindow.Activate();
+                return;
+            }
+
+            queueWindow = new QueueWindow { DataContext = queue };
+            queueWindow.Closing += (_, e) =>
+            {
+                // A queue still processing with no other window open would end with the application: keep it in sight.
+                if (app.Windows.Count == 0 && app.IsQueueBusy)
+                {
+                    e.Cancel = true;
+                    queueWindow.WindowState = WindowState.Minimized;
+                }
+            };
+            queueWindow.Closed += (_, _) =>
+            {
+                queueWindow = null;
+                app.IsQueueWindowOpen = false;
+                app.CheckShutdown();
+            };
+            app.IsQueueWindowOpen = true;
+            queueWindow.Show();
+        };
+
+        LogWindow? logWindow = null;
+        app.ShowLogRequested += (_, _) =>
+        {
+            if (logWindow is not null)
+            {
+                logWindow.Activate();
+                return;
+            }
+
+            logWindow = new LogWindow { DataContext = new LogViewModel() };
+            logWindow.Closed += (_, _) => logWindow = null;
+            logWindow.Show();
+        };
+
+        app.ShutdownRequested += (_, _) =>
+        {
+            if (!OperatingSystem.IsMacOS())
+                desktop.Shutdown();
+        };
     }
 
     /// <summary>

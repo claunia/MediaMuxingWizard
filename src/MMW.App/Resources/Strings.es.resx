@@ -190,6 +190,9 @@
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>_Registro de mensajes</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>_Documentos</value>
+  </data>
   <data name="Menu_Help" xml:space="preserve">
     <value>Ay_uda</value>
   </data>
@@ -282,9 +285,6 @@
   </data>
   <data name="Tooltip_ShowQueue" xml:space="preserve">
     <value>Mostrar la cola de procesamiento por lotes</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>Cerrar</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
     <value>Suelta aquí archivos MP4 o Matroska</value>

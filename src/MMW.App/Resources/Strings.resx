@@ -190,6 +190,9 @@
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>Message _Log</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>_Documents</value>
+  </data>
   <data name="Menu_Help" xml:space="preserve">
     <value>_Help</value>
   </data>
@@ -282,9 +285,6 @@
   </data>
   <data name="Tooltip_ShowQueue" xml:space="preserve">
     <value>Show the batch queue</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>Close</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
     <value>Drop MP4 or Matroska files here</value>

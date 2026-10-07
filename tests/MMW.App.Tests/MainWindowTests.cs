@@ -56,7 +56,7 @@ public class MainWindowTests
         await vm.OpenPathsAsync([Fixture()]);
         Dispatcher.UIThread.RunJobs();
 
-        var doc = Assert.Single(vm.Documents);
+        var doc = Assert.IsType<DocumentViewModel>(vm.Document);
         Assert.Equal(6, doc.Rows.Count); // metadata + video + 2 audio + subtitle + chapters
         Assert.IsType<MetadataInspectorViewModel>(doc.Inspector);
         Snapshot(window, "02-metadata");
@@ -82,7 +82,7 @@ public class MainWindowTests
         var (_, vm, dialogs) = CreateWindow();
         var path = Fixture();
         await vm.OpenPathsAsync([path]);
-        var doc = vm.Documents.Single();
+        var doc = vm.Document!;
         var inspector = doc.MetadataInspector;
 
         inspector.SetTag(TagId.Name, "Renamed");
@@ -110,7 +110,7 @@ public class MainWindowTests
     {
         var (_, vm, _) = CreateWindow();
         await vm.OpenPathsAsync([Fixture()]);
-        var doc = vm.Documents.Single();
+        var doc = vm.Document!;
         var before = doc.Document.Tracks.Count;
 
         doc.SelectedRow = doc.Rows[3];
@@ -127,16 +127,105 @@ public class MainWindowTests
     {
         var (_, vm, dialogs) = CreateWindow();
         await vm.OpenPathsAsync([Fixture()]);
-        var doc = vm.Documents.Single();
+        var doc = vm.Document!;
         doc.MetadataInspector.SetTag(TagId.Name, "x");
 
         dialogs.SaveChangesAnswer = SaveChangesChoice.Cancel;
-        await vm.CloseDocumentCommand.ExecuteAsync(doc);
-        Assert.Single(vm.Documents);
+        await vm.CloseDocumentCommand.ExecuteAsync(null);
+        Assert.Same(doc, vm.Document);
+
+        // The last window stays open as the home screen.
+        dialogs.SaveChangesAnswer = SaveChangesChoice.Discard;
+        await vm.CloseDocumentCommand.ExecuteAsync(null);
+        Assert.Null(vm.Document);
+        Assert.Same(vm, Assert.Single(vm.App.Windows));
+    }
+}
+
+/// <summary>One window per document, as in Subler; the application ends with its last window.</summary>
+public class DocumentWindowTests
+{
+    private static string Fixture()
+    {
+        var path = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(path))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        return Fixtures.CopyToTemp(path);
+    }
+
+    private static MainWindowViewModel CreateWindow(FakeDialogService? dialogs = null) =>
+        new(new DocumentService(), dialogs ?? new FakeDialogService(),
+            new SettingsService(Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"), "settings.json")));
+
+    [AvaloniaFact]
+    public async Task Each_document_opens_in_its_own_window()
+    {
+        var home = CreateWindow();
+        string first = Fixture(), second = Fixture();
+        await home.OpenPathsAsync([first, second]);
+
+        // The empty window takes the first document; the second gets a window of its own.
+        Assert.Equal(2, home.App.Windows.Count);
+        Assert.Equal(first, home.Document!.Document.Path);
+        Assert.Equal(second, home.App.Windows[1].Document!.Document.Path);
+        Assert.Equal(2, home.App.WindowMenu.Count);
+
+        // Opening a document that is already open brings its window forward instead of opening it twice.
+        var activated = false;
+        home.App.Windows[1].ActivateRequested += (_, _) => activated = true;
+        await home.OpenPathsAsync([second]);
+        Assert.True(activated);
+        Assert.Equal(2, home.App.Windows.Count);
+    }
+
+    [AvaloniaFact]
+    public async Task Closing_a_document_closes_its_window_until_the_last_one()
+    {
+        var home = CreateWindow();
+        await home.OpenPathsAsync([Fixture(), Fixture()]);
+        var other = home.App.Windows[1];
+
+        await other.CloseDocumentCommand.ExecuteAsync(null);
+        Assert.Same(home, Assert.Single(home.App.Windows));
+
+        await home.CloseDocumentCommand.ExecuteAsync(null);
+        Assert.Same(home, Assert.Single(home.App.Windows));
+        Assert.True(home.HasNoDocuments);
+    }
+
+    [AvaloniaFact]
+    public void The_application_ends_with_its_last_window_unless_the_queue_window_is_open()
+    {
+        var home = CreateWindow();
+        var shutdown = 0;
+        home.App.ShutdownRequested += (_, _) => shutdown++;
+
+        home.App.IsQueueWindowOpen = true;
+        home.RequestClose();
+        Assert.Empty(home.App.Windows);
+        Assert.Equal(0, shutdown);
+
+        // Closing the queue window then ends the application.
+        home.App.IsQueueWindowOpen = false;
+        home.App.CheckShutdown();
+        Assert.Equal(1, shutdown);
+    }
+
+    [AvaloniaFact]
+    public async Task Quit_stops_when_a_document_is_kept()
+    {
+        var dialogs = new FakeDialogService();
+        var home = CreateWindow(dialogs);
+        await home.OpenPathsAsync([Fixture(), Fixture()]);
+        home.App.Windows[1].Document!.MetadataInspector.SetTag(TagId.Name, "x");
+
+        dialogs.SaveChangesAnswer = SaveChangesChoice.Cancel;
+        await home.App.QuitCommand.ExecuteAsync(null);
+        Assert.Equal(2, home.App.Windows.Count);
 
         dialogs.SaveChangesAnswer = SaveChangesChoice.Discard;
-        await vm.CloseDocumentCommand.ExecuteAsync(doc);
-        Assert.Empty(vm.Documents);
+        await home.App.QuitCommand.ExecuteAsync(null);
+        Assert.Empty(home.App.Windows);
     }
 }
 
@@ -152,7 +241,7 @@ public class DocumentActionTests
         if (!File.Exists(path))
             Assert.Skip("Run the MP4 format tests first to generate fixtures.");
         await vm.OpenPathsAsync([Fixtures.CopyToTemp(path)]);
-        var doc = vm.Documents.Single();
+        var doc = vm.Document!;
         var audio = doc.Document.Tracks.OfType<AudioTrack>().ToList();
 
         audio[1].Enabled = true;
@@ -300,7 +389,7 @@ public class ImportTests
         var main = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), new SettingsService(Path.Combine(dir, "settings.json")));
         var media = Fixtures.CopyToTemp(fixture);
         await main.OpenPathsAsync([media]);
-        var doc = main.Documents.Single();
+        var doc = main.Document!;
         var before = doc.Document.Tracks.OfType<SubtitleTrack>().Count();
 
         var dialog = new ImportDialogViewModel(doc, [srt]);
@@ -342,7 +431,7 @@ public class OffsetTests
         var main = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
         var media = Fixtures.CopyToTemp(fixture);
         await main.OpenPathsAsync([media]);
-        var doc = main.Documents.Single();
+        var doc = main.Document!;
 
         doc.SelectedRow = doc.Rows.First(r => r.Track is AudioTrack);
         var inspector = Assert.IsType<TrackInspectorViewModel>(doc.Inspector);

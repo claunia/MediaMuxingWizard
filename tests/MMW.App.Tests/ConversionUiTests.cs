@@ -38,7 +38,7 @@ public class ConversionUiTests
         var dialogs = new FakeDialogService();
         var main = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
         await main.OpenPathsAsync([mkv]);
-        var doc = main.Documents.Single();
+        var doc = main.Document!;
 
         doc.SelectedRow = doc.Rows.First(r => r.Track is AudioTrack);
         var inspector = Assert.IsType<TrackInspectorViewModel>(doc.Inspector);
@@ -69,7 +69,7 @@ public class ConversionUiTests
         var main = new MainWindowViewModel(new DocumentService(), new FakeDialogService(),
             new SettingsService(Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"), "settings.json")));
         await main.OpenPathsAsync([Fixtures.CopyToTemp(fixture)]);
-        var doc = main.Documents.Single();
+        var doc = main.Document!;
         doc.SelectedRow = doc.Rows.First(r => r.Track is ChapterTrack);
         var chapters = Assert.IsType<ChaptersInspectorViewModel>(doc.Inspector);
         Assert.True(chapters.CanMakeThumbnails);
@@ -102,7 +102,7 @@ public class ChapterPreviewOnSaveTests
         var media = Fixtures.CopyToTemp(fixture);
         await main.OpenPathsAsync([media]);
 
-        Assert.True(await main.Documents.Single().Save());
+        Assert.True(await main.Document!.Save());
 
         var reread = await new MMW.Formats.Mp4.Mp4Handler().ReadAsync(media, TestContext.Current.CancellationToken);
         Assert.All(reread.Chapters, c => Assert.NotNull(c.Thumbnail));

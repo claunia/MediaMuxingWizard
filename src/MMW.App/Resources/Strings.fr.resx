@@ -600,6 +600,9 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   <data name="Menu_Window" xml:space="preserve">
     <value>_Fenêtre</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>_Documents</value>
+  </data>
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>_Journal des messages</value>
   </data>
@@ -1253,9 +1256,6 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   </data>
   <data name="Tooltip_Actions" xml:space="preserve">
     <value>Actions de piste et chapitre</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>Fermer</value>
   </data>
   <data name="Tooltip_DeleteTracks" xml:space="preserve">
     <value>Supprimer les pistes sélectionnées</value>

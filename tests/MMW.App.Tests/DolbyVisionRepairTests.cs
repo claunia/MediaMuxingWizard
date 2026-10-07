@@ -29,7 +29,7 @@ public class DolbyVisionRepairTests
             var settings = new SettingsService(Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"), "settings.json"));
             var vm = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), settings);
             await vm.OpenPathsAsync([copy]);
-            var doc = vm.Documents.Single();
+            var doc = vm.Document!;
             var video = doc.Document.Tracks.OfType<VideoTrack>().First();
             Assert.Null(video.DolbyVisionRecord);
 

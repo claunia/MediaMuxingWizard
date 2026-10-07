@@ -600,6 +600,9 @@ Le tue modifiche andranno perse se non le salvi.</value>
   <data name="Menu_Window" xml:space="preserve">
     <value>_Finestra</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>_Documenti</value>
+  </data>
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>Registro dei _messaggi</value>
   </data>
@@ -1253,9 +1256,6 @@ Le tue modifiche andranno perse se non le salvi.</value>
   </data>
   <data name="Tooltip_Actions" xml:space="preserve">
     <value>Azioni di traccia e capitolo</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>Chiudi</value>
   </data>
   <data name="Tooltip_DeleteTracks" xml:space="preserve">
     <value>Elimina le tracce selezionate</value>

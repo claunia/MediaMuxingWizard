@@ -1509,6 +1509,15 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Documents.
+        /// </summary>
+        public static string Menu_Window_Documents {
+            get {
+                return ResourceManager.GetString("Menu_Window_Documents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Queue.
         /// </summary>
         public static string Menu_Window_Queue {
@@ -3431,15 +3440,6 @@ namespace MMW.App.Resources {
         public static string Tooltip_Actions {
             get {
                 return ResourceManager.GetString("Tooltip_Actions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Close.
-        /// </summary>
-        public static string Tooltip_CloseTab {
-            get {
-                return ResourceManager.GetString("Tooltip_CloseTab", resourceCulture);
             }
         }
         

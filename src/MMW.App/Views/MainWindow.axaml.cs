@@ -1,15 +1,15 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using MMW.App.ViewModels;
 
 namespace MMW.App.Views;
 
+/// <summary>A document window (the home screen while it has no document).</summary>
 public partial class MainWindow : Window
 {
     private bool _closingConfirmed;
-    private LogWindow? _log;
+    private MainWindowViewModel? _subscribed;
 
     public MainWindow()
     {
@@ -18,33 +18,39 @@ public partial class MainWindow : Window
         DragDrop.AddDropHandler(this, OnDrop);
         DragDrop.AddDragEnterHandler(this, (_, _) => WelcomeZone.Classes.Add("dragOver"));
         DragDrop.AddDragLeaveHandler(this, (_, _) => WelcomeZone.Classes.Remove("dragOver"));
+        Activated += (_, _) => ViewModel?.App.WindowActivated(ViewModel);
     }
-
-    private QueueWindow? _queue;
 
     private MainWindowViewModel? ViewModel => DataContext as MainWindowViewModel;
 
     protected override void OnDataContextChanged(EventArgs e)
     {
         base.OnDataContextChanged(e);
-        if (ViewModel is { } vm)
-            vm.ShowQueueRequested += (_, _) => ShowQueueWindow();
+        if (_subscribed is not null)
+        {
+            _subscribed.ActivateRequested -= OnActivateRequested;
+            _subscribed.CloseRequested -= OnCloseRequested;
+        }
+
+        _subscribed = ViewModel;
+        if (_subscribed is not null)
+        {
+            _subscribed.ActivateRequested += OnActivateRequested;
+            _subscribed.CloseRequested += OnCloseRequested;
+        }
     }
 
-    private void ShowQueueWindow()
+    private void OnActivateRequested(object? sender, EventArgs e)
     {
-        if (ViewModel?.Queue is not { } queue)
-            return;
-        if (_queue is null)
-        {
-            _queue = new QueueWindow { DataContext = queue };
-            _queue.Closed += (_, _) => _queue = null;
-            _queue.Show(this);
-        }
-        else
-        {
-            _queue.Activate();
-        }
+        if (WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        Activate();
+    }
+
+    private void OnCloseRequested(object? sender, bool confirmed)
+    {
+        _closingConfirmed |= confirmed;
+        Close();
     }
 
     private void OnDragOver(object? sender, DragEventArgs e) =>
@@ -62,19 +68,25 @@ public partial class MainWindow : Window
     protected override async void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
-        if (_closingConfirmed || ViewModel is null || ViewModel.Documents.All(d => !d.IsDirty))
+        if (_closingConfirmed || ViewModel is not { Document.IsDirty: true } vm)
         {
             SaveWindowSize();
             return;
         }
 
         e.Cancel = true;
-        if (await ViewModel.ConfirmExitAsync())
+        if (await vm.ConfirmCloseAsync())
         {
             _closingConfirmed = true;
-            SaveWindowSize();
             Close();
         }
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        if (ViewModel is { } vm)
+            vm.App.WindowClosed(vm);
     }
 
     protected override void OnOpened(EventArgs e)
@@ -94,22 +106,6 @@ public partial class MainWindow : Window
             s.WindowWidth = Width;
             s.WindowHeight = Height;
             ViewModel.PersistSettings();
-        }
-    }
-
-    private void OnExitClick(object? sender, RoutedEventArgs e) => Close();
-
-    private void OnShowLogClick(object? sender, RoutedEventArgs e)
-    {
-        if (_log is null)
-        {
-            _log = new LogWindow { DataContext = new LogViewModel() };
-            _log.Closed += (_, _) => _log = null;
-            _log.Show(this);
-        }
-        else
-        {
-            _log.Activate();
         }
     }
 }

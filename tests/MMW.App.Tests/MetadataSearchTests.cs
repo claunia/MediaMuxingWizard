@@ -72,7 +72,7 @@ public class MetadataSearchTests
         using var service = new MetadataService(settings, new HttpClient(), dir, registry);
         var main = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), settings, metadata: service);
         await main.OpenPathsAsync([Fixtures.CopyToTemp(fixture)]);
-        var doc = main.Documents.Single();
+        var doc = main.Document!;
 
         var search = new MetadataSearchViewModel(doc, service);
         Assert.False(search.IsTv);

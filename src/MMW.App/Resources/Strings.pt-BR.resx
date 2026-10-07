@@ -600,6 +600,9 @@ Suas alterações serão perdidas se você não as salvar.</value>
   <data name="Menu_Window" xml:space="preserve">
     <value>_Janela</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>_Documentos</value>
+  </data>
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>_Registro de Mensagens</value>
   </data>
@@ -1253,9 +1256,6 @@ Suas alterações serão perdidas se você não as salvar.</value>
   </data>
   <data name="Tooltip_Actions" xml:space="preserve">
     <value>Ações de faixa e capítulo</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>Fechar</value>
   </data>
   <data name="Tooltip_DeleteTracks" xml:space="preserve">
     <value>Apagar as faixas selecionadas</value>

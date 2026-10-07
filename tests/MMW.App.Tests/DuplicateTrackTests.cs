@@ -40,7 +40,7 @@ public class DuplicateTrackTests
         var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
         var main = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), new SettingsService(Path.Combine(dir, "settings.json")));
         await main.OpenPathsAsync([path]);
-        return main.Documents.Single();
+        return main.Document!;
     }
 
     private static async Task Pump(Func<bool> done)

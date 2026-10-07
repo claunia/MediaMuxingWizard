@@ -600,6 +600,9 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   <data name="Menu_Window" xml:space="preserve">
     <value>_Fenster</value>
   </data>
+  <data name="Menu_Window_Documents" xml:space="preserve">
+    <value>_Dokumente</value>
+  </data>
   <data name="Menu_Window_Log" xml:space="preserve">
     <value>_Protokoll</value>
   </data>
@@ -1253,9 +1256,6 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   </data>
   <data name="Tooltip_Actions" xml:space="preserve">
     <value>Spur- und Kapitelaktionen</value>
-  </data>
-  <data name="Tooltip_CloseTab" xml:space="preserve">
-    <value>Schließen</value>
   </data>
   <data name="Tooltip_DeleteTracks" xml:space="preserve">
     <value>Ausgewählte Spuren löschen</value>
