@@ -121,9 +121,10 @@ public sealed record AudioConversionSettings
         _ => 48000,
     };
 
-    /// <summary>Bits per sample of a lossless conversion: the source depth rounded up to 16, 24 or 32.</summary>
+    /// <summary>Bits per sample of a lossless conversion: the source depth rounded up to 16, 24 or 32 (24 when unknown).</summary>
     public static int LosslessBits(int sourceBits) => sourceBits switch
     {
+        <= 0 => 24, // unknown until decoded (TrueHD, DTS-HD MA): usually 24
         <= 16 => 16,
         <= 24 => 24,
         _ => 32,
@@ -153,9 +154,9 @@ public sealed record AudioConversionSettings
                 Native = null,
                 Timescale = (uint)Math.Max(1, input.SampleRate),
                 DefaultSampleDuration = pcm ? PcmBlockSize : AlacFrameSize,
-                BitsPerSample = LosslessBits(input.BitsPerSample),
+                BitsPerSample = input.PcmFloat && pcm ? (input.BitsPerSample > 32 ? 64 : 32) : LosslessBits(input.BitsPerSample),
                 PcmBigEndian = false,
-                PcmFloat = false,
+                PcmFloat = input.PcmFloat && pcm,
                 IsAtmos = false,
                 AudioProfile = string.Empty,
                 CodecDelay = TimeSpan.Zero,

@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
+using MMW.Core.Model;
 
 namespace MMW.Media.Conversion.Interop;
 
@@ -392,10 +393,12 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         var sourceBits = _decoder->bits_per_raw_sample > 0 ? _decoder->bits_per_raw_sample
             : _input.BitsPerSample > 0 ? _input.BitsPerSample
             : ffmpeg.av_get_bytes_per_sample(inFormat) * 8;
-        var bits = AudioConversionSettings.LosslessBits(sourceBits);
+        // Floating-point PCM stays floating point (only the byte order may change).
+        var floating = pcm && _input.Codec == CodecType.Pcm && _input.PcmFloat;
+        var bits = floating ? (_input.BitsPerSample > 32 ? 64 : 32) : AudioConversionSettings.LosslessBits(sourceBits);
         if (!pcm && bits > 24)
             throw new NotSupportedException($"ALAC cannot hold {sourceBits}-bit audio without loss.");
-        var name = pcm ? $"pcm_s{bits}le" : "alac";
+        var name = floating ? $"pcm_f{bits}le" : pcm ? $"pcm_s{bits}le" : "alac";
         var codec = ffmpeg.avcodec_find_encoder_by_name(name);
         if (codec == null)
             throw new NotSupportedException($"This FFmpeg build has no {name} encoder.");
@@ -430,7 +433,9 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             AvUtil.Check(ffmpeg.av_channel_layout_copy(&outLayout, inLayout), "av_channel_layout_copy");
         }
 
-        var format = pcm
+        var format = floating
+            ? bits == 64 ? AVSampleFormat.AV_SAMPLE_FMT_DBL : AVSampleFormat.AV_SAMPLE_FMT_FLT
+            : pcm
             ? bits == 16 ? AVSampleFormat.AV_SAMPLE_FMT_S16 : AVSampleFormat.AV_SAMPLE_FMT_S32
             : bits == 16 ? AVSampleFormat.AV_SAMPLE_FMT_S16P : AVSampleFormat.AV_SAMPLE_FMT_S32P;
         var encoder = ffmpeg.avcodec_alloc_context3(codec);

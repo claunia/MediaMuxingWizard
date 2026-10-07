@@ -133,6 +133,9 @@ internal sealed class Mp4Muxer : IMuxer
             throw new NotSupportedException($"{config.FormatName} cannot be written to MP4: {support.Reason}");
 
         config = ApplyModel(config, settings.Model);
+        // QuickTime PCM entries ('sowt', 'twos', 'in24', 'lpcm' …) are rewritten as the ISO 'ipcm' / 'fpcm'.
+        if (config.Codec == CodecType.Pcm && config.Native is Mp4NativeTrack { Entry.Type: not ("ipcm" or "fpcm") } && Mp4SampleEntries.PcmWritable(config))
+            config = config with { Native = null };
         var text = config.Native is not Mp4NativeTrack && CodecNames.IsText(config.Codec);
         var timescale = config.Timescale == 0 ? 1000u : config.Timescale;
         var state = new TrackState
@@ -206,7 +209,10 @@ internal sealed class Mp4Muxer : IMuxer
         else if (state.Config.Codec == CodecType.Vvc && sample.IsSync && !state.InBandParameterSets)
             state.InBandParameterSets = HasVvcParameterSets(state, data);
 
-        Append(state, data, sample.Dts, sample.CtsOffset, sample.Duration, sample.IsSync);
+        var (dts, duration) = (sample.Dts, sample.Duration);
+        if (PcmTiming(state, size) is { } pcm)
+            (dts, duration) = (pcm.Expected is { } expected && Math.Abs(dts - expected) <= state.Timescale / 50 ? expected : dts, pcm.Frames);
+        Append(state, data, dts, sample.CtsOffset, duration, sample.IsSync);
         state.TrimEnd = sample.TrimEnd; // only the last sample's counts
         state.LastFrameSamples = sample.TrimEnd > 0 && state.Config.Kind == TrackKind.Audio && state.Config.SampleRate == state.Timescale
             ? AudioFrames.Samples(state.Config, data)
@@ -299,6 +305,19 @@ internal sealed class Mp4Muxer : IMuxer
     {
         var bytes = SubtitleText.ToTx3g(cue.Text, SubtitleText.DefaultFontSize(TextCanvas(state).Height));
         Append(state, bytes, cue.Start, 0, cue.End - cue.Start, true);
+    }
+
+    /// <summary>
+    /// PCM blocks last exactly their frame count, and follow each other without gaps: the container timestamps of the
+    /// source (Matroska's are rounded to milliseconds) are only kept for jumps beyond 20 ms. Null for other tracks.
+    /// </summary>
+    private static (long? Expected, long Frames)? PcmTiming(TrackState state, int size)
+    {
+        var frameBytes = Mp4SampleEntries.PcmFrameBytes(state.Config);
+        if (frameBytes <= 0 || size % frameBytes != 0 || state.Timescale != state.Config.SampleRate)
+            return null;
+        long? expected = state.Sizes.Count == 0 ? null : state.Dts[^1] + state.Durations[^1];
+        return (expected, size / frameBytes);
     }
 
     private void Append(TrackState state, ReadOnlySpan<byte> data, long dts, long cto, long duration, bool sync)

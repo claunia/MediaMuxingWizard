@@ -425,7 +425,7 @@ internal static class Mp4SampleEntries
 
     private static TrackSupport CheckCodecSupport(CodecConfig config)
     {
-        if (config.Native is Mp4NativeTrack)
+        if (config.Native is Mp4NativeTrack && config.Codec != CodecType.Pcm)
             return TrackSupport.Passthrough;
         return config.Codec switch
         {
@@ -442,6 +442,8 @@ internal static class Mp4SampleEntries
             // Dolby TrueHD (FBA syntax) is stored as mlpa + dmlp; DVD-Audio MLP (FBB) is not allowed in ISO files.
             CodecType.TrueHd => TrackSupport.Passthrough,
             CodecType.Pcm when PcmWritable(config) => TrackSupport.Passthrough,
+            CodecType.Pcm => new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToPcm,
+                $"{config.BitsPerSample}-bit PCM cannot be stored in MP4 ('ipcm' holds 16, 24 and 32-bit integers and 32/64-bit floats); convert it to LPCM"),
             CodecType.Vorbis or CodecType.Mlp or CodecType.Pcm =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
             CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
@@ -453,7 +455,7 @@ internal static class Mp4SampleEntries
     }
 
     /// <summary>PCM that an ISO/IEC 23003-5 'ipcm' / 'fpcm' entry describes: 16/24/32-bit integers or 32/64-bit floats.</summary>
-    private static bool PcmWritable(CodecConfig config) =>
+    public static bool PcmWritable(CodecConfig config) =>
         config.PcmFloat ? config.BitsPerSample is 32 or 64 : config.BitsPerSample is 16 or 24 or 32;
 
     /// <summary>Bytes of one PCM frame (all channels), or 0 when unknown.</summary>

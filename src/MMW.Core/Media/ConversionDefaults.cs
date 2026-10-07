@@ -33,8 +33,11 @@ public sealed record ImportChoice(ImportAction Action, string DisplayName, Audio
 /// <item>AC-3 / E-AC-3: passthrough (<see cref="ConvertAc3"/> off); "AAC + Passthru" is offered.</item>
 /// <item>DTS into MP4: "AAC + Passthru" (Apple players cannot decode DTS, the original is kept as the disabled
 /// alternate); into Matroska: passthrough.</item>
-/// <item>Vorbis, TrueHD, MLP, PCM, MP1 into MP4 (not storable or not playable): AAC with the default mixdown.</item>
-/// <item>FLAC into MP4 (storable, but not playable by Apple players): AAC; passthrough, LPCM and ALAC are offered.</item>
+/// <item>Vorbis, TrueHD, MLP, MP1 into MP4 (not storable or not playable): AAC with the default mixdown.</item>
+/// <item>FLAC into MP4 (storable, but not playable by Apple players): ALAC, or AAC when ALAC cannot hold it (32-bit,
+/// quadraphonic, 6.1, 7.1); passthrough and LPCM are offered.</item>
+/// <item>PCM: passthrough ('ipcm' in MP4); PCM that MP4 cannot store (8-bit) is converted to 16-bit PCM.</item>
+/// <item>Lossless sources (FLAC, ALAC, TrueHD, MLP, DTS-HD MA, integer PCM) are offered LPCM.</item>
 /// <item>Opus into MP4: passthrough; AAC is offered.</item>
 /// <item>Everything else (AAC, ALAC, MP3, MP2, …) and every storable track into Matroska: passthrough.</item>
 /// </list>
@@ -74,8 +77,21 @@ public static class ConversionDefaults
         _ => null,
     };
 
-    /// <summary>Lossless sources that are offered lossless conversions (LPCM, and ALAC for MP4).</summary>
-    public static bool IsLosslessSource(CodecConfig config) => config.Kind == TrackKind.Audio && config.Codec == CodecType.Flac;
+    /// <summary>
+    /// Lossless sources, which are offered a lossless conversion to LPCM: FLAC, ALAC, TrueHD, MLP, DTS-HD Master Audio
+    /// (and DTS:X, built on it) and PCM (re-encoded as little-endian 16, 24 or 32-bit integers, or 32/64-bit floats for
+    /// floating-point PCM: 8-bit or big-endian PCM that a container cannot store).
+    /// </summary>
+    public static bool IsLosslessSource(CodecConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Kind == TrackKind.Audio && config.Codec switch
+        {
+            CodecType.Flac or CodecType.Alac or CodecType.TrueHd or CodecType.Mlp or CodecType.Pcm => true,
+            CodecType.Dts => config.AudioProfile is "DTS-HD MA" or "DTS:X" or "DTS:X IMAX",
+            _ => false,
+        };
+    }
 
     /// <summary>
     /// True when ALAC can hold the source without loss and with the same speaker layout: at most 24 bits (FFmpeg's
@@ -169,11 +185,12 @@ public static class ConversionDefaults
             if (config.Codec is CodecType.Dts or CodecType.TrueHd or CodecType.Mlp)
                 list.Add(new ImportChoice(ImportAction.AacPlusAc3, AacPlusAc3Name));
 
-            // Lossless sources can stay lossless in another form: PCM anywhere, ALAC in MP4 (where Apple players play it).
+            // Lossless sources can stay lossless in another form: PCM anywhere; FLAC also as ALAC in MP4, where Apple
+            // players play it.
             if (IsLosslessSource(config))
             {
                 list.Add(new ImportChoice(ImportAction.ConvertToPcm, PcmName));
-                if (target is ContainerKind.Mp4 or ContainerKind.Unknown && AlacCanHold(config))
+                if (config.Codec == CodecType.Flac && target is ContainerKind.Mp4 or ContainerKind.Unknown && AlacCanHold(config))
                     list.Add(new ImportChoice(ImportAction.ConvertToAlac, AlacName));
             }
         }
@@ -206,15 +223,21 @@ public static class ConversionDefaults
             var mp4 = target is ContainerKind.Mp4 or ContainerKind.Unknown;
             ImportChoice? suggested = null;
             if (!support.CanMux)
-                suggested = Find(ImportAction.ConvertToAac, mixdown);
+            {
+                // PCM the container cannot store as it is (8-bit, unsigned) is re-encoded as PCM, not compressed.
+                suggested = (config.Codec == CodecType.Pcm ? Find(ImportAction.ConvertToPcm) : null) ?? Find(ImportAction.ConvertToAac, mixdown);
+            }
             else if (mp4)
             {
                 suggested = config.Codec switch
                 {
                     CodecType.Ac3 or CodecType.Eac3 when ConvertAc3 => Find(ImportAction.AacPlusPassthrough),
                     CodecType.Dts when ConvertDts => Find(ImportAction.AacPlusPassthrough),
+                    // FLAC becomes ALAC (lossless, and played by Apple devices), or AAC where ALAC cannot hold it.
+                    CodecType.Flac => Find(ImportAction.ConvertToAlac) ?? Find(ImportAction.ConvertToAac, mixdown),
                     // Opus stays Opus in MP4 ('Opus' + 'dOps'): browsers, VLC and mpv play it; AAC is still offered.
-                    CodecType.Flac or CodecType.Vorbis or CodecType.TrueHd or CodecType.Mlp or CodecType.Pcm or CodecType.Mp1 =>
+                    // PCM stays PCM ('ipcm').
+                    CodecType.Vorbis or CodecType.TrueHd or CodecType.Mlp or CodecType.Mp1 =>
                         Find(ImportAction.ConvertToAac, mixdown),
                     _ => null,
                 };

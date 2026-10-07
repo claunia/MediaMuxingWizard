@@ -66,6 +66,7 @@ public sealed class AudioConverterSource : ISampleSource, IDisposable
             SourceCodecId = codecId,
             Extradata = extradata,
             BitsPerSample = t.OutputBits,
+            PcmFloat = target == AudioConversionTarget.Pcm && source.Config.PcmFloat,
             Timescale = (uint)t.OutputSampleRate,
             DefaultSampleDuration = t.FrameSize,
             Language = source.Config.Language,

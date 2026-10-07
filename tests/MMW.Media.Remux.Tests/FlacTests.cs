@@ -75,6 +75,107 @@ public sealed class FlacTests
         Assert.DoesNotContain(await ChoicesAsync(Source("7.1", 48000, 16), ContainerKind.Mp4), c => c.Action == ImportAction.ConvertToAlac);
     }
 
+    /// <summary>FLAC into MP4 becomes ALAC by default, or AAC where ALAC cannot hold it; Matroska keeps FLAC.</summary>
+    [Theory]
+    [InlineData("5.1", 96000, 24, ContainerKind.Mp4, ImportAction.ConvertToAlac)]
+    [InlineData("stereo", 48000, 32, ContainerKind.Mp4, ImportAction.ConvertToAac)]
+    [InlineData("7.1", 48000, 16, ContainerKind.Mp4, ImportAction.ConvertToAac)]
+    [InlineData("5.1", 96000, 24, ContainerKind.Matroska, ImportAction.Passthrough)]
+    public async Task Suggests_alac_for_mp4(string layout, int rate, int bits, ContainerKind target, ImportAction expected)
+    {
+        MediaRemux.EnsureRegistered();
+        if (MediaFormatRegistry.AvailableAudioConverter is null)
+            Assert.Skip("FFmpeg is not available.");
+        Assert.Equal(expected, Assert.Single(await TrackImporter.InspectAsync(Source(layout, rate, bits), target, Ct)).Action);
+    }
+
+    /// <summary>A native FLAC file with tags and a cover, as FFmpeg writes it (Vorbis comments and a PICTURE block).</summary>
+    private static string Native()
+    {
+        MediaProbe.RequireFfmpeg();
+        var cover = Fixtures.Get("flac-cover.jpg", "ffmpeg", "-v error -y -f lavfi -i color=red:s=32x32 -frames:v 1 {out}");
+        return Fixtures.Get("flac-native-tagged.flac", "ffmpeg",
+            $"-v error -y -f lavfi -i sine=f=440:d=3:sample_rate=44100 -i {Fixtures.Quote(cover)} -map 0:a -map 1:v -ac 2 -c:a flac " +
+            "-c:v copy -disposition:v attached_pic -metadata title=Song -metadata artist=Someone -metadata album=Record " +
+            "-metadata track=3/12 -metadata date=2001 {out}");
+    }
+
+    [Theory]
+    [InlineData(ContainerKind.Matroska)]
+    [InlineData(ContainerKind.Mp4)]
+    public async Task Imports_native_flac_files(ContainerKind target)
+    {
+        MediaRemux.EnsureRegistered();
+        var source = Native();
+        var track = Assert.Single(await TrackImporter.InspectAsync(source, target, Ct));
+        Assert.Equal((CodecType.Flac, 2, 44100, 16), (track.Config.Codec, track.Config.Channels, track.Config.SampleRate, track.Config.BitsPerSample));
+        Assert.StartsWith("16-bit, ", track.Config.AudioProfile, StringComparison.Ordinal);
+        Assert.Equal(3.0, track.Duration.TotalSeconds, 3);
+        var output = await ImportAsync(source, target, ImportAction.Passthrough);
+        try
+        {
+            Assert.Equal(Pcm(source), Pcm(output));
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
+    }
+
+    [Fact]
+    public void Reads_native_flac_tags_and_cover()
+    {
+        var metadata = Assert.IsType<Core.Metadata.MetadataSet>(MMW.Formats.Elementary.ElementaryFormat.ReadMetadata(Native()));
+        Assert.Equal("Song", metadata.GetString(Core.Metadata.TagId.Name));
+        Assert.Equal("Someone", metadata.GetString(Core.Metadata.TagId.Artist));
+        Assert.Equal("Record", metadata.GetString(Core.Metadata.TagId.Album));
+        Assert.Equal(new Core.Metadata.IntPair(3, 12), metadata.GetPair(Core.Metadata.TagId.TrackNumber));
+        Assert.Equal(Core.Metadata.ArtworkFormat.Jpeg, Assert.Single(metadata.Artworks).Format);
+    }
+
+    /// <summary>STREAMINFO may leave the total unknown (0): the length comes from the last frame.</summary>
+    [Fact]
+    public async Task Measures_files_without_a_total()
+    {
+        MediaRemux.EnsureRegistered();
+        var copy = MediaProbe.TempPath(".flac");
+        try
+        {
+            var bytes = File.ReadAllBytes(Native());
+            bytes[8 + 13] &= 0xF0; // STREAMINFO total samples: the low 4 bits of byte 13 and bytes 14–17
+            Array.Clear(bytes, 8 + 14, 4);
+            File.WriteAllBytes(copy, bytes);
+            var track = Assert.Single(await TrackImporter.InspectAsync(copy, ContainerKind.Matroska, Ct));
+            Assert.Equal(3.0, track.Duration.TotalSeconds, 3);
+        }
+        finally
+        {
+            MediaProbe.Delete(copy);
+        }
+    }
+
+    /// <summary>ID3v2 before the "fLaC" marker and ID3v1 after the last frame (as some taggers write) are skipped.</summary>
+    [Fact]
+    public async Task Imports_flac_wrapped_in_id3_tags()
+    {
+        MediaRemux.EnsureRegistered();
+        var plain = Native();
+        var wrapped = MediaProbe.TempPath(".flac");
+        var output = string.Empty;
+        try
+        {
+            byte[] body = [.. "TIT2"u8, 0, 0, 0, 6, 0, 0, 0, .. "Hola!"u8, .. new byte[64]];
+            byte[] id3 = [.. "ID3"u8, 3, 0, 0, 0, 0, (byte)(body.Length >> 7), (byte)(body.Length & 0x7F), .. body];
+            File.WriteAllBytes(wrapped, [.. id3, .. File.ReadAllBytes(plain), .. "TAG"u8, .. new byte[125]]);
+            output = await ImportAsync(wrapped, ContainerKind.Matroska, ImportAction.Passthrough);
+            Assert.Equal(Pcm(plain), Pcm(output));
+        }
+        finally
+        {
+            MediaProbe.Delete(wrapped, output);
+        }
+    }
+
     [Theory]
     [InlineData("stereo", 44100, 16, ContainerKind.Mp4, ImportAction.ConvertToAlac, "alac")]
     [InlineData("5.1", 96000, 24, ContainerKind.Mp4, ImportAction.ConvertToAlac, "alac")]

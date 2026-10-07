@@ -233,7 +233,9 @@ public sealed class ImportTests
             Assert.True(t.ConversionRequired);
             Assert.NotNull(t.Support.Reason);
             Assert.Equal(canConvert, t.CanConvert);
-            Assert.Equal(canConvert ? ImportAction.ConvertToAac : ImportAction.Skip, t.Action);
+            // PCM is re-encoded as PCM (8 → 16-bit), Vorbis compressed to AAC.
+            var converted = t.Config.Codec == CodecType.Pcm ? ImportAction.ConvertToPcm : ImportAction.ConvertToAac;
+            Assert.Equal(canConvert ? converted : ImportAction.Skip, t.Action);
             Assert.Equal(canConvert, t.Selected);
             Assert.Equal(ImportAction.Skip, t.Choices[^1].Action);
         });

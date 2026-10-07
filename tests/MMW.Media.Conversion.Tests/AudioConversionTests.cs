@@ -184,10 +184,11 @@ public sealed class AudioConversionTests
     [InlineData("pcm")]
     public async Task Lossless_matroska_audio_converts_to_aac(string kind)
     {
+        // TrueHD defaults to AAC in MP4; PCM is stored as it is ('ipcm') unless AAC is chosen.
         var source = kind == "truehd" ? TrueHd51Mkv() : Pcm96kMkv();
         var tracks = await TrackImporter.InspectAsync(source, ContainerKind.Mp4, Ct);
-        Assert.Equal(ImportAction.ConvertToAac, Assert.Single(tracks).Action);
-        var output = await ImportAndSaveAsync(source, ContainerKind.Mp4, _ => null);
+        Assert.Equal(kind == "truehd" ? ImportAction.ConvertToAac : ImportAction.Passthrough, Assert.Single(tracks).Action);
+        var output = await ImportAndSaveAsync(source, ContainerKind.Mp4, t => kind == "truehd" ? null : Pick(t, ImportAction.ConvertToAac));
         try
         {
             var s = Assert.Single(MediaProbe.Streams(output));
