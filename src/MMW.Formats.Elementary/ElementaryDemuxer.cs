@@ -14,11 +14,16 @@ internal interface IElementaryParser : IDisposable
 internal sealed class ElementaryDemuxer : IDemuxer
 {
     public ElementaryDemuxer(string path, string formatName, ElementarySource source)
+        : this(path, formatName, source, source.Duration)
+    {
+    }
+
+    public ElementaryDemuxer(string path, string formatName, ISampleSource source, TimeSpan duration)
     {
         Path = path;
         FormatName = formatName;
         Tracks = [source];
-        Duration = source.Duration;
+        Duration = duration;
     }
 
     public string Path { get; }
@@ -36,7 +41,7 @@ internal sealed class ElementaryDemuxer : IDemuxer
 
     public void Dispose()
     {
-        foreach (var t in Tracks.OfType<ElementarySource>())
+        foreach (var t in Tracks.OfType<IDisposable>())
             t.Dispose();
     }
 }

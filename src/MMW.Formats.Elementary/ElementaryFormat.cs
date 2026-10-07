@@ -18,6 +18,8 @@ public enum ElementaryKind
     Ac3,
     Dts,
     Flac,
+    Av2Ivf,
+    Av2Obu,
     SubRip,
     Ass,
     WebVtt,
@@ -30,7 +32,7 @@ public static class ElementaryFormat
 
     /// <summary>File extensions recognised as elementary streams or subtitle files.</summary>
     public static IReadOnlyList<string> Extensions { get; } =
-        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".flac", ".fla", ".srt", ".ass", ".ssa", ".vtt"];
+        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".flac", ".fla", ".ivf", ".obu", ".srt", ".ass", ".ssa", ".vtt"];
 
     public static void Register()
     {
@@ -60,6 +62,8 @@ public static class ElementaryFormat
                 ? ElementaryKind.Dts
                 : ElementaryKind.None,
             ".flac" or ".fla" => FlacFile.LooksLikeFlac(header) ? ElementaryKind.Flac : ElementaryKind.None,
+            ".ivf" => Av2Files.LooksLikeIvf(header) ? ElementaryKind.Av2Ivf : ElementaryKind.None,
+            ".obu" => Av2Files.LooksLikeObu(header) ? ElementaryKind.Av2Obu : ElementaryKind.None,
             ".srt" => ElementaryKind.SubRip,
             ".ass" or ".ssa" => ElementaryKind.Ass,
             ".vtt" => ElementaryKind.WebVtt,
@@ -155,6 +159,10 @@ public static class ElementaryFormat
                 return new ElementaryDemuxer(path, name, new ElementarySource(config, () => new DtsParser(OpenStream(path)), duration, count));
             }
 
+            case ElementaryKind.Av2Ivf:
+                return Av2Files.OpenIvf(path, OpenStream);
+            case ElementaryKind.Av2Obu:
+                return Av2Files.OpenObu(path, OpenStream, options?.FrameRate);
             case ElementaryKind.Flac:
             {
                 CodecConfig config;
