@@ -254,9 +254,10 @@ internal sealed class NalVideoStream(TsStreamInfo info, CodecType codec) : TsStr
                                                                 vcl && nal.Length > 1 && (nal[1] & 0x80) != 0); // first_mb_in_slice == 0
         }
 
-        // Repeated delimiters (a muxer adding its own before the stream's) do not make an empty access unit, which
-        // would take the PES timestamps.
-        if (startsAccessUnit && _current is { Nals.Count: 0, HasVcl: false })
+        // Nothing starts a new access unit before the current one has a picture: repeated delimiters (a muxer adding its
+        // own before the stream's) or delimiters between repeated parameter sets (broadcast encoders) must not make a
+        // picture-less access unit, which would take the PES timestamps.
+        if (startsAccessUnit && _current is { HasVcl: false })
             startsAccessUnit = false;
         if (startsAccessUnit || _current is null)
         {
