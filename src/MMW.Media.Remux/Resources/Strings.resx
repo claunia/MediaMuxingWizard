@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_Text" xml:space="preserve">
+    <value>Text</value>
+    <comment>Details of a text subtitle track</comment>
+  </data>
+  <data name="Details_TextOcr" xml:space="preserve">
+    <value>Text (OCR)</value>
+    <comment>Details of a bitmap subtitle track that will be converted to text by OCR</comment>
+  </data>
+  <data name="Error_NoMuxer" xml:space="preserve">
+    <value>No muxer is registered for {0}.</value>
+    <comment>{0}: container kind</comment>
+  </data>
+  <data name="Error_TrackHasNoSource" xml:space="preserve">
+    <value>Track '{0}' ({1}) has no source file.</value>
+    <comment>{0}: track name; {1}: format</comment>
+  </data>
+  <data name="Error_TrackNotInDocument" xml:space="preserve">
+    <value>Track '{0}' is not part of the document.</value>
+    <comment>{0}: track name</comment>
+  </data>
+  <data name="Log_AudioCheckFailed" xml:space="preserve">
+    <value>Audio check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_ColourScanFailed" xml:space="preserve">
+    <value>Colour scan of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_DolbyVisionCheckFailed" xml:space="preserve">
+    <value>Dolby Vision check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_DolbyVisionRebuilt" xml:space="preserve">
+    <value>Dolby Vision {0} (level {1}) found in the bitstream of track {2}; its configuration was rebuilt.</value>
+    <comment>{0}: profile name; {1}: level; {2}: track ID</comment>
+  </data>
+  <data name="Log_DtsCheckFailed" xml:space="preserve">
+    <value>DTS check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_Hdr10PlusCheckFailed" xml:space="preserve">
+    <value>HDR10+ check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_HdrVividCheckFailed" xml:space="preserve">
+    <value>HDR Vivid check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_MpegAudioCheckFailed" xml:space="preserve">
+    <value>MPEG audio check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+  <data name="Log_OpusCheckFailed" xml:space="preserve">
+    <value>Opus check of track {0} failed: {1}</value>
+    <comment>{0}: track ID; {1}: error message</comment>
+  </data>
+</root>

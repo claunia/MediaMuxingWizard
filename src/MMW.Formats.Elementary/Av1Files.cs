@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Formats.Elementary.Resources;
 
 namespace MMW.Formats.Elementary;
 
@@ -103,7 +104,7 @@ internal sealed class Av1Source : ISampleSource, IDisposable
         inner.Reset();
         var configuration = inner.ReadNext() is { } first ? Av1.ConfigurationFromSample(first.Data.Span) : null;
         inner.Reset();
-        var (av1C, header) = configuration ?? throw new InvalidDataException("The AV1 stream does not start with a readable sequence header.");
+        var (av1C, header) = configuration ?? throw new InvalidDataException(Strings.Error_Av1NoSequenceHeader);
         _reduced = header.ReducedStillPictureHeader;
         Config = config with
         {
@@ -202,7 +203,7 @@ internal sealed class Av1ObuParser(Stream stream, long frameTicks, bool annexB) 
         if (header < 0)
             return null;
         if ((header & 0x02) == 0)
-            throw new InvalidDataException("AV1 OBU without a size field in a low-overhead stream.");
+            throw new InvalidDataException(Strings.Error_Av1ObuWithoutSize);
         var o = new List<byte> { (byte)header };
         if ((header & 0x04) != 0)
             o.Add((byte)stream.ReadByte());

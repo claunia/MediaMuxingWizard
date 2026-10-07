@@ -1,7 +1,9 @@
+using System.Globalization;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Formats.Elementary.Resources;
 
 namespace MMW.Formats.Elementary;
 
@@ -27,7 +29,7 @@ internal sealed class LengthPrefixedNalReader(Stream stream) : INalReader
             return null;
         var size = System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(length);
         if (size == 0 || size > int.MaxValue / 2)
-            throw new InvalidDataException("Invalid NAL unit length.");
+            throw new InvalidDataException(Strings.Error_InvalidNalLength);
         var nal = new byte[size];
         if (stream.ReadAtLeast(nal, nal.Length, throwOnEndOfStream: false) < nal.Length)
             return null; // truncated last NAL unit
@@ -268,7 +270,7 @@ internal sealed class AnnexBVideoParser : IElementaryParser
 
         // A VVC VPS is optional (single-layer streams may refer to VPS 0, "none").
         if (sps.Count == 0 || pps.Count == 0 || (hevc && vps.Count == 0))
-            throw new InvalidDataException($"No {(hevc ? "VPS/SPS/PPS" : "SPS/PPS")} found at the start of the {name} stream.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoParameterSets, hevc ? "VPS/SPS/PPS" : "SPS/PPS", name));
 
         int width, height, sarW, sarH;
         double vuiRate;
@@ -302,7 +304,7 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         var hasTiming = vuiRate is > 1 and < 1000;
         var fps = frameRate is > 0 ? frameRate.Value : hasTiming ? vuiRate : 25.0;
         if (frameRate is null && !hasTiming)
-            AppLog.Warn($"The {name} stream has no timing information; assuming 25 fps.");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_NoTimingInfo, name));
         var (timescale, ticks) = FrameTiming(fps);
         var config = new CodecConfig
         {
@@ -351,7 +353,7 @@ internal sealed class AnnexBVideoParser : IElementaryParser
 
         var name = CodecNames.Display(codec);
         var sequence = Avs.ParseSequence(generation, units.ToArray())
-                       ?? throw new InvalidDataException($"No sequence header found at the start of the {name} stream.");
+                       ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoSequenceHeader, name));
         var hasTiming = sequence.FrameRate > 0;
         var fps = frameRate is > 0 ? frameRate.Value : hasTiming ? sequence.FrameRate : 25.0;
         var (timescale, ticks) = FrameTiming(fps);
@@ -630,7 +632,7 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         }
         catch (InvalidDataException ex)
         {
-            AppLog.Warn($"Skipping an invalid parameter set: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_InvalidParameterSetSkipped, ex.Message));
         }
     }
 

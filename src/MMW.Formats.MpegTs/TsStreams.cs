@@ -1,7 +1,9 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Formats.MpegTs.Resources;
 
 namespace MMW.Formats.MpegTs;
 
@@ -1729,7 +1731,7 @@ internal sealed class Vc1TsStream(TsStreamInfo info) : TsStream(info)
             FrameRate = rate,
             DefaultSampleDuration = rate > 0 ? (long)Math.Round(90000 / rate) : 0,
             StreamColor = sequence.Color,
-            VideoProfile = $"Advanced@L{sequence.Level}" + (sequence.Interlaced ? ", interlaced" : string.Empty),
+            VideoProfile = sequence.Interlaced ? string.Format(CultureInfo.CurrentCulture, Strings.Profile_Interlaced, $"Advanced@L{sequence.Level}") : $"Advanced@L{sequence.Level}",
         };
     }
 }

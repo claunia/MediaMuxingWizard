@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_NoProgramMapTable" xml:space="preserve">
+    <value>«{0}» no tiene ninguna tabla de asignación de programas (PMT).</value>
+  </data>
+  <data name="Error_NoReadableStream" xml:space="preserve">
+    <value>«{0}» no tiene ningún flujo que se pueda leer.</value>
+  </data>
+  <data name="Error_NotTransportStream" xml:space="preserve">
+    <value>«{0}» no es un flujo de transporte MPEG.</value>
+  </data>
+  <data name="Log_ProgramChosen" xml:space="preserve">
+    <value>{0}: {1} programas; se importa el programa {2}.</value>
+  </data>
+  <data name="Log_UnsupportedStream" xml:space="preserve">
+    <value>{0}: no se admite el flujo 0x{1:X} de tipo 0x{2:X2}.</value>
+  </data>
+  <data name="Name_Teletext" xml:space="preserve">
+    <value>Teletexto {0}</value>
+  </data>
+  <data name="Name_TeletextHearingImpaired" xml:space="preserve">
+    <value>Teletexto {0} (para personas sordas)</value>
+  </data>
+  <data name="Profile_Interlaced" xml:space="preserve">
+    <value>{0}, entrelazado</value>
+  </data>
+</root>

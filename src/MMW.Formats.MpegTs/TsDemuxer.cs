@@ -1,7 +1,9 @@
+using System.Globalization;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Formats.MpegTs.Resources;
 
 namespace MMW.Formats.MpegTs;
 
@@ -71,7 +73,7 @@ internal sealed class TsDemuxer : IDemuxer
         using (var fs = File.OpenRead(path))
             read = fs.ReadAtLeast(header, header.Length, throwOnEndOfStream: false);
         if (TsPacketReader.Detect(header[..read]) is not var (stride, offset))
-            throw new InvalidDataException($"'{System.IO.Path.GetFileName(path)}' is not an MPEG transport stream.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotTransportStream, System.IO.Path.GetFileName(path)));
         var demuxer = new TsDemuxer(path, stride, offset);
         demuxer.Probe();
         return demuxer;
@@ -87,7 +89,7 @@ internal sealed class TsDemuxer : IDemuxer
     /// </summary>
     private void Probe()
     {
-        var streams = ChooseProgram() ?? throw new InvalidDataException($"'{System.IO.Path.GetFileName(Path)}' has no program map table.");
+        var streams = ChooseProgram() ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoProgramMapTable, System.IO.Path.GetFileName(Path)));
         var specs = Specs(streams, log: true);
         var probes = specs.Select(spec => (Spec: spec, Stream: spec.Create(null), Out: new Queue<MediaSample>())).ToList();
         var byPid = probes.GroupBy(p => p.Spec.Info.Pid).ToDictionary(g => g.Key, g => (Pes: new PesAssembler(), Streams: g.ToList()));
@@ -118,7 +120,7 @@ internal sealed class TsDemuxer : IDemuxer
 
         var usable = probes.Where(p => p.Stream.Ready || p.Stream is NalVideoStream { HasConfig: true }).ToList();
         if (usable.Count == 0)
-            throw new InvalidDataException($"'{System.IO.Path.GetFileName(Path)}' has no stream that can be read.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoReadableStream, System.IO.Path.GetFileName(Path)));
         var start = usable.Where(p => first.ContainsKey(p.Spec.TrackId)).Select(p => first[p.Spec.TrackId]).DefaultIfEmpty(0).Min();
         var last = LastTimestamps(usable.Select(p => p.Spec.Info.Pid).ToHashSet(), (long)Math.Round(start * 90000));
 
@@ -181,7 +183,7 @@ internal sealed class TsDemuxer : IDemuxer
             .ThenByDescending(c => Specs(c.Streams, log: false).Count)
             .First();
         if (candidates.Count > 1)
-            AppLog.Info($"{System.IO.Path.GetFileName(Path)}: {candidates.Count} programs; importing program {best.Program}.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_ProgramChosen, System.IO.Path.GetFileName(Path), candidates.Count, best.Program));
         return best.Streams;
     }
 
@@ -206,7 +208,7 @@ internal sealed class TsDemuxer : IDemuxer
             if (TsStream.Create(info) is { } probe)
                 specs.Add(new TsTrackSpec(info, (uint)info.Pid, probe is NalVideoStream or MpegVideoStream or Av1TsStream, known => TsStream.Create(info, known)!));
             else if (log)
-                AppLog.Info($"{System.IO.Path.GetFileName(Path)}: stream 0x{info.Pid:X} of type 0x{info.StreamType:X2} is not supported.");
+                AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_UnsupportedStream, System.IO.Path.GetFileName(Path), info.Pid, info.StreamType));
         }
 
         return specs;

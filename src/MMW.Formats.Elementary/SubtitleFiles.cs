@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using MMW.Core.Media;
 using MMW.Core.Model;
+using MMW.Formats.Elementary.Resources;
 
 namespace MMW.Formats.Elementary;
 
@@ -83,7 +84,7 @@ internal static partial class SubtitleFiles
         }
 
         if (cues.Count == 0)
-            throw new InvalidDataException("No SubRip cues found.");
+            throw new InvalidDataException(Strings.Error_NoSubRipCues);
         return new SubtitleFile(Config(CodecType.TextUtf8, "srt", null), Sorted(cues));
     }
 
@@ -96,7 +97,7 @@ internal static partial class SubtitleFiles
     {
         var lines = Lines(text);
         if (lines.Length == 0 || !lines[0].TrimStart('﻿').StartsWith("WEBVTT", StringComparison.Ordinal))
-            throw new InvalidDataException("Not a WebVTT file.");
+            throw new InvalidDataException(Strings.Error_NotWebVtt);
         lines[0] = lines[0].TrimStart('﻿');
         var header = new StringBuilder();
         var cues = new List<(long, long, string, string?)>();
@@ -200,7 +201,7 @@ internal static partial class SubtitleFiles
         }
 
         if (format is null)
-            throw new InvalidDataException("No [Events] Format line found.");
+            throw new InvalidDataException(Strings.Error_NoAssEventsFormat);
         var codec = ssa ? CodecType.Ssa : CodecType.Ass;
         return new SubtitleFile(Config(codec, ssa ? "ssa" : "ass", Encoding.UTF8.GetBytes(header.ToString().TrimEnd('\n') + "\n")), Sorted(cues));
     }

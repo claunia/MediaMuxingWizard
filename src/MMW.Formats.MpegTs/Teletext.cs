@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Text;
 using MMW.Core.Media;
 using MMW.Core.Model;
+using MMW.Formats.MpegTs.Resources;
 
 namespace MMW.Formats.MpegTs;
 
@@ -218,7 +220,7 @@ internal sealed class TeletextStream : TsStream
     {
         Codec = CodecType.TextUtf8,
         Language = MMW.Core.Languages.LanguageTable.ToBcp47(_language),
-        Name = string.Create(System.Globalization.CultureInfo.InvariantCulture, $"Teletext {PageNumber}{(_hearingImpaired ? " (hard of hearing)" : string.Empty)}"),
+        Name = string.Format(CultureInfo.CurrentCulture, _hearingImpaired ? Strings.Name_TeletextHearingImpaired : Strings.Name_Teletext, PageNumber),
     };
 
     private static byte[] BuildReverse()

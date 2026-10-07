@@ -1,8 +1,10 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Formats.Ogg.Resources;
 
 namespace MMW.Formats.Ogg;
 
@@ -166,7 +168,7 @@ internal sealed class OggDemuxer : IDemuxer
         }
 
         if (tracks.Count == 0)
-            throw new InvalidDataException($"'{System.IO.Path.GetFileName(Path)}' has no Opus, Vorbis or FLAC stream.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoSupportedStream, System.IO.Path.GetFileName(Path)));
         Tracks = tracks;
         Duration = tracks.Select(t => t.Duration).DefaultIfEmpty(TimeSpan.Zero).Max();
     }
@@ -291,12 +293,12 @@ internal sealed class OggTrack : ISampleSource
         }
         catch (Exception ex) when (ex is InvalidDataException or IndexOutOfRangeException or ArgumentOutOfRangeException)
         {
-            AppLog.Warn($"Ogg stream {serial:X8}: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_StreamError, serial, ex.Message));
             return null;
         }
 
-        var kind = first.AsSpan().StartsWith("\x80theora"u8) ? "Theora" : first.AsSpan().StartsWith("fishead"u8) ? "Skeleton" : "unknown";
-        AppLog.Info($"Ogg stream {serial:X8} ({kind}) is not supported.");
+        var kind = first.AsSpan().StartsWith("\x80theora"u8) ? "Theora" : first.AsSpan().StartsWith("fishead"u8) ? "Skeleton" : Strings.Kind_Unknown;
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_UnsupportedStream, serial, kind));
         return null;
     }
 
@@ -326,7 +328,7 @@ internal sealed class OggTrack : ISampleSource
     private static OggTrack Vorbis(OggDemuxer demuxer, uint serial, List<OggDemuxer.Packet> packets, byte[] identification)
     {
         if (packets.Count < 3)
-            throw new InvalidDataException("Vorbis stream without its three headers.");
+            throw new InvalidDataException(Strings.Error_VorbisMissingHeaders);
         var comment = demuxer.Read(packets[1]);
         var setup = demuxer.Read(packets[2]);
         var channels = identification[11];
@@ -373,7 +375,7 @@ internal sealed class OggTrack : ISampleSource
     {
         // 0x7F "FLAC" major minor, the number of header packets that follow, "fLaC", then STREAMINFO.
         if (!mapping.AsSpan(9, 4).SequenceEqual("fLaC"u8))
-            throw new InvalidDataException("Invalid Ogg FLAC mapping header.");
+            throw new InvalidDataException(Strings.Error_InvalidOggFlacMapping);
         int headers = BinaryPrimitives.ReadUInt16BigEndian(mapping.AsSpan(7));
         var blocks = new List<byte>(mapping.AsSpan(13).ToArray());
         var index = 1;
@@ -461,7 +463,7 @@ internal sealed class OggTrack : ISampleSource
     private static bool[] VorbisModes(byte[] setup)
     {
         if (setup.Length < 7 || setup[0] != 5)
-            throw new InvalidDataException("Invalid Vorbis setup header.");
+            throw new InvalidDataException(Strings.Error_InvalidVorbisSetup);
         var reversed = setup.Reverse().ToArray();
         var r = new BitReader(reversed);
         long framing = -1;
@@ -475,7 +477,7 @@ internal sealed class OggTrack : ISampleSource
         }
 
         if (framing < 0)
-            throw new InvalidDataException("Invalid Vorbis setup header.");
+            throw new InvalidDataException(Strings.Error_InvalidVorbisSetup);
         var count = 0;
         var found = 0;
         while (r.BitsLeft >= 97)
@@ -492,7 +494,7 @@ internal sealed class OggTrack : ISampleSource
         }
 
         if (found == 0)
-            throw new InvalidDataException("Vorbis setup header modes not found.");
+            throw new InvalidDataException(Strings.Error_VorbisModesNotFound);
         var flags = new bool[found];
         r = new BitReader(reversed);
         r.Skip(framing);

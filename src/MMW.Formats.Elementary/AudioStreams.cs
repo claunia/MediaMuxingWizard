@@ -1,6 +1,7 @@
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Formats.Elementary.Resources;
 
 namespace MMW.Formats.Elementary;
 
@@ -68,9 +69,9 @@ internal sealed class AdtsParser : IElementaryParser
     {
         using var reader = new FrameReader(stream);
         if (!Resync(reader) || Aac.ParseAdts(reader.Available) is not { } h)
-            throw new InvalidDataException("No ADTS frame found.");
+            throw new InvalidDataException(Strings.Error_NoAdtsFrame);
         if (h.RawBlocks > 1)
-            throw new NotSupportedException("ADTS frames carrying several raw data blocks are not supported.");
+            throw new NotSupportedException(Strings.Error_AdtsMultipleRawBlocks);
         sampleCountHint = stream.Length / Math.Max(1, h.FrameLength);
         var channels = h.ChannelConfig == 7 ? 8 : h.ChannelConfig;
         return new CodecConfig
@@ -124,7 +125,7 @@ internal sealed class AdtsParser : IElementaryParser
             }
 
             if (h.RawBlocks > 1)
-                throw new NotSupportedException("ADTS frames carrying several raw data blocks are not supported.");
+                throw new NotSupportedException(Strings.Error_AdtsMultipleRawBlocks);
             if (!_reader.Ensure(h.FrameLength))
                 return null;
             _reader.Skip(h.HeaderLength);
@@ -151,7 +152,7 @@ internal sealed class Ac3Parser : IElementaryParser
     public static CodecConfig Probe(Stream stream, out long sampleCountHint)
     {
         using var parser = new Ac3Parser(stream);
-        var first = parser.Next() ?? throw new InvalidDataException("No AC-3 syncframe found.");
+        var first = parser.Next() ?? throw new InvalidDataException(Strings.Error_NoAc3SyncFrame);
         var frames = Ac3.ParseAccessUnit(first.Data.Span);
         var h = frames[0];
         sampleCountHint = stream.Length / Math.Max(1, first.Data.Length);
@@ -235,10 +236,10 @@ internal sealed class Ac4Parser : IElementaryParser
     public static CodecConfig Probe(Stream stream, out long sampleCountHint)
     {
         using var parser = new Ac4Parser(stream, 0);
-        var first = parser.Next() ?? throw new InvalidDataException("No AC-4 sync frame found.");
+        var first = parser.Next() ?? throw new InvalidDataException(Strings.Error_NoAc4SyncFrame);
         var raw = first.Data.ToArray();
-        var info = Ac4.Parse(raw) ?? throw new InvalidDataException("The AC-4 table of contents cannot be read.");
-        var entry = Ac4.BuildEntry(raw) ?? throw new InvalidDataException("The AC-4 decoder configuration cannot be built.");
+        var info = Ac4.Parse(raw) ?? throw new InvalidDataException(Strings.Error_Ac4TocUnreadable);
+        var entry = Ac4.BuildEntry(raw) ?? throw new InvalidDataException(Strings.Error_Ac4ConfigUnbuildable);
         sampleCountHint = stream.Length / Math.Max(1, raw.Length + 4);
         return new CodecConfig
         {
@@ -314,7 +315,7 @@ internal sealed class DtsParser : IElementaryParser
             position += 16 + size;
         }
 
-        throw new InvalidDataException("The DTS-HD file has no STRMDATA chunk.");
+        throw new InvalidDataException(Strings.Error_DtsHdNoStrmData);
     }
 
     public static CodecConfig Probe(Stream stream, out long sampleCountHint)
@@ -324,7 +325,7 @@ internal sealed class DtsParser : IElementaryParser
         for (var i = 0; i < DtsDetector.MaxSamples && parser.Next() is { } sample; i++)
             units.Add(sample.Data);
         if (units.Count == 0 || Dts.Parse(units[0].Span) is not { } first)
-            throw new InvalidDataException("No DTS frame found.");
+            throw new InvalidDataException(Strings.Error_NoDtsFrame);
         sampleCountHint = stream.Length / Math.Max(1, units[0].Length);
         var config = new CodecConfig
         {

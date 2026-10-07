@@ -1,5 +1,7 @@
+using System.Globalization;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
+using MMW.Formats.Elementary.Resources;
 
 namespace MMW.Formats.Elementary;
 
@@ -224,7 +226,7 @@ public static class ElementaryFormat
             }
 
             default:
-                throw new InvalidDataException($"'{Path.GetFileName(path)}' is not a supported elementary stream.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnsupportedElementaryStream, Path.GetFileName(path)));
         }
     }
 

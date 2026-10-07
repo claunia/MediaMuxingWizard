@@ -10,6 +10,7 @@ using MMW.Formats.Matroska.Media;
 using MMW.Formats.Mp4.Media;
 using MMW.Media.Conversion;
 using MMW.Ocr;
+using MMW.Media.Remux.Resources;
 
 namespace MMW.Media.Remux;
 
@@ -149,7 +150,7 @@ public static class TrackImporter
     {
         var full = Path.GetFullPath(path);
         var muxer = MediaFormatRegistry.GetMuxer(target == ContainerKind.Unknown ? ContainerKind.Mp4 : target)
-                    ?? throw new NotSupportedException($"No muxer is registered for {target}.");
+                    ?? throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoMuxer, target));
         using var demuxer = MediaFormatRegistry.OpenDemuxer(full);
         var needsRate = ElementaryFormat.RequiresFrameRate(demuxer);
         var result = new List<ImportableTrack>();
@@ -209,12 +210,12 @@ public static class TrackImporter
         {
             if (DolbyVisionDetector.Detect(source, config.Color) is not { } detection)
                 return config;
-            AppLog.Info($"Dolby Vision {detection.ProfileName} (level {detection.Level}) found in the bitstream of track {source.TrackId}; its configuration was rebuilt.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_DolbyVisionRebuilt, detection.ProfileName, detection.Level, source.TrackId));
             return config with { DolbyVisionConfig = detection.ConfigurationRecord };
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"Dolby Vision check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_DolbyVisionCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -230,7 +231,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"DTS check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_DtsCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -246,7 +247,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"Opus check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_OpusCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -262,7 +263,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"MPEG audio check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_MpegAudioCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -278,7 +279,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"Audio check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_AudioCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -300,7 +301,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"Colour scan of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_ColourScanFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -316,7 +317,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"HDR10+ check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_Hdr10PlusCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -332,7 +333,7 @@ public static class TrackImporter
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
-            AppLog.Debug($"HDR Vivid check of track {source.TrackId} failed: {ex.Message}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_HdrVividCheckFailed, source.TrackId, ex.Message));
             return config;
         }
     }
@@ -398,10 +399,10 @@ public static class TrackImporter
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(original);
-        var source = original.Source ?? throw new InvalidOperationException($"Track '{original.Name}' ({original.Format}) has no source file.");
+        var source = original.Source ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackHasNoSource, original.Name, original.Format));
         var index = document.Tracks.IndexOf(original);
         if (index < 0)
-            throw new InvalidOperationException($"Track '{original.Name}' is not part of the document.");
+            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackNotInDocument, original.Name));
 
         var copy = new SubtitleTrack
         {
@@ -465,7 +466,7 @@ public static class TrackImporter
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(original);
-        var source = original.Source ?? throw new InvalidOperationException($"Track '{original.Name}' ({original.Format}) has no source file.");
+        var source = original.Source ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackHasNoSource, original.Name, original.Format));
         ImportableTrack? inspected = null;
         if (!original.IsPending)
             inspected = (await InspectAsync(source.Path, document.Container, cancellationToken)).FirstOrDefault(t => t.TrackId == source.TrackId);
@@ -557,7 +558,7 @@ public static class TrackImporter
             var output = SubtitleConversions.PredictOutput(c, ocrTarget);
             track.Format = output.FormatName;
             track.CodecId = output.SourceCodecId;
-            track.FormatDetails = "Text (OCR)";
+            track.FormatDetails = Strings.Details_TextOcr;
             track.Timescale = output.Timescale;
         }
 
@@ -654,7 +655,7 @@ public static class TrackImporter
                     parts.Add("Atmos");
                 break;
             case TrackKind.Subtitle when CodecNames.IsText(config.Codec):
-                parts.Add("Text");
+                parts.Add(Strings.Details_Text);
                 break;
         }
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_Ac4ConfigUnbuildable" xml:space="preserve">
+    <value>The AC-4 decoder configuration cannot be built.</value>
+  </data>
+  <data name="Error_Ac4TocUnreadable" xml:space="preserve">
+    <value>The AC-4 table of contents cannot be read.</value>
+  </data>
+  <data name="Error_AdtsMultipleRawBlocks" xml:space="preserve">
+    <value>ADTS frames carrying several raw data blocks are not supported.</value>
+  </data>
+  <data name="Error_Av1NoSequenceHeader" xml:space="preserve">
+    <value>The AV1 stream does not start with a readable sequence header.</value>
+  </data>
+  <data name="Error_Av1ObuWithoutSize" xml:space="preserve">
+    <value>AV1 OBU without a size field in a low-overhead stream.</value>
+  </data>
+  <data name="Error_DtsHdNoStrmData" xml:space="preserve">
+    <value>The DTS-HD file has no STRMDATA chunk.</value>
+  </data>
+  <data name="Error_FlacNoStreamInfo" xml:space="preserve">
+    <value>FLAC file without STREAMINFO.</value>
+  </data>
+  <data name="Error_InvalidFlacMetadataBlock" xml:space="preserve">
+    <value>Invalid FLAC metadata block.</value>
+  </data>
+  <data name="Error_InvalidNalLength" xml:space="preserve">
+    <value>Invalid NAL unit length.</value>
+  </data>
+  <data name="Error_NoAc3SyncFrame" xml:space="preserve">
+    <value>No AC-3 syncframe found.</value>
+  </data>
+  <data name="Error_NoAc4SyncFrame" xml:space="preserve">
+    <value>No AC-4 sync frame found.</value>
+  </data>
+  <data name="Error_NoAdtsFrame" xml:space="preserve">
+    <value>No ADTS frame found.</value>
+  </data>
+  <data name="Error_NoAssEventsFormat" xml:space="preserve">
+    <value>No [Events] Format line found.</value>
+  </data>
+  <data name="Error_NoDtsFrame" xml:space="preserve">
+    <value>No DTS frame found.</value>
+  </data>
+  <data name="Error_NoParameterSets" xml:space="preserve">
+    <value>No {0} found at the start of the {1} stream.</value>
+    <comment>{0}: parameter set names (VPS/SPS/PPS or SPS/PPS); {1}: codec name</comment>
+  </data>
+  <data name="Error_NoSequenceHeader" xml:space="preserve">
+    <value>No sequence header found at the start of the {0} stream.</value>
+    <comment>{0}: codec name</comment>
+  </data>
+  <data name="Error_NoSubRipCues" xml:space="preserve">
+    <value>No SubRip cues found.</value>
+  </data>
+  <data name="Error_NotFlac" xml:space="preserve">
+    <value>Not a FLAC file (no "fLaC" marker).</value>
+  </data>
+  <data name="Error_NotWebVtt" xml:space="preserve">
+    <value>Not a WebVTT file.</value>
+  </data>
+  <data name="Error_UnsupportedElementaryStream" xml:space="preserve">
+    <value>'{0}' is not a supported elementary stream.</value>
+    <comment>{0}: file name</comment>
+  </data>
+  <data name="Log_InvalidParameterSetSkipped" xml:space="preserve">
+    <value>Skipping an invalid parameter set: {0}</value>
+    <comment>{0}: error message</comment>
+  </data>
+  <data name="Log_NoTimingInfo" xml:space="preserve">
+    <value>The {0} stream has no timing information; assuming 25 fps.</value>
+    <comment>{0}: codec name</comment>
+  </data>
+</root>

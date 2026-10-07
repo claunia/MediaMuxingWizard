@@ -2,6 +2,7 @@ using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
+using MMW.Formats.Elementary.Resources;
 
 namespace MMW.Formats.Elementary;
 
@@ -29,7 +30,7 @@ internal static class FlacFile
         stream.Position = start;
         stream.ReadExactly(head[..4]);
         if (!head[..4].SequenceEqual("fLaC"u8))
-            throw new InvalidDataException("Not a FLAC file (no \"fLaC\" marker).");
+            throw new InvalidDataException(Strings.Error_NotFlac);
 
         var blocks = new List<(int, byte[])>();
         while (true)
@@ -39,7 +40,7 @@ internal static class FlacFile
             var type = head[0] & 0x7F;
             var length = (head[1] << 16) | (head[2] << 8) | head[3];
             if (type == 127)
-                throw new InvalidDataException("Invalid FLAC metadata block.");
+                throw new InvalidDataException(Strings.Error_InvalidFlacMetadataBlock);
             var body = new byte[length];
             stream.ReadExactly(body);
             blocks.Add((type, body));
@@ -48,7 +49,7 @@ internal static class FlacFile
         }
 
         if (blocks.Count == 0 || blocks[0].Item1 != Flac.StreamInfoType || blocks[0].Item2.Length < 34)
-            throw new InvalidDataException("FLAC file without STREAMINFO.");
+            throw new InvalidDataException(Strings.Error_FlacNoStreamInfo);
         return new Header(blocks, stream.Position);
     }
 
