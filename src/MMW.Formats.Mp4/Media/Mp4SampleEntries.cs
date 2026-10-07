@@ -449,6 +449,8 @@ internal static class Mp4SampleEntries
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
             CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
                 "AVS (AVS1-P2 / AVS+) video has no MP4 sample entry (none is registered), so it cannot be stored in MP4; save as Matroska instead"),
+            CodecType.VfwVideo or CodecType.RealVideo => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
+                $"{config.FormatName} video has no MP4 sample entry, so it cannot be stored in MP4; save as Matroska instead"),
             CodecType.Pgs or CodecType.DvbSub =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.Skip, $"{config.FormatName} bitmap subtitles cannot be stored in MP4; they need OCR to text"),
             _ => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, $"{config.FormatName} cannot be stored in MP4"),

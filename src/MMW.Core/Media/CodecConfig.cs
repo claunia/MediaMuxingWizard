@@ -78,6 +78,15 @@ public enum CodecType
 
     /// <summary>AVS1-P2 / AVS+ video (GB/T 20090.2, GY/T 257.1): start-code delimited stream, sequence header in-band.</summary>
     Avs1,
+
+    /// <summary>A Video for Windows codec this application does not model (MS-MPEG4, WMV, VC-1, DV, Cinepak…), kept as it is.</summary>
+    VfwVideo,
+
+    /// <summary>An Audio Compression Manager codec this application does not model (WMA, ADPCM…), kept as it is.</summary>
+    AcmAudio,
+
+    /// <summary>RealVideo (RV10/RV20/RV30/RV40).</summary>
+    RealVideo,
 }
 
 /// <summary>
@@ -104,6 +113,9 @@ public enum CodecType
 /// <item><term>ASS/SSA/WebVTT</term><description>The UTF-8 text header (script info and styles / WebVTT header).</description></item>
 /// <item><term>tx3g</term><description>The tx3g sample-entry payload after the 8-byte SampleEntry header (display flags, box, style, ftab).</description></item>
 /// <item><term>VobSub</term><description>The .idx header text (size, palette).</description></item>
+/// <item><term>VFW video</term><description>BITMAPINFOHEADER followed by the codec's extra data (Matroska V_MS/VFW/FOURCC CodecPrivate).</description></item>
+/// <item><term>ACM audio</term><description>WAVEFORMATEX followed by the codec's extra data (Matroska A_MS/ACM CodecPrivate).</description></item>
+/// <item><term>RealVideo</term><description>The RealMedia 'VIDO' type-specific data (Matroska V_REAL/* CodecPrivate).</description></item>
 /// </list>
 /// </remarks>
 public sealed record CodecConfig
@@ -223,7 +235,13 @@ public sealed record CodecConfig
     public object? Native { get; init; }
 
     /// <summary>Short display name of the codec.</summary>
-    public string FormatName => CodecNames.Display(Codec, SourceCodecId);
+    public string FormatName => Codec switch
+    {
+        CodecType.VfwVideo when Codecs.Vfw.ParseBitmapInfoHeader(Extradata) is { } bih => Codecs.Vfw.VideoName(bih.FourCc),
+        CodecType.AcmAudio when Codecs.Vfw.ParseWaveFormatEx(Extradata) is { } wfx => Codecs.Vfw.AudioName(wfx.Tag),
+        CodecType.RealVideo when Codecs.Vfw.RealVideoFourCc(Extradata) is { } fourCc => Codecs.Vfw.RealVideoName(fourCc),
+        _ => CodecNames.Display(Codec, SourceCodecId),
+    };
 
     public override string ToString() => $"{FormatName} ({SourceCodecId})";
 }
@@ -276,6 +294,9 @@ public static class CodecNames
         CodecType.Xsub => "XSUB",
         CodecType.Cea608 => "CEA-608",
         CodecType.Ttml => "TTML",
+        CodecType.VfwVideo => "VFW video",
+        CodecType.AcmAudio => "ACM audio",
+        CodecType.RealVideo => "RealVideo",
         _ => fallback.Length > 0 ? fallback : "Unknown",
     };
 

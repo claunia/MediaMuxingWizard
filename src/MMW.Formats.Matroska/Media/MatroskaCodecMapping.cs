@@ -120,6 +120,10 @@ internal static class MatroskaCodecMapping
                 return c with { Codec = CodecType.Avs3 }; // the sequence header is in the frames
             case "V_MS/VFW/FOURCC" when MatroskaCodecs.VfwFourCc(priv) == "CAVS":
                 return c with { Codec = CodecType.Avs1 }; // AVS1-P2 in a BITMAPINFOHEADER, sequence header in the frames
+            case "V_MS/VFW/FOURCC" when Vfw.ParseBitmapInfoHeader(priv) is { } bih:
+                return c with { Codec = CodecType.VfwVideo, Extradata = priv, Width = c.Width > 0 ? c.Width : bih.Width, Height = c.Height > 0 ? c.Height : bih.Height };
+            case "A_MS/ACM" when Vfw.ParseWaveFormatEx(priv) is { } wfx:
+                return AcmCodec(c with { SampleRate = c.SampleRate > 0 ? c.SampleRate : wfx.SampleRate, Channels = c.Channels > 0 ? c.Channels : wfx.Channels }, priv!, wfx.Tag, wfx.BitsPerSample, wfx.Extra);
             case "V_MPEG1":
                 return c with { Codec = CodecType.Mpeg1Video, Extradata = priv };
             case "V_MJPEG":
@@ -196,6 +200,8 @@ internal static class MatroskaCodecMapping
                 return c with { Codec = CodecType.DvbSub, Extradata = priv };
         }
 
+        if (id.StartsWith("V_REAL/", StringComparison.Ordinal) && Vfw.RealVideoFourCc(priv) is not null)
+            return c with { Codec = CodecType.RealVideo, Extradata = priv };
         if (id.StartsWith("V_MPEG4/ISO/", StringComparison.Ordinal))
             return c with { Codec = CodecType.Mpeg4Visual, Extradata = priv };
         if (id.StartsWith("A_AAC", StringComparison.Ordinal))
@@ -205,6 +211,23 @@ internal static class MatroskaCodecMapping
         }
 
         return c with { Codec = CodecType.Unknown, Extradata = priv };
+    }
+
+    /// <summary>An A_MS/ACM track: the codecs this application models by their format tag, the others kept as ACM audio.</summary>
+    private static CodecConfig AcmCodec(CodecConfig c, byte[] wfx, int tag, int bits, byte[] extra)
+    {
+        if (tag == 0xFFFE && extra.Length >= 8)
+            tag = BitConverter.ToUInt16(extra, 6); // WAVE_FORMAT_EXTENSIBLE: the sub-format GUID starts with the tag
+        return tag switch
+        {
+            0x0001 when bits is 8 or 16 or 24 or 32 => c with { Codec = CodecType.Pcm, BitsPerSample = bits },
+            0x0003 when bits is 32 or 64 => c with { Codec = CodecType.Pcm, BitsPerSample = bits, PcmFloat = true },
+            0x0050 => c with { Codec = CodecType.Mp2 },
+            0x0055 => c with { Codec = CodecType.Mp3 },
+            0x2000 => c with { Codec = CodecType.Ac3 },
+            0x2001 => c with { Codec = CodecType.Dts },
+            _ => c with { Codec = CodecType.AcmAudio, Extradata = wfx, BitsPerSample = bits },
+        };
     }
 
     private static (int Width, int Height) VobSubSize(byte[]? idx)
@@ -275,6 +298,9 @@ internal static class MatroskaCodecMapping
         CodecType.Avs2 => "V_AVS2", // as FFmpeg reads and writes it
         CodecType.Avs3 => "V_AVS3", // as FFmpeg reads and writes it
         CodecType.Avs1 => "V_MS/VFW/FOURCC", // FourCC 'CAVS', as FFmpeg and mkvmerge write it
+        CodecType.VfwVideo => "V_MS/VFW/FOURCC", // the BITMAPINFOHEADER as CodecPrivate, as mkvmerge writes it
+        CodecType.RealVideo when Vfw.RealVideoFourCc(c.Extradata) is { } fourCc => "V_REAL/" + fourCc,
+        CodecType.AcmAudio => "A_MS/ACM", // the WAVEFORMATEX as CodecPrivate, as mkvmerge writes it
         CodecType.Mjpeg => "V_MJPEG",
         CodecType.Theora => "V_THEORA",
         CodecType.ProRes => "V_PRORES",
@@ -315,6 +341,7 @@ internal static class MatroskaCodecMapping
         CodecType.Flac => c.Extradata is null ? null : [.. "fLaC"u8, .. Flac.FixLastFlags(c.Extradata)],
         CodecType.Alac => c.Extradata,
         CodecType.Av2 => Av2CodecPrivate(c.Extradata),
+        CodecType.VfwVideo or CodecType.AcmAudio or CodecType.RealVideo => c.Extradata,
         CodecType.WebVtt => c.Extradata is { Length: > 0 } header && Encoding.UTF8.GetString(header).StartsWith("WEBVTT", StringComparison.Ordinal) ? header : null,
         _ => null,
     };

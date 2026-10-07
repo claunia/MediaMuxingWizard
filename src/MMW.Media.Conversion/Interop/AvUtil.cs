@@ -108,7 +108,7 @@ internal static unsafe class AvUtil
                     break;
             }
 
-            if (config.Native is FFmpegCodec native && CodecMapping.IsNativeOnly(config))
+            if (CodecMapping.IsNativeOnly(config) && CodecMapping.Native(config) is { } native)
             {
                 // A codec only FFmpeg knows (WMA, DVD LPCM, …): its own parameters as the demuxer gave them.
                 context->block_align = native.BlockAlign;

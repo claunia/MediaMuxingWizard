@@ -104,7 +104,7 @@ internal sealed unsafe class FFmpegDemuxer : IDemuxer
                 var st = format->streams[i];
                 if ((st->disposition & ffmpeg.AV_DISPOSITION_ATTACHED_PIC) != 0)
                     continue;
-                var info = StreamInfo.From(st, start);
+                var info = StreamInfo.From(st, start, path);
                 if (info is null)
                 {
                     var codec = ffmpeg.avcodec_get_name(st->codecpar->codec_id);
@@ -160,7 +160,7 @@ internal enum PacketForm
 /// <summary>A stream's description: the configuration and how to read it.</summary>
 internal sealed record StreamInfo(int Index, int Id, CodecConfig Config, PacketForm Form, AVRational TimeBase, double StartSeconds, long FrameTicks, string? Filter)
 {
-    public static unsafe StreamInfo? From(AVStream* st, double startSeconds)
+    public static unsafe StreamInfo? From(AVStream* st, double startSeconds, string path)
     {
         var p = st->codecpar;
         var tb = st->time_base.num > 0 && st->time_base.den > 0 ? st->time_base : new AVRational { num = 1, den = 90000 };
@@ -203,6 +203,18 @@ internal sealed record StreamInfo(int Index, int Id, CodecConfig Config, PacketF
                     AVCodecID.AV_CODEC_ID_MPEG2VIDEO => new StreamInfo(st->index, st->id, video with { Codec = CodecType.Mpeg2Video, Extradata = extradata }, PacketForm.MpegVideo, tb, startSeconds, frameTicks, null),
                     AVCodecID.AV_CODEC_ID_MPEG1VIDEO => new StreamInfo(st->index, st->id, video with { Codec = CodecType.Mpeg1Video, Extradata = extradata }, PacketForm.MpegVideo, tb, startSeconds, frameTicks, null),
                     AVCodecID.AV_CODEC_ID_MJPEG => new StreamInfo(st->index, st->id, video with { Codec = CodecType.Mjpeg }, PacketForm.Copy, tb, startSeconds, frameTicks, null),
+                    AVCodecID.AV_CODEC_ID_RV10 or AVCodecID.AV_CODEC_ID_RV20 or AVCodecID.AV_CODEC_ID_RV30 or AVCodecID.AV_CODEC_ID_RV40 or AVCodecID.AV_CODEC_ID_RV60 =>
+                        new StreamInfo(st->index, st->id, video with
+                        {
+                            Codec = CodecType.RealVideo,
+                            Extradata = RealMedia.VideoTypeData(path, st->id) ??
+                                        Vfw.RealVideo(FourCc(p->codec_tag), p->width, p->height, video.FrameRate, extradata),
+                        }, PacketForm.Copy, tb, startSeconds, frameTicks, null),
+                    _ when RiffTag(p, video: true) is var fourCc and not 0 =>
+                        // Video for Windows codecs (MS-MPEG4, WMV, VC-1, DV …) as mkvmerge stores them: a BITMAPINFOHEADER,
+                        // and frames timed in decoding order as in AVI (Matroska readers take VFW timestamps as such).
+                        new StreamInfo(st->index, st->id, video with { Codec = CodecType.VfwVideo, Extradata = Vfw.BitmapInfoHeader(p->width, p->height, FourCc(fourCc), extradata) },
+                            PacketForm.Copy, tb, startSeconds, frameTicks, null),
                     _ => null,
                 };
             }
@@ -238,13 +250,27 @@ internal sealed record StreamInfo(int Index, int Id, CodecConfig Config, PacketF
                 if (mapped is null)
                 {
                     // A codec only FFmpeg knows: kept as is so it can be converted.
+                    var native = new FFmpegCodec(p->codec_id, ffmpeg.avcodec_get_name(p->codec_id), extradata, p->block_align, p->bit_rate, p->bits_per_coded_sample, p->codec_tag);
+                    if (RiffTag(p, video: false) is var tag and not 0)
+                    {
+                        // Audio Compression Manager codecs (WMA, ADPCM …) as mkvmerge stores them: a WAVEFORMATEX.
+                        mapped = audio with
+                        {
+                            Codec = CodecType.AcmAudio,
+                            BitsPerSample = bits,
+                            Extradata = Vfw.WaveFormatEx((int)tag, p->ch_layout.nb_channels, p->sample_rate, p->bit_rate, p->block_align, p->bits_per_coded_sample, extradata),
+                            Native = native,
+                        };
+                        return new StreamInfo(st->index, st->id, mapped, PacketForm.Copy, tb, startSeconds, 0, null);
+                    }
+
                     if (ffmpeg.avcodec_find_decoder(p->codec_id) == null)
                         return null;
                     mapped = audio with
                     {
                         Codec = CodecType.Unknown,
                         BitsPerSample = bits,
-                        Native = new FFmpegCodec(p->codec_id, ffmpeg.avcodec_get_name(p->codec_id), extradata, p->block_align, p->bit_rate, p->bits_per_coded_sample, p->codec_tag),
+                        Native = native,
                     };
                 }
 
@@ -278,6 +304,26 @@ internal sealed record StreamInfo(int Index, int Id, CodecConfig Config, PacketF
         }
     }
 
+    /// <summary>
+    /// The Video for Windows FourCC or ACM format tag of a stream: the container's own when it is a RIFF one (AVI, ASF,
+    /// WAV), otherwise (video only: raw DV …) the one AVI would use; 0 when the codec has none.
+    /// </summary>
+    private static unsafe uint RiffTag(AVCodecParameters* p, bool video)
+    {
+        var tags = stackalloc AVCodecTag*[] { video ? ffmpeg.avformat_get_riff_video_tags() : ffmpeg.avformat_get_riff_audio_tags(), null };
+        if (p->codec_tag != 0 && ffmpeg.av_codec_get_id(tags, p->codec_tag) == p->codec_id)
+            return p->codec_tag;
+        return video ? ffmpeg.av_codec_get_tag(tags, p->codec_id) : 0;
+    }
+
+    /// <summary>A little-endian FourCC as text.</summary>
+    internal static string FourCc(uint tag)
+    {
+        Span<byte> bytes = stackalloc byte[4];
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes, tag);
+        return Encoding.ASCII.GetString(bytes);
+    }
+
     /// <summary>Linear PCM FFmpeg codecs as <see cref="CodecType.Pcm"/>; null for other codecs.</summary>
     private static CodecConfig? Pcm(CodecConfig audio, AVCodecID id) => id switch
     {
@@ -307,6 +353,52 @@ internal sealed record StreamInfo(int Index, int Id, CodecConfig Config, PacketF
     {
         var entry = ffmpeg.av_dict_get(dictionary, key, null, 0);
         return entry == null ? null : new string((sbyte*)entry->value);
+    }
+}
+
+/// <summary>RealMedia file headers.</summary>
+internal static class RealMedia
+{
+    /// <summary>
+    /// The type-specific data of a video stream's media properties ('MDPR' chunk) as the file holds it ('VIDO' …),
+    /// which Matroska keeps as V_REAL CodecPrivate; null when the file is not RealMedia or has no such stream.
+    /// </summary>
+    public static byte[]? VideoTypeData(string path, int streamNumber)
+    {
+        try
+        {
+            using var file = File.OpenRead(path);
+            Span<byte> header = stackalloc byte[10];
+            while (file.Position + 10 <= file.Length)
+            {
+                var start = file.Position;
+                file.ReadExactly(header);
+                var id = Encoding.ASCII.GetString(header[..4]);
+                var size = BinaryPrimitives.ReadUInt32BigEndian(header[4..]);
+                if (start == 0 && id != ".RMF" || id == "DATA" || size < 10)
+                    return null;
+                if (id == "MDPR")
+                {
+                    var chunk = new byte[size - 10];
+                    file.ReadExactly(chunk);
+                    var number = BinaryPrimitives.ReadUInt16BigEndian(chunk);
+                    var at = 2 + 7 * 4; // bit rates, packet sizes, start time, preroll, duration
+                    at += 1 + chunk[at]; // stream name
+                    at += 1 + chunk[at]; // MIME type
+                    var length = (int)BinaryPrimitives.ReadUInt32BigEndian(chunk.AsSpan(at));
+                    var data = chunk.AsSpan(at + 4, length);
+                    if (number == streamNumber && Vfw.RealVideoFourCc(data) is not null)
+                        return data.ToArray();
+                }
+
+                file.Position = start + size;
+            }
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentOutOfRangeException or IndexOutOfRangeException or UnauthorizedAccessException)
+        {
+        }
+
+        return null;
     }
 }
 

@@ -120,6 +120,45 @@ public sealed class ForeignContainerTests
         }
     }
 
+    /// <summary>
+    /// Codecs only Matroska's compatibility modes hold pass through as mkvmerge stores them (V_MS/VFW/FOURCC with a
+    /// BITMAPINFOHEADER, A_MS/ACM with a WAVEFORMATEX, V_REAL/* with the RealMedia type-specific data) and decode
+    /// unchanged; read back from Matroska, the video cannot go to MP4 and the audio is converted.
+    /// </summary>
+    [Theory]
+    [InlineData("foreign-msmpeg4.avi", "-c:v msmpeg4 -c:a wmav2 -b:a 128k", "V_MS/VFW/FOURCC", "MS-MPEG4 v3", "A_MS/ACM", "WMA 2")]
+    [InlineData("foreign-wmv2.asf", "-c:v wmv2 -c:a wmav1 -b:a 128k", "V_MS/VFW/FOURCC", "WMV 8", "A_MS/ACM", "WMA 1")]
+    [InlineData("foreign-dv.dv", "-s 720x576 -r 25 -pix_fmt yuv420p -c:v dvvideo -c:a pcm_s16le -ar 48000 -ac 2 -f dv", "V_MS/VFW/FOURCC", "DV", "A_PCM/INT/LIT", "PCM")]
+    [InlineData("foreign-rv10.rm", "-c:v rv10 -c:a ac3 -f rm", "V_REAL/RV10", "RealVideo 1", "A_AC3", "AC-3")]
+    public async Task Compatibility_codecs_pass_through_to_matroska(string name, string options, string videoId, string videoName, string audioId, string audioName)
+    {
+        if (!Fixtures.HasTool("mkvmerge"))
+            Assert.Skip("mkvmerge not installed.");
+        var source = Make(name, options);
+        MediaRemux.EnsureRegistered();
+        var tracks = await TrackImporter.InspectAsync(source, ContainerKind.Matroska, Ct);
+        Assert.Equal([videoName, audioName], tracks.Select(t => t.Format));
+
+        var output = await SaveAsync(source, ContainerKind.Matroska);
+        try
+        {
+            Assert.Equal(Decode(source, "v"), Decode(output, "v"));
+            Assert.Equal(Pcm(source), Pcm(output));
+            var info = System.Text.Json.JsonDocument.Parse(Fixtures.Run("mkvmerge", $"-J {Fixtures.Quote(output)}"));
+            var ids = info.RootElement.GetProperty("tracks").EnumerateArray().Select(t => t.GetProperty("properties").GetProperty("codec_id").GetString()).ToList();
+            Assert.Equal([videoId, audioId], ids);
+
+            var back = await TrackImporter.InspectAsync(output, ContainerKind.Mp4, Ct);
+            Assert.Equal(TrackSupportLevel.Unsupported, back[0].Support.Level);
+            if (audioId == "A_MS/ACM")
+                Assert.Equal(ImportAction.ConvertToAac, back[1].Action);
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
+    }
+
     /// <summary>A VobSub pair: either file opens the track; it passes through with the subpictures' own durations, and OCR is offered.</summary>
     [Fact]
     public async Task Vobsub_pairs_import_and_offer_ocr()

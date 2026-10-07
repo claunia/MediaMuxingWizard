@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using FFmpeg.AutoGen;
 using MMW.Core.Media;
+using MMW.Core.Media.Codecs;
 
 namespace MMW.Media.Conversion;
 
@@ -28,8 +29,52 @@ internal static class CodecMapping
         CodecType.VobSub => AVCodecID.AV_CODEC_ID_DVD_SUBTITLE,
         CodecType.DvbSub => AVCodecID.AV_CODEC_ID_DVB_SUBTITLE,
         CodecType.Xsub => AVCodecID.AV_CODEC_ID_XSUB,
-        _ => config.Native is FFmpegCodec native ? native.Id : AVCodecID.AV_CODEC_ID_NONE,
+        _ => Native(config)?.Id ?? AVCodecID.AV_CODEC_ID_NONE,
     };
+
+    /// <summary>
+    /// The FFmpeg parameters of a codec this application does not model: as the FFmpeg demuxer gave them, or from the
+    /// Video for Windows / ACM / RealMedia description it is stored with (Matroska V_MS/VFW/FOURCC, A_MS/ACM, V_REAL).
+    /// </summary>
+    public static unsafe FFmpegCodec? Native(CodecConfig config)
+    {
+        switch (config.Codec)
+        {
+            case CodecType.Unknown or CodecType.AcmAudio when config.Native is FFmpegCodec native:
+                return native;
+            case CodecType.AcmAudio when Vfw.ParseWaveFormatEx(config.Extradata) is { } wfx:
+            {
+                var tags = stackalloc AVCodecTag*[] { ffmpeg.avformat_get_riff_audio_tags(), null };
+                var id = ffmpeg.av_codec_get_id(tags, (uint)wfx.Tag);
+                return id == AVCodecID.AV_CODEC_ID_NONE ? null : new FFmpegCodec(id, ffmpeg.avcodec_get_name(id), wfx.Extra, wfx.BlockAlign, wfx.BitRate, wfx.BitsPerSample, (uint)wfx.Tag);
+            }
+
+            case CodecType.VfwVideo when Vfw.ParseBitmapInfoHeader(config.Extradata) is { } bih:
+            {
+                var tag = BinaryPrimitives.ReadUInt32LittleEndian(System.Text.Encoding.ASCII.GetBytes(bih.FourCc));
+                var tags = stackalloc AVCodecTag*[] { ffmpeg.avformat_get_riff_video_tags(), null };
+                var id = ffmpeg.av_codec_get_id(tags, tag);
+                return id == AVCodecID.AV_CODEC_ID_NONE ? null : new FFmpegCodec(id, ffmpeg.avcodec_get_name(id), bih.Extra, 0, 0, 0, tag);
+            }
+
+            case CodecType.RealVideo when Vfw.RealVideoFourCc(config.Extradata) is { } fourCc && Vfw.ParseRealVideo(config.Extradata) is { } rv:
+            {
+                var id = fourCc switch
+                {
+                    "RV10" => AVCodecID.AV_CODEC_ID_RV10,
+                    "RV20" => AVCodecID.AV_CODEC_ID_RV20,
+                    "RV30" => AVCodecID.AV_CODEC_ID_RV30,
+                    "RV40" => AVCodecID.AV_CODEC_ID_RV40,
+                    "RV60" => AVCodecID.AV_CODEC_ID_RV60,
+                    _ => AVCodecID.AV_CODEC_ID_NONE,
+                };
+                return id == AVCodecID.AV_CODEC_ID_NONE ? null : new FFmpegCodec(id, ffmpeg.avcodec_get_name(id), rv.Extra, 0, 0, 0, BinaryPrimitives.ReadUInt32LittleEndian(System.Text.Encoding.ASCII.GetBytes(fourCc)));
+            }
+
+            default:
+                return null;
+        }
+    }
 
     private static AVCodecID PcmId(CodecConfig c) => (c.BitsPerSample, c.PcmFloat, c.PcmBigEndian) switch
     {
@@ -47,8 +92,8 @@ internal static class CodecMapping
         _ => AVCodecID.AV_CODEC_ID_NONE,
     };
 
-    /// <summary>True when the track's codec is known only by the FFmpeg codec it came from (<see cref="FFmpegCodec"/>).</summary>
-    public static bool IsNativeOnly(CodecConfig config) => config.Codec == CodecType.Unknown && config.Native is FFmpegCodec;
+    /// <summary>True when the track's codec is known only by its FFmpeg parameters (<see cref="Native"/>).</summary>
+    public static bool IsNativeOnly(CodecConfig config) => config.Codec is CodecType.Unknown or CodecType.AcmAudio or CodecType.VfwVideo or CodecType.RealVideo;
 
     /// <summary>Extradata in the form FFmpeg's decoder expects.</summary>
     public static byte[]? DecoderExtradata(CodecConfig config)
