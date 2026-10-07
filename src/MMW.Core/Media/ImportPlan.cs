@@ -48,6 +48,15 @@ public enum ImportAction
 
     /// <summary>Re-encode lossless audio (FLAC) to Apple Lossless (MP4 'alac'; requires FFmpeg).</summary>
     ConvertToAlac,
+
+    /// <summary>Convert text subtitles to Advanced SubStation Alpha (Matroska S_TEXT/ASS), keeping styles, fonts, positions and karaoke.</summary>
+    ConvertToAss,
+
+    /// <summary>Convert text subtitles to SubStation Alpha v4 (Matroska S_TEXT/SSA).</summary>
+    ConvertToSsa,
+
+    /// <summary>Convert text subtitles to WebVTT (Matroska D_WEBVTT/SUBTITLES, MP4 'wvtt').</summary>
+    ConvertToWebVtt,
 }
 
 /// <summary>How well a container can store a codec.</summary>

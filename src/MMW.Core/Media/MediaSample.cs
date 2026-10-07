@@ -69,6 +69,12 @@ public sealed class MediaSample
     /// </summary>
     public IReadOnlyList<BlockAddition>? Additions { get; set; }
 
+    /// <summary>
+    /// WebVTT cue settings of a WebVTT cue sample ("position:10% line:0 align:start vertical:rl …", as on the cue's
+    /// timing line); null when the cue has none. The payload holds the cue text only.
+    /// </summary>
+    public string? CueSettings { get; set; }
+
     /// <summary>Presentation time.</summary>
     public long Pts => Dts + CtsOffset;
 

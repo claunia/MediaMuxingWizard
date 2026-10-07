@@ -131,7 +131,7 @@ public enum CodecType
 /// <item><term>FLAC</term><description>FLAC metadata blocks (STREAMINFO first) without the "fLaC" marker.</description></item>
 /// <item><term>ALAC</term><description>ALACSpecificConfig (24 bytes, optionally followed by a channel layout).</description></item>
 /// <item><term>Vorbis</term><description>The three Xiph-laced headers (Matroska CodecPrivate form).</description></item>
-/// <item><term>ASS/SSA/WebVTT</term><description>The UTF-8 text header (script info and styles / WebVTT header).</description></item>
+/// <item><term>ASS/SSA/WebVTT</term><description>The UTF-8 text header (script info and styles / WebVTT header with its STYLE and REGION blocks). WebVTT samples hold the cue text; the cue settings travel in <see cref="MediaSample.CueSettings"/>.</description></item>
 /// <item><term>tx3g</term><description>The tx3g sample-entry payload after the 8-byte SampleEntry header (display flags, box, style, ftab).</description></item>
 /// <item><term>VobSub</term><description>The .idx header text (size, palette).</description></item>
 /// <item><term>VFW video</term><description>BITMAPINFOHEADER followed by the codec's extra data (Matroska V_MS/VFW/FOURCC CodecPrivate).</description></item>
