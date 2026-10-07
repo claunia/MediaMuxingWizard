@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.claunia.MediaMuxingWizard</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>Media Muxing Wizard</name>
+  <summary>Mux, convert and tag MP4 and Matroska files</summary>
+  <developer id="com.claunia">
+    <name>Natalia Portillo</name>
+  </developer>
+  <description>
+    <p>
+      Media Muxing Wizard muxes and remuxes tracks from many containers and raw streams into MP4 (M4V, M4A, M4B, MOV)
+      and Matroska (MKV, MKA, WebM) files, converting audio and subtitles where the target needs it, and edits their
+      metadata without re-encoding: iTunes-style tags, cover art, chapters, track names, languages, alternate groups,
+      fallbacks and accessibility characteristics. A batch queue applies the same changes to many files.
+    </p>
+  </description>
+  <launchable type="desktop-id">com.claunia.MediaMuxingWizard.desktop</launchable>
+  <provides>
+    <binary>MediaMuxingWizard</binary>
+    <binary>mmw</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+</component>

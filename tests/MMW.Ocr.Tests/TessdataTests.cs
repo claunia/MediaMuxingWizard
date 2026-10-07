@@ -169,7 +169,7 @@ public sealed class TessdataTests : IDisposable
     [Fact]
     public void Default_directory_is_under_application_data()
     {
-        Assert.EndsWith(Path.Combine("MediaMetadataWizard", "tessdata"), TessdataManager.DefaultDirectory, StringComparison.Ordinal);
+        Assert.EndsWith(Path.Combine("MediaMuxingWizard", "tessdata"), TessdataManager.DefaultDirectory, StringComparison.Ordinal);
         Assert.Equal("https://github.com/tesseract-ocr/tessdata_fast/raw/main/", TessdataManager.DefaultBaseUri.AbsoluteUri);
         var manager = new TessdataManager();
         Assert.Equal(TessdataManager.DefaultDirectory, manager.Directory);

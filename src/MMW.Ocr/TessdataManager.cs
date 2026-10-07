@@ -8,7 +8,7 @@ namespace MMW.Ocr;
 /// </summary>
 /// <remarks>
 /// <para>Models are looked for, in order, in <see cref="Directory"/> (where downloads go; by default
-/// <c>&lt;ApplicationData&gt;/MediaMetadataWizard/tessdata</c>), the bundled <c>&lt;AppContext.BaseDirectory&gt;/tessdata</c>
+/// <c>&lt;ApplicationData&gt;/MediaMuxingWizard/tessdata</c>), the bundled <c>&lt;AppContext.BaseDirectory&gt;/tessdata</c>
 /// (the application ships English there), the directory in <c>TESSDATA_PREFIX</c>, and the system's tessdata
 /// directories (unless disabled).</para>
 /// <para>Downloads come from <see cref="DefaultBaseUri"/>, the <c>tessdata_fast</c> repository: integer LSTM models,
@@ -31,15 +31,13 @@ public sealed class TessdataManager
     /// <summary>Base address of the official fast models: <c>{base}/{code}.traineddata</c>.</summary>
     public static Uri DefaultBaseUri { get; } = new("https://github.com/tesseract-ocr/tessdata_fast/raw/main/");
 
-    /// <summary>The per-user model directory: <c>&lt;ApplicationData&gt;/MediaMetadataWizard/tessdata</c>.</summary>
-    public static string DefaultDirectory =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.DoNotVerify),
-            "MediaMetadataWizard", "tessdata");
+    /// <summary>The per-user model directory: <c>&lt;ApplicationData&gt;/MediaMuxingWizard/tessdata</c>.</summary>
+    public static string DefaultDirectory => Path.Combine(MMW.Core.AppDataFolders.Roaming, "tessdata");
 
     private static readonly Lazy<HttpClient> s_sharedClient = new(() =>
     {
         var client = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("MediaMetadataWizard");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MediaMuxingWizard");
         return client;
     });
 

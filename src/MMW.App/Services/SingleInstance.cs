@@ -12,7 +12,7 @@ namespace MMW.App.Services;
 public static class SingleInstance
 {
     /// <summary>Pipe name; tests use their own so they never talk to a real running editor.</summary>
-    internal static string PipeName { get; set; } = "MediaMetadataWizard-" + Sanitize(Environment.UserName);
+    internal static string PipeName { get; set; } = "MediaMuxingWizard-" + Sanitize(Environment.UserName);
 
     /// <summary>Sends <paramref name="paths"/> to a running instance; true when one received them.</summary>
     public static bool TryForward(IReadOnlyList<string> paths)

@@ -25,7 +25,7 @@ internal sealed class ProviderHttp
 
     public string ProviderName { get; }
 
-    public static string UserAgent { get; } = $"MediaMetadataWizard/{typeof(ProviderHttp).Assembly.GetName().Version?.ToString(3) ?? "0.1"}";
+    public static string UserAgent { get; } = $"MediaMuxingWizard/{typeof(ProviderHttp).Assembly.GetName().Version?.ToString(3) ?? "0.1"}";
 
     /// <summary>GETs and deserialises JSON. <paramref name="cacheKey"/> must not contain secrets.</summary>
     public async Task<T?> GetJsonAsync<T>(Uri uri, JsonTypeInfo<T> typeInfo, string? cacheKey, Action<HttpRequestMessage>? configure, CancellationToken cancellationToken)

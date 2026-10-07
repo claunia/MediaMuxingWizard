@@ -6,7 +6,7 @@ arch="${1:-x64}"
 version="${2:-0.1.0}"
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
-id=com.claunia.MediaMetadataWizard
+id=com.claunia.MediaMuxingWizard
 
 "$root/packaging/publish.sh" "linux-$arch" "$version"
 appdir="$root/artifacts/AppDir-$arch"
@@ -26,9 +26,9 @@ cp "$root/packaging/icon/icon-256.png" "$appdir/$id.png"
 cat > "$appdir/AppRun" <<'RUN'
 #!/bin/sh
 here="$(dirname "$(readlink -f "$0")")"
-exec "$here/usr/bin/MediaMetadataWizard" "$@"
+exec "$here/usr/bin/MediaMuxingWizard" "$@"
 RUN
 chmod +x "$appdir/AppRun"
 
 machine=$([ "$arch" = arm64 ] && echo aarch64 || echo x86_64)
-ARCH=$machine appimagetool "$appdir" "$root/artifacts/MediaMetadataWizard-$version-$machine.AppImage"
+ARCH=$machine appimagetool "$appdir" "$root/artifacts/MediaMuxingWizard-$version-$machine.AppImage"

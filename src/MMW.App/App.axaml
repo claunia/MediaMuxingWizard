@@ -3,7 +3,7 @@
              x:Class="MMW.App.App"
              xmlns:local="using:MMW.App"
              RequestedThemeVariant="Default"
-             Name="Media Metadata Wizard">
+             Name="Media Muxing Wizard">
 
   <Application.DataTemplates>
     <local:ViewLocator />
@@ -41,6 +41,6 @@
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
-    <StyleInclude Source="avares://MediaMetadataWizard/Styles/AppStyles.axaml" />
+    <StyleInclude Source="avares://MediaMuxingWizard/Styles/AppStyles.axaml" />
   </Application.Styles>
 </Application>

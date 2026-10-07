@@ -11,6 +11,8 @@ internal sealed class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        MMW.Core.AppDataFolders.MigrateLegacyFolders();
+
         // A second launch with files hands them to the running editor and exits.
         var files = args.Where(File.Exists).ToList();
         if (!OperatingSystem.IsMacOS() && files.Count > 0 && SingleInstance.TryForward(files))

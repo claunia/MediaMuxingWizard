@@ -25,7 +25,7 @@ permissive licenses.
 
 Language models (`*.traineddata`) are downloaded on demand from the `tesseract-ocr/tessdata_fast` repository
 <https://github.com/tesseract-ocr/tessdata_fast> into the user's application-data folder
-(`MediaMetadataWizard/tessdata`); English may be bundled in `<application>/tessdata`. The models are licensed under
+(`MediaMuxingWizard/tessdata`); English may be bundled in `<application>/tessdata`. The models are licensed under
 the **Apache License, Version 2.0** (see the repository's `LICENSE` file). When bundling a model, include the
 Apache-2.0 license text and the repository's attribution.
 

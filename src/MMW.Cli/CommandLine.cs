@@ -82,8 +82,7 @@ internal static class CommandLine
         }
     }
 
-    private static string DefaultQueuePath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "MediaMetadataWizard", "queue.json");
+    private static string DefaultQueuePath => Path.Combine(Directory.CreateDirectory(MMW.Core.AppDataFolders.Roaming).FullName, "queue.json");
 
     internal static ContainerRegistry Registry() => new([new Mp4Handler(), new MatroskaHandler()]);
 

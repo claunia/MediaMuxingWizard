@@ -19,10 +19,8 @@ public sealed class SearchCache
         _time = timeProvider ?? TimeProvider.System;
     }
 
-    /// <summary>Default location: <c>%LocalAppData%/MediaMetadataWizard/Cache/Metadata</c>.</summary>
-    public static string DefaultDirectory { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create),
-        "MediaMetadataWizard", "Cache", "Metadata");
+    /// <summary>Default location: <c>%LocalAppData%/MediaMuxingWizard/Cache/Metadata</c>.</summary>
+    public static string DefaultDirectory { get; } = Path.Combine(MMW.Core.AppDataFolders.Local, "Cache", "Metadata");
 
     /// <summary>Directory holding the cache files.</summary>
     public string Directory { get; }

@@ -48,7 +48,7 @@ public sealed class MetadataService : IDisposable
     {
         var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         var version = typeof(MetadataService).Assembly.GetName().Version?.ToString(3) ?? "0.1";
-        http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("MediaMetadataWizard", version));
+        http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("MediaMuxingWizard", version));
         return http;
     }
 

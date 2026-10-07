@@ -24,7 +24,7 @@ public sealed class SettingsService : ISettingsService
     }
 
     public static string AppDataDirectory { get; } =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "MediaMetadataWizard");
+        Directory.CreateDirectory(MMW.Core.AppDataFolders.Roaming).FullName;
 
     public AppSettings Settings { get; }
 

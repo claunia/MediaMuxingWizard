@@ -79,7 +79,7 @@ public static class Fixtures
     private static string FindRepoRoot()
     {
         var dir = AppContext.BaseDirectory;
-        while (dir is not null && !File.Exists(Path.Combine(dir, "MediaMetadataWizard.slnx")))
+        while (dir is not null && !File.Exists(Path.Combine(dir, "MediaMuxingWizard.slnx")))
             dir = Path.GetDirectoryName(dir);
         return dir ?? throw new InvalidOperationException("Repository root not found.");
     }

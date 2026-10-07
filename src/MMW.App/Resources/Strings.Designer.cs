@@ -177,7 +177,7 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Media Metadata Wizard.
+        ///   Looks up a localized string similar to Media Muxing Wizard.
         /// </summary>
         public static string App_Name {
             get {
@@ -1284,7 +1284,7 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to _About Media Metadata Wizard.
+        ///   Looks up a localized string similar to _About Media Muxing Wizard.
         /// </summary>
         public static string Menu_Help_About {
             get {
@@ -4389,7 +4389,7 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} — Media Metadata Wizard.
+        ///   Looks up a localized string similar to {0} — Media Muxing Wizard.
         /// </summary>
         public static string Window_TitleFormat {
             get {

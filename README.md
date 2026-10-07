@@ -1,8 +1,12 @@
-# Media Metadata Wizard
+# Media Muxing Wizard
 
-A cross-platform (Linux, macOS, Windows) editor for MP4 and Matroska metadata, inspired by
+A cross-platform (Linux, macOS, Windows) multiplexer and metadata editor for MP4 and Matroska, inspired by
 [Subler](https://github.com/SublerApp/Subler) and built with [Avalonia 12](https://avaloniaui.net) on .NET 10.
 
+- Mux, remux and convert tracks into MP4/M4V/M4A/M4B/MOV and MKV/MKA/WebM: from MP4, Matroska, MPEG-TS/M2TS,
+  Ogg, raw elementary streams (H.264, HEVC, VVC, AV1, AV2, AAC, AC-3, DTS, FLAC, …), subtitle files, and through
+  FFmpeg AVI, MPEG-PS/VOB, ASF/WMV, RealMedia, DV, WAV/AIFF, MP3 and VobSub. Audio is converted (AAC, AC-3, ALAC,
+  LPCM) and bitmap subtitles are turned into text by OCR when the target cannot hold them.
 - Edit iTunes-style tags (including cast and crew, ratings, TV fields, sort fields and store IDs),
   artwork, chapters and track properties of MP4/M4V/M4A/M4B and MKV/MKA/WebM files.
 - Media data is never re-encoded. Edits are written in place when possible, otherwise the file is
@@ -14,7 +18,7 @@ A cross-platform (Linux, macOS, Windows) editor for MP4 and Matroska metadata, i
 ## Building
 
 ```sh
-dotnet build MediaMetadataWizard.slnx
+dotnet build MediaMuxingWizard.slnx
 dotnet run --project src/MMW.App
 ```
 
@@ -50,7 +54,7 @@ variables `MMW_TMDB_API_KEY` and `MMW_TVDB_API_KEY` override the file.
 ## Tests
 
 ```sh
-dotnet test --solution MediaMetadataWizard.slnx
+dotnet test --solution MediaMuxingWizard.slnx
 ```
 
 Format tests generate small fixtures with `ffmpeg` and `mkvmerge` (needed only for tests) and skip

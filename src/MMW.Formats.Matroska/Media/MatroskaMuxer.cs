@@ -201,8 +201,8 @@ internal sealed class MatroskaMuxer : IMuxer
         w.Binary(SegmentUuid, uuid);
         w.UInt(TimestampScale, TimestampScaleNs);
         var version = typeof(MatroskaMuxer).Assembly.GetName().Version?.ToString(3) ?? "0";
-        w.String(MuxingApp, "MediaMetadataWizard " + version);
-        w.String(WritingApp, "MediaMetadataWizard " + version);
+        w.String(MuxingApp, "MediaMuxingWizard " + version);
+        w.String(WritingApp, "MediaMuxingWizard " + version);
         w.Int(DateUtc, (DateTime.UtcNow - EbmlParser.MatroskaEpoch).Ticks * 100);
         if (_settings.Document.Metadata.GetString(TagId.Name) is { Length: > 0 } title)
             w.String(Title, title);
@@ -447,7 +447,7 @@ internal sealed class MatroskaMuxer : IMuxer
             return w.ToArray();
 
         // Statistics tags as mkvmerge writes them (players use DURATION for the track duration).
-        var app = "MediaMetadataWizard " + (typeof(MatroskaMuxer).Assembly.GetName().Version?.ToString(3) ?? "0");
+        var app = "MediaMuxingWizard " + (typeof(MatroskaMuxer).Assembly.GetName().Version?.ToString(3) ?? "0");
         foreach (var t in _tracks)
         {
             // DURATION spans the first to the last presented instant (mkvmerge's definition).

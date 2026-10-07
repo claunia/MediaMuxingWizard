@@ -15,7 +15,7 @@ public sealed partial class PowerService : IPowerService
         if (OperatingSystem.IsMacOS())
             return ProcessAssertion.Start("caffeinate", $"-i -w {Environment.ProcessId}");
         if (OperatingSystem.IsLinux())
-            return ProcessAssertion.Start("systemd-inhibit", $"--what=sleep:idle --who=\"Media Metadata Wizard\" --why=\"{reason}\" --mode=block sleep infinity");
+            return ProcessAssertion.Start("systemd-inhibit", $"--what=sleep:idle --who=\"Media Muxing Wizard\" --why=\"{reason}\" --mode=block sleep infinity");
         return new NoAssertion();
     }
 

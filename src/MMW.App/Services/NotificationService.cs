@@ -19,7 +19,7 @@ public sealed class NotificationService : INotificationService
             if (OperatingSystem.IsLinux())
             {
                 var psi = new ProcessStartInfo("notify-send") { UseShellExecute = false, CreateNoWindow = true };
-                psi.ArgumentList.Add("--app-name=Media Metadata Wizard");
+                psi.ArgumentList.Add("--app-name=Media Muxing Wizard");
                 psi.ArgumentList.Add(title);
                 psi.ArgumentList.Add(message);
                 Process.Start(psi)?.Dispose();
