@@ -113,6 +113,10 @@ internal static class MatroskaCodecMapping
                 return c with { Codec = CodecType.Mpeg2Video, Extradata = priv };
             case "V_AVS2":
                 return c with { Codec = CodecType.Avs2, Extradata = priv };
+            case "V_AVS3":
+                return c with { Codec = CodecType.Avs3 }; // the sequence header is in the frames
+            case "V_MS/VFW/FOURCC" when MatroskaCodecs.VfwFourCc(priv) == "CAVS":
+                return c with { Codec = CodecType.Avs1 }; // AVS1-P2 in a BITMAPINFOHEADER, sequence header in the frames
             case "V_MPEG1":
                 return c with { Codec = CodecType.Mpeg1Video, Extradata = priv };
             case "V_MJPEG":
@@ -253,6 +257,8 @@ internal static class MatroskaCodecMapping
         CodecType.Mpeg2Video => "V_MPEG2",
         CodecType.Mpeg1Video => "V_MPEG1",
         CodecType.Avs2 => "V_AVS2", // as FFmpeg reads and writes it
+        CodecType.Avs3 => "V_AVS3", // as FFmpeg reads and writes it
+        CodecType.Avs1 => "V_MS/VFW/FOURCC", // FourCC 'CAVS', as FFmpeg and mkvmerge write it
         CodecType.Mjpeg => "V_MJPEG",
         CodecType.Theora => "V_THEORA",
         CodecType.ProRes => "V_PRORES",
@@ -288,6 +294,7 @@ internal static class MatroskaCodecMapping
             CodecType.Theora or CodecType.Aac or CodecType.Vorbis or CodecType.Ass or CodecType.Ssa or CodecType.VobSub or CodecType.Pgs or
             CodecType.DvbSub or CodecType.Ac4 => c.Extradata,
         CodecType.ProRes => c.Extradata is { Length: 4 } ? c.Extradata : c.SourceCodecId.Length == 4 ? Encoding.ASCII.GetBytes(c.SourceCodecId) : null,
+        CodecType.Avs1 => MatroskaCodecs.BitmapInfoHeader(c.Width, c.Height, "CAVS"),
         CodecType.Opus => c.Extradata,
         CodecType.Flac => c.Extradata is null ? null : [.. "fLaC"u8, .. Flac.FixLastFlags(c.Extradata)],
         CodecType.Alac => c.Extradata,

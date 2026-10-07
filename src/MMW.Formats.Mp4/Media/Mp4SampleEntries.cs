@@ -81,6 +81,7 @@ internal static class Mp4SampleEntries
             "apcn" or "apch" or "apcs" or "apco" or "ap4h" or "ap4x" => (CodecType.ProRes, null),
             "mp4v" => VisualFromEsds(entry),
             "avst" => (CodecType.Avs2, null),
+            "avs3" => (CodecType.Avs3, entry.Find("av3c")?.Payload),
             _ => (CodecType.Unknown, null),
         };
 
@@ -429,7 +430,7 @@ internal static class Mp4SampleEntries
         return config.Codec switch
         {
             CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or
-                CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 =>
+                CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 or CodecType.Avs3 =>
                 config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1
                     ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the codec configuration is missing")
                     : TrackSupport.Passthrough,
@@ -442,6 +443,8 @@ internal static class Mp4SampleEntries
             CodecType.TrueHd => TrackSupport.Passthrough,
             CodecType.Vorbis or CodecType.Mlp or CodecType.Pcm =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
+            CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
+                "AVS (AVS1-P2 / AVS+) video has no MP4 sample entry (none is registered), so it cannot be stored in MP4; save as Matroska instead"),
             CodecType.Pgs or CodecType.DvbSub =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.Skip, $"{config.FormatName} bitmap subtitles cannot be stored in MP4; they need OCR to text"),
             _ => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, $"{config.FormatName} cannot be stored in MP4"),
@@ -553,6 +556,18 @@ internal static class Mp4SampleEntries
                 // MP4RA 'avst'. No configuration box is published for it: the sequence header stays in the samples.
                 type = "avst";
                 break;
+
+            case CodecType.Avs3:
+            {
+                // MP4RA 'avs3' with its configuration record (as GPAC writes it); the sequence header also stays in the samples.
+                type = "avs3";
+                var av3c = c.Extradata is { } x && !Avs.SequenceHeaderOfAv3C(x).IsEmpty ? x
+                    : ctx.FirstSample is { } first && Avs.FindSequenceHeader(first) is { IsEmpty: false } header ? Avs.BuildAv3C(header)
+                    : null;
+                if (av3c is not null)
+                    children.Add(new Box("av3c", av3c));
+                break;
+            }
 
             case CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg:
             {

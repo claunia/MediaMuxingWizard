@@ -173,6 +173,9 @@ internal sealed class AnnexBVideoParser : IElementaryParser
     private readonly bool _hevc;
     private readonly bool _vvc;
     private readonly bool _evc;
+    private readonly AvsGeneration? _avs;
+    private readonly Avs.OrderCounter _avsOrder = new();
+    private AvsSequence? _avsSequence;
     private readonly long _frameTicks;
     private readonly List<byte[]> _configNals;
     private readonly Dictionary<int, H264Sps> _spsH = [];
@@ -204,6 +207,7 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         _hevc = codec == CodecType.Hevc;
         _vvc = codec == CodecType.Vvc;
         _evc = codec == CodecType.Evc;
+        _avs = Avs.Generation(codec);
         _frameTicks = frameTicks;
         _configNals = configNals.ToList();
     }
@@ -212,6 +216,8 @@ internal sealed class AnnexBVideoParser : IElementaryParser
     public static AnnexBProbe Probe(Stream stream, CodecType codec, double? frameRate)
     {
         using var reader = Reader(stream, codec);
+        if (Avs.Generation(codec) is { } generation)
+            return ProbeAvs(reader, codec, generation, frameRate);
         var hevc = codec == CodecType.Hevc;
         var vvc = codec == CodecType.Vvc;
         var name = CodecNames.Display(codec);
@@ -322,11 +328,81 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         return new AnnexBProbe(config, hasTiming, [.. vps, .. sps, .. pps]);
     }
 
+    /// <summary>
+    /// AVS: the first sequence header and its extensions give the configuration; the sequence headers stay in the
+    /// samples (there is no configuration record, except AVS3's in MP4, built when muxing).
+    /// </summary>
+    private static AnnexBProbe ProbeAvs(INalReader reader, CodecType codec, AvsGeneration generation, double? frameRate)
+    {
+        var units = new MemoryStream();
+        var limit = 64L * 1024 * 1024;
+        var seenSequence = false;
+        while (reader.Next() is { } unit && reader.Position < limit)
+        {
+            if (unit[0] == Avs.SequenceHeader)
+                seenSequence = true;
+            if (!seenSequence)
+                continue;
+            if (Avs.IsPicture(unit[0]))
+                break;
+            units.Write([0, 0, 1]);
+            units.Write(unit);
+        }
+
+        var name = CodecNames.Display(codec);
+        var sequence = Avs.ParseSequence(generation, units.ToArray())
+                       ?? throw new InvalidDataException($"No sequence header found at the start of the {name} stream.");
+        var hasTiming = sequence.FrameRate > 0;
+        var fps = frameRate is > 0 ? frameRate.Value : hasTiming ? sequence.FrameRate : 25.0;
+        var (timescale, ticks) = FrameTiming(fps);
+        var (parN, parD) = AvsSampleAspect(sequence);
+        var config = new CodecConfig
+        {
+            Codec = codec,
+            Kind = TrackKind.Video,
+            SourceCodecId = codec switch
+            {
+                CodecType.Avs1 => "cavs",
+                CodecType.Avs2 => "avs2",
+                _ => "avs3",
+            },
+            Timescale = timescale,
+            DefaultSampleDuration = ticks,
+            Width = sequence.Width,
+            Height = sequence.Height,
+            ParNumerator = parN,
+            ParDenominator = parD,
+            FrameRate = (double)timescale / ticks,
+            BitsPerSample = sequence.BitDepth,
+            Color = sequence.Color,
+            Hdr = sequence.Hdr,
+            VideoProfile = Avs.ProfileLevel(generation, sequence.ProfileId, sequence.LevelId),
+        };
+        return new AnnexBProbe(config, hasTiming, []);
+    }
+
+    /// <summary>The sample aspect ratio of an AVS aspect_ratio code (2, 3, 4: 4:3, 16:9, 2.21:1 display aspect ratio).</summary>
+    private static (int Num, int Den) AvsSampleAspect(AvsSequence sequence)
+    {
+        (long n, long d) = sequence.AspectRatio switch
+        {
+            2 => (4L * sequence.Height, 3L * sequence.Width),
+            3 => (16L * sequence.Height, 9L * sequence.Width),
+            4 => (221L * sequence.Height, 100L * sequence.Width),
+            _ => (1L, 1L),
+        };
+        if (n <= 0 || d <= 0)
+            return (1, 1);
+        var g = (long)System.Numerics.BigInteger.GreatestCommonDivisor(n, d);
+        return ((int)(n / g), (int)(d / g));
+    }
+
     private static INalReader Reader(Stream stream, CodecType codec) =>
         codec == CodecType.Evc ? new LengthPrefixedNalReader(stream) : new AnnexBReader(stream);
 
     private static int NalType(CodecType codec, ReadOnlySpan<byte> nal) => codec switch
     {
+        CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3 => nal.Length > 0 ? nal[0] : -1, // the start code value
         CodecType.Evc => Evc.NalType(nal),
         CodecType.Vvc => Vvc.NalType(nal),
         CodecType.Hevc => NalUnits.HevcType(nal),
@@ -335,13 +411,14 @@ internal sealed class AnnexBVideoParser : IElementaryParser
 
     private static bool IsVcl(CodecType codec, int type) => codec switch
     {
+        CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3 => Avs.IsPicture(type), // a picture header starts the picture's data
         CodecType.Evc => Evc.IsVcl(type),
         CodecType.Vvc => Vvc.IsVcl(type),
         CodecType.Hevc => Hevc.IsVcl(type),
         _ => type is 1 or 5,
     };
 
-    private CodecType Codec => _evc ? CodecType.Evc : _vvc ? CodecType.Vvc : _hevc ? CodecType.Hevc : CodecType.H264;
+    private CodecType Codec => _avs is { } avs ? Avs.Codec(avs) : _evc ? CodecType.Evc : _vvc ? CodecType.Vvc : _hevc ? CodecType.Hevc : CodecType.H264;
 
     /// <summary>A timescale and frame duration representing <paramref name="fps"/> exactly (e.g. 24000/1001).</summary>
     public static (uint Timescale, long FrameTicks) FrameTiming(double fps)
@@ -393,7 +470,19 @@ internal sealed class AnnexBVideoParser : IElementaryParser
             var type = NalType(Codec, nal);
             TrackParameterSet(nal, type);
 
-            if (_evc)
+            if (_avs is not null)
+            {
+                // A sequence header, picture header or video edit code after a picture starts the next one.
+                if (hasVcl && type is Avs.SequenceHeader or Avs.IntraPicture or Avs.InterPicture or Avs.VideoEdit)
+                {
+                    _pending = nal;
+                    break;
+                }
+
+                if (Avs.IsPicture(type))
+                    hasVcl = true;
+            }
+            else if (_evc)
             {
                 if (hasVcl && (type is Evc.NalSps or Evc.NalPps or Evc.NalAps or Evc.NalSei || (Evc.IsVcl(type) && StartsEvcPicture(nal))))
                 {
@@ -484,7 +573,12 @@ internal sealed class AnnexBVideoParser : IElementaryParser
     {
         try
         {
-            if (_evc)
+            if (_avs is { } generation)
+            {
+                if (type == Avs.SequenceHeader && Avs.ParseSequenceHeader(generation, [0, 0, 1, .. nal]) is { } sequence)
+                    _avsSequence = sequence;
+            }
+            else if (_evc)
             {
                 if (type == Evc.NalSps)
                 {
@@ -549,7 +643,17 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         var vcl = nals[vclIndex];
         long poc;
         bool sync, reset;
-        if (_evc)
+        if (_avs is not null)
+        {
+            // Pictures are ordered by their order index; there is no reset (AVS1 picture distances and AVS2/AVS3 decode
+            // order indexes run across sequences), and an I picture is a random access point.
+            sync = vcl[0] == Avs.IntraPicture;
+            reset = false;
+            poc = _avsSequence is { } sequence && Avs.ParsePictureHeader(sequence, [0, 0, 1, .. vcl]) is { } picture
+                ? _avsOrder.Next(sequence, picture)
+                : _decodeIndex;
+        }
+        else if (_evc)
         {
             var type = Evc.NalType(vcl);
             sync = reset = type == Evc.NalIdr;
@@ -606,6 +710,13 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         foreach (var nal in nals)
         {
             var type = NalType(Codec, nal);
+            if (_avs is not null)
+            {
+                buffer.Write([0, 0, 1]); // AVS samples keep their start codes
+                buffer.Write(nal);
+                continue;
+            }
+
             var drop = Codec switch
             {
                 CodecType.Evc => type == Evc.NalFiller || (type is Evc.NalSps or Evc.NalPps && IsConfigNal(nal)),

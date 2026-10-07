@@ -68,6 +68,12 @@ public enum CodecType
 
     /// <summary>MPEG-5 Essential Video Coding (ISO/IEC 23094-1).</summary>
     Evc,
+
+    /// <summary>AVS3 video (T/AI 109.2 / IEEE 1857.10): start-code delimited stream, sequence header in-band.</summary>
+    Avs3,
+
+    /// <summary>AVS1-P2 / AVS+ video (GB/T 20090.2, GY/T 257.1): start-code delimited stream, sequence header in-band.</summary>
+    Avs1,
 }
 
 /// <summary>
@@ -80,6 +86,7 @@ public enum CodecType
 /// <item><term>HEVC</term><description>HEVCDecoderConfigurationRecord (hvcC); samples are length-prefixed NAL units.</description></item>
 /// <item><term>VVC</term><description>VVCDecoderConfigurationRecord (vvcC without its FullBox header); samples are length-prefixed NAL units.</description></item>
 /// <item><term>EVC</term><description>EVCDecoderConfigurationRecord (evcC); samples are length-prefixed NAL units.</description></item>
+/// <item><term>AVS1/AVS2/AVS3</term><description>None (AVS3 may hold the sequence header unit); samples are start-code delimited pictures.</description></item>
 /// <item><term>AV1</term><description>AV1CodecConfigurationRecord (av1C).</description></item>
 /// <item><term>VP8/VP9</term><description>VPCodecConfigurationRecord as stored in a vpcC box payload (version/flags included); optional.</description></item>
 /// <item><term>MPEG-1/2/4 video</term><description>Decoder specific info (sequence / VOL headers).</description></item>
@@ -156,6 +163,9 @@ public sealed record CodecConfig
     /// <summary>The frames carry HDR10+ (SMPTE ST 2094-40) dynamic metadata, in the bitstream or next to it.</summary>
     public bool Hdr10Plus { get; init; }
 
+    /// <summary>Video profile and level found in the bitstream when the configuration record has none (AVS).</summary>
+    public string VideoProfile { get; init; } = string.Empty;
+
     /// <summary>
     /// HDR10+ metadata is stored outside the bitstream, in Matroska BlockAdditions (VP9): only Matroska can keep it.
     /// </summary>
@@ -227,6 +237,8 @@ public static class CodecNames
         CodecType.Mjpeg => "Motion JPEG",
         CodecType.Avs2 => "AVS2",
         CodecType.Evc => "EVC",
+        CodecType.Avs3 => "AVS3",
+        CodecType.Avs1 => "AVS",
         CodecType.Aac => "AAC",
         CodecType.Ac3 => "AC-3",
         CodecType.Eac3 => "E-AC-3",
@@ -262,5 +274,5 @@ public static class CodecNames
     /// <summary>True for video codecs whose samples may be stored out of presentation order (B-frames).</summary>
     public static bool MayReorder(CodecType codec) =>
         codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Avs2 or
-                 CodecType.Evc;
+                 CodecType.Evc or CodecType.Avs3 or CodecType.Avs1;
 }

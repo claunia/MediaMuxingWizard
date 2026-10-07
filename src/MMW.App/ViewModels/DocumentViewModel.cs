@@ -183,6 +183,13 @@ public sealed partial class DocumentViewModel : ViewModelBase
                 if (result.StreamInfo is { } stream && video.StreamInfo is null)
                 {
                     video.StreamInfo = stream;
+                    // Codecs that signal their profile only in the bitstream (AVS).
+                    if (video.ProfileLevel.Length == 0 && stream.ProfileLevel.Length > 0)
+                    {
+                        video.ProfileLevel = stream.ProfileLevel;
+                        video.FormatDetails = video.FormatDetails.Length > 0 ? video.FormatDetails + ", " + stream.ProfileLevel : stream.ProfileLevel;
+                    }
+
                     changed = true;
                 }
 

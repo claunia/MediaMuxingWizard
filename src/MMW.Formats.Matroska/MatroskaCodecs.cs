@@ -1,3 +1,5 @@
+using System.Text;
+using System.Buffers.Binary;
 using System.Globalization;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
@@ -19,6 +21,7 @@ internal static class MatroskaCodecs
         ("V_MPEG4/MS/V3", "MS MPEG-4 v3"),
         ("V_MPEG2", "MPEG-2"),
         ("V_AVS2", "AVS2"),
+        ("V_AVS3", "AVS3"),
         ("V_MPEG1", "MPEG-1"),
         ("V_THEORA", "Theora"),
         ("V_PRORES", "ProRes"),
@@ -74,6 +77,24 @@ internal static class MatroskaCodecs
         }
 
         return codecId;
+    }
+
+    /// <summary>The compression FourCC of a V_MS/VFW/FOURCC CodecPrivate (BITMAPINFOHEADER biCompression), or null.</summary>
+    public static string? VfwFourCc(ReadOnlySpan<byte> bitmapInfoHeader) =>
+        bitmapInfoHeader.Length >= 20 ? Encoding.ASCII.GetString(bitmapInfoHeader.Slice(16, 4)) : null;
+
+    /// <summary>A 40-byte BITMAPINFOHEADER (24 bits per pixel) for a V_MS/VFW/FOURCC track.</summary>
+    public static byte[] BitmapInfoHeader(int width, int height, string fourCc)
+    {
+        var b = new byte[40];
+        BinaryPrimitives.WriteInt32LittleEndian(b, 40);
+        BinaryPrimitives.WriteInt32LittleEndian(b.AsSpan(4), width);
+        BinaryPrimitives.WriteInt32LittleEndian(b.AsSpan(8), height);
+        BinaryPrimitives.WriteInt16LittleEndian(b.AsSpan(12), 1);
+        BinaryPrimitives.WriteInt16LittleEndian(b.AsSpan(14), 24);
+        Encoding.ASCII.GetBytes(fourCc, b.AsSpan(16, 4));
+        BinaryPrimitives.WriteInt32LittleEndian(b.AsSpan(20), width * height * 3);
+        return b;
     }
 
     /// <summary>Decodes "Profile@Level" from an avcC record (AVC CodecPrivate).</summary>

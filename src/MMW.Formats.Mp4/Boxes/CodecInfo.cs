@@ -23,6 +23,7 @@ public static class CodecInfo
             "evc1" => "EVC",
             "mp4v" => "MPEG-4 Visual",
             "avst" => "AVS2",
+            "avs3" => "AVS3",
             "jpeg" => "JPEG",
             "png " => "PNG",
             "vp08" => "VP8",
@@ -231,6 +232,12 @@ public static class CodecInfo
             };
             var level = hvcc.Payload[12] / 30.0;
             return string.Create(CultureInfo.InvariantCulture, $"{profile}@L{level:0.#}");
+        }
+
+        if (entry.Find("av3c") is { } av3c && Avs.SequenceHeaderOfAv3C(av3c.Payload) is { IsEmpty: false } header &&
+            Avs.ParseSequenceHeader(AvsGeneration.Avs3, header) is { } avs3)
+        {
+            return Avs.ProfileLevel(AvsGeneration.Avs3, avs3.ProfileId, avs3.LevelId);
         }
 
         if (entry.Find("evcC") is { Payload.Length: >= 3 } evcc)

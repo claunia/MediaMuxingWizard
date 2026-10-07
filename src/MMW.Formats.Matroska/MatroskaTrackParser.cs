@@ -32,7 +32,9 @@ internal static class MatroskaTrackParser
 
         track.Id = (uint)number;
         track.CodecId = codecId;
-        track.Format = MatroskaCodecs.FormatName(codecId);
+        track.Format = codecId == "V_MS/VFW/FOURCC" && c.Child(CodecPrivate) is { } vfw && MatroskaCodecs.VfwFourCc(vfw.Data.Span) == "CAVS"
+            ? "AVS"
+            : MatroskaCodecs.FormatName(codecId);
         track.Source = new TrackSource(path, ContainerKind.Matroska, (uint)number);
         track.Name = c.GetString(Name) ?? string.Empty;
         track.Language = ReadLanguage(c.GetString(LanguageBcp47), c.GetString(TrackLanguage));

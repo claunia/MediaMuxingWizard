@@ -57,8 +57,12 @@ internal abstract class TsStream
                 return new NalVideoStream(info, CodecType.Hevc);
             case 0x33:
                 return new NalVideoStream(info, CodecType.Vvc);
+            case 0x42:
+                return new MpegVideoStream(info, CodecType.Avs1);
             case 0xD2:
                 return new MpegVideoStream(info, CodecType.Avs2);
+            case 0xD4:
+                return new MpegVideoStream(info, CodecType.Avs3);
             case 0x81 or 0x84 or 0x87 or 0xA1:
                 return new AudioStream(info, AudioKind.Ac3);
             case 0x82 or 0x85 or 0x86:
@@ -487,14 +491,14 @@ internal sealed class NalVideoStream(TsStreamInfo info, CodecType codec) : TsStr
 }
 
 /// <summary>
-/// MPEG-1/2 and AVS2 video: one picture per PES (PES without timestamp continue it). Both use 00 00 01 start codes:
-/// MPEG sequence header 0xB3 and picture 0x00 (intra when picture_coding_type is 1); AVS2 sequence header 0xB0 and
-/// intra picture 0xB3.
+/// MPEG-1/2 and AVS1/AVS2/AVS3 video: one picture per PES (PES without timestamp continue it). All use 00 00 01 start
+/// codes: MPEG sequence header 0xB3 and picture 0x00 (intra when picture_coding_type is 1); AVS sequence header 0xB0
+/// and intra picture 0xB3.
 /// </summary>
 internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsStream(info)
 {
     private static readonly double[] s_rates = [0, 24000 / 1001.0, 24, 25, 30000 / 1001.0, 30, 50, 60000 / 1001.0, 60, 100, 120, 200, 240, 300];
-    private bool Avs2 => codec == CodecType.Avs2;
+    private bool IsAvs => Avs.Generation(codec) is not null;
     private byte[]? _sequenceHeader;
     private MediaSample? _pending;
     private bool _seenSync;
@@ -514,11 +518,11 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
         }
 
         Emit(output);
-        var sequence = IndexOf(pes.Data, Avs2 ? (byte)0xB0 : (byte)0xB3);
+        var sequence = IndexOf(pes.Data, IsAvs ? Avs.SequenceHeader : (byte)0xB3);
         if (sequence >= 0 && _sequenceHeader is null)
         {
             var end = pes.Data.Length;
-            foreach (var code in Avs2 ? new byte[] { 0xB3, 0xB6 } : [0xB8, 0x00])
+            foreach (var code in IsAvs ? new byte[] { Avs.IntraPicture, Avs.InterPicture } : [0xB8, 0x00])
             {
                 var at = IndexOf(pes.Data, code, sequence + 4);
                 if (at > sequence)
@@ -529,9 +533,9 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
         }
 
         bool intra;
-        if (Avs2)
+        if (IsAvs)
         {
-            intra = sequence >= 0 && IndexOf(pes.Data, 0xB3) >= 0; // intra picture with its sequence header: random access
+            intra = sequence >= 0 && IndexOf(pes.Data, Avs.IntraPicture) >= 0; // intra picture with its sequence header: random access
         }
         else
         {
@@ -557,29 +561,6 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
         output.Enqueue(sample);
     }
 
-    /// <summary>Size and frame rate from an AVS2 sequence header (after its start code: profile, level, …).</summary>
-    private static (int Width, int Height, double Fps) Avs2SequenceHeader(byte[] s)
-    {
-        try
-        {
-            var r = new BitReader(s.AsSpan(4));
-            var profile = (int)r.Read(8);
-            r.Skip(8 + 2); // level_id, progressive_sequence, field_coded_sequence
-            var width = (int)r.Read(14);
-            var height = (int)r.Read(14);
-            r.Skip(2 + 3); // chroma_format, sample_precision
-            if (profile == 0x22)
-                r.Skip(3); // encoding_precision (Main 10)
-            r.Skip(4); // aspect_ratio
-            var rate = (int)r.Read(4);
-            return (width, height, rate < s_rates.Length ? s_rates[rate] : 0);
-        }
-        catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
-        {
-            return (0, 0, 0);
-        }
-    }
-
     /// <summary>
     /// True for an AVS2 sequence header (00 00 01 B0, an AVS2 profile, and a level that AVS1/AVS+ does not use).
     /// </summary>
@@ -602,24 +583,31 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
     public override CodecConfig Describe()
     {
         var s = _sequenceHeader!;
-        int width, height;
-        double fps;
-        if (Avs2)
+        if (Avs.Generation(codec) is { } generation)
         {
-            (width, height, fps) = Avs2SequenceHeader(s);
-        }
-        else
-        {
-            width = s.Length > 6 ? (s[4] << 4) | (s[5] >> 4) : 0;
-            height = s.Length > 6 ? ((s[5] & 0x0F) << 8) | s[6] : 0;
-            fps = s.Length > 7 && (s[7] & 0x0F) < 9 ? s_rates[s[7] & 0x0F] : 0;
+            // AVS: the sequence header stays in the samples.
+            var avs = Avs.ParseSequenceHeader(generation, s);
+            var rate = avs?.FrameRate ?? 0;
+            return Base(TrackKind.Video) with
+            {
+                Codec = codec,
+                BitsPerSample = avs?.BitDepth ?? 8,
+                Width = avs?.Width ?? 0,
+                Height = avs?.Height ?? 0,
+                FrameRate = rate,
+                DefaultSampleDuration = rate > 0 ? (long)Math.Round(90000 / rate) : 0,
+                VideoProfile = avs is null ? string.Empty : Avs.ProfileLevel(generation, avs.ProfileId, avs.LevelId),
+            };
         }
 
+        var width = s.Length > 6 ? (s[4] << 4) | (s[5] >> 4) : 0;
+        var height = s.Length > 6 ? ((s[5] & 0x0F) << 8) | s[6] : 0;
+        var fps = s.Length > 7 && (s[7] & 0x0F) < 9 ? s_rates[s[7] & 0x0F] : 0;
         return Base(TrackKind.Video) with
         {
             Codec = codec,
-            Extradata = Avs2 ? null : s, // AVS2: the sequence header stays in the samples
-            BitsPerSample = Avs2 && s.Length > 4 && s[4] == 0x22 ? 10 : 8,
+            Extradata = s,
+            BitsPerSample = 8,
             Width = width,
             Height = height,
             FrameRate = fps,

@@ -8,11 +8,12 @@ namespace MMW.Core.Media;
 /// Colour description and static HDR10 metadata carried by the video bitstream itself (H.264/HEVC/VVC/EVC VUI and SEI, AV1
 /// sequence header and metadata OBUs), independently of what the container signals.
 /// </summary>
-public sealed record VideoStreamInfo(ColorInfo Color, HdrInfo? Hdr)
+/// <param name="ProfileLevel">Profile and level, for codecs that signal them only in the bitstream (AVS); otherwise empty.</param>
+public sealed record VideoStreamInfo(ColorInfo Color, HdrInfo? Hdr, string ProfileLevel = "")
 {
     public static VideoStreamInfo None { get; } = new(ColorInfo.Unspecified, null);
 
-    public bool IsEmpty => !Color.IsSpecified && Hdr is null;
+    public bool IsEmpty => !Color.IsSpecified && Hdr is null && ProfileLevel.Length == 0;
 }
 
 /// <summary>Reads <see cref="VideoStreamInfo"/> from a track's codec configuration and first frames.</summary>
@@ -25,7 +26,8 @@ public static class VideoStreamInfoScanner
     private const long Av1MetadataHdrMdcv = 2;
 
     public static bool CanScan(CodecConfig config) =>
-        config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1;
+        config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or
+            CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3;
 
     /// <summary>Scans an open sample source; the source is rewound afterwards.</summary>
     public static VideoStreamInfo Scan(ISampleSource track, CancellationToken cancellationToken = default)
@@ -34,6 +36,8 @@ public static class VideoStreamInfoScanner
         var config = track.Config;
         if (!CanScan(config))
             return VideoStreamInfo.None;
+        if (Avs.Generation(config.Codec) is { } generation)
+            return ScanAvs(track, generation, cancellationToken);
 
         var state = new State(config.Codec);
         var lengthSize = 4;
@@ -118,6 +122,38 @@ public static class VideoStreamInfoScanner
         }
 
         return state.Result();
+    }
+
+    /// <summary>AVS: the sequence header and its sequence display / mastering display extensions (configuration or first frames).</summary>
+    private static VideoStreamInfo ScanAvs(ISampleSource track, AvsGeneration generation, CancellationToken cancellationToken)
+    {
+        var config = track.Config;
+        var header = config.Codec == CodecType.Avs3 && config.Extradata is { } av3c ? Avs.SequenceHeaderOfAv3C(av3c) : [];
+        var sequence = header.IsEmpty ? null : Avs.ParseSequence(generation, header);
+        if (sequence is null || !sequence.Color.IsSpecified && sequence.Hdr is null)
+        {
+            track.Reset();
+            try
+            {
+                for (var i = 0; i < MaxSamples && track.ReadNext() is { } sample; i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (Avs.ParseSequence(generation, sample.GetData().Span) is { } found)
+                    {
+                        sequence = found;
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                track.Reset();
+            }
+        }
+
+        return sequence is null
+            ? VideoStreamInfo.None
+            : new VideoStreamInfo(State.Meaningful(sequence.Color), sequence.Hdr, Avs.ProfileLevel(generation, sequence.ProfileId, sequence.LevelId));
     }
 
     /// <summary>Mastering display colour volume SEI (H.264/HEVC/VVC/EVC): primaries in G, B, R order, 0.00002 and 0.0001 cd/m² units.</summary>
@@ -252,7 +288,7 @@ public static class VideoStreamInfoScanner
         }
 
         /// <summary>A colour description of "unspecified" code points (2/2/2) says nothing.</summary>
-        private static ColorInfo Meaningful(ColorInfo c) =>
+        internal static ColorInfo Meaningful(ColorInfo c) =>
             c is { Primaries: 2, Transfer: 2, Matrix: 2 } ? ColorInfo.Unspecified : c;
     }
 }
