@@ -10,6 +10,7 @@ public enum ElementaryKind
     H264,
     Hevc,
     Vvc,
+    Evc,
     Aac,
     Ac3,
     Dts,
@@ -25,7 +26,7 @@ public static class ElementaryFormat
 
     /// <summary>File extensions recognised as elementary streams or subtitle files.</summary>
     public static IReadOnlyList<string> Extensions { get; } =
-        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".srt", ".ass", ".ssa", ".vtt"];
+        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".srt", ".ass", ".ssa", ".vtt"];
 
     public static void Register()
     {
@@ -43,6 +44,7 @@ public static class ElementaryFormat
             ".264" or ".h264" or ".avc" => LooksLikeAnnexB(header) ? ElementaryKind.H264 : ElementaryKind.None,
             ".265" or ".h265" or ".hevc" => LooksLikeAnnexB(header) ? ElementaryKind.Hevc : ElementaryKind.None,
             ".266" or ".h266" or ".vvc" => LooksLikeAnnexB(header) ? ElementaryKind.Vvc : ElementaryKind.None,
+            ".evc" => LooksLikeEvc(header) ? ElementaryKind.Evc : ElementaryKind.None,
             ".aac" or ".adts" => header.IndexOf((byte)0xFF) >= 0 ? ElementaryKind.Aac : ElementaryKind.None,
             ".ac3" or ".eac3" or ".ec3" => header.IndexOf([(byte)0x0B, (byte)0x77]) >= 0 ? ElementaryKind.Ac3 : ElementaryKind.None,
             ".dts" or ".dtshd" => header.StartsWith("DTSHDHDR"u8) || header.IndexOf([(byte)0x7F, (byte)0xFE, (byte)0x80, (byte)0x01]) >= 0
@@ -54,6 +56,11 @@ public static class ElementaryFormat
             _ => ElementaryKind.None,
         };
     }
+
+    /// <summary>A raw EVC stream: a 4-byte NAL unit length, then a NAL unit header with forbidden_zero_bit clear.</summary>
+    private static bool LooksLikeEvc(ReadOnlySpan<byte> header) =>
+        header.Length >= 6 && System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(header) is > 2 and < 1 << 24 &&
+        (header[4] & 0x80) == 0 && Evc.NalType(header[4..]) is >= 0 and <= Evc.NalSei;
 
     private static bool LooksLikeAnnexB(ReadOnlySpan<byte> header) => header.IndexOf([(byte)0, (byte)0, (byte)1]) is >= 0 and < 64;
 
@@ -69,13 +76,14 @@ public static class ElementaryFormat
         var length = new FileInfo(path).Length;
         switch (kind)
         {
-            case ElementaryKind.H264 or ElementaryKind.Hevc or ElementaryKind.Vvc:
+            case ElementaryKind.H264 or ElementaryKind.Hevc or ElementaryKind.Vvc or ElementaryKind.Evc:
             {
                 var codec = kind switch
                 {
                     ElementaryKind.H264 => CodecType.H264,
                     ElementaryKind.Hevc => CodecType.Hevc,
-                    _ => CodecType.Vvc,
+                    ElementaryKind.Vvc => CodecType.Vvc,
+                    _ => CodecType.Evc,
                 };
                 AnnexBProbe probe;
                 using (var fs = File.OpenRead(path))
@@ -83,7 +91,7 @@ public static class ElementaryFormat
                 var config = probe.Config;
                 var source = new ElementarySource(config, () => new AnnexBVideoParser(OpenStream(path), codec, config.DefaultSampleDuration, probe.ParameterSets),
                     TimeSpan.Zero, Math.Max(1, length / 20_000));
-                return new ElementaryDemuxer(path, CodecNames.Display(codec) + " Annex B", source)
+                return new ElementaryDemuxer(path, CodecNames.Display(codec) + (codec == CodecType.Evc ? " elementary stream" : " Annex B"), source)
                 {
                     RequiresFrameRate = !probe.HasTiming,
                 };

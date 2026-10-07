@@ -72,6 +72,9 @@ public static class Evc
     public const int NalFiller = 27;
     public const int NalSei = 28;
 
+    private const int SliceB = 0;
+    private const int SliceP = 1;
+
     /// <summary>nal_unit_type of an EVC NAL unit (nal_unit_type_plus1 − 1 in the first header byte), or -1.</summary>
     public static int NalType(ReadOnlySpan<byte> nal) => nal.Length > 1 ? ((nal[0] >> 1) & 0x3F) - 1 : -1;
 
@@ -446,5 +449,154 @@ public static class Evc
         {
             throw new InvalidDataException("Truncated EVC PPS.", ex);
         }
+    }
+
+    /// <summary>What a slice header tells about its picture.</summary>
+    /// <param name="FirstSliceOfPicture">The slice starts with the picture's first tile.</param>
+    /// <param name="PocLsb">slice_pic_order_cnt_lsb, or -1 when not signalled (IDR, or sps_pocs_flag off).</param>
+    public readonly record struct EvcSliceInfo(EvcSps Sps, bool FirstSliceOfPicture, int PocLsb);
+
+    /// <summary>Parses the start of a slice (IDR or non-IDR NAL unit) up to its picture order count LSB.</summary>
+    /// <exception cref="InvalidDataException">The slice is malformed or its PPS / SPS is unknown.</exception>
+    public static EvcSliceInfo ParseSliceHeader(ReadOnlySpan<byte> nal, IReadOnlyDictionary<int, EvcSps> spss, IReadOnlyDictionary<int, EvcPps> ppss)
+    {
+        ArgumentNullException.ThrowIfNull(spss);
+        ArgumentNullException.ThrowIfNull(ppss);
+        try
+        {
+            var type = NalType(nal);
+            var r = new BitReader(nal[2..Math.Min(nal.Length, 64)]);
+            var ppsId = (int)r.Ue();
+            if (!ppss.TryGetValue(ppsId, out var pps) || !spss.TryGetValue(pps.SpsId, out var sps))
+                throw new InvalidDataException($"Unknown EVC PPS {ppsId}.");
+
+            var first = true;
+            var singleTileInSlice = true;
+            if (!pps.SingleTileInPicture)
+            {
+                singleTileInSlice = r.Flag();
+                first = (int)r.Read(pps.TileIdLength) == pps.FirstTileId;
+            }
+
+            if (!singleTileInSlice)
+            {
+                var arbitrary = pps.ArbitrarySlicePresent && r.Flag();
+                if (!arbitrary)
+                {
+                    r.Skip(pps.TileIdLength); // last_tile_id
+                }
+                else
+                {
+                    var tiles = r.Ue() + 1;
+                    for (var i = 0; i < tiles; i++)
+                        r.Ue(); // delta_tile_id_minus1
+                }
+            }
+
+            var sliceType = (int)r.Ue();
+            if (type == NalIdr)
+                r.Skip(1); // no_output_of_prior_pics_flag
+            if (sps.Mmvd && sliceType is SliceB or SliceP)
+                r.Skip(1); // mmvd_group_enable_flag
+            if (sps.Alf)
+                SkipSliceAlf(ref r, sps.ChromaFormatIdc);
+
+            var lsb = type != NalIdr && sps.Pocs ? (int)r.Read(sps.Log2MaxPocLsb) : -1;
+            return new EvcSliceInfo(sps, first, lsb);
+        }
+        catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException)
+        {
+            throw new InvalidDataException("Truncated EVC slice header.", ex);
+        }
+    }
+
+    /// <summary>Skips the slice header's ALF parameters (as the reference decoder reads them).</summary>
+    private static void SkipSliceAlf(ref BitReader r, int chroma)
+    {
+        var chromaIdc = 0;
+        if (r.Flag()) // slice_alf_enabled_flag
+        {
+            r.Skip(5 + 1); // slice_alf_luma_aps_id, slice_alf_map_flag
+            chromaIdc = (int)r.Read(2);
+            if (chromaIdc != 0 && chroma is 1 or 2)
+                r.Skip(5); // slice_alf_chroma_aps_id
+        }
+
+        if (chroma == 3)
+        {
+            if (chromaIdc is 1 or 3)
+                r.Skip(5 + 1); // slice_alf_chroma_aps_id, slice_alf_chroma_map_flag
+            if (chromaIdc is 2 or 3)
+                r.Skip(5 + 1); // slice_alf_chroma2_aps_id, slice_alf_chroma2_map_flag
+        }
+    }
+
+    /// <summary>
+    /// Picture order count derivation (ISO/IEC 23094-1 8.3.1, as the reference decoder implements it): from the slice's
+    /// LSB when sps_pocs_flag is set, otherwise from the hierarchical sub-GOP position given by the temporal id.
+    /// </summary>
+    public sealed class PocCounter
+    {
+        private int _prevPoc;
+        private int _prevDocOffset = -1;
+
+        /// <summary>The picture order count of the next picture (in decoding order).</summary>
+        public int Next(int nalType, int temporalId, EvcSliceInfo slice)
+        {
+            var sps = slice.Sps;
+            if (nalType == NalIdr)
+            {
+                _prevPoc = 0;
+                _prevDocOffset = -1;
+                return 0;
+            }
+
+            if (sps.Pocs)
+            {
+                var max = 1 << sps.Log2MaxPocLsb;
+                var prevLsb = _prevPoc & (max - 1);
+                var prevMsb = _prevPoc - prevLsb;
+                var lsb = slice.PocLsb;
+                var msb = lsb < prevLsb && prevLsb - lsb >= max / 2 ? prevMsb + max
+                    : lsb > prevLsb && lsb - prevLsb > max / 2 ? prevMsb - max
+                    : prevMsb;
+                if (temporalId == 0)
+                    _prevPoc = msb + lsb;
+                return msb + lsb;
+            }
+
+            var subGop = 1 << sps.Log2SubGopLength;
+            if (temporalId == 0)
+            {
+                _prevPoc += subGop;
+                _prevDocOffset = 0;
+                return _prevPoc;
+            }
+
+            if (temporalId > (subGop > 1 ? 1 + Log2(subGop - 1) : 0))
+                throw new InvalidDataException("EVC temporal id beyond the sub-GOP structure.");
+            var docOffset = (_prevDocOffset + 1) % subGop;
+            int expectedTid;
+            if (docOffset == 0)
+            {
+                _prevPoc += subGop;
+                expectedTid = 0;
+            }
+            else
+            {
+                expectedTid = 1 + Log2(docOffset);
+            }
+
+            while (temporalId != expectedTid)
+            {
+                docOffset = (docOffset + 1) % subGop;
+                expectedTid = docOffset == 0 ? 0 : 1 + Log2(docOffset);
+            }
+
+            _prevDocOffset = docOffset;
+            return _prevPoc + (int)(subGop * ((2.0 * docOffset + 1) / (1 << temporalId) - 2));
+        }
+
+        private static int Log2(int x) => 31 - System.Numerics.BitOperations.LeadingZeroCount((uint)x);
     }
 }

@@ -48,4 +48,32 @@ public sealed class EvcTests
         Assert.Equal(expected, rebuilt);
         Assert.Throws<InvalidDataException>(() => Evc.ParseEvcC(CorpusEvcC.AsSpan(0, 30)));
     }
+
+    /// <summary>
+    /// Without slice POC LSBs the picture order count follows the sub-GOP position given by the temporal id: the order
+    /// the reference decoder (xevd) reports for an xeve Baseline stream with 16-picture sub-GOPs.
+    /// </summary>
+    [Fact]
+    public void Derives_the_picture_order_count_from_the_sub_gop_structure()
+    {
+        var sps = new EvcSps { Log2SubGopLength = 4 };
+        var slice = new Evc.EvcSliceInfo(sps, true, -1);
+        int[] tids = [0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 3, 3, 4, 4, 4, 4];
+        int[] expected = [0, 16, 8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15, 24, 20, 18, 22, 17, 19, 21, 23];
+        var counter = new Evc.PocCounter();
+        var pocs = tids.Select((tid, i) => counter.Next(i == 0 ? Evc.NalIdr : Evc.NalNonIdr, tid, slice)).ToArray();
+        Assert.Equal(expected, pocs);
+    }
+
+    [Fact]
+    public void Derives_the_picture_order_count_from_slice_lsbs()
+    {
+        var sps = new EvcSps { Pocs = true, Log2MaxPocLsb = 4 };
+        var counter = new Evc.PocCounter();
+        Assert.Equal(0, counter.Next(Evc.NalIdr, 0, new Evc.EvcSliceInfo(sps, true, -1)));
+        Assert.Equal(8, counter.Next(Evc.NalNonIdr, 0, new Evc.EvcSliceInfo(sps, true, 8)));
+        Assert.Equal(4, counter.Next(Evc.NalNonIdr, 1, new Evc.EvcSliceInfo(sps, true, 4)));
+        Assert.Equal(16, counter.Next(Evc.NalNonIdr, 0, new Evc.EvcSliceInfo(sps, true, 0))); // LSB wrap
+        Assert.Equal(12, counter.Next(Evc.NalNonIdr, 1, new Evc.EvcSliceInfo(sps, true, 12)));
+    }
 }
