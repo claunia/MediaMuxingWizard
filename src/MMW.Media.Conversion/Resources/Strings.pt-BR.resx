@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Conversion_AlacBitDepth" xml:space="preserve">
+    <value>ALAC não pode armazenar áudio de {0}-bits sem perda.</value>
+  </data>
+  <data name="Conversion_AudioCannotDecode" xml:space="preserve">
+    <value>{0} áudio não pode ser decodificado por {1}.</value>
+  </data>
+  <data name="Conversion_AudioUnavailable" xml:space="preserve">
+    <value>Conversão de áudio não está disponível: {0}</value>
+  </data>
+  <data name="Conversion_CannotDecode" xml:space="preserve">
+    <value>{0} não pode ser decodificado.</value>
+  </data>
+  <data name="Conversion_CannotScale" xml:space="preserve">
+    <value>Não é possível escalar {0} quadros.</value>
+  </data>
+  <data name="Conversion_ConvertingLossless" xml:space="preserve">
+    <value>Convertendo {0} {1} {2} Hz {3}-bit → {4} {5} {6}-bit.</value>
+  </data>
+  <data name="Conversion_ConvertingLossy" xml:space="preserve">
+    <value>Convertendo {0} {1} {2} Hz → {3} {4} {5} Hz, {6} kbit/s{7}.</value>
+  </data>
+  <data name="Conversion_DecoderOutputChanged" xml:space="preserve">
+    <value>{0} saída do decodificador alterada; reconfigurando o remuestreador.</value>
+  </data>
+  <data name="Conversion_DecodingErrorSkipped" xml:space="preserve">
+    <value>{0} erro de decodificação (pacote ignorado): {1}</value>
+  </data>
+  <data name="Conversion_FileNotFound" xml:space="preserve">
+    <value>O arquivo não existe.</value>
+  </data>
+  <data name="Conversion_NoAudioDecoded" xml:space="preserve">
+    <value>Nenhum áudio {0} pôde ser decodificado da faixa {1}.</value>
+  </data>
+  <data name="Conversion_NoDecoderFor" xml:space="preserve">
+    <value>Nenhum decodificador para {0}.</value>
+  </data>
+  <data name="Conversion_NoNativeEncoders" xml:space="preserve">
+    <value>esta compilação do FFmpeg não tem codificador nativo de AAC/AC-3</value>
+  </data>
+  <data name="Conversion_NoVideoTrack" xml:space="preserve">
+    <value>O arquivo não possui faixa de vídeo.</value>
+  </data>
+  <data name="Conversion_NotAudioTrack" xml:space="preserve">
+    <value>{0} não é uma faixa de áudio.</value>
+  </data>
+  <data name="Conversion_NotBitmapSubtitle" xml:space="preserve">
+    <value>{0} não é um formato de legenda bitmap.</value>
+  </data>
+  <data name="Conversion_TimestampJumpDropping" xml:space="preserve">
+    <value>Os carimbos de tempo de {0} pulam em {1:0.#} ms a {2:0.###} s: descartando {3} amostras.</value>
+  </data>
+  <data name="Conversion_TimestampJumpInserting" xml:space="preserve">
+    <value>Os carimbos de tempo de {0} pulam em {1:0.#} ms a {2:0.###} s: inserindo {3} amostras.</value>
+  </data>
+  <data name="Conversion_TooManyChannels" xml:space="preserve">
+    <value>{0} não pode armazenar {1} canais.</value>
+  </data>
+  <data name="Conversion_TrackNotDecodable" xml:space="preserve">
+    <value>Não foi possível decodificar a faixa {0}: {1}</value>
+  </data>
+  <data name="Conversion_TrackNotFoundInFile" xml:space="preserve">
+    <value>Faixa {0} não encontrada em “{1}”.</value>
+  </data>
+  <data name="Conversion_VideoTrackNotFound" xml:space="preserve">
+    <value>Não foi possível encontrar a faixa de vídeo {0}.</value>
+  </data>
+  <data name="Demux_NoConfigInFirstPacket" xml:space="preserve">
+    <value>Nenhuma configuração {0} encontrada no primeiro pacote.</value>
+  </data>
+  <data name="Demux_NoReadableStream" xml:space="preserve">
+    <value>“{0}” não tem fluxo que possa ser lido.</value>
+  </data>
+  <data name="Demux_StreamNotSupported" xml:space="preserve">
+    <value>{0}: fluxo {1} ({2}) não é suportado.</value>
+  </data>
+  <data name="Demux_StreamSkipped" xml:space="preserve">
+    <value>{0}: fluxo {1} ignorado: {2}</value>
+  </data>
+  <data name="FFmpeg_CallFailed" xml:space="preserve">
+    <value>{0} falhou.</value>
+  </data>
+  <data name="FFmpeg_CouldNotLoad" xml:space="preserve">
+    <value>FFmpeg não pôde ser carregado: {0}</value>
+  </data>
+  <data name="FFmpeg_ErrorCode" xml:space="preserve">
+    <value>error {0}</value>
+  </data>
+  <data name="FFmpeg_FifoShortRead" xml:space="preserve">
+    <value>av_audio_fifo_read retornou menos amostras do que disponíveis.</value>
+  </data>
+  <data name="FFmpeg_FramesAllocFailed" xml:space="preserve">
+    <value>Não foi possível alocar quadros FFmpeg.</value>
+  </data>
+  <data name="FFmpeg_FunctionNotFound" xml:space="preserve">
+    <value>Função FFmpeg {0} não encontrada em lib{1}.</value>
+  </data>
+  <data name="FFmpeg_IncompatibleLibraries" xml:space="preserve">
+    <value>bibliotecas FFmpeg incompatíveis: {0}</value>
+  </data>
+  <data name="FFmpeg_LibrariesNotFound" xml:space="preserve">
+    <value>Bibliotecas compartilhadas FFmpeg {0}.x ({1}) não foram encontradas; instale FFmpeg {0} ou defina MMW_FFMPEG_PATH</value>
+  </data>
+  <data name="FFmpeg_LibrariesNotLoaded" xml:space="preserve">
+    <value>as bibliotecas FFmpeg em {0} não puderam ser carregadas</value>
+  </data>
+  <data name="FFmpeg_LibraryVersionMismatch" xml:space="preserve">
+    <value>lib{0} {1} (esperado {2})</value>
+  </data>
+  <data name="FFmpeg_Loaded" xml:space="preserve">
+    <value>FFmpeg {0} carregado de {1}.</value>
+  </data>
+  <data name="FFmpeg_NoDecoder" xml:space="preserve">
+    <value>Esta compilação do FFmpeg não tem decodificador {0}.</value>
+  </data>
+  <data name="FFmpeg_NoEncoder" xml:space="preserve">
+    <value>Esta compilação do FFmpeg não tem codificador {0}.</value>
+  </data>
+  <data name="FFmpeg_NotAvailable" xml:space="preserve">
+    <value>FFmpeg não está disponível: {0}</value>
+  </data>
+  <data name="FFmpeg_NotAvailableFeaturesDisabled" xml:space="preserve">
+    <value>FFmpeg não está disponível (conversão de áudio, miniaturas e legendas em bitmap estão desativadas): {0}</value>
+  </data>
+  <data name="FFmpeg_OperationFailed" xml:space="preserve">
+    <value>{0} falhou: {1}</value>
+  </data>
+  <data name="FFmpeg_SystemLibraryPath" xml:space="preserve">
+    <value>o caminho da biblioteca do sistema</value>
+  </data>
+  <data name="Op_DroppingOverlap" xml:space="preserve">
+    <value>Descartando áudio sobreposto</value>
+  </data>
+  <data name="Op_Encoding" xml:space="preserve">
+    <value>Codificando</value>
+  </data>
+  <data name="Op_EncodingJpeg" xml:space="preserve">
+    <value>Codificando o JPEG</value>
+  </data>
+  <data name="Op_FilteringPackets" xml:space="preserve">
+    <value>Filtrando pacotes</value>
+  </data>
+  <data name="Op_FlushingEncoder" xml:space="preserve">
+    <value>Esvaziando o codificador</value>
+  </data>
+  <data name="Op_Initialising" xml:space="preserve">
+    <value>Inicializando {0}</value>
+  </data>
+  <data name="Op_InitialisingResampler" xml:space="preserve">
+    <value>Inicializando o reamostrador</value>
+  </data>
+  <data name="Op_InsertingSilence" xml:space="preserve">
+    <value>Inserindo silêncio</value>
+  </data>
+  <data name="Op_Opening" xml:space="preserve">
+    <value>Abrindo “{0}”</value>
+  </data>
+  <data name="Op_OpeningDecoder" xml:space="preserve">
+    <value>Abrindo o decodificador {0}</value>
+  </data>
+  <data name="Op_OpeningEncoder" xml:space="preserve">
+    <value>Abrindo o codificador {0}</value>
+  </data>
+  <data name="Op_OpeningVideoDecoder" xml:space="preserve">
+    <value>Abrindo o decodificador de vídeo</value>
+  </data>
+  <data name="Op_ReadingStreamInfo" xml:space="preserve">
+    <value>Lendo as informações do fluxo</value>
+  </data>
+  <data name="Op_Resampling" xml:space="preserve">
+    <value>Reamostrando</value>
+  </data>
+  <data name="Op_Scaling" xml:space="preserve">
+    <value>Escalando</value>
+  </data>
+  <data name="Op_SettingDownmixNormalisation" xml:space="preserve">
+    <value>Configurando a normalização do downmix</value>
+  </data>
+  <data name="Op_SettingMatrixEncoding" xml:space="preserve">
+    <value>Configurando a codificação matricial</value>
+  </data>
+</root>

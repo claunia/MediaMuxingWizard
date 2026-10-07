@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action_ApplyColorSpace" xml:space="preserve">
+    <value>应用色彩空间 {0}-{1}-{2}</value>
+  </data>
+  <data name="Action_ApplySet" xml:space="preserve">
+    <value>应用预设 “{0}”</value>
+  </data>
+  <data name="Action_ClearMetadata" xml:space="preserve">
+    <value>清除元数据</value>
+  </data>
+  <data name="Action_ClearTrackNames" xml:space="preserve">
+    <value>清除轨道名称</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>完善轨道语言（{0}）</value>
+  </data>
+  <data name="Action_EnableAudio" xml:space="preserve">
+    <value>在 {0} 中启用音频轨道</value>
+  </data>
+  <data name="Action_EnableSubtitles" xml:space="preserve">
+    <value>在 {0} 中启用字幕轨道</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>修复音频回退</value>
+  </data>
+  <data name="Action_ImportChaptersFile" xml:space="preserve">
+    <value>从与源文件同目录的 .txt 文件加载章节</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>整理轨道分组</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>美化音轨名称</value>
+  </data>
+  <data name="Action_RenameChapters" xml:space="preserve">
+    <value>重命名章节</value>
+  </data>
+  <data name="Action_SetOutputFileName" xml:space="preserve">
+    <value>设置输出文件名</value>
+  </data>
+  <data name="Error_DestinationExists" xml:space="preserve">
+    <value>“{0}” 已存在。</value>
+  </data>
+  <data name="Error_NoWriter" xml:space="preserve">
+    <value>没有适用于 {0} 的写入器。</value>
+  </data>
+  <data name="Log_ChaptersLoaded" xml:space="preserve">
+    <value>已从 {1} 加载 {0} 个章节。</value>
+  </data>
+  <data name="Log_CouldNotReadQueue" xml:space="preserve">
+    <value>无法读取保存的队列</value>
+  </data>
+  <data name="Log_ItemDone" xml:space="preserve">
+    <value>任务队列：{0} → {1}</value>
+  </data>
+  <data name="Log_ItemFailed" xml:space="preserve">
+    <value>任务队列：{0} 失败</value>
+  </data>
+  <data name="Log_ItemFailedDetail" xml:space="preserve">
+    <value>失败：{0}</value>
+  </data>
+  <data name="Log_NoAudioTrack" xml:space="preserve">
+    <value>{0} 中没有音频轨道。</value>
+  </data>
+  <data name="Log_NoSubtitleTrack" xml:space="preserve">
+    <value>{0} 中没有字幕轨道。</value>
+  </data>
+  <data name="Log_Opened" xml:space="preserve">
+    <value>已打开 {0}。</value>
+  </data>
+  <data name="Log_Saved" xml:space="preserve">
+    <value>已保存 {0}。</value>
+  </data>
+  <data name="Power_ProcessingQueue" xml:space="preserve">
+    <value>正在处理任务队列</value>
+  </data>
+</root>

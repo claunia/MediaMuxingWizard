@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_ChapterCount" xml:space="preserve">
+    <value>{0} 个章节</value>
+  </data>
+  <data name="Error_AddingTracksNeedsRemux" xml:space="preserve">
+    <value>添加轨道（“{0}”）需要重新封装，但尚未提供此功能。</value>
+  </data>
+  <data name="Error_AlacWithoutCookie" xml:space="preserve">
+    <value>ALAC 轨道缺少魔术 Cookie。</value>
+  </data>
+  <data name="Error_AudioCannotBeStored" xml:space="preserve">
+    <value>{0} 音频无法存储在 MP4 中。</value>
+  </data>
+  <data name="Error_BoxInvalidSize" xml:space="preserve">
+    <value>Box “{0}” 位于 {1} 的大小无效：{2}。</value>
+  </data>
+  <data name="Error_BoxTooLarge" xml:space="preserve">
+    <value>“{0}” Box 太大（{1} 字节）。</value>
+  </data>
+  <data name="Error_BoxTooLargeToBuild" xml:space="preserve">
+    <value>Box “{0}” 过大，无法在内存中构建。</value>
+  </data>
+  <data name="Error_BoxTypeLength" xml:space="preserve">
+    <value>Box 类型必须为 4 个字符：“{0}”。</value>
+  </data>
+  <data name="Error_CannotWriteToMp4" xml:space="preserve">
+    <value>{0} 无法写入 MP4：{1}</value>
+  </data>
+  <data name="Error_ChapterImageTrackWithoutStbl" xml:space="preserve">
+    <value>章节图像轨道缺少 stbl。</value>
+  </data>
+  <data name="Error_ChapterTrackWithoutBox" xml:space="preserve">
+    <value>章节轨道缺少{0}。</value>
+  </data>
+  <data name="Error_ChunkOffsetOutsideMdat" xml:space="preserve">
+    <value>块偏移{0}未指向任何媒体数据盒子。</value>
+  </data>
+  <data name="Error_ExpectedOneBox" xml:space="preserve">
+    <value>预期一个盒子，却找到{0}个。</value>
+  </data>
+  <data name="Error_FlacWithoutStreamInfo" xml:space="preserve">
+    <value>FLAC轨道缺少STREAMINFO。</value>
+  </data>
+  <data name="Error_FreeBoxTooSmall" xml:space="preserve">
+    <value>free盒子至少需要8字节。</value>
+  </data>
+  <data name="Error_InvalidBoxType" xml:space="preserve">
+    <value>无效的盒子类型“{0}”。</value>
+  </data>
+  <data name="Error_InvalidStz2FieldSize" xml:space="preserve">
+    <value>stz2字段大小{0}无效。</value>
+  </data>
+  <data name="Error_MissingBox" xml:space="preserve">
+    <value>缺少{0}。</value>
+  </data>
+  <data name="Error_MoofTooLarge" xml:space="preserve">
+    <value>'moof'盒子在偏移{0}处太大（{1}字节）。</value>
+  </data>
+  <data name="Error_MoovLayout" xml:space="preserve">
+    <value>无法布局moov盒子。</value>
+  </data>
+  <data name="Error_MovieHeaderLayout" xml:space="preserve">
+    <value>无法布局电影头部。</value>
+  </data>
+  <data name="Error_MuxerFinished" xml:space="preserve">
+    <value>封装器已完成。</value>
+  </data>
+  <data name="Error_NoBox" xml:space="preserve">
+    <value>文件中没有“{0}”盒子。</value>
+  </data>
+  <data name="Error_NoDecodableFirstFrame" xml:space="preserve">
+    <value>{0}轨道缺少可解码的首帧。</value>
+  </data>
+  <data name="Error_NoSourceFile" xml:space="preserve">
+    <value>文档没有源文件。</value>
+  </data>
+  <data name="Error_NotMp4" xml:space="preserve">
+    <value>不是MP4文件：未找到'moov'盒子。</value>
+  </data>
+  <data name="Error_OutputNotSeekable" xml:space="preserve">
+    <value>输出流必须可寻址且可写。</value>
+  </data>
+  <data name="Error_SubtitlesCannotBeStored" xml:space="preserve">
+    <value>{0}字幕无法存储在MP4中。</value>
+  </data>
+  <data name="Error_TopLevelBoxInvalidSize" xml:space="preserve">
+    <value>偏移 {1} 处的顶级盒子“{0}”大小 {2} 无效。</value>
+  </data>
+  <data name="Error_TrackFragmentTruncated" xml:space="preserve">
+    <value>轨道片段盒子被截断。</value>
+  </data>
+  <data name="Error_TrackGone" xml:space="preserve">
+    <value>轨道 {0} 已不在文件中。</value>
+  </data>
+  <data name="Error_TracksBeforeSamples" xml:space="preserve">
+    <value>必须在写入样本之前添加轨道。</value>
+  </data>
+  <data name="Error_TracksCannotBeStored" xml:space="preserve">
+    <value>{0} 轨道无法存储在 MP4 中。</value>
+  </data>
+  <data name="Error_TrueHdWithoutMajorSync" xml:space="preserve">
+    <value>Dolby TrueHD 轨道的首个访问单元缺少主同步。</value>
+  </data>
+  <data name="Error_TruncatedLargeSizeHeader" xml:space="preserve">
+    <value>“{0}” 的大尺寸头已被截断。</value>
+  </data>
+  <data name="Error_UnexpectedEndCopying" xml:space="preserve">
+    <value>复制 “{0}” 时文件意外结束。</value>
+  </data>
+  <data name="Error_VideoCannotBeStored" xml:space="preserve">
+    <value>{0} 视频无法存储在 MP4 中。</value>
+  </data>
+  <data name="Log_Av1ConfigRebuilt" xml:space="preserve">
+    <value>AV1 轨道 {0} 缺少 'av1C'；其配置已从首个样本重建。</value>
+  </data>
+  <data name="Log_InvalidHvcC" xml:space="preserve">
+    <value>无效的 hvcC 记录：{0}</value>
+  </data>
+  <data name="Log_MovingMediaData" xml:space="preserve">
+    <value>移动 {0} 字节媒体数据以将电影头置于首位。</value>
+  </data>
+  <data name="Log_UpdatedInPlace" xml:space="preserve">
+    <value>“{0}” 已原地更新。</value>
+  </data>
+  <data name="Log_Wrote" xml:space="preserve">
+    <value>已写入 “{0}”。</value>
+  </data>
+  <data name="Reason_AudioNotSupported" xml:space="preserve">
+    <value>{0} 音频在大多数播放器的 MP4 中不受支持；请将其转换为 AAC 或 AC-3</value>
+  </data>
+  <data name="Reason_AvsNoSampleEntry" xml:space="preserve">
+    <value>AVS（AVS1-P2 / AVS+）视频没有 MP4 样本条目（未注册），因此无法存储在 MP4；请改为保存为 Matroska</value>
+  </data>
+  <data name="Reason_BitmapSubtitlesNeedOcr" xml:space="preserve">
+    <value>{0} 位图字幕无法存储在 MP4；需要 OCR 转文本</value>
+  </data>
+  <data name="Reason_CannotStoreInMp4" xml:space="preserve">
+    <value>{0} 无法存储在 MP4 中</value>
+  </data>
+  <data name="Reason_ConvertedToTx3g" xml:space="preserve">
+    <value>已转换为 3GPP 定时文字（tx3g）</value>
+  </data>
+  <data name="Reason_Hdr10PlusLost" xml:space="preserve">
+    <value>其 HDR10+ 动态元数据与帧一起存储（Matroska 块添加），无法保留在 MP4；将以 HDR10 播放。请保存为 Matroska/WebM 以保持它</value>
+  </data>
+  <data name="Reason_MissingCodecConfig" xml:space="preserve">
+    <value>缺少编解码器配置</value>
+  </data>
+  <data name="Reason_PcmBitDepth" xml:space="preserve">
+    <value>{0} 位 PCM 无法存储在 MP4（'ipcm' 支持 16、24 和 32 位整数以及 32/64 位浮点数）；请将其转换为 LPCM</value>
+  </data>
+  <data name="Reason_VideoNoSampleEntry" xml:space="preserve">
+    <value>{0} 视频没有 MP4 样本条目，无法存储为 MP4；改为另存为 Matroska</value>
+  </data>
+</root>

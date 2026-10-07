@@ -63,7 +63,10 @@ public sealed partial class PreferencesViewModel : DialogViewModel<bool>
 
     /// <summary>Interface languages: the system default plus each translation, named in its own language.</summary>
     public static IReadOnlyList<Choice<string?>> UiLanguages { get; } =
-        [new(null, Strings.Preferences_LanguageSystem), new("en", "English"), new("es", "Español")];
+        [
+            new(null, Strings.Preferences_LanguageSystem), new("en", "English"), new("de", "Deutsch"), new("es", "Español"), new("fr", "Français"),
+            new("it", "Italiano"), new("pt-BR", "Português (Brasil)"), new("zh-Hans", "简体中文"),
+        ];
 
     /// <summary>Interface language; a change takes effect after restarting the app.</summary>
     [ObservableProperty]

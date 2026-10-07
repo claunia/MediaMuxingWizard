@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action_ApplyColorSpace" xml:space="preserve">
+    <value>Aplicar espaço de cor {0}-{1}-{2}</value>
+  </data>
+  <data name="Action_ApplySet" xml:space="preserve">
+    <value>Aplicar preset “{0}”</value>
+  </data>
+  <data name="Action_ClearMetadata" xml:space="preserve">
+    <value>Limpar Metadados Existentes</value>
+  </data>
+  <data name="Action_ClearTrackNames" xml:space="preserve">
+    <value>Apagar nomes das faixas</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>Completar idiomas das faixas ({0})</value>
+  </data>
+  <data name="Action_EnableAudio" xml:space="preserve">
+    <value>Ativar faixa de áudio em {0}</value>
+  </data>
+  <data name="Action_EnableSubtitles" xml:space="preserve">
+    <value>Ativar faixa de legendas em {0}</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>Corrigir Alternativas de Áudio</value>
+  </data>
+  <data name="Action_ImportChaptersFile" xml:space="preserve">
+    <value>Carregar capítulos de um arquivo .txt ao lado da origem</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>Organizar grupos alternativos</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>Melhorar Nomes das Faixas de Áudio</value>
+  </data>
+  <data name="Action_RenameChapters" xml:space="preserve">
+    <value>Renomear Capítulos</value>
+  </data>
+  <data name="Action_SetOutputFileName" xml:space="preserve">
+    <value>Definir nome do arquivo de saída</value>
+  </data>
+  <data name="Error_DestinationExists" xml:space="preserve">
+    <value>“{0}” já existe.</value>
+  </data>
+  <data name="Error_NoWriter" xml:space="preserve">
+    <value>Nenhum escritor para {0}.</value>
+  </data>
+  <data name="Log_ChaptersLoaded" xml:space="preserve">
+    <value>Carregados {0} capítulos de {1}.</value>
+  </data>
+  <data name="Log_CouldNotReadQueue" xml:space="preserve">
+    <value>Não foi possível ler a fila salva.</value>
+  </data>
+  <data name="Log_ItemDone" xml:space="preserve">
+    <value>Fila: {0} → {1}</value>
+  </data>
+  <data name="Log_ItemFailed" xml:space="preserve">
+    <value>Fila: {0} falhou</value>
+  </data>
+  <data name="Log_ItemFailedDetail" xml:space="preserve">
+    <value>Falha: {0}</value>
+  </data>
+  <data name="Log_NoAudioTrack" xml:space="preserve">
+    <value>Nenhuma faixa de áudio em {0}.</value>
+  </data>
+  <data name="Log_NoSubtitleTrack" xml:space="preserve">
+    <value>Nenhuma faixa de legendas em {0}.</value>
+  </data>
+  <data name="Log_Opened" xml:space="preserve">
+    <value>Aberto {0}.</value>
+  </data>
+  <data name="Log_Saved" xml:space="preserve">
+    <value>Salvo {0}.</value>
+  </data>
+  <data name="Power_ProcessingQueue" xml:space="preserve">
+    <value>Processando a fila</value>
+  </data>
+</root>

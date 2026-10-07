@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Conversion_AlacBitDepth" xml:space="preserve">
+    <value>ALAC 无法无损存储 {0} 位音频。</value>
+  </data>
+  <data name="Conversion_AudioCannotDecode" xml:space="preserve">
+    <value>{0} 音频无法被 {1} 解码。</value>
+  </data>
+  <data name="Conversion_AudioUnavailable" xml:space="preserve">
+    <value>音频转换不可用：{0}</value>
+  </data>
+  <data name="Conversion_CannotDecode" xml:space="preserve">
+    <value>{0} 无法解码。</value>
+  </data>
+  <data name="Conversion_CannotScale" xml:space="preserve">
+    <value>无法缩放 {0} 帧。</value>
+  </data>
+  <data name="Conversion_ConvertingLossless" xml:space="preserve">
+    <value>正在转换 {0} {1} {2} Hz {3}-位 → {4} {5} {6}-位。</value>
+  </data>
+  <data name="Conversion_ConvertingLossy" xml:space="preserve">
+    <value>正在转换 {0} {1} {2} Hz → {3} {4} {5} Hz，{6} kbit/s{7}。</value>
+  </data>
+  <data name="Conversion_DecoderOutputChanged" xml:space="preserve">
+    <value>{0} 解码器输出已更改；正在重新配置重采样器。</value>
+  </data>
+  <data name="Conversion_DecodingErrorSkipped" xml:space="preserve">
+    <value>{0} 解码错误（已跳过包）：{1}</value>
+  </data>
+  <data name="Conversion_FileNotFound" xml:space="preserve">
+    <value>文件不存在。</value>
+  </data>
+  <data name="Conversion_NoAudioDecoded" xml:space="preserve">
+    <value>无法从轨道 {1} 中解码出任何 {0} 音频。</value>
+  </data>
+  <data name="Conversion_NoDecoderFor" xml:space="preserve">
+    <value>没有 {0} 的解码器。</value>
+  </data>
+  <data name="Conversion_NoNativeEncoders" xml:space="preserve">
+    <value>此 FFmpeg 构建不包含原生 AAC/AC-3 编码器</value>
+  </data>
+  <data name="Conversion_NoVideoTrack" xml:space="preserve">
+    <value>文件中没有视频轨道。</value>
+  </data>
+  <data name="Conversion_NotAudioTrack" xml:space="preserve">
+    <value>{0} 不是音频轨道。</value>
+  </data>
+  <data name="Conversion_NotBitmapSubtitle" xml:space="preserve">
+    <value>{0} 不是位图字幕格式。</value>
+  </data>
+  <data name="Conversion_TimestampJumpDropping" xml:space="preserve">
+    <value>{0} 时间戳在 {2:0.###} s 时跳跃 {1:0.#} ms：丢弃 {3} 个样本。</value>
+  </data>
+  <data name="Conversion_TimestampJumpInserting" xml:space="preserve">
+    <value>{0} 时间戳在 {2:0.###} s 时跳跃 {1:0.#} ms：插入 {3} 个样本。</value>
+  </data>
+  <data name="Conversion_TooManyChannels" xml:space="preserve">
+    <value>{0} 无法存储 {1} 通道。</value>
+  </data>
+  <data name="Conversion_TrackNotDecodable" xml:space="preserve">
+    <value>{0} 轨道无法解码：{1}</value>
+  </data>
+  <data name="Conversion_TrackNotFoundInFile" xml:space="preserve">
+    <value>在「{1}」中未找到轨道 {0}。</value>
+  </data>
+  <data name="Conversion_VideoTrackNotFound" xml:space="preserve">
+    <value>未找到视频轨道 {0}。</value>
+  </data>
+  <data name="Demux_NoConfigInFirstPacket" xml:space="preserve">
+    <value>在第一个包中未发现任何 {0} 配置。</value>
+  </data>
+  <data name="Demux_NoReadableStream" xml:space="preserve">
+    <value>“{0}” 没有可读取的流。</value>
+  </data>
+  <data name="Demux_StreamNotSupported" xml:space="preserve">
+    <value>{0}：流 {1}（{2}）不受支持。</value>
+  </data>
+  <data name="Demux_StreamSkipped" xml:space="preserve">
+    <value>{0}：流 {1} 已跳过：{2}</value>
+  </data>
+  <data name="FFmpeg_CallFailed" xml:space="preserve">
+    <value>{0} 失败。</value>
+  </data>
+  <data name="FFmpeg_CouldNotLoad" xml:space="preserve">
+    <value>无法加载 FFmpeg：{0}</value>
+  </data>
+  <data name="FFmpeg_ErrorCode" xml:space="preserve">
+    <value>错误 {0}</value>
+  </data>
+  <data name="FFmpeg_FifoShortRead" xml:space="preserve">
+    <value>av_audio_fifo_read 返回的样本数少于可用数量。</value>
+  </data>
+  <data name="FFmpeg_FramesAllocFailed" xml:space="preserve">
+    <value>无法分配 FFmpeg 帧。</value>
+  </data>
+  <data name="FFmpeg_FunctionNotFound" xml:space="preserve">
+    <value>在 lib{1} 中未找到 FFmpeg 函数 {0}。</value>
+  </data>
+  <data name="FFmpeg_IncompatibleLibraries" xml:space="preserve">
+    <value>不兼容的 FFmpeg 库：{0}</value>
+  </data>
+  <data name="FFmpeg_LibrariesNotFound" xml:space="preserve">
+    <value>未找到 FFmpeg {0}.x 共享库（{1}）；请安装 FFmpeg {0} 或设置 MMW_FFMPEG_PATH</value>
+  </data>
+  <data name="FFmpeg_LibrariesNotLoaded" xml:space="preserve">
+    <value>无法加载位于 {0} 的 FFmpeg 库</value>
+  </data>
+  <data name="FFmpeg_LibraryVersionMismatch" xml:space="preserve">
+    <value>lib{0} {1}（预期 {2}）</value>
+  </data>
+  <data name="FFmpeg_Loaded" xml:space="preserve">
+    <value>已从 {1} 加载 FFmpeg {0}。</value>
+  </data>
+  <data name="FFmpeg_NoDecoder" xml:space="preserve">
+    <value>此 FFmpeg 版本不包含 {0} 解码器。</value>
+  </data>
+  <data name="FFmpeg_NoEncoder" xml:space="preserve">
+    <value>此 FFmpeg 版本不包含 {0} 编码器。</value>
+  </data>
+  <data name="FFmpeg_NotAvailable" xml:space="preserve">
+    <value>FFmpeg 不可用：{0}</value>
+  </data>
+  <data name="FFmpeg_NotAvailableFeaturesDisabled" xml:space="preserve">
+    <value>FFmpeg 不可用（音频转换、缩略图和位图字幕已被禁用）：{0}</value>
+  </data>
+  <data name="FFmpeg_OperationFailed" xml:space="preserve">
+    <value>{0} 失败：{1}</value>
+  </data>
+  <data name="FFmpeg_SystemLibraryPath" xml:space="preserve">
+    <value>系统库路径</value>
+  </data>
+  <data name="Op_DroppingOverlap" xml:space="preserve">
+    <value>删除重叠音频</value>
+  </data>
+  <data name="Op_Encoding" xml:space="preserve">
+    <value>编码</value>
+  </data>
+  <data name="Op_EncodingJpeg" xml:space="preserve">
+    <value>编码 JPEG</value>
+  </data>
+  <data name="Op_FilteringPackets" xml:space="preserve">
+    <value>过滤数据包</value>
+  </data>
+  <data name="Op_FlushingEncoder" xml:space="preserve">
+    <value>刷新编码器</value>
+  </data>
+  <data name="Op_Initialising" xml:space="preserve">
+    <value>初始化 {0}</value>
+  </data>
+  <data name="Op_InitialisingResampler" xml:space="preserve">
+    <value>初始化重采样器</value>
+  </data>
+  <data name="Op_InsertingSilence" xml:space="preserve">
+    <value>插入静音</value>
+  </data>
+  <data name="Op_Opening" xml:space="preserve">
+    <value>打开“{0}”</value>
+  </data>
+  <data name="Op_OpeningDecoder" xml:space="preserve">
+    <value>打开 {0} 解码器</value>
+  </data>
+  <data name="Op_OpeningEncoder" xml:space="preserve">
+    <value>打开 {0} 编码器</value>
+  </data>
+  <data name="Op_OpeningVideoDecoder" xml:space="preserve">
+    <value>打开视频解码器</value>
+  </data>
+  <data name="Op_ReadingStreamInfo" xml:space="preserve">
+    <value>读取流信息</value>
+  </data>
+  <data name="Op_Resampling" xml:space="preserve">
+    <value>重采样</value>
+  </data>
+  <data name="Op_Scaling" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="Op_SettingDownmixNormalisation" xml:space="preserve">
+    <value>设置下混音标准化</value>
+  </data>
+  <data name="Op_SettingMatrixEncoding" xml:space="preserve">
+    <value>设置矩阵编码</value>
+  </data>
+</root>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_Text" xml:space="preserve">
+    <value>Testo</value>
+  </data>
+  <data name="Details_TextOcr" xml:space="preserve">
+    <value>Testo (OCR)</value>
+  </data>
+  <data name="Error_NoMuxer" xml:space="preserve">
+    <value>Nessun multiplexer registrato per {0}.</value>
+  </data>
+  <data name="Error_TrackHasNoSource" xml:space="preserve">
+    <value>La traccia «{0}» ({1}) non ha file sorgente.</value>
+  </data>
+  <data name="Error_TrackNotInDocument" xml:space="preserve">
+    <value>La traccia «{0}» non fa parte del documento.</value>
+  </data>
+  <data name="Log_AudioCheckFailed" xml:space="preserve">
+    <value>Verifica audio della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_ColourScanFailed" xml:space="preserve">
+    <value>Scansione colore della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionCheckFailed" xml:space="preserve">
+    <value>Verifica Dolby Vision della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionRebuilt" xml:space="preserve">
+    <value>Dolby Vision {0} (livello {1}) trovato nel flusso di bit della traccia {2}; la sua configurazione è stata ricostruita.</value>
+  </data>
+  <data name="Log_DtsCheckFailed" xml:space="preserve">
+    <value>Verifica DTS della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_Hdr10PlusCheckFailed" xml:space="preserve">
+    <value>Verifica HDR10+ della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_HdrVividCheckFailed" xml:space="preserve">
+    <value>Verifica HDR Vivid della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_MpegAudioCheckFailed" xml:space="preserve">
+    <value>Verifica MPEG audio della traccia {0} fallita: {1}</value>
+  </data>
+  <data name="Log_OpusCheckFailed" xml:space="preserve">
+    <value>Verifica Opus della traccia {0} fallita: {1}</value>
+  </data>
+</root>

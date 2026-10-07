@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_Ac4ConfigUnbuildable" xml:space="preserve">
+    <value>无法构建 AC-4 解码器配置。</value>
+  </data>
+  <data name="Error_Ac4TocUnreadable" xml:space="preserve">
+    <value>无法读取 AC-4 目录表。</value>
+  </data>
+  <data name="Error_AdtsMultipleRawBlocks" xml:space="preserve">
+    <value>不支持携带多个原始数据块的 ADTS 帧。</value>
+  </data>
+  <data name="Error_Av1NoSequenceHeader" xml:space="preserve">
+    <value>AV1 流未以可读序列头开始。</value>
+  </data>
+  <data name="Error_Av1ObuWithoutSize" xml:space="preserve">
+    <value>AV1 OBU 在低开销流中缺少大小字段。</value>
+  </data>
+  <data name="Error_DtsHdNoStrmData" xml:space="preserve">
+    <value>DTS-HD 文件没有 STRMDATA 块。</value>
+  </data>
+  <data name="Error_FlacNoStreamInfo" xml:space="preserve">
+    <value>FLAC 文件缺少 STREAMINFO。</value>
+  </data>
+  <data name="Error_InvalidFlacMetadataBlock" xml:space="preserve">
+    <value>无效的 FLAC 元数据块。</value>
+  </data>
+  <data name="Error_InvalidNalLength" xml:space="preserve">
+    <value>NAL 单元长度无效。</value>
+  </data>
+  <data name="Error_NoAc3SyncFrame" xml:space="preserve">
+    <value>未找到 AC-3 同步帧。</value>
+  </data>
+  <data name="Error_NoAc4SyncFrame" xml:space="preserve">
+    <value>未找到 AC-4 同步帧。</value>
+  </data>
+  <data name="Error_NoAdtsFrame" xml:space="preserve">
+    <value>未找到 ADTS 帧。</value>
+  </data>
+  <data name="Error_NoAssEventsFormat" xml:space="preserve">
+    <value>未找到 [Events] Format 行。</value>
+  </data>
+  <data name="Error_NoDtsFrame" xml:space="preserve">
+    <value>未找到 DTS 帧。</value>
+  </data>
+  <data name="Error_NoParameterSets" xml:space="preserve">
+    <value>在 {1} 流的开头未找到 {0}。</value>
+  </data>
+  <data name="Error_NoSequenceHeader" xml:space="preserve">
+    <value>在 {0} 流的开头未找到序列首部。</value>
+  </data>
+  <data name="Error_NoSubRipCues" xml:space="preserve">
+    <value>未找到 SubRip 条目。</value>
+  </data>
+  <data name="Error_NotFlac" xml:space="preserve">
+    <value>不是 FLAC 文件（缺少 "fLaC" 标记）。</value>
+  </data>
+  <data name="Error_NotWebVtt" xml:space="preserve">
+    <value>不是 WebVTT 文件。</value>
+  </data>
+  <data name="Error_UnsupportedElementaryStream" xml:space="preserve">
+    <value>“{0}” 不是受支持的基本流。</value>
+  </data>
+  <data name="Log_InvalidParameterSetSkipped" xml:space="preserve">
+    <value>跳过无效参数集：{0}</value>
+  </data>
+  <data name="Log_NoTimingInfo" xml:space="preserve">
+    <value>{0} 流没有时间信息；默认假设 25 fps。</value>
+  </data>
+</root>

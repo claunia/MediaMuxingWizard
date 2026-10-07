@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Details_TextOcr" xml:space="preserve">
+    <value>Text (OCR)</value>
+  </data>
+  <data name="Error_NoMuxer" xml:space="preserve">
+    <value>Kein Multiplexer für {0} registriert.</value>
+  </data>
+  <data name="Error_TrackHasNoSource" xml:space="preserve">
+    <value>Spur „{0}“ ({1}) hat keine Quelldatei.</value>
+  </data>
+  <data name="Error_TrackNotInDocument" xml:space="preserve">
+    <value>Spur „{0}“ ist nicht Teil des Dokuments.</value>
+  </data>
+  <data name="Log_AudioCheckFailed" xml:space="preserve">
+    <value>Audioprüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_ColourScanFailed" xml:space="preserve">
+    <value>Farbscan der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionCheckFailed" xml:space="preserve">
+    <value>Dolby-Vision-Prüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionRebuilt" xml:space="preserve">
+    <value>Dolby-Vision {0} (Level {1}) im Bitstrom der Spur {2} gefunden; die Konfiguration wurde neu aufgebaut.</value>
+  </data>
+  <data name="Log_DtsCheckFailed" xml:space="preserve">
+    <value>DTS-Prüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_Hdr10PlusCheckFailed" xml:space="preserve">
+    <value>HDR10+-Prüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_HdrVividCheckFailed" xml:space="preserve">
+    <value>HDR-Vivid-Prüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_MpegAudioCheckFailed" xml:space="preserve">
+    <value>MPEG-Audio-Prüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+  <data name="Log_OpusCheckFailed" xml:space="preserve">
+    <value>Opus-Prüfung der Spur {0} fehlgeschlagen: {1}</value>
+  </data>
+</root>

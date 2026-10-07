@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Edit_Saved" xml:space="preserve">
+    <value>Salvo {0}.</value>
+  </data>
+  <data name="Error_ActionNeedsTrack" xml:space="preserve">
+    <value>Nomeie a faixa para a qual a ação é destinada: --action &lt;faixa&gt;=&lt;nome&gt; (veja 'mmw probe' para as faixas e suas ações).</value>
+  </data>
+  <data name="Error_ActionNotOffered" xml:space="preserve">
+    <value>“{0}” não está disponível para {1}; escolha um de: {2}.</value>
+  </data>
+  <data name="Error_ArtworkUsage" xml:space="preserve">
+    <value>Use --add &lt;imagem&gt;, --export &lt;dir&gt; ou --remove-all.</value>
+  </data>
+  <data name="Error_BoolOption" xml:space="preserve">
+    <value>--{0} aceita true ou false, não “{1}”.</value>
+  </data>
+  <data name="Error_CannotExportRaw" xml:space="preserve">
+    <value>{0} faixas não podem ser exportadas como fluxo bruto.</value>
+  </data>
+  <data name="Error_CannotStore" xml:space="preserve">
+    <value>{0} não pode ser armazenado em {1}; oferecido: {2}.</value>
+  </data>
+  <data name="Error_CannotStoreReason" xml:space="preserve">
+    <value>{0} não pode ser armazenado em {1}: {2}; oferecido: {3}.</value>
+  </data>
+  <data name="Error_ChaptersUsage" xml:space="preserve">
+    <value>Use --import &lt;txt&gt;, --export &lt;txt&gt;, --every &lt;minutos&gt; ou --clear.</value>
+  </data>
+  <data name="Error_ExtractUsage" xml:space="preserve">
+    <value>Uso: mmw extract &lt;arquivo&gt; &lt;track-ids&gt;… [saída] | mmw extract &lt;arquivo&gt; --all [--output-dir dir]</value>
+  </data>
+  <data name="Error_FileNotFound" xml:space="preserve">
+    <value>“{0}” não existe.</value>
+  </data>
+  <data name="Error_Generic" xml:space="preserve">
+    <value>Erro: {0}</value>
+  </data>
+  <data name="Error_ImportUsage" xml:space="preserve">
+    <value>Uso: mmw import &lt;arquivo&gt; &lt;origem[:faixas]&gt;… (veja 'mmw --help')</value>
+  </data>
+  <data name="Error_InvalidChoice" xml:space="preserve">
+    <value>“{0}” não é um(a) {1} válido(a).</value>
+  </data>
+  <data name="Error_MissingFile" xml:space="preserve">
+    <value>Argumento de arquivo ausente.</value>
+  </data>
+  <data name="Error_NeedsFrameRate" xml:space="preserve">
+    <value>{0} precisa de --frame-rate.</value>
+  </data>
+  <data name="Error_NfoUsage" xml:space="preserve">
+    <value>Use --import [nfo] ou --export [nfo].</value>
+  </data>
+  <data name="Error_NoActionsKnown" xml:space="preserve">
+    <value>Nenhuma ação conhecida para {0}.</value>
+  </data>
+  <data name="Error_NoAudioInLanguage" xml:space="preserve">
+    <value>Nenhuma faixa de áudio em “{0}”.</value>
+  </data>
+  <data name="Error_NoNfo" xml:space="preserve">
+    <value>Nenhum arquivo .nfo encontrado próximo ao arquivo de mídia.</value>
+  </data>
+  <data name="Error_NoSubtitleInLanguage" xml:space="preserve">
+    <value>Nenhuma faixa de legenda em “{0}”.</value>
+  </data>
+  <data name="Error_NoSuchTracks" xml:space="preserve">
+    <value>{0} não tem a faixa {1}; suas faixas são {2}.</value>
+  </data>
+  <data name="Error_NoTitle" xml:space="preserve">
+    <value>Não foi possível adivinhar um título; use --title.</value>
+  </data>
+  <data name="Error_NoTrackWithId" xml:space="preserve">
+    <value>Nenhuma faixa com o id {0}.</value>
+  </data>
+  <data name="Error_NoTrackWithIdList" xml:space="preserve">
+    <value>Nenhuma faixa com id {0}; faixas: {1}.</value>
+  </data>
+  <data name="Error_NotAnImage" xml:space="preserve">
+    <value>“{0}” não é uma imagem JPEG, PNG, BMP ou GIF.</value>
+  </data>
+  <data name="Error_NotAssignment" xml:space="preserve">
+    <value>“{0}” não está no formato Tag=valor.</value>
+  </data>
+  <data name="Error_NotSubtitle" xml:space="preserve">
+    <value>{0} não é uma faixa de legendas; apenas legendas podem ser duplicadas.</value>
+  </data>
+  <data name="Error_NotTrackList" xml:space="preserve">
+    <value>“{0}” não é uma lista de números de faixa (ex.: 2 ou 1,3-5).</value>
+  </data>
+  <data name="Error_NothingToSave" xml:space="preserve">
+    <value>Nada a salvar.</value>
+  </data>
+  <data name="Error_OutputExtension" xml:space="preserve">
+    <value>A extensão de saída deve ser do tipo MP4 ou Matroska.</value>
+  </data>
+  <data name="Error_OutputForOneTrack" xml:space="preserve">
+    <value>Um nome de arquivo de saída só pode ser fornecido para uma faixa; use --output-dir para várias.</value>
+  </data>
+  <data name="Error_ProbeUsage" xml:space="preserve">
+    <value>Uso: mmw probe &lt;origem&gt;... [--target mp4|mkv] [--json]</value>
+  </data>
+  <data name="Error_ProviderNeedsKey" xml:space="preserve">
+    <value>{0} precisa de uma chave de API (appsettings.json ou MMW_TMDB_API_KEY / MMW_TVDB_API_KEY).</value>
+  </data>
+  <data name="Error_ProviderUnsupported" xml:space="preserve">
+    <value>{0} não suporta {1}.</value>
+  </data>
+  <data name="Error_QueueUsage" xml:space="preserve">
+    <value>Use 'queue add &lt;arquivo&gt;...', 'queue start', 'queue status' ou 'queue clear-completed'.</value>
+  </data>
+  <data name="Error_RemuxUsage" xml:space="preserve">
+    <value>Uso: mmw remux &lt;arquivo&gt; &lt;output.mkv|output.m4v|…&gt; [opções] (veja 'mmw --help')</value>
+  </data>
+  <data name="Error_ResultRange" xml:space="preserve">
+    <value>--result deve estar entre 1 e {0}.</value>
+  </data>
+  <data name="Error_RunHelp" xml:space="preserve">
+    <value>Execute 'mmw --help' para ver o uso.</value>
+  </data>
+  <data name="Error_SetNeedsAssignment" xml:space="preserve">
+    <value>Forneça pelo menos uma atribuição “Tag=valor”.</value>
+  </data>
+  <data name="Error_UnknownCommand" xml:space="preserve">
+    <value>Comando desconhecido “{0}”.</value>
+  </data>
+  <data name="Error_UnknownProvider" xml:space="preserve">
+    <value>Provedor desconhecido. Disponíveis: {0}.</value>
+  </data>
+  <data name="Error_UnknownQueueCommand" xml:space="preserve">
+    <value>Comando de fila desconhecido “{0}”.</value>
+  </data>
+  <data name="Error_UnknownTag" xml:space="preserve">
+    <value>Tag desconhecida “{0}”. Execute 'mmw tag-names' para ver a lista.</value>
+  </data>
+  <data name="Error_UnknownTarget" xml:space="preserve">
+    <value>Alvo desconhecido “{0}” (use mp4 ou mkv).</value>
+  </data>
+  <data name="Extract_Wrote" xml:space="preserve">
+    <value>Escreveu {0} ({1}).</value>
+  </data>
+  <data name="Help_Usage" xml:space="preserve">
+    <value>Uso: mmw &lt;command&gt; [arguments]
+
+  info &lt;file&gt; [--json]                 Exibe faixas, tags e capítulos
+  tags &lt;file&gt; [--json]                 Lista tags
+  set &lt;file&gt; "Tag=value"...            Define tags (valor vazio remove a tag)
+  clear-tags &lt;file&gt;                    Remove todas as tags e arte
+  artwork &lt;file&gt; --add &lt;image&gt;... [--replace] | --export &lt;dir&gt; | --remove-all
+  chapters &lt;file&gt; --import &lt;txt&gt; | --export &lt;txt&gt; | --every &lt;minutes&gt; | --clear
+  tracks &lt;file&gt; [--organize-groups] [--fix-fallbacks] [--clear-names] [--prettify-audio-names]
+                [--complete-languages &lt;lang&gt;] [--enable-audio &lt;lang&gt;] [--enable-subtitles &lt;lang&gt;]
+                [--track &lt;id&gt; --name &lt;name&gt; --language &lt;lang&gt; --enabled &lt;true|false&gt;]
+                [--action &lt;id&gt;=&lt;action&gt;] [--duplicate &lt;id&gt;=&lt;action&gt;] [--forced|--default &lt;id&gt;=&lt;bool&gt;]
+                                       Edita faixas; ações e duplicados remultiplexam o arquivo ao salvar
+  queue add &lt;file&gt;... | queue start | queue status | queue clear-completed
+                                       Use a fila salva do editor (e suas opções)
+  search &lt;file&gt; [--title t] [--year y] [--season n] [--episode n] [--provider p] [--language l]
+                [--apply [--result n] [--artwork poster|season|episode|backdrop|none]]
+                                       Busca metadados online; --apply grava o resultado escolhido
+  nfo &lt;file&gt; --import [nfo] | --export [nfo]
+                                       Mescla tags de um .nfo do Kodi, ou grava um
+  probe &lt;source&gt;... [--target mp4|mkv] [--json]
+                                       Lista faixas de um arquivo e as ações oferecidas para cada
+                                       (* = recomendada), para MP4 e Matroska
+  import &lt;file&gt; &lt;source[:tracks]&gt;... [--track [n:]&lt;tracks&gt;] [--only video|audio|subtitle]
+                [--action [&lt;track&gt;=]&lt;action&gt;] [--language [&lt;track&gt;=]&lt;lang&gt;] [--name &lt;track&gt;=&lt;name&gt;]
+                [--forced|--default|--enabled &lt;track&gt;=&lt;bool&gt;] [--ocr-language [&lt;track&gt;=]&lt;lang&gt;]
+                [--frame-rate [&lt;track&gt;=]&lt;fps&gt;] [--duplicate &lt;track&gt;=&lt;action&gt;] [--dry-run]
+                                       Adiciona faixas de outros arquivos (remultiplexa ao salvar). Selecione faixas
+                                       com "movie.mkv:2,4-5" ou --track; sem isso, todas as faixas que puderem ser armazenadas são escolhidas com sua ação recomendada
+  remux &lt;file&gt; &lt;output&gt; [--track &lt;ids&gt;] [--action &lt;id&gt;=&lt;action&gt;] [--duplicate &lt;id&gt;=&lt;action&gt;]
+                [--name|--language &lt;id&gt;=&lt;value&gt;] [--forced|--default|--enabled &lt;id&gt;=&lt;bool&gt;]
+                [--drop-unsupported] [--dry-run]
+                                       Reescreve como MP4 ou Matroska (por extensão); faixas que o destino
+                                       não pode conter são convertidas com a ação recomendada
+                                       (--drop-unsupported as exclui)
+  extract &lt;file&gt; &lt;track-ids&gt;... [output] | extract &lt;file&gt; --all [--output-dir &lt;dir&gt;]
+                                       Grava faixas como fluxos brutos (.h264, .aac, .flac, .srt …)
+  tag-names                            Lista os nomes de tags aceitos por "set"
+
+As faixas são os números que "info" ou "probe" mostram; com várias fontes de importação,
+"&lt;n&gt;:&lt;track&gt;" indica a faixa &lt;track&gt; da origem &lt;n&gt; (contando de 1). Ações: copy, aac, aac-stereo, aac-mono, aac-dpl2, aac-dpl, aac-multichannel, ac3, aac+copy, aac+ac3, pcm, alac, tx3g, srt, ass, ssa, webvtt, tx3g-ocr, srt-ocr, skip, tal como "probe" oferece para cada faixa.
+
+Todos os comandos de edição salvam o arquivo no local, ou em --output &lt;caminho&gt; quando indicado (--optimize para início rápido); --dry-run mostra o que seria feito sem salvar nada.</value>
+  </data>
+  <data name="Import_Done" xml:space="preserve">
+    <value>Importou {0} faixa(s) em {1}.</value>
+  </data>
+  <data name="Import_Nothing" xml:space="preserve">
+    <value>Nada para importar.</value>
+  </data>
+  <data name="Import_Skipping" xml:space="preserve">
+    <value>Ignorando faixa {1} de {0}: {2}</value>
+  </data>
+  <data name="Info_Artwork" xml:space="preserve">
+    <value>Capa: {0} imagem(ns)</value>
+  </data>
+  <data name="Info_Chapters" xml:space="preserve">
+    <value>Capítulos ({0}):</value>
+  </data>
+  <data name="Info_Tags" xml:space="preserve">
+    <value>Metadados:</value>
+  </data>
+  <data name="Info_TrackOff" xml:space="preserve">
+    <value>desativado</value>
+  </data>
+  <data name="Info_TrackOn" xml:space="preserve">
+    <value>ativo</value>
+  </data>
+  <data name="Nfo_Imported" xml:space="preserve">
+    <value>Tags importadas em {0}.</value>
+  </data>
+  <data name="Output_Wrote" xml:space="preserve">
+    <value>Escreveu {0}.</value>
+  </data>
+  <data name="Plan_Dropping" xml:space="preserve">
+    <value>Descartando faixa {0} ({1}): {2}</value>
+  </data>
+  <data name="Plan_Duplicated" xml:space="preserve">
+    <value>{0} faixa {1}: duplicado → {2}</value>
+  </data>
+  <data name="Plan_Import" xml:space="preserve">
+    <value>{0} faixa {1}: {2} {3} ({4}) → {5}</value>
+  </data>
+  <data name="Plan_LeavingOut" xml:space="preserve">
+    <value>Ignorando {0}</value>
+  </data>
+  <data name="Probe_Legend" xml:space="preserve">
+    <value>(* = recomendado; passe outro com --action &lt;faixa&gt;=&lt;nome&gt;)</value>
+  </data>
+  <data name="Probe_NoTracks" xml:space="preserve">
+    <value>sem faixas</value>
+  </data>
+  <data name="Queue_Added" xml:space="preserve">
+    <value>Adicionou {0} item(ns); {1} na fila.</value>
+  </data>
+  <data name="Remux_Warning" xml:space="preserve">
+    <value>Aviso: faixa {0} ({1}): {2}</value>
+  </data>
+  <data name="Search_Applied" xml:space="preserve">
+    <value>Aplicado “{0}” de {1} a {2}.</value>
+  </data>
+  <data name="Search_NoResults" xml:space="preserve">
+    <value>Nenhum resultado de {0} para {1}.</value>
+  </data>
+  <data name="Track_OfFile" xml:space="preserve">
+    <value>{0} faixa {1} ({2})</value>
+  </data>
+  <data name="Track_Short" xml:space="preserve">
+    <value>faixa {0} ({1})</value>
+  </data>
+</root>

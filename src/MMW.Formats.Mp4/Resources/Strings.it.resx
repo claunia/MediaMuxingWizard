@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_ChapterCount" xml:space="preserve">
+    <value>{0} capitoli</value>
+  </data>
+  <data name="Error_AddingTracksNeedsRemux" xml:space="preserve">
+    <value>Aggiungere tracce («{0}») richiede rimultiplexare, che non è ancora disponibile.</value>
+  </data>
+  <data name="Error_AlacWithoutCookie" xml:space="preserve">
+    <value>Traccia ALAC senza magic cookie.</value>
+  </data>
+  <data name="Error_AudioCannotBeStored" xml:space="preserve">
+    <value>{0} audio non può essere memorizzato in MP4.</value>
+  </data>
+  <data name="Error_BoxInvalidSize" xml:space="preserve">
+    <value>Box «{0}» all'indirizzo {1} ha dimensione non valida {2}.</value>
+  </data>
+  <data name="Error_BoxTooLarge" xml:space="preserve">
+    <value>«{0}» box è troppo grande ({1} byte).</value>
+  </data>
+  <data name="Error_BoxTooLargeToBuild" xml:space="preserve">
+    <value>Box «{0}» è troppo grande per essere costruito in memoria.</value>
+  </data>
+  <data name="Error_BoxTypeLength" xml:space="preserve">
+    <value>Il tipo di box deve avere 4 caratteri: «{0}».</value>
+  </data>
+  <data name="Error_CannotWriteToMp4" xml:space="preserve">
+    <value>{0} non può essere scritto su MP4: {1}</value>
+  </data>
+  <data name="Error_ChapterImageTrackWithoutStbl" xml:space="preserve">
+    <value>Traccia immagine di capitolo senza stbl.</value>
+  </data>
+  <data name="Error_ChapterTrackWithoutBox" xml:space="preserve">
+    <value>Traccia capitolo senza {0}.</value>
+  </data>
+  <data name="Error_ChunkOffsetOutsideMdat" xml:space="preserve">
+    <value>L'offset del chunk {0} non punta a nessuna box di dati multimediali.</value>
+  </data>
+  <data name="Error_ExpectedOneBox" xml:space="preserve">
+    <value>Atteso un solo box, trovato {0}.</value>
+  </data>
+  <data name="Error_FlacWithoutStreamInfo" xml:space="preserve">
+    <value>Traccia FLAC senza STREAMINFO.</value>
+  </data>
+  <data name="Error_FreeBoxTooSmall" xml:space="preserve">
+    <value>Una free box necessita di almeno 8 byte.</value>
+  </data>
+  <data name="Error_InvalidBoxType" xml:space="preserve">
+    <value>Tipo di box non valido «{0}».</value>
+  </data>
+  <data name="Error_InvalidStz2FieldSize" xml:space="preserve">
+    <value>Dimensione del campo stz2 non valida: {0}.</value>
+  </data>
+  <data name="Error_MissingBox" xml:space="preserve">
+    <value>Manca {0}.</value>
+  </data>
+  <data name="Error_MoofTooLarge" xml:space="preserve">
+    <value>'moof' box all'offset {0} è troppo grande ({1} byte).</value>
+  </data>
+  <data name="Error_MoovLayout" xml:space="preserve">
+    <value>Impossibile disporre il box moov.</value>
+  </data>
+  <data name="Error_MovieHeaderLayout" xml:space="preserve">
+    <value>Impossibile disporre l'intestazione del film.</value>
+  </data>
+  <data name="Error_MuxerFinished" xml:space="preserve">
+    <value>Il multiplexer era già terminato.</value>
+  </data>
+  <data name="Error_NoBox" xml:space="preserve">
+    <value>Il file non ha un box «{0}».</value>
+  </data>
+  <data name="Error_NoDecodableFirstFrame" xml:space="preserve">
+    <value>{0} traccia senza un primo fotogramma decodificabile.</value>
+  </data>
+  <data name="Error_NoSourceFile" xml:space="preserve">
+    <value>Il documento non ha un file sorgente.</value>
+  </data>
+  <data name="Error_NotMp4" xml:space="preserve">
+    <value>Non è un file MP4: nessun box 'moov' trovato.</value>
+  </data>
+  <data name="Error_OutputNotSeekable" xml:space="preserve">
+    <value>Lo stream di uscita deve essere posizionabile e scrivibile.</value>
+  </data>
+  <data name="Error_SubtitlesCannotBeStored" xml:space="preserve">
+    <value>{0} sottotitoli non possono essere memorizzati in MP4.</value>
+  </data>
+  <data name="Error_TopLevelBoxInvalidSize" xml:space="preserve">
+    <value>Box di livello superiore «{0}» all'offset {1} ha dimensione non valida: {2}.</value>
+  </data>
+  <data name="Error_TrackFragmentTruncated" xml:space="preserve">
+    <value>Un box di frammento traccia è troncato.</value>
+  </data>
+  <data name="Error_TrackGone" xml:space="preserve">
+    <value>La traccia {0} non è più nel file.</value>
+  </data>
+  <data name="Error_TracksBeforeSamples" xml:space="preserve">
+    <value>Le tracce devono essere aggiunte prima che vengano scritti i campioni.</value>
+  </data>
+  <data name="Error_TracksCannotBeStored" xml:space="preserve">
+    <value>{0} tracce non possono essere memorizzate in MP4.</value>
+  </data>
+  <data name="Error_TrueHdWithoutMajorSync" xml:space="preserve">
+    <value>Traccia Dolby TrueHD senza un major sync nella sua prima unità di accesso.</value>
+  </data>
+  <data name="Error_TruncatedLargeSizeHeader" xml:space="preserve">
+    <value>Intestazione di grande dimensione troncata per «{0}».</value>
+  </data>
+  <data name="Error_UnexpectedEndCopying" xml:space="preserve">
+    <value>Fine del file inattesa durante la copia di «{0}».</value>
+  </data>
+  <data name="Error_VideoCannotBeStored" xml:space="preserve">
+    <value>{0} video non può essere memorizzato in MP4.</value>
+  </data>
+  <data name="Log_Av1ConfigRebuilt" xml:space="preserve">
+    <value>La traccia AV1 {0} non ha 'av1C'; la sua configurazione è stata ricostruita dal primo campione.</value>
+  </data>
+  <data name="Log_InvalidHvcC" xml:space="preserve">
+    <value>Record hvcC non valido: {0}</value>
+  </data>
+  <data name="Log_MovingMediaData" xml:space="preserve">
+    <value>Sto spostando {0} byte di dati multimediali per mettere l'intestazione del film in prima posizione.</value>
+  </data>
+  <data name="Log_UpdatedInPlace" xml:space="preserve">
+    <value>Aggiornato «{0}» sul posto.</value>
+  </data>
+  <data name="Log_Wrote" xml:space="preserve">
+    <value>Scritta «{0}».</value>
+  </data>
+  <data name="Reason_AudioNotSupported" xml:space="preserve">
+    <value>{0} audio non è supportato in MP4 dalla maggior parte dei lettori; convertilo in AAC o AC-3</value>
+  </data>
+  <data name="Reason_AvsNoSampleEntry" xml:space="preserve">
+    <value>Il video AVS (AVS1-P2 / AVS+) non ha entry di campione MP4 (nessuna è registrata), quindi non può essere memorizzato in MP4; salva come Matroska invece</value>
+  </data>
+  <data name="Reason_BitmapSubtitlesNeedOcr" xml:space="preserve">
+    <value>{0} sottotitoli bitmap non possono essere memorizzati in MP4; hanno bisogno di OCR per trasformarli in testo</value>
+  </data>
+  <data name="Reason_CannotStoreInMp4" xml:space="preserve">
+    <value>{0} non può essere memorizzato in MP4</value>
+  </data>
+  <data name="Reason_ConvertedToTx3g" xml:space="preserve">
+    <value>convertito in testo temporizzato 3GPP (tx3g)</value>
+  </data>
+  <data name="Reason_Hdr10PlusLost" xml:space="preserve">
+    <value>i suoi metadati dinamici HDR10+ sono memorizzati accanto ai fotogrammi (aggiunte blocco Matroska) e non possono essere mantenuti in MP4; verrà riprodotto come HDR10. Salva come Matroska/WebM per conservarli</value>
+  </data>
+  <data name="Reason_MissingCodecConfig" xml:space="preserve">
+    <value>la configurazione del codec è mancante</value>
+  </data>
+  <data name="Reason_PcmBitDepth" xml:space="preserve">
+    <value>{0}-bit PCM non può essere memorizzato in MP4 ('ipcm' supporta interi a 16, 24 e 32 bit e float a 32/64 bit); convertilo in LPCM</value>
+  </data>
+  <data name="Reason_VideoNoSampleEntry" xml:space="preserve">
+    <value>{0} video non ha entry di campione MP4, quindi non può essere memorizzato in MP4; salva come Matroska invece</value>
+  </data>
+</root>

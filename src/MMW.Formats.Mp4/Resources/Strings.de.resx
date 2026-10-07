@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_ChapterCount" xml:space="preserve">
+    <value>{0} Kapitel</value>
+  </data>
+  <data name="Error_AddingTracksNeedsRemux" xml:space="preserve">
+    <value>Spuren hinzufügen („{0}“) erfordert Remux, das ist noch nicht verfügbar.</value>
+  </data>
+  <data name="Error_AlacWithoutCookie" xml:space="preserve">
+    <value>ALAC-Spur ohne Magic Cookie.</value>
+  </data>
+  <data name="Error_AudioCannotBeStored" xml:space="preserve">
+    <value>{0} Audio kann nicht in MP4 gespeichert werden.</value>
+  </data>
+  <data name="Error_BoxInvalidSize" xml:space="preserve">
+    <value>Box „{0}“ bei {1} hat ungültige Größe {2}.</value>
+  </data>
+  <data name="Error_BoxTooLarge" xml:space="preserve">
+    <value>„{0}“ Box ist zu groß ({1} Bytes).</value>
+  </data>
+  <data name="Error_BoxTooLargeToBuild" xml:space="preserve">
+    <value>Box „{0}“ ist zu groß, um sie im Speicher aufzubauen.</value>
+  </data>
+  <data name="Error_BoxTypeLength" xml:space="preserve">
+    <value>Box-Typ muss 4 Zeichen haben: „{0}“.</value>
+  </data>
+  <data name="Error_CannotWriteToMp4" xml:space="preserve">
+    <value>{0} kann nicht in MP4 geschrieben werden: {1}</value>
+  </data>
+  <data name="Error_ChapterImageTrackWithoutStbl" xml:space="preserve">
+    <value>Kapitelbildspur ohne stbl.</value>
+  </data>
+  <data name="Error_ChapterTrackWithoutBox" xml:space="preserve">
+    <value>Kapitelspur ohne {0}.</value>
+  </data>
+  <data name="Error_ChunkOffsetOutsideMdat" xml:space="preserve">
+    <value>Der Chunk-Offset {0} zeigt nicht auf eine Medien-Datenbox.</value>
+  </data>
+  <data name="Error_ExpectedOneBox" xml:space="preserve">
+    <value>Eine Box erwartet, {0} gefunden.</value>
+  </data>
+  <data name="Error_FlacWithoutStreamInfo" xml:space="preserve">
+    <value>FLAC-Spur ohne STREAMINFO.</value>
+  </data>
+  <data name="Error_FreeBoxTooSmall" xml:space="preserve">
+    <value>Ein free-Box benötigt mindestens 8 Bytes.</value>
+  </data>
+  <data name="Error_InvalidBoxType" xml:space="preserve">
+    <value>Ungültiger Box-Typ „{0}“.</value>
+  </data>
+  <data name="Error_InvalidStz2FieldSize" xml:space="preserve">
+    <value>Ungültige stz2-Feldgröße {0}.</value>
+  </data>
+  <data name="Error_MissingBox" xml:space="preserve">
+    <value>{0} fehlt.</value>
+  </data>
+  <data name="Error_MoofTooLarge" xml:space="preserve">
+    <value>'moof'-Box bei Offset {0} ist zu groß ({1} Bytes).</value>
+  </data>
+  <data name="Error_MoovLayout" xml:space="preserve">
+    <value>Die moov-Box konnte nicht angeordnet werden.</value>
+  </data>
+  <data name="Error_MovieHeaderLayout" xml:space="preserve">
+    <value>Der Filmkopf konnte nicht angeordnet werden.</value>
+  </data>
+  <data name="Error_MuxerFinished" xml:space="preserve">
+    <value>Der Multiplexer wurde bereits beendet.</value>
+  </data>
+  <data name="Error_NoBox" xml:space="preserve">
+    <value>Die Datei hat keine „{0}“-Box.</value>
+  </data>
+  <data name="Error_NoDecodableFirstFrame" xml:space="preserve">
+    <value>{0}-Spur ohne decodierbares erstes Frame.</value>
+  </data>
+  <data name="Error_NoSourceFile" xml:space="preserve">
+    <value>Das Dokument hat keine Quelldatei.</value>
+  </data>
+  <data name="Error_NotMp4" xml:space="preserve">
+    <value>Keine MP4-Datei: keine 'moov'-Box gefunden.</value>
+  </data>
+  <data name="Error_OutputNotSeekable" xml:space="preserve">
+    <value>Der Ausgabedatenstrom muss suchbar und schreibbar sein.</value>
+  </data>
+  <data name="Error_SubtitlesCannotBeStored" xml:space="preserve">
+    <value>{0}-Untertitel können nicht in MP4 gespeichert werden.</value>
+  </data>
+  <data name="Error_TopLevelBoxInvalidSize" xml:space="preserve">
+    <value>Top-Level-Box „{0}“ bei Offset {1} hat ungültige Größe {2}.</value>
+  </data>
+  <data name="Error_TrackFragmentTruncated" xml:space="preserve">
+    <value>Eine Track-Fragment-Box ist abgeschnitten.</value>
+  </data>
+  <data name="Error_TrackGone" xml:space="preserve">
+    <value>Spur {0} ist nicht mehr in der Datei vorhanden.</value>
+  </data>
+  <data name="Error_TracksBeforeSamples" xml:space="preserve">
+    <value>Spuren müssen hinzugefügt werden, bevor Samples geschrieben werden.</value>
+  </data>
+  <data name="Error_TracksCannotBeStored" xml:space="preserve">
+    <value>{0} Spuren können nicht im MP4 gespeichert werden.</value>
+  </data>
+  <data name="Error_TrueHdWithoutMajorSync" xml:space="preserve">
+    <value>Dolby TrueHD-Spur ohne einen Major Sync in ihrer ersten Zugriffseinheit.</value>
+  </data>
+  <data name="Error_TruncatedLargeSizeHeader" xml:space="preserve">
+    <value>Abgeschnittener Großgrößen-Header für „{0}“.</value>
+  </data>
+  <data name="Error_UnexpectedEndCopying" xml:space="preserve">
+    <value>Unerwartetes Dateiende beim Kopieren von „{0}“.</value>
+  </data>
+  <data name="Error_VideoCannotBeStored" xml:space="preserve">
+    <value>{0}-Video kann nicht im MP4 gespeichert werden.</value>
+  </data>
+  <data name="Log_Av1ConfigRebuilt" xml:space="preserve">
+    <value>AV1-Spur {0} hat kein 'av1C'; ihre Konfiguration wurde aus dem ersten Sample neu aufgebaut.</value>
+  </data>
+  <data name="Log_InvalidHvcC" xml:space="preserve">
+    <value>Ungültiges hvcC-Record: {0}</value>
+  </data>
+  <data name="Log_MovingMediaData" xml:space="preserve">
+    <value>{0} Bytes Mediendaten werden verschoben, um die Filmheader zuerst zu platzieren.</value>
+  </data>
+  <data name="Log_UpdatedInPlace" xml:space="preserve">
+    <value>„{0}“ wurde an Ort und Stelle aktualisiert.</value>
+  </data>
+  <data name="Log_Wrote" xml:space="preserve">
+    <value>„{0}“ geschrieben.</value>
+  </data>
+  <data name="Reason_AudioNotSupported" xml:space="preserve">
+    <value>{0}-Audio wird von den meisten Playern nicht im MP4 unterstützt; konvertieren Sie es zu AAC oder AC-3</value>
+  </data>
+  <data name="Reason_AvsNoSampleEntry" xml:space="preserve">
+    <value>AVS-Video (AVS1-P2 / AVS+) hat keine MP4-Sample-Entry (keine registriert), daher kann es nicht im MP4 gespeichert werden; speichern Sie es stattdessen als Matroska</value>
+  </data>
+  <data name="Reason_BitmapSubtitlesNeedOcr" xml:space="preserve">
+    <value>{0}-Bitmap-Untertitel können nicht im MP4 gespeichert werden; sie benötigen OCR, um in Text umzuwandeln</value>
+  </data>
+  <data name="Reason_CannotStoreInMp4" xml:space="preserve">
+    <value>{0} kann nicht im MP4 gespeichert werden</value>
+  </data>
+  <data name="Reason_ConvertedToTx3g" xml:space="preserve">
+    <value>in 3GPP-Timed-Text (tx3g) konvertiert</value>
+  </data>
+  <data name="Reason_Hdr10PlusLost" xml:space="preserve">
+    <value>seine HDR10+-dynamischen Metadaten werden neben den Frames gespeichert (Matroska-Block-Additions) und können nicht im MP4 behalten werden; sie wird als HDR10 wiedergegeben. Speichern Sie es als Matroska/WebM, um sie zu erhalten</value>
+  </data>
+  <data name="Reason_MissingCodecConfig" xml:space="preserve">
+    <value>die Codec-Konfiguration fehlt</value>
+  </data>
+  <data name="Reason_PcmBitDepth" xml:space="preserve">
+    <value>{0}-Bit-PCM kann nicht im MP4 gespeichert werden ('ipcm' enthält 16-, 24- und 32-Bit-Integer sowie 32/64-Bit-Floats); konvertieren Sie es in LPCM</value>
+  </data>
+  <data name="Reason_VideoNoSampleEntry" xml:space="preserve">
+    <value>{0}-Video hat keine MP4-Sample-Entry, daher kann es nicht im MP4 gespeichert werden; speichern Sie es stattdessen als Matroska</value>
+  </data>
+</root>

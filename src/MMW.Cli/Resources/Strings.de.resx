@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Edit_Saved" xml:space="preserve">
+    <value>{0} gespeichert.</value>
+  </data>
+  <data name="Error_ActionNeedsTrack" xml:space="preserve">
+    <value>Nennen Sie die Spur, für die die Aktion gilt: --action &lt;track&gt;=&lt;name&gt; (siehe 'mmw probe' für Spuren und deren Aktionen).</value>
+  </data>
+  <data name="Error_ActionNotOffered" xml:space="preserve">
+    <value>„{0}“ wird nicht für {1} angeboten; wählen Sie eines aus: {2}.</value>
+  </data>
+  <data name="Error_ArtworkUsage" xml:space="preserve">
+    <value>Verwenden Sie --add &lt;image&gt;, --export &lt;dir&gt; oder --remove-all.</value>
+  </data>
+  <data name="Error_BoolOption" xml:space="preserve">
+    <value>--{0} akzeptiert true oder false, nicht „{1}“.</value>
+  </data>
+  <data name="Error_CannotExportRaw" xml:space="preserve">
+    <value>{0}-Spuren können nicht als Rohstrom exportiert werden.</value>
+  </data>
+  <data name="Error_CannotStore" xml:space="preserve">
+    <value>{0} kann nicht in {1} gespeichert werden; angeboten: {2}.</value>
+  </data>
+  <data name="Error_CannotStoreReason" xml:space="preserve">
+    <value>{0} kann nicht in {1} gespeichert werden: {2}; angeboten: {3}.</value>
+  </data>
+  <data name="Error_ChaptersUsage" xml:space="preserve">
+    <value>Verwenden Sie --import &lt;txt&gt;, --export &lt;txt&gt;, --every &lt;minuten&gt; oder --clear.</value>
+  </data>
+  <data name="Error_ExtractUsage" xml:space="preserve">
+    <value>Aufruf: mmw extract &lt;Datei&gt; &lt;track-ids&gt;... [Ausgabe] | mmw extract &lt;Datei&gt; --all [--output-dir Verzeichnis]</value>
+  </data>
+  <data name="Error_FileNotFound" xml:space="preserve">
+    <value>„{0}“ existiert nicht.</value>
+  </data>
+  <data name="Error_Generic" xml:space="preserve">
+    <value>Fehler: {0}</value>
+  </data>
+  <data name="Error_ImportUsage" xml:space="preserve">
+    <value>Aufruf: mmw import &lt;Datei&gt; &lt;Quelle[:Spuren]&gt;... (siehe 'mmw --help')</value>
+  </data>
+  <data name="Error_InvalidChoice" xml:space="preserve">
+    <value>„{0}“ ist kein gültiger {1}.</value>
+  </data>
+  <data name="Error_MissingFile" xml:space="preserve">
+    <value>Dateiargument fehlt.</value>
+  </data>
+  <data name="Error_NeedsFrameRate" xml:space="preserve">
+    <value>{0} benötigt --frame-rate.</value>
+  </data>
+  <data name="Error_NfoUsage" xml:space="preserve">
+    <value>Verwenden Sie --import [nfo] oder --export [nfo].</value>
+  </data>
+  <data name="Error_NoActionsKnown" xml:space="preserve">
+    <value>Keine Aktionen bekannt für {0}.</value>
+  </data>
+  <data name="Error_NoAudioInLanguage" xml:space="preserve">
+    <value>Keine Audiospur in „{0}“.</value>
+  </data>
+  <data name="Error_NoNfo" xml:space="preserve">
+    <value>.nfo-Datei neben der Mediendatei nicht gefunden.</value>
+  </data>
+  <data name="Error_NoSubtitleInLanguage" xml:space="preserve">
+    <value>Keine Untertitelspur in „{0}“.</value>
+  </data>
+  <data name="Error_NoSuchTracks" xml:space="preserve">
+    <value>{0} hat keine Spur {1}; seine Spuren sind {2}.</value>
+  </data>
+  <data name="Error_NoTitle" xml:space="preserve">
+    <value>Titel konnte nicht erraten werden; geben Sie --title an.</value>
+  </data>
+  <data name="Error_NoTrackWithId" xml:space="preserve">
+    <value>Keine Spur mit id {0}.</value>
+  </data>
+  <data name="Error_NoTrackWithIdList" xml:space="preserve">
+    <value>Keine Spur mit der ID {0}; Spuren: {1}.</value>
+  </data>
+  <data name="Error_NotAnImage" xml:space="preserve">
+    <value>„{0}“ ist kein JPEG, PNG, BMP oder GIF Bild.</value>
+  </data>
+  <data name="Error_NotAssignment" xml:space="preserve">
+    <value>„{0}“ hat nicht das Format Tag=Wert.</value>
+  </data>
+  <data name="Error_NotSubtitle" xml:space="preserve">
+    <value>{0} ist keine Untertitelspur; nur Untertitel können dupliziert werden.</value>
+  </data>
+  <data name="Error_NotTrackList" xml:space="preserve">
+    <value>„{0}“ ist keine Liste von Spurnummern (z. B. 2 oder 1,3-5).</value>
+  </data>
+  <data name="Error_NothingToSave" xml:space="preserve">
+    <value>Nichts zum Speichern.</value>
+  </data>
+  <data name="Error_OutputExtension" xml:space="preserve">
+    <value>Die Ausgabeerweiterung muss MP4 oder Matroska sein.</value>
+  </data>
+  <data name="Error_OutputForOneTrack" xml:space="preserve">
+    <value>Ein Ausgabedateiname kann nur für eine Spur angegeben werden; bei mehreren Spuren --output-dir benutzen.</value>
+  </data>
+  <data name="Error_ProbeUsage" xml:space="preserve">
+    <value>Verwendung: mmw probe &lt;Quelle&gt;... [--target mp4|mkv] [--json]</value>
+  </data>
+  <data name="Error_ProviderNeedsKey" xml:space="preserve">
+    <value>{0} benötigt einen API-Schlüssel (appsettings.json oder MMW_TMDB_API_KEY / MMW_TVDB_API_KEY).</value>
+  </data>
+  <data name="Error_ProviderUnsupported" xml:space="preserve">
+    <value>{0} unterstützt {1} nicht.</value>
+  </data>
+  <data name="Error_QueueUsage" xml:space="preserve">
+    <value>Verwenden Sie 'queue add &lt;Datei&gt;...', 'queue start', 'queue status' oder 'queue clear-completed'.</value>
+  </data>
+  <data name="Error_RemuxUsage" xml:space="preserve">
+    <value>Verwendung: mmw remux &lt;Datei&gt; &lt;output.mkv|output.m4v|…&gt; [Optionen] (siehe 'mmw --help')</value>
+  </data>
+  <data name="Error_ResultRange" xml:space="preserve">
+    <value>--result muss zwischen 1 und {0} liegen.</value>
+  </data>
+  <data name="Error_RunHelp" xml:space="preserve">
+    <value>Führen Sie 'mmw --help' für die Verwendung aus.</value>
+  </data>
+  <data name="Error_SetNeedsAssignment" xml:space="preserve">
+    <value>Geben Sie mindestens eine "Tag=Wert" Zuordnung an.</value>
+  </data>
+  <data name="Error_UnknownCommand" xml:space="preserve">
+    <value>Unbekannter Befehl „{0}“.</value>
+  </data>
+  <data name="Error_UnknownProvider" xml:space="preserve">
+    <value>Unbekannter Anbieter. Verfügbar: {0}.</value>
+  </data>
+  <data name="Error_UnknownQueueCommand" xml:space="preserve">
+    <value>Unbekannter Warteschlangenbefehl „{0}“.</value>
+  </data>
+  <data name="Error_UnknownTag" xml:space="preserve">
+    <value>Unbekanntes Tag „{0}“. Führen Sie 'mmw tag-names' für die Liste aus.</value>
+  </data>
+  <data name="Error_UnknownTarget" xml:space="preserve">
+    <value>Unbekanntes Ziel „{0}“ (verwenden Sie mp4 oder mkv).</value>
+  </data>
+  <data name="Extract_Wrote" xml:space="preserve">
+    <value>Geschrieben {0} ({1}).</value>
+  </data>
+  <data name="Help_Usage" xml:space="preserve">
+    <value>Usage: mmw &lt;command&gt; [arguments]
+
+  info &lt;file&gt; [--json]                 Spuren, Tags und Kapitel anzeigen
+  tags &lt;file&gt; [--json]                 Tags auflisten
+  set &lt;file&gt; "Tag=value"...            Tags setzen (leerer Wert entfernt den Tag)
+  clear-tags &lt;file&gt;                    Alle Tags und Cover entfernen
+  artwork &lt;file&gt; --add &lt;image&gt;... [--replace] | --export &lt;dir&gt; | --remove-all
+  chapters &lt;file&gt; --import &lt;txt&gt; | --export &lt;txt&gt; | --every &lt;minutes&gt; | --clear
+  tracks &lt;file&gt; [--organize-groups] [--fix-fallbacks] [--clear-names] [--prettify-audio-names]
+                [--complete-languages &lt;lang&gt;] [--enable-audio &lt;lang&gt;] [--enable-subtitles &lt;lang&gt;]
+                [--track &lt;id&gt; --name &lt;name&gt; --language &lt;lang&gt; --enabled &lt;true|false&gt;]
+                [--action &lt;id&gt;=&lt;action&gt;] [--duplicate &lt;id&gt;=&lt;action&gt;] [--forced|--default &lt;id&gt;=&lt;bool&gt;]
+                                       Spuren bearbeiten; Aktionen und Duplikate remuxen die Datei beim Speichern
+  queue add &lt;file&gt;... | queue start | queue status | queue clear-completed
+                                       Verwenden Sie die gespeicherte Warteschlange des Editors (und deren Optionen)
+  search &lt;file&gt; [--title t] [--year y] [--season n] [--episode n] [--provider p] [--language l]
+                [--apply [--result n] [--artwork poster|season|episode|backdrop|none]]
+                                       Online-Metadaten suchen; --apply schreibt das gewählte Ergebnis
+  nfo &lt;file&gt; --import [nfo] | --export [nfo]
+                                       Tags aus einer Kodi .nfo zusammenführen oder eine schreiben
+  probe &lt;source&gt;... [--target mp4|mkv] [--json]
+                                       Spuren eines Files und die für jede angebotenen Aktionen auflisten
+                                       (* = empfohlen), für MP4 und Matroska
+  import &lt;file&gt; &lt;source[:tracks]&gt;... [--track [n:]&lt;tracks&gt;] [--only video|audio|subtitle]
+                [--action [&lt;track&gt;=]&lt;action&gt;] [--language [&lt;track&gt;=]&lt;lang&gt;] [--name &lt;track&gt;=&lt;name&gt;]
+                [--forced|--default|--enabled &lt;track&gt;=&lt;bool&gt;] [--ocr-language [&lt;track&gt;=]&lt;lang&gt;]
+                [--frame-rate [&lt;track&gt;=]&lt;fps&gt;] [--duplicate &lt;track&gt;=&lt;action&gt;] [--dry-run]
+                                       Spuren aus anderen Dateien hinzufügen (remuxen beim Speichern). Wählen Sie
+                                       Spuren mit "movie.mkv:2,4-5" oder --track; ohne, werden alle möglichen Spuren
+                                       mit ihrer empfohlenen Aktion übernommen
+  remux &lt;file&gt; &lt;output&gt; [--track &lt;ids&gt;] [--action &lt;id&gt;=&lt;action&gt;] [--duplicate &lt;id&gt;=&lt;action&gt;]
+                [--name|--language &lt;id&gt;=&lt;value&gt;] [--forced|--default|--enabled &lt;id&gt;=&lt;bool&gt;]
+                [--drop-unsupported] [--dry-run]
+                                       Als MP4 oder Matroska neu schreiben (nach Erweiterung); Spuren, die das Ziel
+                                       nicht aufnehmen kann, erhalten ihre empfohlene Konvertierung
+                                       (--drop-unsupported lässt sie weg)
+  extract &lt;file&gt; &lt;track-ids&gt;... [output] | extract &lt;file&gt; --all [--output-dir &lt;dir&gt;]
+                                       Spuren als rohe Streams schreiben (.h264, .aac, .flac, .srt …)
+  tag-names                            Namen der von "set" akzeptierten Tags auflisten
+
+Spuren sind die Nummern, die "info" oder "probe" anzeigen; bei mehreren Importquellen bezeichnet "&lt;n&gt;:&lt;track&gt;"
+die Spur &lt;track&gt; der Quelle &lt;n&gt; (gezählt ab 1). Aktionen: copy, aac, aac-stereo, aac-mono, aac-dpl2,
+aac-dpl, aac-multichannel, ac3, aac+copy, aac+ac3, pcm, alac, tx3g, srt, ass, ssa, webvtt, tx3g-ocr,
+srt-ocr, skip, wie "probe" sie für jede Spur anbietet.
+
+Alle Bearbeitungskommando speichern die Datei an Ort und Stelle oder in --output &lt;Pfad&gt;, wenn angegeben (--optimize für schnellen Start); --dry-run gibt aus, was ohne Speichern geschehen würde.</value>
+  </data>
+  <data name="Import_Done" xml:space="preserve">
+    <value>{0} Spur(en) in {1} importiert.</value>
+  </data>
+  <data name="Import_Nothing" xml:space="preserve">
+    <value>Nichts zu importieren.</value>
+  </data>
+  <data name="Import_Skipping" xml:space="preserve">
+    <value>Überspringe {0} Spur {1}: {2}</value>
+  </data>
+  <data name="Info_Artwork" xml:space="preserve">
+    <value>Cover: {0} Bild(er)</value>
+  </data>
+  <data name="Info_Chapters" xml:space="preserve">
+    <value>Kapitel ({0}):</value>
+  </data>
+  <data name="Info_Tags" xml:space="preserve">
+    <value>Tags:</value>
+  </data>
+  <data name="Info_TrackOff" xml:space="preserve">
+    <value>aus</value>
+  </data>
+  <data name="Info_TrackOn" xml:space="preserve">
+    <value>ein</value>
+  </data>
+  <data name="Nfo_Imported" xml:space="preserve">
+    <value>Tags in {0} importiert.</value>
+  </data>
+  <data name="Output_Wrote" xml:space="preserve">
+    <value>Geschrieben {0}.</value>
+  </data>
+  <data name="Plan_Dropping" xml:space="preserve">
+    <value>Verwerfe Spur {0} ({1}): {2}</value>
+  </data>
+  <data name="Plan_Duplicated" xml:space="preserve">
+    <value>{0} Spur {1}: dupliziert → {2}</value>
+  </data>
+  <data name="Plan_Import" xml:space="preserve">
+    <value>{0} Spur {1}: {2} {3} ({4}) → {5}</value>
+  </data>
+  <data name="Plan_LeavingOut" xml:space="preserve">
+    <value>Überspringe {0}</value>
+  </data>
+  <data name="Probe_Legend" xml:space="preserve">
+    <value>(* = empfohlen; geben Sie eine weitere mit --action &lt;track&gt;=&lt;name&gt; an)</value>
+  </data>
+  <data name="Probe_NoTracks" xml:space="preserve">
+    <value>keine Spuren</value>
+  </data>
+  <data name="Queue_Added" xml:space="preserve">
+    <value>{0} Element(e) hinzugefügt; {1} in der Warteschlange.</value>
+  </data>
+  <data name="Remux_Warning" xml:space="preserve">
+    <value>Warnung: Spur {0} ({1}): {2}</value>
+  </data>
+  <data name="Search_Applied" xml:space="preserve">
+    <value>„{0}“ von {1} auf {2} angewendet.</value>
+  </data>
+  <data name="Search_NoResults" xml:space="preserve">
+    <value>Keine Ergebnisse von {0} für {1}.</value>
+  </data>
+  <data name="Track_OfFile" xml:space="preserve">
+    <value>{0} Spur {1} ({2})</value>
+  </data>
+  <data name="Track_Short" xml:space="preserve">
+    <value>Spur {0} ({1})</value>
+  </data>
+</root>

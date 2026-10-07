@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_Text" xml:space="preserve">
+    <value>文本</value>
+  </data>
+  <data name="Details_TextOcr" xml:space="preserve">
+    <value>文本 (OCR)</value>
+  </data>
+  <data name="Error_NoMuxer" xml:space="preserve">
+    <value>未为 {0} 注册封装器。</value>
+  </data>
+  <data name="Error_TrackHasNoSource" xml:space="preserve">
+    <value>轨道“{0}”（{1}）没有源文件。</value>
+  </data>
+  <data name="Error_TrackNotInDocument" xml:space="preserve">
+    <value>轨道“{0}”不属于文档。</value>
+  </data>
+  <data name="Log_AudioCheckFailed" xml:space="preserve">
+    <value>音频检查轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_ColourScanFailed" xml:space="preserve">
+    <value>颜色扫描轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_DolbyVisionCheckFailed" xml:space="preserve">
+    <value>Dolby Vision 检查轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_DolbyVisionRebuilt" xml:space="preserve">
+    <value>在轨道 {2} 的比特流中发现 Dolby Vision {0}（级别 {1}）；其配置已重建。</value>
+  </data>
+  <data name="Log_DtsCheckFailed" xml:space="preserve">
+    <value>DTS 检查轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_Hdr10PlusCheckFailed" xml:space="preserve">
+    <value>HDR10+ 检查轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_HdrVividCheckFailed" xml:space="preserve">
+    <value>HDR Vivid 检查轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_MpegAudioCheckFailed" xml:space="preserve">
+    <value>MPEG 音频检查轨道 {0} 失败：{1}</value>
+  </data>
+  <data name="Log_OpusCheckFailed" xml:space="preserve">
+    <value>Opus 检查轨道 {0} 失败：{1}</value>
+  </data>
+</root>

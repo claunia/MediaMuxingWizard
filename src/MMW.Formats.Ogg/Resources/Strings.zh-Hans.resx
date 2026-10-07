@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_InvalidOggFlacMapping" xml:space="preserve">
+    <value>无效的 Ogg FLAC 映射头。</value>
+  </data>
+  <data name="Error_InvalidVorbisSetup" xml:space="preserve">
+    <value>无效的 Vorbis 设置头。</value>
+  </data>
+  <data name="Error_NoSupportedStream" xml:space="preserve">
+    <value>‘{0}’ 没有 Opus、Vorbis 或 FLAC 流。</value>
+  </data>
+  <data name="Error_VorbisMissingHeaders" xml:space="preserve">
+    <value>缺少三条头的 Vorbis 流。</value>
+  </data>
+  <data name="Error_VorbisModesNotFound" xml:space="preserve">
+    <value>未找到 Vorbis 设置头模式。</value>
+  </data>
+  <data name="Kind_Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Log_StreamError" xml:space="preserve">
+    <value>Ogg 流 {0:X8}：{1}</value>
+  </data>
+  <data name="Log_UnsupportedStream" xml:space="preserve">
+    <value>不支持 Ogg 流 {0:X8}（{1}）。</value>
+  </data>
+</root>

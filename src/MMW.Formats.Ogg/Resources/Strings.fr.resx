@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_InvalidOggFlacMapping" xml:space="preserve">
+    <value>En-tête de mappage Ogg FLAC invalide.</value>
+  </data>
+  <data name="Error_InvalidVorbisSetup" xml:space="preserve">
+    <value>En-tête de configuration Vorbis invalide.</value>
+  </data>
+  <data name="Error_NoSupportedStream" xml:space="preserve">
+    <value>« {0} » ne possède aucun flux Opus, Vorbis ou FLAC.</value>
+  </data>
+  <data name="Error_VorbisMissingHeaders" xml:space="preserve">
+    <value>Flux Vorbis sans ses trois en-têtes.</value>
+  </data>
+  <data name="Error_VorbisModesNotFound" xml:space="preserve">
+    <value>Modes de l’en-tête de configuration Vorbis non trouvés.</value>
+  </data>
+  <data name="Kind_Unknown" xml:space="preserve">
+    <value>inconnu</value>
+  </data>
+  <data name="Log_StreamError" xml:space="preserve">
+    <value>Flux Ogg {0:X8} : {1}</value>
+  </data>
+  <data name="Log_UnsupportedStream" xml:space="preserve">
+    <value>Le flux Ogg {0:X8} ({1}) n'est pas pris en charge.</value>
+  </data>
+</root>

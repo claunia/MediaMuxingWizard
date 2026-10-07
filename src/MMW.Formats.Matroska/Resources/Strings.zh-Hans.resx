@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Change_AddingTracks" xml:space="preserve">
+    <value>向 Matroska 文件添加轨道</value>
+  </data>
+  <data name="Change_RemovingTracks" xml:space="preserve">
+    <value>从 Matroska 文件中移除或替换轨道</value>
+  </data>
+  <data name="Change_ReorderingTracks" xml:space="preserve">
+    <value>重排 Matroska 文件的轨道</value>
+  </data>
+  <data name="Error_CannotWriteToMatroska" xml:space="preserve">
+    <value>{0} 不能写入 Matroska：{1}</value>
+  </data>
+  <data name="Error_CompressedTracks" xml:space="preserve">
+    <value>不支持使用 bzlib 或 LZO 压缩的 Matroska 轨道。</value>
+  </data>
+  <data name="Error_ElementPastEndOfFile" xml:space="preserve">
+    <value>元素 0x{0:X} 位于偏移 {1}，超出文件末尾。</value>
+  </data>
+  <data name="Error_ElementPastEndOfSegment" xml:space="preserve">
+    <value>元素 0x{0:X} 位于偏移 {1}，超出 Segment 末尾。</value>
+  </data>
+  <data name="Error_ElementTooLargeToLoad" xml:space="preserve">
+    <value>位于偏移 {1} 的 {0} 字节元素过大，无法加载。</value>
+  </data>
+  <data name="Error_ElementUnknownSize" xml:space="preserve">
+    <value>元素 0x{0:X} 位于偏移 {1}，大小未知。</value>
+  </data>
+  <data name="Error_EncryptedTracks" xml:space="preserve">
+    <value>不支持加密的 Matroska 轨道。</value>
+  </data>
+  <data name="Error_FileGone" xml:space="preserve">
+    <value>文件已不存在。</value>
+  </data>
+  <data name="Error_FloatSize" xml:space="preserve">
+    <value>浮点元素 {0} 字节。</value>
+  </data>
+  <data name="Error_IdTooLong" xml:space="preserve">
+    <value>不支持长度超过 4 字节的 EBML ID。</value>
+  </data>
+  <data name="Error_ImplausiblyLargeElement" xml:space="preserve">
+    <value>元素 0x{0:X} 位于偏移 {1}，异常大（{2} 字节）。</value>
+  </data>
+  <data name="Error_InternalElementMove" xml:space="preserve">
+    <value>内部错误：元素 0x{0:X} 将从 {1} 移动到 {2}。</value>
+  </data>
+  <data name="Error_InvalidBlockLacing" xml:space="preserve">
+    <value>无效的块拼接。</value>
+  </data>
+  <data name="Error_InvalidEbmlLacing" xml:space="preserve">
+    <value>无效的 EBML 拼接。</value>
+  </data>
+  <data name="Error_LongIdsOrSizes" xml:space="preserve">
+    <value>不支持长度超过 4 字节的 EBML ID 或长度超过 8 字节的大小。</value>
+  </data>
+  <data name="Error_ModifiedExternally" xml:space="preserve">
+    <value>“{0}” 自打开以来已被其他应用程序修改；请在保存前重新打开它。</value>
+  </data>
+  <data name="Error_MuxerFinished" xml:space="preserve">
+    <value>封装器已完成。</value>
+  </data>
+  <data name="Error_NoFileToUpdate" xml:space="preserve">
+    <value>文档没有可更新的文件。</value>
+  </data>
+  <data name="Error_NoSeekHeadSpace" xml:space="preserve">
+    <value>文件缺少 SeekHead 且无空闲空间添加，导致移至文件末尾的元素无法找到。</value>
+  </data>
+  <data name="Error_NoSegment" xml:space="preserve">
+    <value>文件不包含 Matroska Segment。</value>
+  </data>
+  <data name="Error_NotEbml" xml:space="preserve">
+    <value>该文件不是 EBML（Matroska/WebM）文件。</value>
+  </data>
+  <data name="Error_NotEditableInPlace" xml:space="preserve">
+    <value>无法原地编辑此文件：{0}</value>
+  </data>
+  <data name="Error_NotWebM" xml:space="preserve">
+    <value>{0} 无法存储为 WebM（仅支持 VP8、VP9、AV1、AV2、Opus、Vorbis 和 WebVTT）；请另存为 .mkv。</value>
+  </data>
+  <data name="Error_OutputNotSeekable" xml:space="preserve">
+    <value>输出流必须可寻址且可写。</value>
+  </data>
+  <data name="Error_RequiresRemux" xml:space="preserve">
+    <value>{0} 需要重新封装。</value>
+  </data>
+  <data name="Error_SeekHeadNoFit" xml:space="preserve">
+    <value>SeekHead 不适合其预留空间。</value>
+  </data>
+  <data name="Error_SeekHeadTooSmall" xml:space="preserve">
+    <value>文件的 SeekHead 太小，无法原地更新。</value>
+  </data>
+  <data name="Error_SegmentCannotGrow" xml:space="preserve">
+    <value>无法原地编辑此文件：Matroska Segment 后有数据，因此无法增长。</value>
+  </data>
+  <data name="Error_SignedIntegerSize" xml:space="preserve">
+    <value>带符号整数元素大小为 {0} 字节。</value>
+  </data>
+  <data name="Error_SizeLength" xml:space="preserve">
+    <value>EBML 大小长度为 1 至 8 字节。</value>
+  </data>
+  <data name="Error_TracksBeforeSamples" xml:space="preserve">
+    <value>必须在写入样本之前添加轨道。</value>
+  </data>
+  <data name="Error_UnexpectedEndAt" xml:space="preserve">
+    <value>文件意外结束，偏移 {0}。</value>
+  </data>
+  <data name="Error_UnknownSize" xml:space="preserve">
+    <value>元素大小未知。</value>
+  </data>
+  <data name="Error_UnsignedIntegerSize" xml:space="preserve">
+    <value>无符号整数元素大小为 {0} 字节。</value>
+  </data>
+  <data name="Error_UnsupportedDocType" xml:space="preserve">
+    <value>不支持的 EBML 文档类型 “{0}”。</value>
+  </data>
+  <data name="Error_ValueDoesNotFitSize" xml:space="preserve">
+    <value>值无法适配 {0}-字节 EBML 大小。</value>
+  </data>
+  <data name="Error_ValueTooLargeForSize" xml:space="preserve">
+    <value>值过大，超出 EBML 大小范围。</value>
+  </data>
+  <data name="Error_VoidLength" xml:space="preserve">
+    <value>无法编码此长度的 Void 元素。</value>
+  </data>
+  <data name="Error_VoidTooSmall" xml:space="preserve">
+    <value>Void 元素至少需要 2 字节。</value>
+  </data>
+  <data name="Log_Av1ConfigRebuilt" xml:space="preserve">
+    <value>AV1 轨道 {0} 没有 CodecPrivate；其配置已从第一帧重建。</value>
+  </data>
+  <data name="Log_MuxerSummary" xml:space="preserve">
+    <value>Matroska 封装器写入了 {0} 条轨道，{1} 个提示点。</value>
+  </data>
+  <data name="Reason_BigEndianFloatPcm" xml:space="preserve">
+    <value>大端浮点 PCM 不能存储在 Matroska 中。</value>
+  </data>
+  <data name="Reason_CannotStoreInMatroska" xml:space="preserve">
+    <value>{0} 无法存储在 Matroska 中。</value>
+  </data>
+  <data name="Reason_ConvertedToAss" xml:space="preserve">
+    <value>转换为 Advanced SubStation Alpha（S_TEXT/ASS），保留其样式、位置和卡拉OK。</value>
+  </data>
+  <data name="Reason_EvcNoCodecId" xml:space="preserve">
+    <value>MPEG-5 EVC 没有 Matroska 编解码器 ID（Matroska 规范或其他工具均未定义），因此无法存储在 Matroska 中；请改为保存为 MP4。</value>
+  </data>
+  <data name="ScanProblem_InvalidElement" xml:space="preserve">
+    <value>偏移 {0} 处元素无效或已截断。</value>
+  </data>
+  <data name="ScanProblem_Truncated" xml:space="preserve">
+    <value>文件被截断（Segment 超出文件末尾）。</value>
+  </data>
+  <data name="ScanProblem_UnexpectedEbmlHeader" xml:space="preserve">
+    <value>偏移 {0} 处出现意外的 EBML 标头。</value>
+  </data>
+  <data name="ScanProblem_UnexpectedSegment" xml:space="preserve">
+    <value>偏移 {0} 处出现意外的 Segment。</value>
+  </data>
+</root>

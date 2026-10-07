@@ -30,7 +30,7 @@ public partial class LocalizationTests
     [GeneratedRegex(@"\{(\d+)(?:,-?\d+)?(?::[^{}]*)?\}")]
     private static partial Regex PlaceholderRegex();
 
-    public static TheoryData<string> Translations => ["Strings.es.resx"];
+    public static TheoryData<string> Translations => ["Strings.de.resx", "Strings.es.resx", "Strings.fr.resx", "Strings.it.resx", "Strings.pt-BR.resx", "Strings.zh-Hans.resx"];
 
     [Theory]
     [MemberData(nameof(Translations))]

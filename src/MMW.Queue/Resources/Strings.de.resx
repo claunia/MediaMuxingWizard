@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action_ApplyColorSpace" xml:space="preserve">
+    <value>Farbraum {0}-{1}-{2} anwenden</value>
+  </data>
+  <data name="Action_ApplySet" xml:space="preserve">
+    <value>Set „{0}“ anwenden</value>
+  </data>
+  <data name="Action_ClearMetadata" xml:space="preserve">
+    <value>Vorhandene Metadaten löschen</value>
+  </data>
+  <data name="Action_ClearTrackNames" xml:space="preserve">
+    <value>Spurnamen löschen</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>Spursprachen vervollständigen ({0})</value>
+  </data>
+  <data name="Action_EnableAudio" xml:space="preserve">
+    <value>Audiospur in {0} aktivieren</value>
+  </data>
+  <data name="Action_EnableSubtitles" xml:space="preserve">
+    <value>Untertitelspur in {0} aktivieren</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>Audio-Ausweichspuren korrigieren</value>
+  </data>
+  <data name="Action_ImportChaptersFile" xml:space="preserve">
+    <value>Kapitel aus einer .txt-Datei neben der Quelle laden</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>Alternative Gruppen organisieren</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>Audiospurnamen verschönern</value>
+  </data>
+  <data name="Action_RenameChapters" xml:space="preserve">
+    <value>Kapitel umbenennen</value>
+  </data>
+  <data name="Action_SetOutputFileName" xml:space="preserve">
+    <value>Ausgabedateinamen festlegen</value>
+  </data>
+  <data name="Error_DestinationExists" xml:space="preserve">
+    <value>„{0}“ existiert bereits.</value>
+  </data>
+  <data name="Error_NoWriter" xml:space="preserve">
+    <value>Kein Writer für {0} vorhanden.</value>
+  </data>
+  <data name="Log_ChaptersLoaded" xml:space="preserve">
+    <value>{0} Kapitel aus {1} geladen.</value>
+  </data>
+  <data name="Log_CouldNotReadQueue" xml:space="preserve">
+    <value>Die gespeicherte Warteschlange konnte nicht gelesen werden</value>
+  </data>
+  <data name="Log_ItemDone" xml:space="preserve">
+    <value>Warteschlange: {0} → {1}</value>
+  </data>
+  <data name="Log_ItemFailed" xml:space="preserve">
+    <value>Warteschlange: {0} fehlgeschlagen</value>
+  </data>
+  <data name="Log_ItemFailedDetail" xml:space="preserve">
+    <value>Fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Log_NoAudioTrack" xml:space="preserve">
+    <value>Keine Audiospur in {0}.</value>
+  </data>
+  <data name="Log_NoSubtitleTrack" xml:space="preserve">
+    <value>Keine Untertitelspur in {0}.</value>
+  </data>
+  <data name="Log_Opened" xml:space="preserve">
+    <value>{0} geöffnet.</value>
+  </data>
+  <data name="Log_Saved" xml:space="preserve">
+    <value>{0} gespeichert.</value>
+  </data>
+  <data name="Power_ProcessingQueue" xml:space="preserve">
+    <value>Verarbeite die Warteschlange</value>
+  </data>
+</root>

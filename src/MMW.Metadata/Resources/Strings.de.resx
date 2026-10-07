@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ApiKeys_CouldNotRead" xml:space="preserve">
+    <value>API-Schlüssel konnten nicht aus {0} gelesen werden: {1}</value>
+  </data>
+  <data name="ApiKeys_Malformed" xml:space="preserve">
+    <value>Ungültige API-Schlüsseldatei {0} wird ignoriert: {1}</value>
+  </data>
+  <data name="Artwork_DownloadFailed" xml:space="preserve">
+    <value>Herunterladen des Covers fehlgeschlagen: {0}</value>
+  </data>
+  <data name="Artwork_DownloadFailedStatus" xml:space="preserve">
+    <value>Herunterladen des Covers fehlgeschlagen: {0} {1} für {2}</value>
+  </data>
+  <data name="Artwork_LargerThanLimit" xml:space="preserve">
+    <value>Cover ist größer als die {0}-Byte-Grenze.</value>
+  </data>
+  <data name="Artwork_TooLarge" xml:space="preserve">
+    <value>Cover ist zu groß ({0} Bytes, Grenze {1}).</value>
+  </data>
+  <data name="Artwork_UnknownType" xml:space="preserve">
+    <value>unbekannter Typ</value>
+  </data>
+  <data name="Artwork_UnsupportedFormat" xml:space="preserve">
+    <value>Nicht unterstütztes Bildformat von {0} ({1}).</value>
+  </data>
+  <data name="ITunes_StorefrontsMissing" xml:space="preserve">
+    <value>Ressource storefronts.json fehlt.</value>
+  </data>
+  <data name="Map_CannotStore" xml:space="preserve">
+    <value>Metadaten-Map: „{0}“ kann nicht in {1} gespeichert werden: {2}</value>
+  </data>
+  <data name="Map_Empty" xml:space="preserve">
+    <value>Leere Metadatenzuordnung.</value>
+  </data>
+  <data name="Map_InvalidFile" xml:space="preserve">
+    <value>Die Datei der Metadatenzuordnungen {0} ist ungültig, Standardwerte werden verwendet: {1}</value>
+  </data>
+  <data name="Nfo_Ignoring" xml:space="preserve">
+    <value>Ignoriere NFO-Datei {0}: {1}</value>
+  </data>
+  <data name="Nfo_InvalidXml" xml:space="preserve">
+    <value>Die NFO-Datei ist kein gültiges XML: {0}</value>
+  </data>
+  <data name="Nfo_NoRoot" xml:space="preserve">
+    <value>Die NFO-Datei hat kein Wurzelelement.</value>
+  </data>
+  <data name="Nfo_NoXml" xml:space="preserve">
+    <value>Die NFO-Datei enthält kein XML.</value>
+  </data>
+  <data name="Nfo_UnsupportedRoot" xml:space="preserve">
+    <value>Nicht unterstütztes NFO-Wurzelelement &lt;{0}&gt;.</value>
+  </data>
+  <data name="Provider_HttpError" xml:space="preserve">
+    <value>{0}: {1} {2} für {3}</value>
+  </data>
+  <data name="Provider_NoApiKey" xml:space="preserve">
+    <value>{0}: kein API-Schlüssel konfiguriert (in appsettings.json, {1} oder Einstellungen festlegen).</value>
+  </data>
+  <data name="Provider_OpLoadDetails" xml:space="preserve">
+    <value>Details laden</value>
+  </data>
+  <data name="Provider_OpMovieSearch" xml:space="preserve">
+    <value>Filmsuche</value>
+  </data>
+  <data name="Provider_OpSeriesNameSearch" xml:space="preserve">
+    <value>Seriennamensuche</value>
+  </data>
+  <data name="Provider_OpTvSearch" xml:space="preserve">
+    <value>TV-Suche</value>
+  </data>
+  <data name="Provider_OperationFailed" xml:space="preserve">
+    <value>{0}: {1} fehlgeschlagen: {2}</value>
+  </data>
+  <data name="Provider_SeasonNotFound" xml:space="preserve">
+    <value>{0}: Staffel {1} von {2} nicht gefunden.</value>
+  </data>
+  <data name="Search_IgnoringRecentSearches" xml:space="preserve">
+    <value>Ignoriere nicht lesbare Datei mit zuletzt gesuchten Einträgen: {0}</value>
+  </data>
+  <data name="Tvdb_NoToken" xml:space="preserve">
+    <value>TheTVDB-Login hat keinen Token zurückgegeben.</value>
+  </data>
+</root>

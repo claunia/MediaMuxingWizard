@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_Text" xml:space="preserve">
+    <value>Texte</value>
+  </data>
+  <data name="Details_TextOcr" xml:space="preserve">
+    <value>Texte (OCR)</value>
+  </data>
+  <data name="Error_NoMuxer" xml:space="preserve">
+    <value>Aucun multiplexeur n’est enregistré pour {0}.</value>
+  </data>
+  <data name="Error_TrackHasNoSource" xml:space="preserve">
+    <value>La piste «{0}» ({1}) n’a pas de fichier source.</value>
+  </data>
+  <data name="Error_TrackNotInDocument" xml:space="preserve">
+    <value>La piste «{0}» ne fait pas partie du document.</value>
+  </data>
+  <data name="Log_AudioCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification audio de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_ColourScanFailed" xml:space="preserve">
+    <value>Échec de l’analyse couleur de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_DolbyVisionCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification Dolby Vision de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_DolbyVisionRebuilt" xml:space="preserve">
+    <value>Dolby Vision {0} (niveau {1}) trouvé dans le flux binaire de la piste {2} ; sa configuration a été reconstruite.</value>
+  </data>
+  <data name="Log_DtsCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification DTS de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_Hdr10PlusCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification HDR10+ de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_HdrVividCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification HDR Vivid de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_MpegAudioCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification audio MPEG de la piste {0} : {1}</value>
+  </data>
+  <data name="Log_OpusCheckFailed" xml:space="preserve">
+    <value>Échec de la vérification Opus de la piste {0} : {1}</value>
+  </data>
+</root>

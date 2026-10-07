@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Characteristic_AuxiliaryContent" xml:space="preserve">
+    <value>辅助内容</value>
+  </data>
+  <data name="Characteristic_DescribesMusic" xml:space="preserve">
+    <value>描述音乐和声音</value>
+  </data>
+  <data name="Characteristic_DescribesVideo" xml:space="preserve">
+    <value>描述视频</value>
+  </data>
+  <data name="Characteristic_Dubbed" xml:space="preserve">
+    <value>配音翻译</value>
+  </data>
+  <data name="Characteristic_EasyToRead" xml:space="preserve">
+    <value>易于阅读</value>
+  </data>
+  <data name="Characteristic_EnhancesSpeech" xml:space="preserve">
+    <value>提升语音可懂度</value>
+  </data>
+  <data name="Characteristic_ForcedOnly" xml:space="preserve">
+    <value>仅强制</value>
+  </data>
+  <data name="Characteristic_MainProgramContent" xml:space="preserve">
+    <value>主要内容</value>
+  </data>
+  <data name="Characteristic_OriginalContent" xml:space="preserve">
+    <value>原始内容</value>
+  </data>
+  <data name="Characteristic_TranscribesDialog" xml:space="preserve">
+    <value>转录对话（SDH）</value>
+  </data>
+  <data name="Characteristic_Translation" xml:space="preserve">
+    <value>翻译</value>
+  </data>
+  <data name="Characteristic_VoiceOver" xml:space="preserve">
+    <value>画外音翻译</value>
+  </data>
+  <data name="Choice_AacMono" xml:space="preserve">
+    <value>AAC - 单声道</value>
+  </data>
+  <data name="Choice_AacMultichannel" xml:space="preserve">
+    <value>AAC - 多声道</value>
+  </data>
+  <data name="Choice_AacStereo" xml:space="preserve">
+    <value>AAC - 立体声</value>
+  </data>
+  <data name="Choice_NotAvailable" xml:space="preserve">
+    <value>不可用</value>
+  </data>
+  <data name="Choice_Skip" xml:space="preserve">
+    <value>跳过</value>
+  </data>
+  <data name="Color_Implicit" xml:space="preserve">
+    <value>缺省</value>
+  </data>
+  <data name="Color_Undefined" xml:space="preserve">
+    <value>未定义 ({0})</value>
+  </data>
+  <data name="Detail_BitDepth" xml:space="preserve">
+    <value>{0}-位</value>
+  </data>
+  <data name="Detail_DiracProfile" xml:space="preserve">
+    <value>{0}@L{1}，版本 {2}</value>
+  </data>
+  <data name="Detail_DivXBuild" xml:space="preserve">
+    <value>DivX {0} 构建 {1}</value>
+  </data>
+  <data name="Detail_DualChannel" xml:space="preserve">
+    <value>双通道</value>
+  </data>
+  <data name="Detail_Fullband" xml:space="preserve">
+    <value>全频段</value>
+  </data>
+  <data name="Detail_ImmersiveObjectBased" xml:space="preserve">
+    <value>沉浸式基于对象</value>
+  </data>
+  <data name="Detail_Interlaced" xml:space="preserve">
+    <value>交错</value>
+  </data>
+  <data name="Detail_JointStereo" xml:space="preserve">
+    <value>联合立体声</value>
+  </data>
+  <data name="Detail_MediumBand" xml:space="preserve">
+    <value>中频段</value>
+  </data>
+  <data name="Detail_MpegQuantisation" xml:space="preserve">
+    <value>MPEG 量化</value>
+  </data>
+  <data name="Detail_Narrowband" xml:space="preserve">
+    <value>窄带</value>
+  </data>
+  <data name="Detail_NoMd5" xml:space="preserve">
+    <value>无 MD5</value>
+  </data>
+  <data name="Detail_ObjectBased" xml:space="preserve">
+    <value>基于对象</value>
+  </data>
+  <data name="Detail_OpusHybrid" xml:space="preserve">
+    <value>混合</value>
+  </data>
+  <data name="Detail_OpusSummary" xml:space="preserve">
+    <value>{0}，{1}，{2} 帧</value>
+  </data>
+  <data name="Detail_Presentations" xml:space="preserve">
+    <value>{0}，{1} 个演示</value>
+  </data>
+  <data name="Detail_Range" xml:space="preserve">
+    <value>{0} 到 {1}</value>
+  </data>
+  <data name="Detail_SampleBlocks" xml:space="preserve">
+    <value>{0}-样本块</value>
+  </data>
+  <data name="Detail_SuperWideband" xml:space="preserve">
+    <value>超宽带</value>
+  </data>
+  <data name="Detail_Wideband" xml:space="preserve">
+    <value>宽带</value>
+  </data>
+  <data name="Detail_XvidBuild" xml:space="preserve">
+    <value>Xvid 构建 {0}</value>
+  </data>
+  <data name="Error_Av2NoSequenceHeader" xml:space="preserve">
+    <value>AV2 流未以序列头开始。</value>
+  </data>
+  <data name="Error_Av2ObuCount" xml:space="preserve">
+    <value>AV2 配置需要 1 至 256 个 OBU。</value>
+  </data>
+  <data name="Error_CannotConvertText" xml:space="preserve">
+    <value>{0} 无法转换为 {1}。</value>
+  </data>
+  <data name="Error_CannotExportRaw" xml:space="preserve">
+    <value>{0} 轨道无法导出为原始文件。</value>
+  </data>
+  <data name="Error_DestinationTooSmall" xml:space="preserve">
+    <value>目标路径过小，无法容纳样本。</value>
+  </data>
+  <data name="Error_DmlpNeedsMajorSync" xml:space="preserve">
+    <value>dmlp 包由带有主同步的访问单元构建。</value>
+  </data>
+  <data name="Error_DolbyVisionRecordTooShort" xml:space="preserve">
+    <value>Dolby Vision 配置记录太短。</value>
+  </data>
+  <data name="Error_EvcNeedsSps" xml:space="preserve">
+    <value>EVC 配置需要 SPS。</value>
+  </data>
+  <data name="Error_EvcTemporalIdBeyondSubGop" xml:space="preserve">
+    <value>EVC 临时 ID 超出子 GOP 结构。</value>
+  </data>
+  <data name="Error_ExpectedIntPair" xml:space="preserve">
+    <value>期望 IntPair。</value>
+  </data>
+  <data name="Error_ExpectedStringList" xml:space="preserve">
+    <value>期望字符串列表，得到 {0}。</value>
+  </data>
+  <data name="Error_FirstSliceSegmentPoc" xml:space="preserve">
+    <value>仅第一片段携带图像顺序计数。</value>
+  </data>
+  <data name="Error_H264NeedsSps" xml:space="preserve">
+    <value>H.264 流至少需要一个 SPS。</value>
+  </data>
+  <data name="Error_HevcNeedsSps" xml:space="preserve">
+    <value>HEVC 流至少需要一个 SPS。</value>
+  </data>
+  <data name="Error_IncompleteLoasFrame" xml:space="preserve">
+    <value>不是完整的 LOAS 帧。</value>
+  </data>
+  <data name="Error_InvalidAvcC" xml:space="preserve">
+    <value>无效的 avcC 记录。</value>
+  </data>
+  <data name="Error_InvalidDopsBox" xml:space="preserve">
+    <value>无效的 dOps 框。</value>
+  </data>
+  <data name="Error_InvalidEvcC" xml:space="preserve">
+    <value>无效的 evcC 记录。</value>
+  </data>
+  <data name="Error_InvalidEvcChromaFormat" xml:space="preserve">
+    <value>无效的 EVC chroma_format_idc。</value>
+  </data>
+  <data name="Error_InvalidExpGolomb" xml:space="preserve">
+    <value>无效的 Exp-Golomb 码。</value>
+  </data>
+  <data name="Error_InvalidHvcC" xml:space="preserve">
+    <value>无效的 hvcC 记录。</value>
+  </data>
+  <data name="Error_InvalidOpusHead" xml:space="preserve">
+    <value>无效的 OpusHead。</value>
+  </data>
+  <data name="Error_InvalidRgCode" xml:space="preserve">
+    <value>无效的 rg() 码。</value>
+  </data>
+  <data name="Error_LatmFrameLengthType" xml:space="preserve">
+    <value>不支持 LATM frameLengthType {0}。</value>
+  </data>
+  <data name="Error_LatmMuxVersionA" xml:space="preserve">
+    <value>不支持 LATM audioMuxVersionA 1。</value>
+  </data>
+  <data name="Error_LatmObjectType" xml:space="preserve">
+    <value>不支持 LATM audio object type {0}。</value>
+  </data>
+  <data name="Error_LatmProgramConfigElement" xml:space="preserve">
+    <value>不支持包含程序配置元素的 LATM AudioSpecificConfig。</value>
+  </data>
+  <data name="Error_LatmSeveralPrograms" xml:space="preserve">
+    <value>不支持包含多个程序或层的 LATM。</value>
+  </data>
+  <data name="Error_NalUnitPastEnd" xml:space="preserve">
+    <value>NAL 单元长度超出样本末尾。</value>
+  </data>
+  <data name="Error_NoDestinationPath" xml:space="preserve">
+    <value>文档没有目标路径。</value>
+  </data>
+  <data name="Error_NoIndependentEac3Substream" xml:space="preserve">
+    <value>未找到独立的 E-AC-3 子流。</value>
+  </data>
+  <data name="Error_NoSourceFile" xml:space="preserve">
+    <value>轨道没有源文件。</value>
+  </data>
+  <data name="Error_NoTrackHasSamples" xml:space="preserve">
+    <value>没有任何轨道包含样本。</value>
+  </data>
+  <data name="Error_NotMp4OrMatroska" xml:space="preserve">
+    <value>“{0}” 不是受支持的 MP4 或 Matroska 文件。</value>
+  </data>
+  <data name="Error_NotNumberOfTotal" xml:space="preserve">
+    <value>“{0}” 不符合 n/total 格式。</value>
+  </data>
+  <data name="Error_NotPictureHeaderOrSlice" xml:space="preserve">
+    <value>不是图片头或切片。</value>
+  </data>
+  <data name="Error_NotYesNo" xml:space="preserve">
+    <value>“{0}” 不是一个是/否值。</value>
+  </data>
+  <data name="Error_RatingsResourceMissing" xml:space="preserve">
+    <value>ratings.json 资源缺失。</value>
+  </data>
+  <data name="Error_RemuxComponentMissing" xml:space="preserve">
+    <value>写入 {0} 文件需要重新封装组件，但未注册。</value>
+  </data>
+  <data name="Error_SampleShorterThanHead" xml:space="preserve">
+    <value>样本比请求的头部更短。</value>
+  </data>
+  <data name="Error_SliceUnknownPps" xml:space="preserve">
+    <value>Slice 指向未知 PPS {0}。</value>
+  </data>
+  <data name="Error_SliceWithoutPictureHeader" xml:space="preserve">
+    <value>该 Slice 没有图像头。</value>
+  </data>
+  <data name="Error_TrackCannotBeWritten" xml:space="preserve">
+    <value>{0} 轨道 “{1}” 无法写入到 {2}：{3}</value>
+  </data>
+  <data name="Error_TrackHasNoSourceFile" xml:space="preserve">
+    <value>轨道 “{0}” ({1}) 没有源文件。</value>
+  </data>
+  <data name="Error_TrackNotFoundInFile" xml:space="preserve">
+    <value>未在 “{1}” 中找到轨道 {0}。</value>
+  </data>
+  <data name="Error_TrueHdInvalidAccessUnit" xml:space="preserve">
+    <value>无效的 Dolby TrueHD 访问单元 #{0}（校验 nibble、长度或 format_sync 错误）；流已损坏或不符合 FBA 语法。</value>
+  </data>
+  <data name="Error_TrueHdNoMajorSync" xml:space="preserve">
+    <value>在轨道开头未找到 Dolby TrueHD 主同步（FBA 语法）。</value>
+  </data>
+  <data name="Error_TrueHdReservedFrequency" xml:space="preserve">
+    <value>Dolby TrueHD 流使用了保留的采样频率。</value>
+  </data>
+  <data name="Error_TrueHdSplitAccessUnit" xml:space="preserve">
+    <value>Dolby TrueHD 访问单元 #{0} 在容器块中被拆分。</value>
+  </data>
+  <data name="Error_TruncatedEvcC" xml:space="preserve">
+    <value>截断的 evcC 记录。</value>
+  </data>
+  <data name="Error_TruncatedEvcPps" xml:space="preserve">
+    <value>截断的 EVC PPS。</value>
+  </data>
+  <data name="Error_TruncatedEvcSliceHeader" xml:space="preserve">
+    <value>截断的 EVC Slice 头。</value>
+  </data>
+  <data name="Error_TruncatedEvcSps" xml:space="preserve">
+    <value>截断的 EVC SPS。</value>
+  </data>
+  <data name="Error_TruncatedLatmMuxElement" xml:space="preserve">
+    <value>截断的 LATM AudioMuxElement。</value>
+  </data>
+  <data name="Error_TruncatedOpusMapping" xml:space="preserve">
+    <value>截断的 OpusHead 通道映射表。</value>
+  </data>
+  <data name="Error_TruncatedParameterSetArray" xml:space="preserve">
+    <value>截断的参数集数组。</value>
+  </data>
+  <data name="Error_TruncatedVvcC" xml:space="preserve">
+    <value>vvcC 记录被截断。</value>
+  </data>
+  <data name="Error_TruncatedVvcPps" xml:space="preserve">
+    <value>VVC PPS 被截断。</value>
+  </data>
+  <data name="Error_Tx3gTextTooLong" xml:space="preserve">
+    <value>字幕文本对于 tx3g 样本过长。</value>
+  </data>
+  <data name="Error_UnexpectedEndOfBitstream" xml:space="preserve">
+    <value>比特流意外结束。</value>
+  </data>
+  <data name="Error_UnexpectedEndOfFile" xml:space="preserve">
+    <value>文件在偏移 {0} 处意外结束。</value>
+  </data>
+  <data name="Error_UnknownEvcPps" xml:space="preserve">
+    <value>未知的 EVC PPS {0}。</value>
+  </data>
+  <data name="Error_UnknownVvcPps" xml:space="preserve">
+    <value>未知的 VVC PPS {0}。</value>
+  </data>
+  <data name="Error_UnsupportedFormat" xml:space="preserve">
+    <value>“{0}” 不在受支持的格式中。</value>
+  </data>
+  <data name="Label_ChapterNumber" xml:space="preserve">
+    <value>章节 {0}</value>
+  </data>
+  <data name="Label_DolbyVisionConfig" xml:space="preserve">
+    <value>配置文件 {0}.{1:00}，级别 {2}</value>
+  </data>
+  <data name="Label_Level" xml:space="preserve">
+    <value>级别 {0}</value>
+  </data>
+  <data name="Label_Profile" xml:space="preserve">
+    <value>配置文件 {0}</value>
+  </data>
+  <data name="Label_Unknown" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Label_Untitled" xml:space="preserve">
+    <value>未命名</value>
+  </data>
+  <data name="Language_Undetermined" xml:space="preserve">
+    <value>无法确定</value>
+  </data>
+  <data name="Log_AllSubtitlesForced" xml:space="preserve">
+    <value>字幕轨道 “{0}”：所有字幕均为强制。</value>
+  </data>
+  <data name="Log_Av2SequenceHeaderChanges" xml:space="preserve">
+    <value>AV2 轨道 {0}：序列头在流中发生变化；新的一份保留在样本中。</value>
+  </data>
+  <data name="Log_ConvertingAudio" xml:space="preserve">
+    <value>正在将 {0} 音频轨道 “{1}” 转换为 {2}（{3} 声道，{4} Hz）。</value>
+  </data>
+  <data name="Log_ConvertingTrack" xml:space="preserve">
+    <value>正在将 {0} 轨道 “{1}” 转换为 {2}。</value>
+  </data>
+  <data name="Log_CouldNotDeleteTemp" xml:space="preserve">
+    <value>无法删除临时文件 “{0}”：{1}</value>
+  </data>
+  <data name="Log_RecognisingOcr" xml:space="preserve">
+    <value>识别 {0} 轨道 “{1}” 为 {2} 文本（OCR）。</value>
+  </data>
+  <data name="Log_Remuxed" xml:space="preserve">
+    <value>已重新封装 {0} 个轨道到 “{1}”。</value>
+  </data>
+  <data name="Log_SomeSubtitlesForced" xml:space="preserve">
+    <value>字幕轨道 “{0}”：部分字幕为强制。</value>
+  </data>
+  <data name="Log_StoredNativelyInMp4" xml:space="preserve">
+    <value>{0} 轨道 “{1}” 在 MP4 中以 {2} 存储。</value>
+  </data>
+  <data name="Log_StreamMetadataAdded" xml:space="preserve">
+    <value>轨道 “{0}”：容器缺少视频流携带的色彩或 HDR10 元数据；已添加到输出。</value>
+  </data>
+  <data name="Log_TrackHasNoSamples" xml:space="preserve">
+    <value>{0} 轨道 “{1}” 没有样本；已忽略。</value>
+  </data>
+  <data name="Log_TrackWarning" xml:space="preserve">
+    <value>{0} 轨道 “{1}”：{2}</value>
+  </data>
+  <data name="Log_TrueHdDroppedLeading" xml:space="preserve">
+    <value>在首个主要同步之前丢弃 {0} 个 Dolby TrueHD 访问单元。</value>
+  </data>
+  <data name="Log_VideoStartsEarly" xml:space="preserve">
+    <value>视频提前 {0:0.###} 秒开始；正在移动所有轨道。</value>
+  </data>
+  <data name="Name_MonoAudio" xml:space="preserve">
+    <value>单声道音频</value>
+  </data>
+  <data name="Name_StereoAudio" xml:space="preserve">
+    <value>立体声音频</value>
+  </data>
+  <data name="Name_SurroundAudio" xml:space="preserve">
+    <value>环绕声音频</value>
+  </data>
+  <data name="Reason_AudioCannotBeDecoded" xml:space="preserve">
+    <value>{0} 音频无法被 {1} 解码</value>
+  </data>
+  <data name="Reason_ConversionUnavailable" xml:space="preserve">
+    <value>转换为 {0} 不可用：{1}</value>
+  </data>
+  <data name="Reason_ConvertedTo" xml:space="preserve">
+    <value>已转换为 {0}</value>
+  </data>
+  <data name="Reason_ConvertedToWith" xml:space="preserve">
+    <value>已转换为 {0}（{1}，{2}）</value>
+  </data>
+  <data name="Reason_NoAudioConverter" xml:space="preserve">
+    <value>未安装音频转换器</value>
+  </data>
+  <data name="Reason_NoOcrEngine" xml:space="preserve">
+    <value>未安装 OCR 引擎</value>
+  </data>
+  <data name="Reason_NoSourceFile" xml:space="preserve">
+    <value>轨道没有源文件</value>
+  </data>
+  <data name="Reason_SubtitlesCannotBeDecodedForOcr" xml:space="preserve">
+    <value>{0} 字幕无法用于 OCR 解码</value>
+  </data>
+  <data name="Reason_TrackNotFoundInSource" xml:space="preserve">
+    <value>未在源文件中找到该轨道</value>
+  </data>
+  <data name="TagChoice_AlertTone" xml:space="preserve">
+    <value>提醒声音</value>
+  </data>
+  <data name="TagChoice_Audiobook" xml:space="preserve">
+    <value>有声书</value>
+  </data>
+  <data name="TagChoice_Booklet" xml:space="preserve">
+    <value>小册子</value>
+  </data>
+  <data name="TagChoice_Clean" xml:space="preserve">
+    <value>洁版</value>
+  </data>
+  <data name="TagChoice_Explicit" xml:space="preserve">
+    <value>露骨</value>
+  </data>
+  <data name="TagChoice_HomeVideo" xml:space="preserve">
+    <value>家庭视频</value>
+  </data>
+  <data name="TagChoice_Movie" xml:space="preserve">
+    <value>电影</value>
+  </data>
+  <data name="TagChoice_Music" xml:space="preserve">
+    <value>音乐</value>
+  </data>
+  <data name="TagChoice_MusicVideo" xml:space="preserve">
+    <value>音乐视频</value>
+  </data>
+  <data name="TagChoice_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="TagChoice_Ringtone" xml:space="preserve">
+    <value>铃声</value>
+  </data>
+  <data name="TagChoice_TVShow" xml:space="preserve">
+    <value>电视节目</value>
+  </data>
+  <data name="TagGroup_Audiobook" xml:space="preserve">
+    <value>有声书</value>
+  </data>
+  <data name="TagGroup_Classical" xml:space="preserve">
+    <value>古典音乐</value>
+  </data>
+  <data name="TagGroup_Credits" xml:space="preserve">
+    <value>字幕</value>
+  </data>
+  <data name="TagGroup_Descriptions" xml:space="preserve">
+    <value>描述</value>
+  </data>
+  <data name="TagGroup_Encoding" xml:space="preserve">
+    <value>编码</value>
+  </data>
+  <data name="TagGroup_General" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="TagGroup_People" xml:space="preserve">
+    <value>人物</value>
+  </data>
+  <data name="TagGroup_Rating" xml:space="preserve">
+    <value>分级</value>
+  </data>
+  <data name="TagGroup_Sorting" xml:space="preserve">
+    <value>排序</value>
+  </data>
+  <data name="TagGroup_Store" xml:space="preserve">
+    <value>iTunes Store</value>
+  </data>
+  <data name="TagGroup_TvShow" xml:space="preserve">
+    <value>电视节目</value>
+  </data>
+  <data name="TagGroup_Video" xml:space="preserve">
+    <value>视频</value>
+  </data>
+  <data name="Tag_Abridged" xml:space="preserve">
+    <value>删减</value>
+  </data>
+  <data name="Tag_Acknowledgement" xml:space="preserve">
+    <value>致谢</value>
+  </data>
+  <data name="Tag_Album" xml:space="preserve">
+    <value>专辑</value>
+  </data>
+  <data name="Tag_AlbumArtist" xml:space="preserve">
+    <value>专辑艺术家</value>
+  </data>
+  <data name="Tag_Arranger" xml:space="preserve">
+    <value>编曲者</value>
+  </data>
+  <data name="Tag_ArtDirector" xml:space="preserve">
+    <value>艺术总监</value>
+  </data>
+  <data name="Tag_Artist" xml:space="preserve">
+    <value>艺术家</value>
+  </data>
+  <data name="Tag_ArtistId" xml:space="preserve">
+    <value>艺人ID</value>
+  </data>
+  <data name="Tag_Asin" xml:space="preserve">
+    <value>ASIN</value>
+  </data>
+  <data name="Tag_AudiobookLanguage" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Tag_AudiobookSubtitle" xml:space="preserve">
+    <value>字幕</value>
+  </data>
+  <data name="Tag_Cast" xml:space="preserve">
+    <value>主演</value>
+  </data>
+  <data name="Tag_Category" xml:space="preserve">
+    <value>类别</value>
+  </data>
+  <data name="Tag_Codirector" xml:space="preserve">
+    <value>副导演</value>
+  </data>
+  <data name="Tag_Comments" xml:space="preserve">
+    <value>评论</value>
+  </data>
+  <data name="Tag_Compilation" xml:space="preserve">
+    <value>合集</value>
+  </data>
+  <data name="Tag_Composer" xml:space="preserve">
+    <value>作曲者</value>
+  </data>
+  <data name="Tag_ComposerId" xml:space="preserve">
+    <value>作曲者 ID</value>
+  </data>
+  <data name="Tag_Conductor" xml:space="preserve">
+    <value>指挥</value>
+  </data>
+  <data name="Tag_ContentId" xml:space="preserve">
+    <value>内容 ID</value>
+  </data>
+  <data name="Tag_ContentRating" xml:space="preserve">
+    <value>分级</value>
+  </data>
+  <data name="Tag_Copyright" xml:space="preserve">
+    <value>版权</value>
+  </data>
+  <data name="Tag_Credits" xml:space="preserve">
+    <value>片尾字幕</value>
+  </data>
+  <data name="Tag_Description" xml:space="preserve">
+    <value>简短描述</value>
+  </data>
+  <data name="Tag_Director" xml:space="preserve">
+    <value>导演</value>
+  </data>
+  <data name="Tag_DiskNumber" xml:space="preserve">
+    <value>光盘编号</value>
+  </data>
+  <data name="Tag_EncodedBy" xml:space="preserve">
+    <value>编码者</value>
+  </data>
+  <data name="Tag_EncodingTool" xml:space="preserve">
+    <value>编码工具</value>
+  </data>
+  <data name="Tag_ExecutiveProducer" xml:space="preserve">
+    <value>监制</value>
+  </data>
+  <data name="Tag_Gapless" xml:space="preserve">
+    <value>无间断</value>
+  </data>
+  <data name="Tag_Genre" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="Tag_GenreId" xml:space="preserve">
+    <value>类型 ID</value>
+  </data>
+  <data name="Tag_Grouping" xml:space="preserve">
+    <value>分组</value>
+  </data>
+  <data name="Tag_HdVideo" xml:space="preserve">
+    <value>高清视频</value>
+  </data>
+  <data name="Tag_ITunesAccount" xml:space="preserve">
+    <value>iTunes 账号</value>
+  </data>
+  <data name="Tag_ITunesAccountType" xml:space="preserve">
+    <value>iTunes 帐号类型</value>
+  </data>
+  <data name="Tag_ITunesCountry" xml:space="preserve">
+    <value>iTunes 地区</value>
+  </data>
+  <data name="Tag_ITunesU" xml:space="preserve">
+    <value>iTunes U</value>
+  </data>
+  <data name="Tag_Keywords" xml:space="preserve">
+    <value>关键词</value>
+  </data>
+  <data name="Tag_LinerNotes" xml:space="preserve">
+    <value>唱片说明</value>
+  </data>
+  <data name="Tag_LongDescription" xml:space="preserve">
+    <value>完整描述</value>
+  </data>
+  <data name="Tag_Lyricist" xml:space="preserve">
+    <value>作词人</value>
+  </data>
+  <data name="Tag_Lyrics" xml:space="preserve">
+    <value>歌词</value>
+  </data>
+  <data name="Tag_MediaKind" xml:space="preserve">
+    <value>媒体类型</value>
+  </data>
+  <data name="Tag_MovementCount" xml:space="preserve">
+    <value>乐章数</value>
+  </data>
+  <data name="Tag_MovementName" xml:space="preserve">
+    <value>乐章名称</value>
+  </data>
+  <data name="Tag_MovementNumber" xml:space="preserve">
+    <value>乐章编号</value>
+  </data>
+  <data name="Tag_Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Tag_OnlineExtras" xml:space="preserve">
+    <value>在线附加内容</value>
+  </data>
+  <data name="Tag_OriginalArtist" xml:space="preserve">
+    <value>原始艺术家</value>
+  </data>
+  <data name="Tag_Performer" xml:space="preserve">
+    <value>表演者</value>
+  </data>
+  <data name="Tag_PhonogramRights" xml:space="preserve">
+    <value>录音权</value>
+  </data>
+  <data name="Tag_PlaylistId" xml:space="preserve">
+    <value>播放列表 ID</value>
+  </data>
+  <data name="Tag_Podcast" xml:space="preserve">
+    <value>播客</value>
+  </data>
+  <data name="Tag_Producers" xml:space="preserve">
+    <value>制作人</value>
+  </data>
+  <data name="Tag_Publisher" xml:space="preserve">
+    <value>出版者</value>
+  </data>
+  <data name="Tag_PurchaseDate" xml:space="preserve">
+    <value>购买日期</value>
+  </data>
+  <data name="Tag_Rating" xml:space="preserve">
+    <value>分级</value>
+  </data>
+  <data name="Tag_RatingAnnotation" xml:space="preserve">
+    <value>分级注释</value>
+  </data>
+  <data name="Tag_RecordCompany" xml:space="preserve">
+    <value>唱片公司</value>
+  </data>
+  <data name="Tag_ReleaseDate" xml:space="preserve">
+    <value>发行日期</value>
+  </data>
+  <data name="Tag_Screenwriters" xml:space="preserve">
+    <value>编剧</value>
+  </data>
+  <data name="Tag_SeriesDescription" xml:space="preserve">
+    <value>节目描述</value>
+  </data>
+  <data name="Tag_ShowWorkAndMovement" xml:space="preserve">
+    <value>显示作品与动作</value>
+  </data>
+  <data name="Tag_Soloist" xml:space="preserve">
+    <value>独奏者</value>
+  </data>
+  <data name="Tag_SongDescription" xml:space="preserve">
+    <value>歌曲描述</value>
+  </data>
+  <data name="Tag_SongProducer" xml:space="preserve">
+    <value>歌曲制作人</value>
+  </data>
+  <data name="Tag_SortAlbum" xml:space="preserve">
+    <value>按专辑排序</value>
+  </data>
+  <data name="Tag_SortAlbumArtist" xml:space="preserve">
+    <value>按专辑艺术家排序</value>
+  </data>
+  <data name="Tag_SortArtist" xml:space="preserve">
+    <value>按艺术家排序</value>
+  </data>
+  <data name="Tag_SortComposer" xml:space="preserve">
+    <value>按作曲者排序</value>
+  </data>
+  <data name="Tag_SortName" xml:space="preserve">
+    <value>按名称排序</value>
+  </data>
+  <data name="Tag_SortTvShow" xml:space="preserve">
+    <value>按电视节目排序</value>
+  </data>
+  <data name="Tag_SoundEngineer" xml:space="preserve">
+    <value>音频工程师</value>
+  </data>
+  <data name="Tag_Studio" xml:space="preserve">
+    <value>制片商</value>
+  </data>
+  <data name="Tag_Tempo" xml:space="preserve">
+    <value>节奏</value>
+  </data>
+  <data name="Tag_Thanks" xml:space="preserve">
+    <value>感谢</value>
+  </data>
+  <data name="Tag_TrackNumber" xml:space="preserve">
+    <value>音轨</value>
+  </data>
+  <data name="Tag_TrackSubtitle" xml:space="preserve">
+    <value>轨道子标题</value>
+  </data>
+  <data name="Tag_TvEpisodeId" xml:space="preserve">
+    <value>剧集 ID</value>
+  </data>
+  <data name="Tag_TvEpisodeNumber" xml:space="preserve">
+    <value>剧集</value>
+  </data>
+  <data name="Tag_TvNetwork" xml:space="preserve">
+    <value>电视台</value>
+  </data>
+  <data name="Tag_TvSeason" xml:space="preserve">
+    <value>季</value>
+  </data>
+  <data name="Tag_TvShow" xml:space="preserve">
+    <value>电视节目</value>
+  </data>
+  <data name="Tag_WorkName" xml:space="preserve">
+    <value>作品名</value>
+  </data>
+  <data name="Tag_Xid" xml:space="preserve">
+    <value>XID</value>
+  </data>
+  <data name="Undo_Add" xml:space="preserve">
+    <value>添加 {0}</value>
+  </data>
+  <data name="Undo_Change" xml:space="preserve">
+    <value>更改 {0}</value>
+  </data>
+  <data name="Undo_Items" xml:space="preserve">
+    <value>项目</value>
+  </data>
+  <data name="Undo_Move" xml:space="preserve">
+    <value>移动 {0}</value>
+  </data>
+  <data name="Undo_Remove" xml:space="preserve">
+    <value>移除 {0}</value>
+  </data>
+</root>

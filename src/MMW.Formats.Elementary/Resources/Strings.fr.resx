@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_Ac4ConfigUnbuildable" xml:space="preserve">
+    <value>La configuration du décodeur AC-4 ne peut pas être construite.</value>
+  </data>
+  <data name="Error_Ac4TocUnreadable" xml:space="preserve">
+    <value>Impossible de lire la table des matières AC-4.</value>
+  </data>
+  <data name="Error_AdtsMultipleRawBlocks" xml:space="preserve">
+    <value>Les trames ADTS contenant plusieurs blocs de données brutes ne sont pas prises en charge.</value>
+  </data>
+  <data name="Error_Av1NoSequenceHeader" xml:space="preserve">
+    <value>Le flux AV1 ne commence pas par une entête de séquence lisible.</value>
+  </data>
+  <data name="Error_Av1ObuWithoutSize" xml:space="preserve">
+    <value>OBU AV1 sans champ de taille dans un flux à faible surcharge.</value>
+  </data>
+  <data name="Error_DtsHdNoStrmData" xml:space="preserve">
+    <value>Le fichier DTS-HD ne contient pas de bloc STRMDATA.</value>
+  </data>
+  <data name="Error_FlacNoStreamInfo" xml:space="preserve">
+    <value>Fichier FLAC sans STREAMINFO.</value>
+  </data>
+  <data name="Error_InvalidFlacMetadataBlock" xml:space="preserve">
+    <value>Bloc de métadonnées FLAC invalide.</value>
+  </data>
+  <data name="Error_InvalidNalLength" xml:space="preserve">
+    <value>Longueur d’unité NAL invalide.</value>
+  </data>
+  <data name="Error_NoAc3SyncFrame" xml:space="preserve">
+    <value>Aucune trame de synchronisation AC-3 trouvée.</value>
+  </data>
+  <data name="Error_NoAc4SyncFrame" xml:space="preserve">
+    <value>Aucune trame de synchronisation AC-4 trouvée.</value>
+  </data>
+  <data name="Error_NoAdtsFrame" xml:space="preserve">
+    <value>Aucune trame ADTS trouvée.</value>
+  </data>
+  <data name="Error_NoAssEventsFormat" xml:space="preserve">
+    <value>Aucune ligne Format [Events] trouvée.</value>
+  </data>
+  <data name="Error_NoDtsFrame" xml:space="preserve">
+    <value>Aucune trame DTS trouvée.</value>
+  </data>
+  <data name="Error_NoParameterSets" xml:space="preserve">
+    <value>Pas de {0} trouvé au début du flux {1}.</value>
+  </data>
+  <data name="Error_NoSequenceHeader" xml:space="preserve">
+    <value>Aucune entête de séquence trouvée au début du flux {0}.</value>
+  </data>
+  <data name="Error_NoSubRipCues" xml:space="preserve">
+    <value>Pas d’entrées SubRip trouvées.</value>
+  </data>
+  <data name="Error_NotFlac" xml:space="preserve">
+    <value>Ce n’est pas un fichier FLAC (pas de marque « fLaC »).</value>
+  </data>
+  <data name="Error_NotWebVtt" xml:space="preserve">
+    <value>Ce n’est pas un fichier WebVTT.</value>
+  </data>
+  <data name="Error_UnsupportedElementaryStream" xml:space="preserve">
+    <value>« {0} » n'est pas un flux élémentaire pris en charge.</value>
+  </data>
+  <data name="Log_InvalidParameterSetSkipped" xml:space="preserve">
+    <value>Ignorer un ensemble de paramètres invalide : {0}</value>
+  </data>
+  <data name="Log_NoTimingInfo" xml:space="preserve">
+    <value>Le flux {0} ne possède aucune information de synchronisation ; on suppose 25 fps.</value>
+  </data>
+</root>

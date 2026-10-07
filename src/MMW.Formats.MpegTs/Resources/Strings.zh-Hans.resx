@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Error_NoProgramMapTable" xml:space="preserve">
+    <value>“{0}” 没有节目映射表。</value>
+  </data>
+  <data name="Error_NoReadableStream" xml:space="preserve">
+    <value>‘{0}’ 没有可读取的流。</value>
+  </data>
+  <data name="Error_NotTransportStream" xml:space="preserve">
+    <value>‘{0}’ 不是 MPEG 传输流。</value>
+  </data>
+  <data name="Log_ProgramChosen" xml:space="preserve">
+    <value>{0}：{1} 个节目；正在导入节目 {2}。</value>
+  </data>
+  <data name="Log_UnsupportedStream" xml:space="preserve">
+    <value>{0}：流 0x{1:X} 的类型 0x{2:X2} 不受支持。</value>
+  </data>
+  <data name="Name_Teletext" xml:space="preserve">
+    <value>Teletext {0}</value>
+  </data>
+  <data name="Name_TeletextHearingImpaired" xml:space="preserve">
+    <value>Teletext {0}（听力障碍）</value>
+  </data>
+  <data name="Profile_Interlaced" xml:space="preserve">
+    <value>{0}，交错</value>
+  </data>
+</root>

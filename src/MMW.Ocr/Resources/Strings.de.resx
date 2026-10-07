@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Language_afr" xml:space="preserve">
+    <value>Afrikaans</value>
+  </data>
+  <data name="Language_amh" xml:space="preserve">
+    <value>Amharisch</value>
+  </data>
+  <data name="Language_ara" xml:space="preserve">
+    <value>Arabisch</value>
+  </data>
+  <data name="Language_asm" xml:space="preserve">
+    <value>Assamesisch</value>
+  </data>
+  <data name="Language_aze" xml:space="preserve">
+    <value>Aserbaidschanisch</value>
+  </data>
+  <data name="Language_aze_cyrl" xml:space="preserve">
+    <value>Aserbaidschanisch (Kyrillisch)</value>
+  </data>
+  <data name="Language_bel" xml:space="preserve">
+    <value>Belarussisch</value>
+  </data>
+  <data name="Language_ben" xml:space="preserve">
+    <value>Bengalisch</value>
+  </data>
+  <data name="Language_bod" xml:space="preserve">
+    <value>Tibetisch</value>
+  </data>
+  <data name="Language_bos" xml:space="preserve">
+    <value>Bosnisch</value>
+  </data>
+  <data name="Language_bre" xml:space="preserve">
+    <value>Bretonisch</value>
+  </data>
+  <data name="Language_bul" xml:space="preserve">
+    <value>Bulgarisch</value>
+  </data>
+  <data name="Language_cat" xml:space="preserve">
+    <value>Katalanisch</value>
+  </data>
+  <data name="Language_ceb" xml:space="preserve">
+    <value>Cebuano</value>
+  </data>
+  <data name="Language_ces" xml:space="preserve">
+    <value>Tschechisch</value>
+  </data>
+  <data name="Language_chi_sim" xml:space="preserve">
+    <value>Chinesisch (vereinfacht)</value>
+  </data>
+  <data name="Language_chi_tra" xml:space="preserve">
+    <value>Chinesisch (traditionell)</value>
+  </data>
+  <data name="Language_chr" xml:space="preserve">
+    <value>Cherokee</value>
+  </data>
+  <data name="Language_cos" xml:space="preserve">
+    <value>Korsisch</value>
+  </data>
+  <data name="Language_cym" xml:space="preserve">
+    <value>Walisisch</value>
+  </data>
+  <data name="Language_dan" xml:space="preserve">
+    <value>Dänisch</value>
+  </data>
+  <data name="Language_deu" xml:space="preserve">
+    <value>Deutsch</value>
+  </data>
+  <data name="Language_div" xml:space="preserve">
+    <value>Dhivehi</value>
+  </data>
+  <data name="Language_dzo" xml:space="preserve">
+    <value>Dzongkha</value>
+  </data>
+  <data name="Language_ell" xml:space="preserve">
+    <value>Griechisch</value>
+  </data>
+  <data name="Language_eng" xml:space="preserve">
+    <value>Englisch</value>
+  </data>
+  <data name="Language_enm" xml:space="preserve">
+    <value>Mittelenglisch</value>
+  </data>
+  <data name="Language_epo" xml:space="preserve">
+    <value>Esperanto</value>
+  </data>
+  <data name="Language_est" xml:space="preserve">
+    <value>Estnisch</value>
+  </data>
+  <data name="Language_eus" xml:space="preserve">
+    <value>Baskisch</value>
+  </data>
+  <data name="Language_fao" xml:space="preserve">
+    <value>Färöisch</value>
+  </data>
+  <data name="Language_fas" xml:space="preserve">
+    <value>Persisch</value>
+  </data>
+  <data name="Language_fil" xml:space="preserve">
+    <value>Filipino</value>
+  </data>
+  <data name="Language_fin" xml:space="preserve">
+    <value>Finnisch</value>
+  </data>
+  <data name="Language_fra" xml:space="preserve">
+    <value>Französisch</value>
+  </data>
+  <data name="Language_frm" xml:space="preserve">
+    <value>Mittelfranzösisch</value>
+  </data>
+  <data name="Language_fry" xml:space="preserve">
+    <value>Westfriesisch</value>
+  </data>
+  <data name="Language_gla" xml:space="preserve">
+    <value>Gälisch (Schottland)</value>
+  </data>
+  <data name="Language_gle" xml:space="preserve">
+    <value>Irisch</value>
+  </data>
+  <data name="Language_glg" xml:space="preserve">
+    <value>Galicisch</value>
+  </data>
+  <data name="Language_grc" xml:space="preserve">
+    <value>Altgriechisch</value>
+  </data>
+  <data name="Language_guj" xml:space="preserve">
+    <value>Gujarati</value>
+  </data>
+  <data name="Language_hat" xml:space="preserve">
+    <value>Haiti-Kreolisch</value>
+  </data>
+  <data name="Language_heb" xml:space="preserve">
+    <value>Hebräisch</value>
+  </data>
+  <data name="Language_hin" xml:space="preserve">
+    <value>Hindi</value>
+  </data>
+  <data name="Language_hrv" xml:space="preserve">
+    <value>Kroatisch</value>
+  </data>
+  <data name="Language_hun" xml:space="preserve">
+    <value>Ungarisch</value>
+  </data>
+  <data name="Language_hye" xml:space="preserve">
+    <value>Armenisch</value>
+  </data>
+  <data name="Language_iku" xml:space="preserve">
+    <value>Inuktitut</value>
+  </data>
+  <data name="Language_ind" xml:space="preserve">
+    <value>Indonesisch</value>
+  </data>
+  <data name="Language_isl" xml:space="preserve">
+    <value>Isländisch</value>
+  </data>
+  <data name="Language_ita" xml:space="preserve">
+    <value>Italienisch</value>
+  </data>
+  <data name="Language_ita_old" xml:space="preserve">
+    <value>Altes Italienisch</value>
+  </data>
+  <data name="Language_jav" xml:space="preserve">
+    <value>Javanisch</value>
+  </data>
+  <data name="Language_jpn" xml:space="preserve">
+    <value>Japanisch</value>
+  </data>
+  <data name="Language_kan" xml:space="preserve">
+    <value>Kannada</value>
+  </data>
+  <data name="Language_kat" xml:space="preserve">
+    <value>Georgisch</value>
+  </data>
+  <data name="Language_kaz" xml:space="preserve">
+    <value>Kasachisch</value>
+  </data>
+  <data name="Language_khm" xml:space="preserve">
+    <value>Khmer</value>
+  </data>
+  <data name="Language_kir" xml:space="preserve">
+    <value>Kirgisisch</value>
+  </data>
+  <data name="Language_kmr" xml:space="preserve">
+    <value>Kurdisch (Kurmandschi)</value>
+  </data>
+  <data name="Language_kor" xml:space="preserve">
+    <value>Koreanisch</value>
+  </data>
+  <data name="Language_lao" xml:space="preserve">
+    <value>Laotisch</value>
+  </data>
+  <data name="Language_lat" xml:space="preserve">
+    <value>Latein</value>
+  </data>
+  <data name="Language_lav" xml:space="preserve">
+    <value>Lettisch</value>
+  </data>
+  <data name="Language_lit" xml:space="preserve">
+    <value>Litauisch</value>
+  </data>
+  <data name="Language_ltz" xml:space="preserve">
+    <value>Luxemburgisch</value>
+  </data>
+  <data name="Language_mal" xml:space="preserve">
+    <value>Malayalam</value>
+  </data>
+  <data name="Language_mar" xml:space="preserve">
+    <value>Marathi</value>
+  </data>
+  <data name="Language_mkd" xml:space="preserve">
+    <value>Mazedonisch</value>
+  </data>
+  <data name="Language_mlt" xml:space="preserve">
+    <value>Maltesisch</value>
+  </data>
+  <data name="Language_mon" xml:space="preserve">
+    <value>Mongolisch</value>
+  </data>
+  <data name="Language_mri" xml:space="preserve">
+    <value>Māori</value>
+  </data>
+  <data name="Language_msa" xml:space="preserve">
+    <value>Malaiisch</value>
+  </data>
+  <data name="Language_mya" xml:space="preserve">
+    <value>Birmanisch</value>
+  </data>
+  <data name="Language_nep" xml:space="preserve">
+    <value>Nepalesisch</value>
+  </data>
+  <data name="Language_nld" xml:space="preserve">
+    <value>Niederländisch</value>
+  </data>
+  <data name="Language_nor" xml:space="preserve">
+    <value>Norwegisch</value>
+  </data>
+  <data name="Language_oci" xml:space="preserve">
+    <value>Okzitanisch</value>
+  </data>
+  <data name="Language_ori" xml:space="preserve">
+    <value>Oriya</value>
+  </data>
+  <data name="Language_pan" xml:space="preserve">
+    <value>Punjabi</value>
+  </data>
+  <data name="Language_pol" xml:space="preserve">
+    <value>Polnisch</value>
+  </data>
+  <data name="Language_por" xml:space="preserve">
+    <value>Portugiesisch</value>
+  </data>
+  <data name="Language_pus" xml:space="preserve">
+    <value>Paschtu</value>
+  </data>
+  <data name="Language_que" xml:space="preserve">
+    <value>Quechua</value>
+  </data>
+  <data name="Language_ron" xml:space="preserve">
+    <value>Rumänisch</value>
+  </data>
+  <data name="Language_rus" xml:space="preserve">
+    <value>Russisch</value>
+  </data>
+  <data name="Language_san" xml:space="preserve">
+    <value>Sanskrit</value>
+  </data>
+  <data name="Language_sin" xml:space="preserve">
+    <value>Singhalesisch</value>
+  </data>
+  <data name="Language_slk" xml:space="preserve">
+    <value>Slowakisch</value>
+  </data>
+  <data name="Language_slv" xml:space="preserve">
+    <value>Slowenisch</value>
+  </data>
+  <data name="Language_snd" xml:space="preserve">
+    <value>Sindhi</value>
+  </data>
+  <data name="Language_spa" xml:space="preserve">
+    <value>Spanisch</value>
+  </data>
+  <data name="Language_spa_old" xml:space="preserve">
+    <value>Spanisch (alt)</value>
+  </data>
+  <data name="Language_sqi" xml:space="preserve">
+    <value>Albanisch</value>
+  </data>
+  <data name="Language_srp" xml:space="preserve">
+    <value>Serbisch</value>
+  </data>
+  <data name="Language_srp_latn" xml:space="preserve">
+    <value>Serbisch (Lateinisch)</value>
+  </data>
+  <data name="Language_sun" xml:space="preserve">
+    <value>Sundanesisch</value>
+  </data>
+  <data name="Language_swa" xml:space="preserve">
+    <value>Suaheli</value>
+  </data>
+  <data name="Language_swe" xml:space="preserve">
+    <value>Schwedisch</value>
+  </data>
+  <data name="Language_syr" xml:space="preserve">
+    <value>Syrisch</value>
+  </data>
+  <data name="Language_tam" xml:space="preserve">
+    <value>Tamil</value>
+  </data>
+  <data name="Language_tat" xml:space="preserve">
+    <value>Tatarisch</value>
+  </data>
+  <data name="Language_tel" xml:space="preserve">
+    <value>Telugu</value>
+  </data>
+  <data name="Language_tgk" xml:space="preserve">
+    <value>Tadschikisch</value>
+  </data>
+  <data name="Language_tha" xml:space="preserve">
+    <value>Thailändisch</value>
+  </data>
+  <data name="Language_tir" xml:space="preserve">
+    <value>Tigrinya</value>
+  </data>
+  <data name="Language_ton" xml:space="preserve">
+    <value>Tongaisch</value>
+  </data>
+  <data name="Language_tur" xml:space="preserve">
+    <value>Türkisch</value>
+  </data>
+  <data name="Language_uig" xml:space="preserve">
+    <value>Uigurisch</value>
+  </data>
+  <data name="Language_ukr" xml:space="preserve">
+    <value>Ukrainisch</value>
+  </data>
+  <data name="Language_urd" xml:space="preserve">
+    <value>Urdu</value>
+  </data>
+  <data name="Language_uzb" xml:space="preserve">
+    <value>Usbekisch</value>
+  </data>
+  <data name="Language_uzb_cyrl" xml:space="preserve">
+    <value>Usbekisch (Kyrillisch)</value>
+  </data>
+  <data name="Language_vie" xml:space="preserve">
+    <value>Vietnamesisch</value>
+  </data>
+  <data name="Language_yid" xml:space="preserve">
+    <value>Jiddisch</value>
+  </data>
+  <data name="Language_yor" xml:space="preserve">
+    <value>Yoruba</value>
+  </data>
+  <data name="Ocr_CallFailed" xml:space="preserve">
+    <value>{0} ist fehlgeschlagen.</value>
+  </data>
+  <data name="Ocr_CannotDecodeForOcr" xml:space="preserve">
+    <value>{0}-Untertitel können nicht für OCR dekodiert werden.</value>
+  </data>
+  <data name="Ocr_CouldNotLoadLanguageData" xml:space="preserve">
+    <value>Tesseract konnte die Sprachdaten „{0}“ von „{1}“ nicht laden.</value>
+  </data>
+  <data name="Ocr_FFmpegNeeded" xml:space="preserve">
+    <value>FFmpeg wird benötigt, um Bitmap-Untertitel zu dekodieren: {0}</value>
+  </data>
+  <data name="Ocr_ImageBufferTooSmall" xml:space="preserve">
+    <value>Der Bildpuffer ist kleiner als seine Abmessungen.</value>
+  </data>
+  <data name="Ocr_LanguageDataMissing" xml:space="preserve">
+    <value>Die OCR-Sprachdaten für {0} sind nicht installiert.</value>
+  </data>
+  <data name="Ocr_LanguageDataMissingFiles" xml:space="preserve">
+    <value>die {0}-OCR-Sprachdaten ({1}) sind nicht installiert</value>
+  </data>
+  <data name="Ocr_NotAvailable" xml:space="preserve">
+    <value>Untertitel-OCR ist nicht verfügbar: {0}</value>
+  </data>
+  <data name="Ocr_NotAvailableSentence" xml:space="preserve">
+    <value>Untertitel-OCR ist nicht verfügbar: {0}.</value>
+  </data>
+  <data name="Ocr_NotTesseractLanguage" xml:space="preserve">
+    <value>„{0}“ ist keine Tesseract-Sprache</value>
+  </data>
+  <data name="Ocr_RgbaBufferTooSmall" xml:space="preserve">
+    <value>Der RGBA-Puffer ist kleiner als die Bitmap-Abmessungen.</value>
+  </data>
+  <data name="Ocr_TrackSummary" xml:space="preserve">
+    <value>OCR der Spur {0}: {1} Untertitel, {2} erkannt (durchschnittliches Vertrauen {3:0}), {4} ohne Text, {5} erzwungen.</value>
+  </data>
+  <data name="Tessdata_CannotInspect" xml:space="preserve">
+    <value>Kann „{0}“ nicht untersuchen: {1}</value>
+  </data>
+  <data name="Tessdata_CouldNotDelete" xml:space="preserve">
+    <value>Konnte „{0}“ nicht löschen: {1}</value>
+  </data>
+  <data name="Tessdata_Downloading" xml:space="preserve">
+    <value>Das {0}-OCR-Modell wird von {1} heruntergeladen.</value>
+  </data>
+  <data name="Tessdata_Incomplete" xml:space="preserve">
+    <value>Der Download des {0}-Modells ist unvollständig ({1} von {2} Bytes).</value>
+  </data>
+  <data name="Tessdata_Installed" xml:space="preserve">
+    <value>Das {0}-OCR-Modell wurde installiert ({1} KB).</value>
+  </data>
+  <data name="Tessdata_InvalidCode" xml:space="preserve">
+    <value>„{0}“ ist kein Tesseract-Sprachcode.</value>
+  </data>
+  <data name="Tessdata_LargerThan" xml:space="preserve">
+    <value>Das {0}-Modell ist größer als {1} Bytes.</value>
+  </data>
+  <data name="Tessdata_NotTraineddata" xml:space="preserve">
+    <value>Das {0}-Modell ist keine traineddata-Datei.</value>
+  </data>
+  <data name="Tessdata_TooLarge" xml:space="preserve">
+    <value>Das {0}-Modell ist zu groß ({1} Bytes).</value>
+  </data>
+  <data name="Tessdata_TooSmall" xml:space="preserve">
+    <value>Das {0}-Modell ist zu klein ({1} Bytes); der Server hat keine traineddata-Datei zurückgegeben.</value>
+  </data>
+  <data name="Tesseract_CandidateMissing" xml:space="preserve">
+    <value>{0} (fehlt {1})</value>
+  </data>
+  <data name="Tesseract_CandidateVersion" xml:space="preserve">
+    <value>{0} (Version {1})</value>
+  </data>
+  <data name="Tesseract_CouldNotLoad" xml:space="preserve">
+    <value>Tesseract konnte nicht geladen werden: {0}</value>
+  </data>
+  <data name="Tesseract_LibraryNotFound" xml:space="preserve">
+    <value>die Tesseract 5-Bibliothek ({0}) wurde nicht gefunden; installieren Sie Tesseract 5 oder setzen Sie MMW_TESSERACT_PATH</value>
+  </data>
+  <data name="Tesseract_LibraryUnusable" xml:space="preserve">
+    <value>libtesseract konnte nicht verwendet werden: {0}</value>
+  </data>
+  <data name="Tesseract_Loaded" xml:space="preserve">
+    <value>Tesseract {0} geladen aus {1}.</value>
+  </data>
+  <data name="Tesseract_NotAvailable" xml:space="preserve">
+    <value>Tesseract OCR ist nicht verfügbar: {0}</value>
+  </data>
+  <data name="Tesseract_NotAvailableOcrDisabled" xml:space="preserve">
+    <value>Tesseract OCR ist nicht verfügbar (Bitmap-Untertitel-OCR ist deaktiviert): {0}</value>
+  </data>
+</root>

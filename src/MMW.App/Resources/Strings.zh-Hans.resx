@@ -1,0 +1,1629 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About_Description" xml:space="preserve">
+    <value>编辑 MP4 和 Matroska 文件的元数据、章节和轨道。</value>
+  </data>
+  <data name="About_FFmpegFormat" xml:space="preserve">
+    <value>音频转换：FFmpeg {0}（LGPL）。</value>
+  </data>
+  <data name="About_FFmpegMissing" xml:space="preserve">
+    <value>音频转换：未找到 FFmpeg 库。</value>
+  </data>
+  <data name="About_Icons" xml:space="preserve">
+    <value>图标：Material Design Icons（Apache 2.0）。</value>
+  </data>
+  <data name="About_OcrFormat" xml:space="preserve">
+    <value>字幕 OCR：{0}。</value>
+  </data>
+  <data name="About_OcrMissing" xml:space="preserve">
+    <value>字幕 OCR：未找到 Tesseract。</value>
+  </data>
+  <data name="Action_ClearNames" xml:space="preserve">
+    <value>清除轨道名称</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>补全轨道语言…</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>修复音频回退</value>
+  </data>
+  <data name="Action_InsertChapterEvery" xml:space="preserve">
+    <value>每隔固定时间插入章节</value>
+  </data>
+  <data name="Action_Offset" xml:space="preserve">
+    <value>偏移…</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>整理备用组</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>美化音轨名称</value>
+  </data>
+  <data name="App_Name" xml:space="preserve">
+    <value>Media Muxing Wizard</value>
+  </data>
+  <data name="ArtworkKind_Backdrop" xml:space="preserve">
+    <value>背景</value>
+  </data>
+  <data name="ArtworkKind_Episode" xml:space="preserve">
+    <value>剧集</value>
+  </data>
+  <data name="ArtworkKind_None" xml:space="preserve">
+    <value>无插图</value>
+  </data>
+  <data name="ArtworkKind_Other" xml:space="preserve">
+    <value>其他</value>
+  </data>
+  <data name="ArtworkKind_Poster" xml:space="preserve">
+    <value>海报</value>
+  </data>
+  <data name="ArtworkKind_Rectangle" xml:space="preserve">
+    <value>矩形</value>
+  </data>
+  <data name="ArtworkKind_Season" xml:space="preserve">
+    <value>季</value>
+  </data>
+  <data name="ArtworkKind_Square" xml:space="preserve">
+    <value>正方形</value>
+  </data>
+  <data name="Artwork_DescriptionFormat" xml:space="preserve">
+    <value>{0}×{1} {2}, {3} KB</value>
+  </data>
+  <data name="Artwork_UnreadableFormat" xml:space="preserve">
+    <value>{0}（不可读），{1} KB</value>
+  </data>
+  <data name="Button_Apply" xml:space="preserve">
+    <value>应用</value>
+  </data>
+  <data name="Button_Browse" xml:space="preserve">
+    <value>浏览…</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Button_CheckAll" xml:space="preserve">
+    <value>全选</value>
+  </data>
+  <data name="Button_Choose" xml:space="preserve">
+    <value>选择…</value>
+  </data>
+  <data name="Button_Clear" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="Button_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Button_Dismiss" xml:space="preserve">
+    <value>忽略</value>
+  </data>
+  <data name="Button_DontSave" xml:space="preserve">
+    <value>不保存</value>
+  </data>
+  <data name="Button_Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Button_Import" xml:space="preserve">
+    <value>导入</value>
+  </data>
+  <data name="Button_OK" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Button_RepairDolbyVision" xml:space="preserve">
+    <value>修复</value>
+  </data>
+  <data name="Button_RestoreDefaults" xml:space="preserve">
+    <value>恢复默认</value>
+  </data>
+  <data name="Button_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Button_SaveAnyway" xml:space="preserve">
+    <value>仍然保存</value>
+  </data>
+  <data name="Button_Search" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="Button_UncheckAll" xml:space="preserve">
+    <value>取消全选</value>
+  </data>
+  <data name="Chapters_Column_Time" xml:space="preserve">
+    <value>时间</value>
+  </data>
+  <data name="Chapters_Column_Title" xml:space="preserve">
+    <value>标题</value>
+  </data>
+  <data name="Chapters_InsertEvery" xml:space="preserve">
+    <value>每隔…插入</value>
+  </data>
+  <data name="Chapters_Interval_AtBeginning" xml:space="preserve">
+    <value>在开始处</value>
+  </data>
+  <data name="Chapters_Interval_MinutesFormat" xml:space="preserve">
+    <value>{0} 分钟</value>
+  </data>
+  <data name="Chapters_Interval_OneMinute" xml:space="preserve">
+    <value>1分钟</value>
+  </data>
+  <data name="Chapters_NewTitleFormat" xml:space="preserve">
+    <value>章节 {0}</value>
+  </data>
+  <data name="Chapters_Tooltip_Add" xml:space="preserve">
+    <value>添加章节</value>
+  </data>
+  <data name="Chapters_Tooltip_Delete" xml:space="preserve">
+    <value>删除所选章节</value>
+  </data>
+  <data name="Chapters_Tooltip_Export" xml:space="preserve">
+    <value>将章节导出为文本</value>
+  </data>
+  <data name="Chapters_Tooltip_Import" xml:space="preserve">
+    <value>导入章节（txt）或章节标题（csv）</value>
+  </data>
+  <data name="Chapters_Tooltip_InsertEvery" xml:space="preserve">
+    <value>以固定间隔将章节替换为标记</value>
+  </data>
+  <data name="Chapters_Tooltip_RenameAll" xml:space="preserve">
+    <value>重命名所有章节 “Chapter N”</value>
+  </data>
+  <data name="Chapters_Tooltip_Thumbnails" xml:space="preserve">
+    <value>捕获章节预览图像</value>
+  </data>
+  <data name="Dialog_About_TitleFormat" xml:space="preserve">
+    <value>关于 {0}</value>
+  </data>
+  <data name="Dialog_AddArtwork_Title" xml:space="preserve">
+    <value>添加插图</value>
+  </data>
+  <data name="Dialog_AddToQueue_Title" xml:space="preserve">
+    <value>添加到队列</value>
+  </data>
+  <data name="Dialog_CannotExportTrack" xml:space="preserve">
+    <value>无法将 {0} 轨道导出为原始流。</value>
+  </data>
+  <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
+    <value>为所有未确定语言的轨道设置此语言。</value>
+  </data>
+  <data name="Dialog_CompleteLanguages_Title" xml:space="preserve">
+    <value>补全轨道语言</value>
+  </data>
+  <data name="Dialog_CouldNotExport_Title" xml:space="preserve">
+    <value>无法导出轨道</value>
+  </data>
+  <data name="Dialog_CouldNotImportNfo_Title" xml:space="preserve">
+    <value>无法导入 NFO</value>
+  </data>
+  <data name="Dialog_CouldNotOpen_Title" xml:space="preserve">
+    <value>无法打开文件</value>
+  </data>
+  <data name="Dialog_CouldNotSave_Title" xml:space="preserve">
+    <value>无法保存</value>
+  </data>
+  <data name="Dialog_ExportArtwork_Title" xml:space="preserve">
+    <value>导出插图</value>
+  </data>
+  <data name="Dialog_ExportChapters_Title" xml:space="preserve">
+    <value>导出章节</value>
+  </data>
+  <data name="Dialog_ExportNfo_Title" xml:space="preserve">
+    <value>导出 NFO</value>
+  </data>
+  <data name="Dialog_ExportTrack_Title" xml:space="preserve">
+    <value>导出轨道</value>
+  </data>
+  <data name="Dialog_ImportChapters_CountMismatchFormat" xml:space="preserve">
+    <value>CSV 文件有 {0} 个标题，但文件中有 {1} 个章节。</value>
+  </data>
+  <data name="Dialog_ImportChapters_NoneFound" xml:space="preserve">
+    <value>在文件中未找到任何章节。</value>
+  </data>
+  <data name="Dialog_ImportChapters_Title" xml:space="preserve">
+    <value>导入章节</value>
+  </data>
+  <data name="Dialog_ImportTracks_Title" xml:space="preserve">
+    <value>导入轨道</value>
+  </data>
+  <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
+    <value>MP4 无法保留这些轨道携带的所有内容：
+
+{0}
+
+仍要保存？</value>
+  </data>
+  <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
+    <value>元数据将丢失</value>
+  </data>
+  <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
+    <value>“{0}” 不是一个毫秒数。</value>
+  </data>
+  <data name="Dialog_Offset_Prompt" xml:space="preserve">
+    <value>将所选轨道按此毫秒数进行偏移（负值会使其更早开始）：</value>
+  </data>
+  <data name="Dialog_Offset_SelectFirst" xml:space="preserve">
+    <value>请先选择要移动的轨道。</value>
+  </data>
+  <data name="Dialog_Offset_Title" xml:space="preserve">
+    <value>偏移</value>
+  </data>
+  <data name="Dialog_Open_Title" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="Dialog_OutputFolder_Title" xml:space="preserve">
+    <value>输出文件夹</value>
+  </data>
+  <data name="Dialog_SaveChanges_MessageFormat" xml:space="preserve">
+    <value>是否要保存对“{0}”所做的更改？
+
+如果不保存，您的更改将会丢失。</value>
+  </data>
+  <data name="Dialog_SaveChanges_Title" xml:space="preserve">
+    <value>未保存的更改</value>
+  </data>
+  <data name="Error_ChapterTime" xml:space="preserve">
+    <value>使用 hh:mm:ss.fff</value>
+  </data>
+  <data name="Error_MetadataSearchUnavailable" xml:space="preserve">
+    <value>元数据搜索不可用。</value>
+  </data>
+  <data name="Error_NoProviderFormat" xml:space="preserve">
+    <value>没有 {0} 的提供商。</value>
+  </data>
+  <data name="Error_NoWriterFormat" xml:space="preserve">
+    <value>无法写入 {0} 文件。</value>
+  </data>
+  <data name="Fallback_Hdr10" xml:space="preserve">
+    <value>HDR10</value>
+  </data>
+  <data name="Fallback_Hdr10Plus" xml:space="preserve">
+    <value>HDR10+</value>
+  </data>
+  <data name="Fallback_Hlg" xml:space="preserve">
+    <value>HLG</value>
+  </data>
+  <data name="Fallback_Sdr" xml:space="preserve">
+    <value>SDR</value>
+  </data>
+  <data name="Fallback_Unwatchable" xml:space="preserve">
+    <value>色彩不正确的视频</value>
+  </data>
+  <data name="FileFilter_All" xml:space="preserve">
+    <value>所有文件</value>
+  </data>
+  <data name="FileFilter_ChapterFiles" xml:space="preserve">
+    <value>章节文件</value>
+  </data>
+  <data name="FileFilter_Images" xml:space="preserve">
+    <value>图片</value>
+  </data>
+  <data name="FileFilter_Importable" xml:space="preserve">
+    <value>可导入文件</value>
+  </data>
+  <data name="FileFilter_KodiNfo" xml:space="preserve">
+    <value>Kodi NFO</value>
+  </data>
+  <data name="FileFilter_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="FileFilter_Media" xml:space="preserve">
+    <value>媒体文件</value>
+  </data>
+  <data name="FileFilter_Mp4" xml:space="preserve">
+    <value>MPEG-4</value>
+  </data>
+  <data name="FileFilter_Text" xml:space="preserve">
+    <value>文本</value>
+  </data>
+  <data name="FileFilter_TrackFormat" xml:space="preserve">
+    <value>{0}流</value>
+  </data>
+  <data name="FileType_SameAsSource" xml:space="preserve">
+    <value>与源相同</value>
+  </data>
+  <data name="File_DefaultArtworkName" xml:space="preserve">
+    <value>插图</value>
+  </data>
+  <data name="Format_M4a" xml:space="preserve">
+    <value>MPEG-4 音频 (.m4a)</value>
+  </data>
+  <data name="Format_M4b" xml:space="preserve">
+    <value>有声书 (.m4b)</value>
+  </data>
+  <data name="Format_M4r" xml:space="preserve">
+    <value>铃声 (.m4r)</value>
+  </data>
+  <data name="Format_M4v" xml:space="preserve">
+    <value>MPEG-4 视频 (.m4v)</value>
+  </data>
+  <data name="Format_Mka" xml:space="preserve">
+    <value>Matroska Audio (.mka)</value>
+  </data>
+  <data name="Format_Mkv" xml:space="preserve">
+    <value>Matroska (.mkv)</value>
+  </data>
+  <data name="Format_Mp4" xml:space="preserve">
+    <value>MPEG-4 (.mp4)</value>
+  </data>
+  <data name="Format_Webm" xml:space="preserve">
+    <value>WebM (.webm)</value>
+  </data>
+  <data name="Import_CheckSameLanguage" xml:space="preserve">
+    <value>仅勾选此语言的轨道</value>
+  </data>
+  <data name="Import_FFmpegMissing" xml:space="preserve">
+    <value>音频转换需要 FFmpeg 9 库，但未找到。</value>
+  </data>
+  <data name="Import_FrameRateTooltip" xml:space="preserve">
+    <value>原始视频流的帧率</value>
+  </data>
+  <data name="Import_ImportMetadata" xml:space="preserve">
+    <value>从源文件导入元数据（标签、插图）</value>
+  </data>
+  <data name="Import_Reading" xml:space="preserve">
+    <value>读取文件…</value>
+  </data>
+  <data name="Import_TitleFormat" xml:space="preserve">
+    <value>导入轨道到 {0}</value>
+  </data>
+  <data name="Import_TrackCheckbox" xml:space="preserve">
+    <value>导入此轨道</value>
+  </data>
+  <data name="Import_TracksFoundFormat" xml:space="preserve">
+    <value>{0} 条轨道已发现。</value>
+  </data>
+  <data name="LanguagePicker_Search" xml:space="preserve">
+    <value>搜索语言</value>
+  </data>
+  <data name="Log_AudioScanSkippedFormat" xml:space="preserve">
+    <value>已跳过对{0}的音频扫描：{1}</value>
+  </data>
+  <data name="Log_CannotImportFromFormat" xml:space="preserve">
+    <value>无法从“{0}”导入</value>
+  </data>
+  <data name="Log_CannotPreventSleepFormat" xml:space="preserve">
+    <value>无法阻止睡眠（{0}：{1}）。</value>
+  </data>
+  <data name="Log_CannotPreventSleepWindows" xml:space="preserve">
+    <value>无法阻止睡眠（SetThreadExecutionState 失败）。</value>
+  </data>
+  <data name="Log_CouldNotDecodeArtworkFormat" xml:space="preserve">
+    <value>无法解码插图：{0}</value>
+  </data>
+  <data name="Log_CouldNotOpenFileManagerFormat" xml:space="preserve">
+    <value>无法打开文件管理器：{0}</value>
+  </data>
+  <data name="Log_CouldNotOpenFormat" xml:space="preserve">
+    <value>无法打开“{0}”</value>
+  </data>
+  <data name="Log_CouldNotReadSettings" xml:space="preserve">
+    <value>无法读取设置；使用默认值</value>
+  </data>
+  <data name="Log_CouldNotSaveQueue" xml:space="preserve">
+    <value>无法保存队列</value>
+  </data>
+  <data name="Log_CouldNotSaveSettings" xml:space="preserve">
+    <value>无法保存设置</value>
+  </data>
+  <data name="Log_DolbyVisionNotSignalledFormat" xml:space="preserve">
+    <value>{0}：在比特流中发现Dolby Vision {1}，但容器未标记。</value>
+  </data>
+  <data name="Log_DolbyVisionRebuiltFormat" xml:space="preserve">
+    <value>{0}：重建Dolby Vision配置（{1}，级别{2}）。</value>
+  </data>
+  <data name="Log_ExportTrackFailedFormat" xml:space="preserve">
+    <value>导出“{1}”的轨道{0}失败</value>
+  </data>
+  <data name="Log_ExportedTrackFormat" xml:space="preserve">
+    <value>已导出{0}轨道{1}到“{2}”。</value>
+  </data>
+  <data name="Log_NoConversionChoicesFormat" xml:space="preserve">
+    <value>轨道{0}没有转换选项：{1}</value>
+  </data>
+  <data name="Log_NoMetadataImportedFormat" xml:space="preserve">
+    <value>未从{0}导入元数据：{1}</value>
+  </data>
+  <data name="Log_OpenedFormat" xml:space="preserve">
+    <value>已打开“{0}”。</value>
+  </data>
+  <data name="Log_SaveFailedFormat" xml:space="preserve">
+    <value>保存“{0}”失败</value>
+  </data>
+  <data name="Log_SavedSetFormat" xml:space="preserve">
+    <value>已保存集合“{0}”。</value>
+  </data>
+  <data name="Log_SingleInstancePipeFormat" xml:space="preserve">
+    <value>单实例管道：{0}</value>
+  </data>
+  <data name="Log_ThumbnailFailedFormat" xml:space="preserve">
+    <value>缩略图{0}失败：{1}</value>
+  </data>
+  <data name="Log_Title" xml:space="preserve">
+    <value>消息日志</value>
+  </data>
+  <data name="Log_TrackNotInspectedFormat" xml:space="preserve">
+    <value>无法检查“{1}”的轨道{0}；复制将直接传递：{2}</value>
+  </data>
+  <data name="Log_UnknownInterfaceLanguageFormat" xml:space="preserve">
+    <value>未知的界面语言“{0}”：{1}</value>
+  </data>
+  <data name="Log_VideoScanSkippedFormat" xml:space="preserve">
+    <value>已跳过对{0}的视频扫描：{1}</value>
+  </data>
+  <data name="Menu_Chapters_10Minutes" xml:space="preserve">
+    <value>10分钟</value>
+  </data>
+  <data name="Menu_Chapters_15Minutes" xml:space="preserve">
+    <value>15分钟</value>
+  </data>
+  <data name="Menu_Chapters_1Minute" xml:space="preserve">
+    <value>1分钟</value>
+  </data>
+  <data name="Menu_Chapters_20Minutes" xml:space="preserve">
+    <value>20分钟</value>
+  </data>
+  <data name="Menu_Chapters_2Minutes" xml:space="preserve">
+    <value>2分钟</value>
+  </data>
+  <data name="Menu_Chapters_30Minutes" xml:space="preserve">
+    <value>30分钟</value>
+  </data>
+  <data name="Menu_Chapters_5Minutes" xml:space="preserve">
+    <value>5分钟</value>
+  </data>
+  <data name="Menu_Chapters_AtBeginning" xml:space="preserve">
+    <value>在开始处</value>
+  </data>
+  <data name="Menu_Copy" xml:space="preserve">
+    <value>拷贝</value>
+  </data>
+  <data name="Menu_Edit" xml:space="preserve">
+    <value>编辑(_E)</value>
+  </data>
+  <data name="Menu_Edit_Redo" xml:space="preserve">
+    <value>重做</value>
+  </data>
+  <data name="Menu_Edit_RedoFormat" xml:space="preserve">
+    <value>重做 {0}</value>
+  </data>
+  <data name="Menu_Edit_Undo" xml:space="preserve">
+    <value>撤销</value>
+  </data>
+  <data name="Menu_Edit_UndoFormat" xml:space="preserve">
+    <value>撤销 {0}</value>
+  </data>
+  <data name="Menu_Export" xml:space="preserve">
+    <value>导出…</value>
+  </data>
+  <data name="Menu_File" xml:space="preserve">
+    <value>文件(_F)</value>
+  </data>
+  <data name="Menu_File_ClearRecent" xml:space="preserve">
+    <value>清除菜单</value>
+  </data>
+  <data name="Menu_File_Close" xml:space="preserve">
+    <value>关闭(_C)</value>
+  </data>
+  <data name="Menu_File_Exit" xml:space="preserve">
+    <value>退出(_X)</value>
+  </data>
+  <data name="Menu_File_ExportNfo" xml:space="preserve">
+    <value>导出 _NFO…</value>
+  </data>
+  <data name="Menu_File_Open" xml:space="preserve">
+    <value>打开(_O)…</value>
+  </data>
+  <data name="Menu_File_OpenRecent" xml:space="preserve">
+    <value>最近打开(_R)</value>
+  </data>
+  <data name="Menu_File_Preferences" xml:space="preserve">
+    <value>偏好设置(_P)…</value>
+  </data>
+  <data name="Menu_File_Save" xml:space="preserve">
+    <value>保存(_S)</value>
+  </data>
+  <data name="Menu_File_SaveAs" xml:space="preserve">
+    <value>另存为(_A)…</value>
+  </data>
+  <data name="Menu_File_SendToQueue" xml:space="preserve">
+    <value>发送到队列(_Q)</value>
+  </data>
+  <data name="Menu_Help" xml:space="preserve">
+    <value>帮助(_H)</value>
+  </data>
+  <data name="Menu_Help_About" xml:space="preserve">
+    <value>关于 Media Muxing Wizard(_A)</value>
+  </data>
+  <data name="Menu_Metadata" xml:space="preserve">
+    <value>元数据(_M)</value>
+  </data>
+  <data name="Menu_Metadata_Search" xml:space="preserve">
+    <value>在线搜索(_S)…</value>
+  </data>
+  <data name="Menu_Paste" xml:space="preserve">
+    <value>粘贴</value>
+  </data>
+  <data name="Menu_Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="Menu_Tracks" xml:space="preserve">
+    <value>轨道(_T)</value>
+  </data>
+  <data name="Menu_Tracks_ApplyColorSpace" xml:space="preserve">
+    <value>应用颜色空间(_S)</value>
+  </data>
+  <data name="Menu_Tracks_ClearNames" xml:space="preserve">
+    <value>清除轨道名称(_C)</value>
+  </data>
+  <data name="Menu_Tracks_CompleteLanguages" xml:space="preserve">
+    <value>补全轨道语言(_L)…</value>
+  </data>
+  <data name="Menu_Tracks_DeleteSelected" xml:space="preserve">
+    <value>删除所选轨道(_D)</value>
+  </data>
+  <data name="Menu_Tracks_Duplicate" xml:space="preserve">
+    <value>复制轨道(_T)</value>
+  </data>
+  <data name="Menu_Tracks_FixFallbacks" xml:space="preserve">
+    <value>修复音频后备轨道(_F)</value>
+  </data>
+  <data name="Menu_Tracks_Import" xml:space="preserve">
+    <value>导入(_I)…</value>
+  </data>
+  <data name="Menu_Tracks_InsertChapterEvery" xml:space="preserve">
+    <value>每隔固定时间插入章节(_E)</value>
+  </data>
+  <data name="Menu_Tracks_MoveDown" xml:space="preserve">
+    <value>下移轨道(_W)</value>
+  </data>
+  <data name="Menu_Tracks_MoveUp" xml:space="preserve">
+    <value>上移轨道(_U)</value>
+  </data>
+  <data name="Menu_Tracks_Offset" xml:space="preserve">
+    <value>偏移(_O)…</value>
+  </data>
+  <data name="Menu_Tracks_OrganizeGroups" xml:space="preserve">
+    <value>整理备用组(_O)</value>
+  </data>
+  <data name="Menu_Tracks_PrettifyAudioNames" xml:space="preserve">
+    <value>美化音频轨道名称(_P)</value>
+  </data>
+  <data name="Menu_Window" xml:space="preserve">
+    <value>窗口(_W)</value>
+  </data>
+  <data name="Menu_Window_Log" xml:space="preserve">
+    <value>消息日志(_L)</value>
+  </data>
+  <data name="Menu_Window_Queue" xml:space="preserve">
+    <value>队列(_Q)</value>
+  </data>
+  <data name="MetadataInspector_AddArtworkTooltip" xml:space="preserve">
+    <value>从文件添加插图</value>
+  </data>
+  <data name="MetadataInspector_AddName" xml:space="preserve">
+    <value>添加名称…</value>
+  </data>
+  <data name="MetadataInspector_AddTag" xml:space="preserve">
+    <value>添加标签</value>
+  </data>
+  <data name="MetadataInspector_AddTagTooltip" xml:space="preserve">
+    <value>添加一个标签</value>
+  </data>
+  <data name="MetadataInspector_Artwork" xml:space="preserve">
+    <value>插图</value>
+  </data>
+  <data name="MetadataInspector_ArtworkEmpty" xml:space="preserve">
+    <value>在此处拖放图片或使用+添加插图。</value>
+  </data>
+  <data name="MetadataInspector_Choose" xml:space="preserve">
+    <value>选择…</value>
+  </data>
+  <data name="MetadataInspector_ChooseRating" xml:space="preserve">
+    <value>选择分级…</value>
+  </data>
+  <data name="MetadataInspector_Empty" xml:space="preserve">
+    <value>无标签。使用“添加标签”或“预设”来添加，或者将插图、NFO 或章节文件拖到窗口。</value>
+  </data>
+  <data name="MetadataInspector_ExportArtworkTooltip" xml:space="preserve">
+    <value>导出所选插图</value>
+  </data>
+  <data name="MetadataInspector_FilterTags" xml:space="preserve">
+    <value>筛选标签</value>
+  </data>
+  <data name="MetadataInspector_MoveArtworkDownTooltip" xml:space="preserve">
+    <value>向后移动</value>
+  </data>
+  <data name="MetadataInspector_MoveArtworkUpTooltip" xml:space="preserve">
+    <value>向前移动（第一张图片为封面）</value>
+  </data>
+  <data name="MetadataInspector_RemoveArtworkTooltip" xml:space="preserve">
+    <value>移除所选插图</value>
+  </data>
+  <data name="MetadataInspector_RemoveName" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="MetadataInspector_RemoveTag" xml:space="preserve">
+    <value>移除标签</value>
+  </data>
+  <data name="MetadataInspector_Sets" xml:space="preserve">
+    <value>预设</value>
+  </data>
+  <data name="MetadataInspector_SetsTooltip" xml:space="preserve">
+    <value>应用或保存一组标签</value>
+  </data>
+  <data name="MetadataInspector_Size" xml:space="preserve">
+    <value>尺寸</value>
+  </data>
+  <data name="MetadataInspector_Tags" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="MultiSelection_ClearNames" xml:space="preserve">
+    <value>清除名称</value>
+  </data>
+  <data name="MultiSelection_CountFormat" xml:space="preserve">
+    <value>{0} 条轨道已选择</value>
+  </data>
+  <data name="MultiSelection_MultipleValues" xml:space="preserve">
+    <value>多值</value>
+  </data>
+  <data name="Notice_DolbyVisionMissingFormat" xml:space="preserve">
+    <value>此视频包含 Dolby Vision（配置文件 {0}，级别 {1}），但文件缺少 Dolby Vision 配置，因此播放器会将其显示为 {2}。该配置可从视频比特流中的基础层和 RPU 重建。</value>
+  </data>
+  <data name="Notification_QueueFinished_MessageFormat" xml:space="preserve">
+    <value>{0} 完成，{1} 失败。</value>
+  </data>
+  <data name="Notification_QueueFinished_Title" xml:space="preserve">
+    <value>任务队列完成</value>
+  </data>
+  <data name="Ocr_DownloadFailed_Title" xml:space="preserve">
+    <value>下载失败</value>
+  </data>
+  <data name="Ocr_Download_MessageFormat" xml:space="preserve">
+    <value>OCR 需要 {0} 语言模型，尚未安装。立即下载吗（几兆）？</value>
+  </data>
+  <data name="Ocr_Download_Title" xml:space="preserve">
+    <value>下载 OCR 语言</value>
+  </data>
+  <data name="Ocr_NotAvailable_Title" xml:space="preserve">
+    <value>OCR 不可用</value>
+  </data>
+  <data name="Ocr_TesseractNotFound" xml:space="preserve">
+    <value>未找到 Tesseract。</value>
+  </data>
+  <data name="Ocr_Warning" xml:space="preserve">
+    <value>我们的内置 OCR 功能较为基础。Subtitle Edit (https://www.nikse.dk/subtitleedit) 在将图像字幕转换为文本方面效果好得多，我们建议使用它，然后导入生成的 SRT 文件。</value>
+  </data>
+  <data name="Preferences_64BitOffsets" xml:space="preserve">
+    <value>始终使用 64 位块偏移量（自动大于 4GB）</value>
+  </data>
+  <data name="Preferences_64BitTimes" xml:space="preserve">
+    <value>使用 64 位时间</value>
+  </data>
+  <data name="Preferences_AacBitrate" xml:space="preserve">
+    <value>AAC 每通道比特率：</value>
+  </data>
+  <data name="Preferences_AddMapping" xml:space="preserve">
+    <value>添加映射</value>
+  </data>
+  <data name="Preferences_Appearance" xml:space="preserve">
+    <value>外观：</value>
+  </data>
+  <data name="Preferences_Audio" xml:space="preserve">
+    <value>音频</value>
+  </data>
+  <data name="Preferences_AvailableValues" xml:space="preserve">
+    <value>可用值：</value>
+  </data>
+  <data name="Preferences_CacheCleared" xml:space="preserve">
+    <value>已删除缓存结果和最近搜索。</value>
+  </data>
+  <data name="Preferences_Chapters" xml:space="preserve">
+    <value>章节：</value>
+  </data>
+  <data name="Preferences_ConvertAc3" xml:space="preserve">
+    <value>建议在导入 MP4 时将 AC-3 音频转换为 AAC</value>
+  </data>
+  <data name="Preferences_ConvertDts" xml:space="preserve">
+    <value>建议在导入 MP4 时使用 AAC + Passthru 处理 DTS 音频</value>
+  </data>
+  <data name="Preferences_CreatePreviews" xml:space="preserve">
+    <value>保存 MP4 时创建预览图像，位于</value>
+  </data>
+  <data name="Preferences_DeleteCache" xml:space="preserve">
+    <value>删除缓存结果</value>
+  </data>
+  <data name="Preferences_Detect4K" xml:space="preserve">
+    <value>检测 HD 视频的 4K（某些 Apple TV 型号随后拒绝 1080p 流式播放）</value>
+  </data>
+  <data name="Preferences_DolbyVisionDav1" xml:space="preserve">
+    <value>将 AV1 Dolby Vision 10.0 存储为 dav1</value>
+  </data>
+  <data name="Preferences_DolbyVisionDav1_Note" xml:space="preserve">
+    <value>dav1 是 Dolby 规范所需的示例条目，但大多数播放器（FFmpeg、mpv、Plex、Jellyfin…）无法读取它。取消选中时，将使用带有 Dolby Vision 配置的 av01，它们可以正确播放。</value>
+  </data>
+  <data name="Preferences_Downmix" xml:space="preserve">
+    <value>缩混音频至：</value>
+  </data>
+  <data name="Preferences_Drc" xml:space="preserve">
+    <value>动态范围压缩：</value>
+  </data>
+  <data name="Preferences_FFmpegAvailableFormat" xml:space="preserve">
+    <value>FFmpeg {0} 可用。</value>
+  </data>
+  <data name="Preferences_FFmpegMissingFormat" xml:space="preserve">
+    <value>未找到 FFmpeg 库：{0}</value>
+  </data>
+  <data name="Preferences_FileName" xml:space="preserve">
+    <value>文件名</value>
+  </data>
+  <data name="Preferences_FileNameHelp" xml:space="preserve">
+    <value>使用 {Tag Name} 标记。添加 :00 填充前导零，:yyyy 表示日期年份，以及 |upper、|lower、|capitalize、|camel、|snake、|train 或 |dot 来更改大小写。</value>
+  </data>
+  <data name="Preferences_FileNameMovies" xml:space="preserve">
+    <value>电影：</value>
+  </data>
+  <data name="Preferences_FileNameTvShows" xml:space="preserve">
+    <value>电视节目：</value>
+  </data>
+  <data name="Preferences_General" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="Preferences_Kbps" xml:space="preserve">
+    <value>kbit/s</value>
+  </data>
+  <data name="Preferences_KeepEmpty" xml:space="preserve">
+    <value>保留结果未提供的现有值</value>
+  </data>
+  <data name="Preferences_KeyPlaceholder" xml:space="preserve">
+    <value>来自 appsettings.json 或环境变量</value>
+  </data>
+  <data name="Preferences_Language" xml:space="preserve">
+    <value>语言：</value>
+  </data>
+  <data name="Preferences_LanguageRestartNote" xml:space="preserve">
+    <value>更改语言后需重新启动应用程序才能生效。</value>
+  </data>
+  <data name="Preferences_LanguageSystem" xml:space="preserve">
+    <value>系统默认</value>
+  </data>
+  <data name="Preferences_MapHeader" xml:space="preserve">
+    <value>将提供商值映射到标签</value>
+  </data>
+  <data name="Preferences_MapMovies" xml:space="preserve">
+    <value>电影：</value>
+  </data>
+  <data name="Preferences_MapTv" xml:space="preserve">
+    <value>电视节目：</value>
+  </data>
+  <data name="Preferences_Metadata" xml:space="preserve">
+    <value>元数据</value>
+  </data>
+  <data name="Preferences_MoveSetUp" xml:space="preserve">
+    <value>上移（预设 1–9 有键盘快捷键）</value>
+  </data>
+  <data name="Preferences_Movies" xml:space="preserve">
+    <value>电影：</value>
+  </data>
+  <data name="Preferences_Ocr" xml:space="preserve">
+    <value>OCR</value>
+  </data>
+  <data name="Preferences_OcrAvailableFormat" xml:space="preserve">
+    <value>{0} 可用。模型存储在 {1}。</value>
+  </data>
+  <data name="Preferences_OcrFilter" xml:space="preserve">
+    <value>过滤语言模型</value>
+  </data>
+  <data name="Preferences_OcrInstalled" xml:space="preserve">
+    <value>已安装</value>
+  </data>
+  <data name="Preferences_OcrLanguage" xml:space="preserve">
+    <value>识别语言：</value>
+  </data>
+  <data name="Preferences_OcrSameAsTrack" xml:space="preserve">
+    <value>与字幕轨道相同</value>
+  </data>
+  <data name="Preferences_OcrUnavailableFormat" xml:space="preserve">
+    <value>OCR 不可用：{0}</value>
+  </data>
+  <data name="Preferences_OptimizeOnSave" xml:space="preserve">
+    <value>优化时保存（交错，首部优先）</value>
+  </data>
+  <data name="Preferences_Overwrite" xml:space="preserve">
+    <value>覆盖现有标签</value>
+  </data>
+  <data name="Preferences_PreviewEmpty" xml:space="preserve">
+    <value>(空)</value>
+  </data>
+  <data name="Preferences_Preview_Beginning" xml:space="preserve">
+    <value>开始处</value>
+  </data>
+  <data name="Preferences_Preview_End" xml:space="preserve">
+    <value>结尾处</value>
+  </data>
+  <data name="Preferences_Preview_Middle" xml:space="preserve">
+    <value>中间处</value>
+  </data>
+  <data name="Preferences_RememberSize" xml:space="preserve">
+    <value>记住尺寸</value>
+  </data>
+  <data name="Preferences_RemoveMapping" xml:space="preserve">
+    <value>移除映射</value>
+  </data>
+  <data name="Preferences_RemoveSet" xml:space="preserve">
+    <value>删除所选预设</value>
+  </data>
+  <data name="Preferences_ReplaceArtwork" xml:space="preserve">
+    <value>用所选插图替换现有插图</value>
+  </data>
+  <data name="Preferences_SampleEpisode" xml:space="preserve">
+    <value>试播集</value>
+  </data>
+  <data name="Preferences_SampleMovie" xml:space="preserve">
+    <value>电影</value>
+  </data>
+  <data name="Preferences_SampleShow" xml:space="preserve">
+    <value>节目</value>
+  </data>
+  <data name="Preferences_Saving" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Preferences_Sets" xml:space="preserve">
+    <value>预设</value>
+  </data>
+  <data name="Preferences_SetsHelp" xml:space="preserve">
+    <value>已保存的预设会从元数据检查器中的“预设”按钮应用。</value>
+  </data>
+  <data name="Preferences_ShowRatingsFor" xml:space="preserve">
+    <value>显示分级：</value>
+  </data>
+  <data name="Preferences_TagCountFormat" xml:space="preserve">
+    <value>{0} 个标签</value>
+  </data>
+  <data name="Preferences_Theme_Dark" xml:space="preserve">
+    <value>暗色</value>
+  </data>
+  <data name="Preferences_Theme_Light" xml:space="preserve">
+    <value>亮色</value>
+  </data>
+  <data name="Preferences_Theme_System" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="Preferences_Title" xml:space="preserve">
+    <value>偏好设置</value>
+  </data>
+  <data name="Preferences_TmdbKey" xml:space="preserve">
+    <value>TheMovieDB 密钥：</value>
+  </data>
+  <data name="Preferences_TvShows" xml:space="preserve">
+    <value>电视节目：</value>
+  </data>
+  <data name="Preferences_TvdbKey" xml:space="preserve">
+    <value>TheTVDB 密钥：</value>
+  </data>
+  <data name="Preferences_UsaRatingsNote" xml:space="preserve">
+    <value>将始终显示美国的分级选项。</value>
+  </data>
+  <data name="Preferences_UseFileNameFormat" xml:space="preserve">
+    <value>根据其标签命名已保存的文件</value>
+  </data>
+  <data name="Preferences_Window" xml:space="preserve">
+    <value>窗口：</value>
+  </data>
+  <data name="QueueAction_FetchMetadata" xml:space="preserve">
+    <value>在线搜索元数据</value>
+  </data>
+  <data name="QueueAction_LoadSubtitles" xml:space="preserve">
+    <value>加载外置字幕</value>
+  </data>
+  <data name="QueueAction_PrepareTracks" xml:space="preserve">
+    <value>为输出格式准备轨道</value>
+  </data>
+  <data name="QueueLog_DroppingTrackFormat" xml:space="preserve">
+    <value>丢弃轨道 {0} ({1})：无法存储在输出格式中。</value>
+  </data>
+  <data name="QueueLog_LoadedSubtitlesFormat" xml:space="preserve">
+    <value>已从 {1} 加载 {0} 条字幕轨道。</value>
+  </data>
+  <data name="QueueLog_NoResultsFormat" xml:space="preserve">
+    <value>{0}: 未找到 “{1}” 的结果。</value>
+  </data>
+  <data name="QueueLog_NothingToSearch" xml:space="preserve">
+    <value>没有可搜索的内容（标签或文件名中无标题）。</value>
+  </data>
+  <data name="QueueLog_TrackConversionFormat" xml:space="preserve">
+    <value>轨道 {0} ({1})：{2}。</value>
+  </data>
+  <data name="Queue_Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="Queue_ApplySet" xml:space="preserve">
+    <value>应用预设：</value>
+  </data>
+  <data name="Queue_AutoStart" xml:space="preserve">
+    <value>添加文件时自动开始</value>
+  </data>
+  <data name="Queue_ClearMetadata" xml:space="preserve">
+    <value>清除元数据</value>
+  </data>
+  <data name="Queue_ClearTrackNames" xml:space="preserve">
+    <value>清除轨道名称</value>
+  </data>
+  <data name="Queue_ColourSpace" xml:space="preserve">
+    <value>色彩空间：</value>
+  </data>
+  <data name="Queue_CompleteLanguages" xml:space="preserve">
+    <value>完整语言：</value>
+  </data>
+  <data name="Queue_Empty" xml:space="preserve">
+    <value>将文件拖放至此或使用“添加”。每个文件都会获得右侧选择的行为。</value>
+  </data>
+  <data name="Queue_EnableAudio" xml:space="preserve">
+    <value>启用音频于：</value>
+  </data>
+  <data name="Queue_EnableSubtitles" xml:space="preserve">
+    <value>启用字幕于：</value>
+  </data>
+  <data name="Queue_FetchMetadata" xml:space="preserve">
+    <value>在线搜索元数据，插图：</value>
+  </data>
+  <data name="Queue_FileType" xml:space="preserve">
+    <value>文件类型：</value>
+  </data>
+  <data name="Queue_FixFallbacks" xml:space="preserve">
+    <value>修复音频回退</value>
+  </data>
+  <data name="Queue_Folder" xml:space="preserve">
+    <value>文件夹：</value>
+  </data>
+  <data name="Queue_LoadChapters" xml:space="preserve">
+    <value>从与文件同目录下的 .txt 加载章节</value>
+  </data>
+  <data name="Queue_LoadSubtitles" xml:space="preserve">
+    <value>加载与文件同名的字幕 (.srt, .ass, .vtt)</value>
+  </data>
+  <data name="Queue_Menu_Edit" xml:space="preserve">
+    <value>编辑…</value>
+  </data>
+  <data name="Queue_Menu_RemoveCompleted" xml:space="preserve">
+    <value>移除已完成项</value>
+  </data>
+  <data name="Queue_Menu_RemoveFromQueue" xml:space="preserve">
+    <value>从队列中移除</value>
+  </data>
+  <data name="Queue_Menu_Reveal" xml:space="preserve">
+    <value>在文件管理器中显示</value>
+  </data>
+  <data name="Queue_Menu_RunAgain" xml:space="preserve">
+    <value>再次运行</value>
+  </data>
+  <data name="Queue_Metadata" xml:space="preserve">
+    <value>元数据</value>
+  </data>
+  <data name="Queue_NameFromTags" xml:space="preserve">
+    <value>根据标签命名输出文件</value>
+  </data>
+  <data name="Queue_NoSavedSets" xml:space="preserve">
+    <value>无已保存的预设</value>
+  </data>
+  <data name="Queue_NotifyWhenDone" xml:space="preserve">
+    <value>完成后通知</value>
+  </data>
+  <data name="Queue_OptimizeMp4" xml:space="preserve">
+    <value>优化MP4输出</value>
+  </data>
+  <data name="Queue_OrganizeGroups" xml:space="preserve">
+    <value>整理备用组</value>
+  </data>
+  <data name="Queue_Output" xml:space="preserve">
+    <value>输出</value>
+  </data>
+  <data name="Queue_PrettifyAudioNames" xml:space="preserve">
+    <value>美化音轨名称</value>
+  </data>
+  <data name="Queue_Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="Queue_RenameChapters" xml:space="preserve">
+    <value>重命名章节</value>
+  </data>
+  <data name="Queue_SameFolder" xml:space="preserve">
+    <value>与源文件相同的文件夹</value>
+  </data>
+  <data name="Queue_Start" xml:space="preserve">
+    <value>开始</value>
+  </data>
+  <data name="Queue_Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Queue_SummaryFormat" xml:space="preserve">
+    <value>{0} 项 · {1} 已就绪 · {2} 已完成 · {3} 失败</value>
+  </data>
+  <data name="Queue_SummaryRunningFormat" xml:space="preserve">
+    <value>运行中 · {0}</value>
+  </data>
+  <data name="Queue_Title" xml:space="preserve">
+    <value>任务队列</value>
+  </data>
+  <data name="Queue_Tooltip_Add" xml:space="preserve">
+    <value>添加文件到队列</value>
+  </data>
+  <data name="Queue_Tooltip_Remove" xml:space="preserve">
+    <value>移除所选项目</value>
+  </data>
+  <data name="Queue_Tooltip_Start" xml:space="preserve">
+    <value>处理所有就绪项</value>
+  </data>
+  <data name="Queue_Tooltip_Stop" xml:space="preserve">
+    <value>取消当前项目后停止</value>
+  </data>
+  <data name="Queue_Tracks" xml:space="preserve">
+    <value>轨道</value>
+  </data>
+  <data name="SaveAs_64BitOffsets" xml:space="preserve">
+    <value>64 位块偏移量（适用于大于 4 GB 的文件）</value>
+  </data>
+  <data name="SaveAs_64BitTimes" xml:space="preserve">
+    <value>64 位时间戳</value>
+  </data>
+  <data name="SaveAs_CopyNameFormat" xml:space="preserve">
+    <value>{0} 副本</value>
+  </data>
+  <data name="SaveAs_File" xml:space="preserve">
+    <value>文件：</value>
+  </data>
+  <data name="SaveAs_Format" xml:space="preserve">
+    <value>格式：</value>
+  </data>
+  <data name="SaveAs_Optimize" xml:space="preserve">
+    <value>优化（交错并将头部放在首位以便流式传输）</value>
+  </data>
+  <data name="SaveAs_Title" xml:space="preserve">
+    <value>另存为…</value>
+  </data>
+  <data name="SaveAs_Untitled" xml:space="preserve">
+    <value>无标题</value>
+  </data>
+  <data name="SaveSet_Description" xml:space="preserve">
+    <value>将当前标签和插图保存为可重用的预设。</value>
+  </data>
+  <data name="SaveSet_KeepArtwork" xml:space="preserve">
+    <value>保留文件已有插图（添加预设插图）</value>
+  </data>
+  <data name="SaveSet_KeepTags" xml:space="preserve">
+    <value>保留文件已有标签值（仅填充缺失的标签）</value>
+  </data>
+  <data name="SaveSet_NamePlaceholder" xml:space="preserve">
+    <value>预设名称</value>
+  </data>
+  <data name="SaveSet_Title" xml:space="preserve">
+    <value>保存预设…</value>
+  </data>
+  <data name="SaveSet_WhenApplied" xml:space="preserve">
+    <value>当此预设被应用时：</value>
+  </data>
+  <data name="Search_AllEpisodes" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Search_AllSeasons" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Search_AnyYear" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Search_Column_Tag" xml:space="preserve">
+    <value>标签</value>
+  </data>
+  <data name="Search_Column_Value" xml:space="preserve">
+    <value>值</value>
+  </data>
+  <data name="Search_CouldNotDownloadFormat" xml:space="preserve">
+    <value>无法下载插图：{0}</value>
+  </data>
+  <data name="Search_DetailsFormat" xml:space="preserve">
+    <value>{0} · {1} 张插图</value>
+  </data>
+  <data name="Search_DownloadingArtwork" xml:space="preserve">
+    <value>下载插图…</value>
+  </data>
+  <data name="Search_Episode" xml:space="preserve">
+    <value>剧集：</value>
+  </data>
+  <data name="Search_Language" xml:space="preserve">
+    <value>语言：</value>
+  </data>
+  <data name="Search_LoadingDetails" xml:space="preserve">
+    <value>加载详情…</value>
+  </data>
+  <data name="Search_Movie" xml:space="preserve">
+    <value>电影</value>
+  </data>
+  <data name="Search_MovieTitle" xml:space="preserve">
+    <value>电影标题</value>
+  </data>
+  <data name="Search_NoResults" xml:space="preserve">
+    <value>没有结果。</value>
+  </data>
+  <data name="Search_OneResult" xml:space="preserve">
+    <value>1 个结果。</value>
+  </data>
+  <data name="Search_Provider" xml:space="preserve">
+    <value>提供商：</value>
+  </data>
+  <data name="Search_ProviderNeedsKeyFormat" xml:space="preserve">
+    <value>{0} 需要一个 API 密钥。请将其添加到 appsettings.json 或在 偏好设置 → 元数据 中。</value>
+  </data>
+  <data name="Search_ReplaceArtwork" xml:space="preserve">
+    <value>替换现有插图</value>
+  </data>
+  <data name="Search_ResultsFormat" xml:space="preserve">
+    <value>{0} 个结果。</value>
+  </data>
+  <data name="Search_SearchingEpisodeFormat" xml:space="preserve">
+    <value>正在搜索 {0} 的剧集信息…</value>
+  </data>
+  <data name="Search_SearchingMovieFormat" xml:space="preserve">
+    <value>正在搜索 {0} 的电影信息…</value>
+  </data>
+  <data name="Search_Season" xml:space="preserve">
+    <value>季：</value>
+  </data>
+  <data name="Search_SeasonFormat" xml:space="preserve">
+    <value>季 {0}</value>
+  </data>
+  <data name="Search_Title" xml:space="preserve">
+    <value>搜索元数据</value>
+  </data>
+  <data name="Search_TvEpisode" xml:space="preserve">
+    <value>电视剧集</value>
+  </data>
+  <data name="Search_TvShow" xml:space="preserve">
+    <value>电视节目</value>
+  </data>
+  <data name="Search_Year" xml:space="preserve">
+    <value>年份：</value>
+  </data>
+  <data name="Sets_All" xml:space="preserve">
+    <value>全部</value>
+  </data>
+  <data name="Sets_Movie" xml:space="preserve">
+    <value>电影</value>
+  </data>
+  <data name="Sets_Save" xml:space="preserve">
+    <value>保存预设…</value>
+  </data>
+  <data name="Sets_TvShow" xml:space="preserve">
+    <value>电视节目</value>
+  </data>
+  <data name="Status_ChaptersFormat" xml:space="preserve">
+    <value>{0}章节</value>
+  </data>
+  <data name="Status_TracksFormat" xml:space="preserve">
+    <value>{0}轨道</value>
+  </data>
+  <data name="Status_UnknownContainer" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Tag_UnknownChoiceFormat" xml:space="preserve">
+    <value>未知 ({0})</value>
+  </data>
+  <data name="Tag_WatermarkDate" xml:space="preserve">
+    <value>YYYY-MM-DD</value>
+  </data>
+  <data name="Tag_WatermarkPair" xml:space="preserve">
+    <value>n / total</value>
+  </data>
+  <data name="Toolbar_Action" xml:space="preserve">
+    <value>行为</value>
+  </data>
+  <data name="Toolbar_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Toolbar_Import" xml:space="preserve">
+    <value>导入</value>
+  </data>
+  <data name="Toolbar_Open" xml:space="preserve">
+    <value>打开</value>
+  </data>
+  <data name="Toolbar_Queue" xml:space="preserve">
+    <value>任务队列</value>
+  </data>
+  <data name="Toolbar_Redo" xml:space="preserve">
+    <value>重做</value>
+  </data>
+  <data name="Toolbar_Save" xml:space="preserve">
+    <value>存储</value>
+  </data>
+  <data name="Toolbar_Search" xml:space="preserve">
+    <value>搜索</value>
+  </data>
+  <data name="Toolbar_SendToQueue" xml:space="preserve">
+    <value>发送到任务队列</value>
+  </data>
+  <data name="Toolbar_Undo" xml:space="preserve">
+    <value>撤销</value>
+  </data>
+  <data name="Tooltip_Actions" xml:space="preserve">
+    <value>轨道和章节行为</value>
+  </data>
+  <data name="Tooltip_CloseTab" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="Tooltip_DeleteTracks" xml:space="preserve">
+    <value>删除所选轨道</value>
+  </data>
+  <data name="Tooltip_ImportTracks" xml:space="preserve">
+    <value>从其他文件导入轨道</value>
+  </data>
+  <data name="Tooltip_Open" xml:space="preserve">
+    <value>打开文件</value>
+  </data>
+  <data name="Tooltip_RepairDolbyVision" xml:space="preserve">
+    <value>添加从视频比特流重建的 Dolby Vision 配置</value>
+  </data>
+  <data name="Tooltip_Save" xml:space="preserve">
+    <value>保存更改</value>
+  </data>
+  <data name="Tooltip_SearchComingSoon" xml:space="preserve">
+    <value>在线搜索元数据（即将推出）</value>
+  </data>
+  <data name="Tooltip_SendToQueue" xml:space="preserve">
+    <value>将此文件发送到批处理队列</value>
+  </data>
+  <data name="Tooltip_ShowQueue" xml:space="preserve">
+    <value>显示批处理队列</value>
+  </data>
+  <data name="TrackInfo_BitrateFormat" xml:space="preserve">
+    <value>比特率：{0:0.#} kbit/s</value>
+  </data>
+  <data name="TrackInfo_ChannelsFormat" xml:space="preserve">
+    <value>声道：{0} {1}</value>
+  </data>
+  <data name="TrackInfo_DetailsFormat" xml:space="preserve">
+    <value>详情：{0}</value>
+  </data>
+  <data name="TrackInfo_DurationFormat" xml:space="preserve">
+    <value>持续时间：{0}</value>
+  </data>
+  <data name="TrackInfo_FormatFormat" xml:space="preserve">
+    <value>格式：{0}（{1}）</value>
+  </data>
+  <data name="TrackInfo_FrameRateFormat" xml:space="preserve">
+    <value>帧速率：{0:0.###} fps</value>
+  </data>
+  <data name="TrackInfo_PixelSizeFormat" xml:space="preserve">
+    <value>像素尺寸：{0}×{1}，PAR {2}:{3}</value>
+  </data>
+  <data name="TrackInfo_SampleRateFormat" xml:space="preserve">
+    <value>采样率：{0} Hz</value>
+  </data>
+  <data name="TrackInfo_SizeFormat" xml:space="preserve">
+    <value>大小：{0:0.##} MiB</value>
+  </data>
+  <data name="TrackInfo_SourceFormat" xml:space="preserve">
+    <value>源：{0}，轨道 {1}</value>
+  </data>
+  <data name="TrackInspector_AlternateGroup" xml:space="preserve">
+    <value>轨道分组：</value>
+  </data>
+  <data name="TrackInspector_AlternateGroupNone" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="TrackInspector_AmbientFormat" xml:space="preserve">
+    <value>环境光照：{0:0.#} lux</value>
+  </data>
+  <data name="TrackInspector_AppliedWhenSaving" xml:space="preserve">
+    <value>保存时应用</value>
+  </data>
+  <data name="TrackInspector_CharacteristicsHelp" xml:space="preserve">
+    <value>描述此轨道的用途，以便播放器能自动选择。</value>
+  </data>
+  <data name="TrackInspector_ColourSpace" xml:space="preserve">
+    <value>色彩空间：</value>
+  </data>
+  <data name="TrackInspector_Conversion" xml:space="preserve">
+    <value>转换：</value>
+  </data>
+  <data name="TrackInspector_ConversionTooltip" xml:space="preserve">
+    <value>保存时应用的转换</value>
+  </data>
+  <data name="TrackInspector_CustomColorFormat" xml:space="preserve">
+    <value>自定义（{0}）</value>
+  </data>
+  <data name="TrackInspector_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="TrackInspector_Delay" xml:space="preserve">
+    <value>延迟：</value>
+  </data>
+  <data name="TrackInspector_DelayName" xml:space="preserve">
+    <value>毫秒延迟</value>
+  </data>
+  <data name="TrackInspector_DelayNote" xml:space="preserve">
+    <value>ms（保存时应用；文件被重新封装）</value>
+  </data>
+  <data name="TrackInspector_DisplaySize" xml:space="preserve">
+    <value>显示尺寸：</value>
+  </data>
+  <data name="TrackInspector_DolbyVisionFormat" xml:space="preserve">
+    <value>Dolby Vision {0}</value>
+  </data>
+  <data name="TrackInspector_Enabled" xml:space="preserve">
+    <value>已启用：</value>
+  </data>
+  <data name="TrackInspector_EnabledCheck" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="TrackInspector_Fallback" xml:space="preserve">
+    <value>回退：</value>
+  </data>
+  <data name="TrackInspector_FallbackTooltip" xml:space="preserve">
+    <value>无法解码此轨道的设备将播放该轨道</value>
+  </data>
+  <data name="TrackInspector_FollowingSubtitles" xml:space="preserve">
+    <value>字幕：</value>
+  </data>
+  <data name="TrackInspector_FollowingSubtitlesTooltip" xml:space="preserve">
+    <value>跟随本音频轨道的字幕轨道</value>
+  </data>
+  <data name="TrackInspector_Forced" xml:space="preserve">
+    <value>强制</value>
+  </data>
+  <data name="TrackInspector_ForcedMode" xml:space="preserve">
+    <value>强制：</value>
+  </data>
+  <data name="TrackInspector_ForcedModeAll" xml:space="preserve">
+    <value>强制全部样本</value>
+  </data>
+  <data name="TrackInspector_ForcedModeNo" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="TrackInspector_ForcedModeSome" xml:space="preserve">
+    <value>强制部分样本</value>
+  </data>
+  <data name="TrackInspector_ForcedTrack" xml:space="preserve">
+    <value>强制轨道：</value>
+  </data>
+  <data name="TrackInspector_FromStreamSuffix" xml:space="preserve">
+    <value>（视频流）</value>
+  </data>
+  <data name="TrackInspector_Hdr" xml:space="preserve">
+    <value>HDR：</value>
+  </data>
+  <data name="TrackInspector_Hdr10Plus" xml:space="preserve">
+    <value>HDR10+ 动态元数据（SMPTE ST 2094-40）</value>
+  </data>
+  <data name="TrackInspector_HdrNone" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="TrackInspector_HdrVivid" xml:space="preserve">
+    <value>HDR Vivid 动态元数据（CUVA，T/UWA 005.1）</value>
+  </data>
+  <data name="TrackInspector_Header_Audio" xml:space="preserve">
+    <value>音频轨道</value>
+  </data>
+  <data name="TrackInspector_Header_ClosedCaptions" xml:space="preserve">
+    <value>闭合字幕</value>
+  </data>
+  <data name="TrackInspector_Header_Subtitle" xml:space="preserve">
+    <value>字幕轨道</value>
+  </data>
+  <data name="TrackInspector_Header_Track" xml:space="preserve">
+    <value>轨道</value>
+  </data>
+  <data name="TrackInspector_Header_Video" xml:space="preserve">
+    <value>视频轨道</value>
+  </data>
+  <data name="TrackInspector_Info" xml:space="preserve">
+    <value>简介</value>
+  </data>
+  <data name="TrackInspector_Language" xml:space="preserve">
+    <value>语言：</value>
+  </data>
+  <data name="TrackInspector_LightLevelFormat" xml:space="preserve">
+    <value>最大亮度 {0} cd/㎡，最大峰值 {1} cd/㎡</value>
+  </data>
+  <data name="TrackInspector_MasteringDisplayFormat" xml:space="preserve">
+    <value>主色调显示：{0:0.####}–{1:0.#} cd/㎡</value>
+  </data>
+  <data name="TrackInspector_MediaCharacteristics" xml:space="preserve">
+    <value>媒体特征</value>
+  </data>
+  <data name="TrackInspector_Name" xml:space="preserve">
+    <value>名称：</value>
+  </data>
+  <data name="TrackInspector_NamePlaceholder" xml:space="preserve">
+    <value>轨道名称</value>
+  </data>
+  <data name="TrackInspector_OtherDynamicHdrFormat" xml:space="preserve">
+    <value>{0} 动态元数据</value>
+  </data>
+  <data name="TrackInspector_Profile" xml:space="preserve">
+    <value>配置：</value>
+  </data>
+  <data name="TrackInspector_Sound" xml:space="preserve">
+    <value>声音</value>
+  </data>
+  <data name="TrackInspector_StreamColorFormat" xml:space="preserve">
+    <value>颜色（视频流）：{0}</value>
+  </data>
+  <data name="TrackInspector_SubtitlesGroup" xml:space="preserve">
+    <value>字幕</value>
+  </data>
+  <data name="TrackInspector_TrackNone" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="TrackInspector_Visual" xml:space="preserve">
+    <value>视觉</value>
+  </data>
+  <data name="TrackInspector_Volume" xml:space="preserve">
+    <value>音量：</value>
+  </data>
+  <data name="Tracks_Column_Duration" xml:space="preserve">
+    <value>持续时间</value>
+  </data>
+  <data name="Tracks_Column_Enabled" xml:space="preserve">
+    <value>已启用</value>
+  </data>
+  <data name="Tracks_Column_Format" xml:space="preserve">
+    <value>格式</value>
+  </data>
+  <data name="Tracks_Column_Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Tracks_Column_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Tracks_Column_Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Tracks_Menu_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Tracks_Menu_Duplicate" xml:space="preserve">
+    <value>复制轨道</value>
+  </data>
+  <data name="Tracks_Menu_Export" xml:space="preserve">
+    <value>导出轨道…</value>
+  </data>
+  <data name="Tracks_Menu_MoveDown" xml:space="preserve">
+    <value>下移</value>
+  </data>
+  <data name="Tracks_Menu_MoveUp" xml:space="preserve">
+    <value>上移</value>
+  </data>
+  <data name="Tracks_Row_Chapters" xml:space="preserve">
+    <value>章节</value>
+  </data>
+  <data name="Tracks_Row_ChaptersFormat" xml:space="preserve">
+    <value>章节，{0}</value>
+  </data>
+  <data name="Tracks_Row_Metadata" xml:space="preserve">
+    <value>元数据</value>
+  </data>
+  <data name="Tracks_Row_MetadataFormat" xml:space="preserve">
+    <value>标签，插图</value>
+  </data>
+  <data name="Tracks_Tooltip_Enabled" xml:space="preserve">
+    <value>启用/禁用轨道</value>
+  </data>
+  <data name="Undo_AddArtwork" xml:space="preserve">
+    <value>添加插图</value>
+  </data>
+  <data name="Undo_AddArtworks" xml:space="preserve">
+    <value>添加插图</value>
+  </data>
+  <data name="Undo_ApplyColorSpace" xml:space="preserve">
+    <value>应用色彩空间</value>
+  </data>
+  <data name="Undo_ApplyResultFormat" xml:space="preserve">
+    <value>应用{0}结果</value>
+  </data>
+  <data name="Undo_ApplySetFormat" xml:space="preserve">
+    <value>应用预设 “{0}”</value>
+  </data>
+  <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
+    <value>更改备用组</value>
+  </data>
+  <data name="Undo_ChangeLanguage" xml:space="preserve">
+    <value>更改语言</value>
+  </data>
+  <data name="Undo_ChangeTagFormat" xml:space="preserve">
+    <value>更改 {0}</value>
+  </data>
+  <data name="Undo_ClearTagFormat" xml:space="preserve">
+    <value>清除 {0}</value>
+  </data>
+  <data name="Undo_ClearTrackNames" xml:space="preserve">
+    <value>清除轨道名称</value>
+  </data>
+  <data name="Undo_CompleteLanguages" xml:space="preserve">
+    <value>完成语言</value>
+  </data>
+  <data name="Undo_ConvertFormat" xml:space="preserve">
+    <value>转换 {0}</value>
+  </data>
+  <data name="Undo_DeleteTrack" xml:space="preserve">
+    <value>删除轨道</value>
+  </data>
+  <data name="Undo_DeleteTracks" xml:space="preserve">
+    <value>删除轨道</value>
+  </data>
+  <data name="Undo_DisableTracks" xml:space="preserve">
+    <value>禁用轨道</value>
+  </data>
+  <data name="Undo_DuplicateTrack" xml:space="preserve">
+    <value>复制轨道</value>
+  </data>
+  <data name="Undo_EnableTracks" xml:space="preserve">
+    <value>启用轨道</value>
+  </data>
+  <data name="Undo_FixFallbacks" xml:space="preserve">
+    <value>修复音频回退</value>
+  </data>
+  <data name="Undo_ImportChapters" xml:space="preserve">
+    <value>导入章节</value>
+  </data>
+  <data name="Undo_ImportMetadata" xml:space="preserve">
+    <value>导入元数据</value>
+  </data>
+  <data name="Undo_ImportNfo" xml:space="preserve">
+    <value>导入 NFO</value>
+  </data>
+  <data name="Undo_ImportTracks" xml:space="preserve">
+    <value>导入轨道</value>
+  </data>
+  <data name="Undo_InsertChapters" xml:space="preserve">
+    <value>插入章节</value>
+  </data>
+  <data name="Undo_ItemChapter" xml:space="preserve">
+    <value>章节</value>
+  </data>
+  <data name="Undo_ItemTrack" xml:space="preserve">
+    <value>轨道</value>
+  </data>
+  <data name="Undo_MoveArtwork" xml:space="preserve">
+    <value>移动插图</value>
+  </data>
+  <data name="Undo_OffsetTracks" xml:space="preserve">
+    <value>偏移轨道</value>
+  </data>
+  <data name="Undo_OrganizeGroups" xml:space="preserve">
+    <value>整理备用组</value>
+  </data>
+  <data name="Undo_PrettifyAudioNames" xml:space="preserve">
+    <value>美化音轨名称</value>
+  </data>
+  <data name="Undo_RemoveArtwork" xml:space="preserve">
+    <value>移除插图</value>
+  </data>
+  <data name="Undo_RemoveTagFormat" xml:space="preserve">
+    <value>移除 {0}</value>
+  </data>
+  <data name="Undo_RepairDolbyVision" xml:space="preserve">
+    <value>修复 Dolby Vision</value>
+  </data>
+  <data name="Welcome_DropHere" xml:space="preserve">
+    <value>在此处拖放 MP4 或 Matroska 文件</value>
+  </data>
+  <data name="Welcome_Open" xml:space="preserve">
+    <value>打开…</value>
+  </data>
+  <data name="Welcome_RecentFiles" xml:space="preserve">
+    <value>最近文件</value>
+  </data>
+  <data name="Welcome_Subtitle" xml:space="preserve">
+    <value>编辑标签、插图、章节和轨道属性，无需重新编码。</value>
+  </data>
+  <data name="Window_TitleFormat" xml:space="preserve">
+    <value>{0} — Media Muxing Wizard</value>
+  </data>
+</root>

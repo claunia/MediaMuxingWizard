@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Details_Text" xml:space="preserve">
+    <value>Texto</value>
+  </data>
+  <data name="Details_TextOcr" xml:space="preserve">
+    <value>Texto (OCR)</value>
+  </data>
+  <data name="Error_NoMuxer" xml:space="preserve">
+    <value>Nenhum multiplexador está registrado para {0}.</value>
+  </data>
+  <data name="Error_TrackHasNoSource" xml:space="preserve">
+    <value>Faixa “{0}” ({1}) não tem arquivo de origem.</value>
+  </data>
+  <data name="Error_TrackNotInDocument" xml:space="preserve">
+    <value>Faixa “{0}” não faz parte do documento.</value>
+  </data>
+  <data name="Log_AudioCheckFailed" xml:space="preserve">
+    <value>Verificação de áudio da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_ColourScanFailed" xml:space="preserve">
+    <value>Análise de cor da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionCheckFailed" xml:space="preserve">
+    <value>Verificação do Dolby Vision da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_DolbyVisionRebuilt" xml:space="preserve">
+    <value>Dolby Vision {0} (nível {1}) encontrado no fluxo de bits da faixa {2}; sua configuração foi reconstruída.</value>
+  </data>
+  <data name="Log_DtsCheckFailed" xml:space="preserve">
+    <value>Verificação do DTS da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_Hdr10PlusCheckFailed" xml:space="preserve">
+    <value>Verificação do HDR10+ da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_HdrVividCheckFailed" xml:space="preserve">
+    <value>Verificação do HDR Vivid da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_MpegAudioCheckFailed" xml:space="preserve">
+    <value>Verificação de áudio MPEG da faixa {0} falhou: {1}</value>
+  </data>
+  <data name="Log_OpusCheckFailed" xml:space="preserve">
+    <value>Verificação do Opus da faixa {0} falhou: {1}</value>
+  </data>
+</root>
