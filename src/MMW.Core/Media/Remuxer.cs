@@ -362,6 +362,17 @@ public static class Remuxer
                     o.Head = o.Source.ReadNext();
                 }
 
+                // A track without samples has nothing to store (and an empty track makes some readers fail).
+                var withMedia = outputs.Count;
+                foreach (var empty in outputs.Where(o => o.Head is null).ToList())
+                {
+                    AppLog.Warn($"{empty.Source.Config.FormatName} track '{empty.Model.Name}' has no samples; it is left out.");
+                    outputs.Remove(empty);
+                }
+
+                if (withMedia > 0 && outputs.Count == 0)
+                    throw new InvalidDataException("None of the tracks has any samples.");
+
                 // Video decoded before time zero (e.g. an MP4 edit list skipping leading frames) cannot be hidden in
                 // every container: then everything moves so the earliest video frame is shown at zero.
                 if (!muxer.SupportsVideoPreRoll)
