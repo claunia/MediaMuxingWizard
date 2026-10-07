@@ -62,7 +62,7 @@ public partial class MainWindow : Window
         if (ViewModel is null || e.DataTransfer.TryGetFiles() is not { } files)
             return;
         var paths = files.Select(f => f.TryGetLocalPath()).OfType<string>().ToList();
-        await ViewModel.OpenPathsAsync(paths);
+        await ViewModel.DropAsync(paths);
     }
 
     protected override async void OnClosing(WindowClosingEventArgs e)

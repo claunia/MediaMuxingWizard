@@ -285,3 +285,45 @@ public class DropRejectionTests
         Assert.Null(shown);
     }
 }
+
+/// <summary>Whatever is dropped on an open document is imported into it, MP4 and Matroska files included.</summary>
+public class DropOnDocumentTests
+{
+    [AvaloniaFact]
+    public async Task A_matroska_file_dropped_on_a_document_offers_its_tracks()
+    {
+        var fixture = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(fixture))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        MediaProbe.RequireFfmpeg();
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var dialogs = new FakeDialogService();
+        var window = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
+        await window.OpenPathsAsync([Fixtures.CopyToTemp(fixture)]);
+        var before = window.Document!.Document.Tracks.Count;
+        var mkv = Fixtures.CopyToTemp(Fixtures.Get("drop-audio.mkv", "ffmpeg",
+            "-y -v error -f lavfi -i sine=f=440:d=1 -c:a aac -f matroska {out}"));
+
+        ImportDialogViewModel? shown = null;
+        dialogs.OnShowDialog = async d =>
+        {
+            if (d is not ImportDialogViewModel import)
+                return false;
+            for (var i = 0; i < 600 && import.IsLoading; i++)
+                await Task.Delay(50, TestContext.Current.CancellationToken);
+            foreach (var track in import.AllTracks.Where(t => t.CanImport))
+                track.Selected = true;
+            await import.ImportCommand.ExecuteAsync(null);
+            shown = import;
+            return true;
+        };
+
+        await window.DropAsync([mkv]);
+        Assert.NotNull(shown);
+        Assert.Same(window, Assert.Single(window.App.Windows));
+        Assert.Equal(before + 1, window.Document.Document.Tracks.Count);
+        Assert.Empty(dialogs.Messages);
+    }
+}

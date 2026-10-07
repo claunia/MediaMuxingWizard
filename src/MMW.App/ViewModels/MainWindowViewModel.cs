@@ -94,13 +94,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private Task OpenRecent(string path) => OpenPathsAsync([path]);
 
     /// <summary>
-    /// Handles files opened from this window (open dialog, drop): documents fill this window when it is empty and get
-    /// windows of their own otherwise; artwork, NFO, chapter and track files go into its document. Track files with
-    /// no document to go into (a TS, raw streams, subtitles…) start a new MP4 or Matroska document, as the user chooses.
-    /// The files are checked first: when one cannot be imported, or holds a track the container cannot store even
-    /// converted, the user is told and nothing is done.
+    /// Handles files opened from this window (open dialog, or dropped on the home screen): documents fill this window
+    /// when it is empty and get windows of their own otherwise; artwork, NFO, chapter and track files go into its
+    /// document. Track files with no document to go into (a TS, raw streams, subtitles…) start a new MP4 or Matroska
+    /// document, as the user chooses. The files are checked first: those of which nothing can be used are left out and
+    /// named, and nothing is done when nothing at all can be used.
     /// </summary>
-    public async Task OpenPathsAsync(IEnumerable<string> paths)
+    public Task OpenPathsAsync(IEnumerable<string> paths) => OpenPathsAsync(paths, importDocuments: false);
+
+    /// <summary>
+    /// Files dropped on the window. On a document everything is imported into it: an MP4 or Matroska file offers its
+    /// tracks like any other file and is never opened as a document of its own. On the home screen they are opened.
+    /// </summary>
+    public Task DropAsync(IEnumerable<string> paths) => OpenPathsAsync(paths, importDocuments: Document is not null);
+
+    private async Task OpenPathsAsync(IEnumerable<string> paths, bool importDocuments)
     {
         // A VobSub pair (.idx + .sub) is one track: import it once, through its .idx.
         var list = paths.ToList();
@@ -108,8 +116,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                             MMW.Media.Conversion.FFmpegDemuxerFactory.VobSubIndex(p) is { } idx &&
                             list.Any(o => string.Equals(o, idx, StringComparison.OrdinalIgnoreCase)));
 
-        var documents = list.Where(DocumentService.IsSupported).ToList();
-        var others = list.Where(p => !DocumentService.IsSupported(p)).ToList();
+        var documents = importDocuments ? [] : list.Where(DocumentService.IsSupported).ToList();
+        var others = importDocuments ? list : list.Where(p => !DocumentService.IsSupported(p)).ToList();
         var problems = new List<string>();
         var tracks = new List<string>();
         var attachments = new List<string>();
