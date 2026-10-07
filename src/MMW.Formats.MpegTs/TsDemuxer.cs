@@ -204,7 +204,7 @@ internal sealed class TsDemuxer : IDemuxer
             }
 
             if (TsStream.Create(info) is { } probe)
-                specs.Add(new TsTrackSpec(info, (uint)info.Pid, probe is NalVideoStream or MpegVideoStream, known => TsStream.Create(info, known)!));
+                specs.Add(new TsTrackSpec(info, (uint)info.Pid, probe is NalVideoStream or MpegVideoStream or Av1TsStream, known => TsStream.Create(info, known)!));
             else if (log)
                 AppLog.Info($"{System.IO.Path.GetFileName(Path)}: stream 0x{info.Pid:X} of type 0x{info.StreamType:X2} is not supported.");
         }

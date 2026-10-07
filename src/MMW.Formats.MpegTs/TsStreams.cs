@@ -84,6 +84,8 @@ internal abstract class TsStream
                     return new NalVideoStream(info, CodecType.Hevc);
                 if (registration == "Opus")
                     return new AudioStream(info, AudioKind.Opus);
+                if (registration is "AV01" or "AV1G") // AOMedia's mapping; GStreamer's earlier custom one
+                    return new Av1TsStream(info);
                 if (info.Descriptor(0x59) is { Length: >= 8 })
                     return new DvbSubtitleStream(info);
                 return info.Descriptor(0x59) is null && info.Descriptor(0x56) is null ? new SniffedStream(info) : null; // not DVB subtitles/teletext
@@ -97,6 +99,7 @@ internal abstract class TsStream
         CodecType.Ac3 or CodecType.Eac3 => new AudioStream(info, AudioKind.Ac3),
         CodecType.Dts => new AudioStream(info, AudioKind.Dts),
         CodecType.Opus => new AudioStream(info, AudioKind.Opus),
+        CodecType.Av1 => new Av1TsStream(info),
         CodecType.Aac => new AudioStream(info, AudioKind.Adts),
         CodecType.Mp1 or CodecType.Mp2 or CodecType.Mp3 => new AudioStream(info, AudioKind.MpegAudio),
         _ => null,
@@ -1197,6 +1200,8 @@ internal sealed class SniffedStream(TsStreamInfo info) : TsStream(info)
                 _inner = new AudioStream(Info, k);
             else if (MpegVideoStream.IsAvs2SequenceHeader(d))
                 _inner = new MpegVideoStream(Info, CodecType.Avs2);
+            else if (Av1TsStream.LooksLikeAv1(d))
+                _inner = new Av1TsStream(Info); // FFmpeg writes AV1 as an untagged private stream
             else
                 _unknown = true;
         }
@@ -1334,4 +1339,152 @@ internal sealed class DvbSubtitleStream(TsStreamInfo info) : TsStream(info)
             Language = MMW.Core.Languages.LanguageTable.ToBcp47(language),
         };
     }
+}
+
+/// <summary>
+/// AV1 video ("Carriage of AV1 in MPEG-2 TS", AOMedia): stream type 0x06 with the 'AV01' registration, each PES one
+/// access unit of OBUs behind 00 00 01 start codes with emulation prevention bytes. GStreamer's earlier 'AV1G' mapping
+/// and FFmpeg's untagged private stream carry the low-overhead OBUs as they are; both are read too. Access units (a
+/// hidden frame may travel alone) are joined into temporal units, each ending with the unit that shows a frame; the
+/// samples are the ISOBMFF / Matroska ones, timed by the presentation time of their shown frame.
+/// </summary>
+internal sealed class Av1TsStream(TsStreamInfo info) : TsStream(info)
+{
+    private readonly List<byte> _unit = [];
+    private long? _unitPts;
+    private (byte[] Av1C, Av1SequenceHeader Header)? _configuration;
+    private bool _seenSync;
+    private int _samples;
+    private long _firstPts = -1;
+    private long _secondPts = -1;
+
+    public override uint Timescale => 90000;
+
+    public override bool Ready => _configuration is not null && _samples >= 2;
+
+    public override void OnPes(Pes pes, Queue<MediaSample> output)
+    {
+        var data = Unwrap(pes.Data);
+        _unit.AddRange(data);
+        if (pes.Pts is { } pts)
+            _unitPts = pts; // the latest access unit's: the shown frame comes last
+        if (ShowsFrame(data))
+            Emit(output);
+    }
+
+    public override void Flush(Queue<MediaSample> output) => Emit(output);
+
+    private void Emit(Queue<MediaSample> output)
+    {
+        if (_unit.Count == 0 || _unitPts is not { } pts)
+        {
+            _unit.Clear();
+            return;
+        }
+
+        var sample = Av1.ToSample(_unit.ToArray());
+        _unit.Clear();
+        _configuration ??= Av1.ConfigurationFromSample(sample);
+        var sync = Av1.IsSync(sample, _configuration?.Header.ReducedStillPictureHeader == true);
+        if (!_seenSync && !sync)
+            return; // decoding starts at a key frame
+        _seenSync = true;
+        _samples++;
+        if (_firstPts < 0)
+            _firstPts = pts;
+        else if (_secondPts < 0)
+            _secondPts = pts;
+        output.Enqueue(new MediaSample { Dts = pts, IsSync = sync, Data = sample });
+    }
+
+    /// <summary>The OBUs of an access unit in low-overhead form: start codes and emulation prevention bytes removed.</summary>
+    private static byte[] Unwrap(byte[] payload)
+    {
+        if (payload.Length < 4 || payload[0] != 0 || payload[1] != 0 || payload[2] != 1)
+            return payload; // already low-overhead OBUs (GStreamer 'AV1G', FFmpeg)
+        var o = new List<byte>(payload.Length);
+        var pos = 3;
+        while (pos < payload.Length)
+        {
+            var next = pos;
+            while (next + 2 < payload.Length && !(payload[next] == 0 && payload[next + 1] == 0 && payload[next + 2] == 1))
+                next++;
+            var end = next + 2 < payload.Length ? next : payload.Length;
+            var obu = new List<byte>(end - pos);
+            for (var i = pos; i < end; i++)
+            {
+                if (i + 2 < end && payload[i] == 0 && payload[i + 1] == 0 && payload[i + 2] == 3)
+                {
+                    obu.Add(0);
+                    obu.Add(0);
+                    i += 2; // emulation_prevention_three_byte
+                    continue;
+                }
+
+                obu.Add(payload[i]);
+            }
+
+            AppendObu(o, obu);
+            pos = end + 3;
+        }
+
+        return [.. o];
+    }
+
+    /// <summary>One OBU with its size field (added when the tsOBU omitted it).</summary>
+    private static void AppendObu(List<byte> output, List<byte> obu)
+    {
+        if (obu.Count == 0)
+            return;
+        if ((obu[0] & 0x02) != 0)
+        {
+            output.AddRange(obu);
+            return;
+        }
+
+        var headerLength = 1 + ((obu[0] & 0x04) != 0 ? 1 : 0);
+        output.Add((byte)(obu[0] | 0x02));
+        if (headerLength == 2 && obu.Count > 1)
+            output.Add(obu[1]);
+        Av2.WriteLeb128(output, Math.Max(0, obu.Count - headerLength));
+        for (var i = headerLength; i < obu.Count; i++)
+            output.Add(obu[i]);
+    }
+
+    /// <summary>True when the access unit holds a frame that is shown (show_frame or show_existing_frame).</summary>
+    private bool ShowsFrame(byte[] data)
+    {
+        var shown = false;
+        Av1.ForEachObu(data, (type, payload) =>
+        {
+            if (type is not (Av1.ObuFrameHeader or Av1.ObuFrame) || payload.IsEmpty)
+                return false;
+            shown = _configuration?.Header.ReducedStillPictureHeader == true || (payload[0] & 0x80) != 0 || (payload[0] & 0x10) != 0;
+            return shown;
+        });
+        return shown;
+    }
+
+    public override CodecConfig Describe()
+    {
+        var (av1C, header) = _configuration!.Value;
+        var frameTicks = _secondPts > _firstPts && _firstPts >= 0 ? _secondPts - _firstPts : 0;
+        var rate = header.FrameRate > 0 ? header.FrameRate : frameTicks > 0 ? 90000.0 / frameTicks : 0;
+        return Base(TrackKind.Video) with
+        {
+            Codec = CodecType.Av1,
+            SourceCodecId = "AV01",
+            Extradata = av1C,
+            Width = header.Width,
+            Height = header.Height,
+            BitsPerSample = header.BitDepth,
+            Color = header.Color,
+            FrameRate = rate,
+            DefaultSampleDuration = rate > 0 ? (long)Math.Round(90000 / rate) : 0,
+            VideoProfile = Av1.ProfileLevel(header.Profile, header.Level, header.Tier),
+        };
+    }
+
+    /// <summary>A PES payload that starts an AV1 low-overhead temporal unit: temporal delimiter, then a sequence header.</summary>
+    public static bool LooksLikeAv1(ReadOnlySpan<byte> d) => d.Length >= 3 && d[0] == 0x12 && d[1] == 0x00 && ((d[2] >> 3) & 0x0F) == Av1.ObuSequenceHeader;
 }
