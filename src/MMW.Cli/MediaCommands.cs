@@ -20,6 +20,8 @@ internal static class MediaCommands
     public static async Task<int> SearchAsync(Arguments a, TextWriter output, ContainerRegistry registry, MetadataProviderRegistry? providers = null)
     {
         var file = a.Positional.FirstOrDefault() ?? throw new UsageException(Strings.Error_MissingFile);
+        if (!File.Exists(file))
+            throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, file), file);
         var doc = await registry.OpenAsync(file);
         var prefill = SearchPrefill.From(doc);
         var kind = a.Value("season") is not null || a.Value("episode") is not null ? MediaSearchKind.TvEpisode : prefill.Kind;
@@ -78,6 +80,8 @@ internal static class MediaCommands
     public static async Task<int> NfoAsync(Arguments a, TextWriter output, ContainerRegistry registry)
     {
         var file = a.Positional.FirstOrDefault() ?? throw new UsageException(Strings.Error_MissingFile);
+        if (!File.Exists(file))
+            throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, file), file);
         var doc = await registry.OpenAsync(file);
         if (a.Value("export") is not null || a.Has("export"))
         {

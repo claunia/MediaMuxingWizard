@@ -138,6 +138,10 @@ internal static partial class TrackCommands
         throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, spec), spec);
     }
 
+    /// <summary>The path when the file exists; otherwise the (localized) error the commands report.</summary>
+    private static string Existing(string path) =>
+        File.Exists(path) ? path : throw new FileNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FileNotFound, path), path);
+
     private static bool Bool(string value, string option) => value.Trim().ToLowerInvariant() switch
     {
         "true" or "yes" or "1" or "on" => true,
@@ -228,7 +232,7 @@ internal static partial class TrackCommands
         if (a.Positional.Count < 2)
             throw new UsageException(Strings.Error_ImportUsage);
         MediaRemux.EnsureRegistered();
-        var doc = await registry.OpenAsync(a.Positional[0]);
+        var doc = await registry.OpenAsync(Existing(a.Positional[0]));
         var only = a.Value("only")?.ToLowerInvariant();
         // --track "1,3-5" (every source) or "2:1,3" (source 2).
         var picks = a.Values("track").Select(v => v.Contains(':', StringComparison.Ordinal)
@@ -376,7 +380,7 @@ internal static partial class TrackCommands
         if (a.Positional.Count != 2)
             throw new UsageException(Strings.Error_RemuxUsage);
         MediaRemux.EnsureRegistered();
-        var doc = await registry.OpenAsync(a.Positional[0]);
+        var doc = await registry.OpenAsync(Existing(a.Positional[0]));
         var target = ContainerKinds.FromPath(a.Positional[1]);
         if (target == ContainerKind.Unknown)
             throw new UsageException(Strings.Error_OutputExtension);
