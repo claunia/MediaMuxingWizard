@@ -1558,6 +1558,9 @@ Si no los guardas, se perderán.</value>
   <data name="TrackInspector_HdrVivid" xml:space="preserve">
     <value>Metadatos dinámicos HDR Vivid (CUVA, T/UWA 005.1)</value>
   </data>
+  <data name="TrackInspector_OtherDynamicHdrFormat" xml:space="preserve">
+    <value>Metadatos dinámicos {0}</value>
+  </data>
   <data name="Fallback_Hdr10Plus" xml:space="preserve">
     <value>HDR10+</value>
   </data>

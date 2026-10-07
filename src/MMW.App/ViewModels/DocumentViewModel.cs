@@ -186,6 +186,12 @@ public sealed partial class DocumentViewModel : ViewModelBase
                     changed = true;
                 }
 
+                if ((result.OtherDynamicHdr & ~video.OtherDynamicHdr) != MMW.Core.Media.Codecs.DynamicHdrFormats.None)
+                {
+                    video.OtherDynamicHdr |= result.OtherDynamicHdr;
+                    changed = true;
+                }
+
                 if (result.StreamInfo is { } stream && video.StreamInfo is null)
                 {
                     video.StreamInfo = stream;

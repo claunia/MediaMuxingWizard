@@ -4541,6 +4541,15 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} dynamic metadata.
+        /// </summary>
+        public static string TrackInspector_OtherDynamicHdrFormat {
+            get {
+                return ResourceManager.GetString("TrackInspector_OtherDynamicHdrFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to HDR10+.
         /// </summary>
         public static string Fallback_Hdr10Plus {

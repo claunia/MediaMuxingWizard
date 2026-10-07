@@ -133,6 +133,12 @@ public sealed partial class VideoTrack : Track
     public bool HdrVivid { get; set; }
 
     /// <summary>
+    /// Other dynamic HDR metadata the frames carry (ST 2094-10, SL-HDR). Detected from the bitstream, not edited (and
+    /// not tracked for undo).
+    /// </summary>
+    public Media.Codecs.DynamicHdrFormats OtherDynamicHdr { get; set; }
+
+    /// <summary>
     /// Colour description and static HDR10 metadata carried by the bitstream itself (VUI, SEI, AV1 sequence header and
     /// metadata OBUs), found by scanning; shown when the container signals none. Not edited, not tracked for undo.
     /// </summary>

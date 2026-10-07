@@ -1558,6 +1558,10 @@ Save anyway?</value>
   <data name="TrackInspector_HdrVivid" xml:space="preserve">
     <value>HDR Vivid dynamic metadata (CUVA, T/UWA 005.1)</value>
   </data>
+  <data name="TrackInspector_OtherDynamicHdrFormat" xml:space="preserve">
+    <value>{0} dynamic metadata</value>
+    <comment>{0}: the formats, e.g. "ST 2094-10, SL-HDR2"</comment>
+  </data>
   <data name="Fallback_Hdr10Plus" xml:space="preserve">
     <value>HDR10+</value>
   </data>

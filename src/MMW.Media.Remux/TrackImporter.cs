@@ -267,11 +267,12 @@ public static class TrackImporter
 
     private static CodecConfig WithDetectedHdrVivid(ISampleSource source, CodecConfig config)
     {
-        if (config.HdrVivid || !HdrVividDetector.CanScan(config))
+        if (!HdrVividDetector.CanScan(config))
             return config;
         try
         {
-            return HdrVividDetector.Detect(source) ? config with { HdrVivid = true } : config;
+            var (vivid, other) = HdrVividDetector.DetectAll(source);
+            return config with { HdrVivid = vivid, OtherDynamicHdr = other };
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
@@ -356,6 +357,7 @@ public static class TrackImporter
                     DolbyVisionRecord = DolbyVisionRecordFor(item), // also carries detected records to the muxer
                     Hdr10Plus = c.Hdr10Plus,
                     HdrVivid = c.HdrVivid,
+                    OtherDynamicHdr = c.OtherDynamicHdr,
                     StreamInfo = new VideoStreamInfo(c.StreamColor, c.StreamHdr),
                 };
                 break;
@@ -464,7 +466,9 @@ public static class TrackImporter
                     parts.Add("HDR10+");
                 if (config.HdrVivid)
                     parts.Add("HDR Vivid");
-                if (!config.Hdr10Plus && !config.HdrVivid && config.DolbyVisionConfig is null && (config.EffectiveHdr is not null || color.Transfer is 16 or 18))
+                if (config.OtherDynamicHdr != DynamicHdrFormats.None)
+                    parts.Add(DynamicHdr.Describe(config.OtherDynamicHdr));
+                if (!config.Hdr10Plus && !config.HdrVivid && config.OtherDynamicHdr == DynamicHdrFormats.None && config.DolbyVisionConfig is null && (config.EffectiveHdr is not null || color.Transfer is 16 or 18))
                     parts.Add(color.Transfer == 18 ? "HLG" : "HDR10");
                 break;
             case TrackKind.Audio:

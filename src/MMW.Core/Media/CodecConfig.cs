@@ -169,6 +169,9 @@ public sealed record CodecConfig
     /// <summary>The frames carry HDR Vivid (CUVA, T/UWA 005.1) dynamic metadata in the bitstream.</summary>
     public bool HdrVivid { get; init; }
 
+    /// <summary>Other dynamic HDR metadata the frames carry (ST 2094-10, SL-HDR).</summary>
+    public Codecs.DynamicHdrFormats OtherDynamicHdr { get; init; }
+
     /// <summary>
     /// HDR10+ metadata is stored outside the bitstream, in Matroska BlockAdditions (VP9): only Matroska can keep it.
     /// </summary>

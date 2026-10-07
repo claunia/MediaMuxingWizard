@@ -330,12 +330,12 @@ public sealed partial class AvsTests
 
     /// <summary>
     /// The DVB / UWA HDR Vivid test streams (EBU, CC BY 4.0): AVS3 with HDR picture extensions, VVC with T.35 SEI, and
-    /// HEVC carrying four kinds of dynamic metadata at once (ST 2094-10, SL-HDR2, HDR10+, HDR Vivid).
+    /// HEVC carrying four kinds of dynamic metadata at once (ST 2094-10, SL-HDR2, HDR10+, HDR Vivid), all shown.
     /// </summary>
     [Theory]
     [InlineData("DVB_2160p50_HDR_with_HDR_Vivid_DM_AVS3_20250923_2.ts", "AVS3", "3840×2160, 50 fps, High 10@L8.0.60, HDR Vivid", 1000)]
     [InlineData("DVB_2160p50_HDR_with_HDR_Vivid_DM_H266_20250930_1.ts", "VVC", "3840×2160, 50 fps, Main 10@L5.1, HDR Vivid", null)] // HDR Vivid SEI only, no static metadata
-    [InlineData("DVB_2160p50_HDR_with_Switched_four_DMI_2094-10_2094-40_SL-HDR2_HDR_Vivid_20250926_1.ts", "HEVC", "3840×2160, 50 fps, Main 10@5.1, HDR10+, HDR Vivid", 1000)]
+    [InlineData("DVB_2160p50_HDR_with_Switched_four_DMI_2094-10_2094-40_SL-HDR2_HDR_Vivid_20250926_1.ts", "HEVC", "3840×2160, 50 fps, Main 10@5.1, HDR10+, HDR Vivid, ST 2094-10, SL-HDR2", 1000)]
     public async Task Corpus_dvb_stream_shows_hdr_vivid(string name, string format, string details, int? maxCll)
     {
         var source = Corpus.Directory is { } dir ? Path.Combine(dir, "High Dynamic Range", "HDR Vivid", name) : string.Empty;

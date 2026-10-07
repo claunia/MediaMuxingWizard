@@ -340,6 +340,8 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
                 lines.Add(Strings.TrackInspector_Hdr10Plus);
             if (Video.HdrVivid)
                 lines.Add(Strings.TrackInspector_HdrVivid);
+            if (Video.OtherDynamicHdr != MMW.Core.Media.Codecs.DynamicHdrFormats.None)
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_OtherDynamicHdrFormat, MMW.Core.Media.Codecs.DynamicHdr.Describe(Video.OtherDynamicHdr)));
 
             // Container values first; what only the video stream carries is shown (and written on remux) as well.
             var stream = Video.StreamInfo;

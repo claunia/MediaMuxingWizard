@@ -46,7 +46,7 @@ public static class Hdr10PlusDetector
     }
 }
 
-/// <summary>Finds HDR Vivid dynamic metadata in the first frames of a video track.</summary>
+/// <summary>Finds HDR Vivid and other dynamic metadata (ST 2094-10, SL-HDR) in the first frames of a video track.</summary>
 public static class HdrVividDetector
 {
     /// <summary>Frames inspected; HDR Vivid metadata comes with (almost) every frame.</summary>
@@ -60,31 +60,35 @@ public static class HdrVividDetector
     public static bool NeedsCheck(VideoTrack video)
     {
         ArgumentNullException.ThrowIfNull(video);
-        return !video.HdrVivid && video.Source is not null && !video.IsPending;
+        return !video.HdrVivid && video.OtherDynamicHdr == DynamicHdrFormats.None && video.Source is not null && !video.IsPending;
     }
 
     /// <summary>Scans an open sample source; the source is rewound afterwards.</summary>
-    public static bool Detect(ISampleSource track, CancellationToken cancellationToken = default)
+    public static bool Detect(ISampleSource track, CancellationToken cancellationToken = default) => DetectAll(track, cancellationToken).HdrVivid;
+
+    /// <summary>HDR Vivid and the other dynamic formats in the first frames; the source is rewound afterwards.</summary>
+    public static (bool HdrVivid, DynamicHdrFormats Other) DetectAll(ISampleSource track, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(track);
         var config = track.Config;
-        if (config.HdrVivid)
-            return true;
         if (!CanScan(config))
-            return false;
+            return (config.HdrVivid, config.OtherDynamicHdr);
 
         var lengthSize = NalLengthSize(config);
+        var vivid = config.HdrVivid;
+        var other = config.OtherDynamicHdr;
         track.Reset();
         try
         {
             for (var i = 0; i < MaxSamples && track.ReadNext() is { } sample; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (HdrVivid.InSample(config.Codec, sample.GetData().Span, lengthSize))
-                    return true;
+                var data = sample.GetData().Span;
+                vivid |= HdrVivid.InSample(config.Codec, data, lengthSize);
+                other |= DynamicHdr.InSample(config.Codec, data, lengthSize);
             }
 
-            return false;
+            return (vivid, other);
         }
         finally
         {
@@ -104,7 +108,9 @@ public static class HdrVividDetector
 }
 
 /// <summary>What a scan of a video track's first frames found (see <see cref="VideoBitstreamScan"/>).</summary>
-public sealed record VideoScanResult(DolbyVisionDetection? MissingDolbyVision, bool Hdr10Plus, VideoStreamInfo? StreamInfo = null, bool HdrVivid = false);
+public sealed record VideoScanResult(
+    DolbyVisionDetection? MissingDolbyVision, bool Hdr10Plus, VideoStreamInfo? StreamInfo = null, bool HdrVivid = false,
+    DynamicHdrFormats OtherDynamicHdr = DynamicHdrFormats.None);
 
 /// <summary>Scans a document's video track once for Dolby Vision RPUs the container does not signal and for HDR10+.</summary>
 public static class VideoBitstreamScan
@@ -133,8 +139,8 @@ public static class VideoBitstreamScan
             var dv = checkDolbyVision ? DolbyVisionDetector.Detect(track, color, cancellationToken) : null;
             var plus = checkHdr10Plus && Hdr10PlusDetector.Detect(track, cancellationToken);
             var stream = checkStream ? VideoStreamInfoScanner.Scan(track, cancellationToken) : null;
-            var vivid = checkHdrVivid && HdrVividDetector.Detect(track, cancellationToken);
-            return new VideoScanResult(dv, plus, stream, vivid);
+            var (vivid, other) = checkHdrVivid ? HdrVividDetector.DetectAll(track, cancellationToken) : (false, DynamicHdrFormats.None);
+            return new VideoScanResult(dv, plus, stream, vivid, other);
         }, cancellationToken);
     }
 }
