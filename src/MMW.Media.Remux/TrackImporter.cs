@@ -215,7 +215,12 @@ public static class TrackImporter
         try
         {
             var info = VideoStreamInfoScanner.Scan(source);
-            return info.IsEmpty ? config : config with { StreamColor = info.Color, StreamHdr = info.Hdr };
+            if (info.IsEmpty)
+                return config;
+            config = config with { StreamColor = info.Color, StreamHdr = info.Hdr };
+            // A raw stream has no container: its colour is the bitstream's, including the alternative transfer
+            // characteristics SEI (HLG signalled as BT.2020 SDR) that the demuxer's VUI reading does not see.
+            return source.Config.Native is null && info.Color.IsSpecified ? config with { Color = info.Color } : config;
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {

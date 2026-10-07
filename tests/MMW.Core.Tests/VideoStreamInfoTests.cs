@@ -103,6 +103,18 @@ public sealed class VideoStreamInfoTests
     }
 
     [Fact]
+    public void Ambient_viewing_environment_matches_the_sei_layout()
+    {
+        // 314 lux, D65 (as iPhone HLG recordings carry it).
+        byte[] amve = [0x00, 0x2F, 0xE9, 0xA0, 0x3D, 0x13, 0x40, 0x42];
+        var hdr = VideoStreamInfoScanner.ParseAmbientViewingEnvironment(amve)!;
+        Assert.Equal(314, hdr.AmbientIlluminance!.Value, 4);
+        Assert.Equal((0.3127, 0.329), (Math.Round(hdr.AmbientLight!.Value.X, 4), Math.Round(hdr.AmbientLight.Value.Y, 4)));
+        Assert.Null(VideoStreamInfoScanner.ParseAmbientViewingEnvironment([0, 0, 0, 0, 0x3D, 0x13, 0x40, 0x42])); // 0 lux is invalid
+        Assert.True(HdrInfo.Merge(new HdrInfo { MaxCll = 100 }, hdr)!.HasAmbient);
+    }
+
+    [Fact]
     public void Container_values_win_and_the_stream_fills_the_gaps()
     {
         var mastering = new HdrInfo { DisplayPrimaries = [(0.68, 0.32), (0.265, 0.69), (0.15, 0.06)], WhitePoint = (0.3127, 0.329), MaxLuminance = 1000, MinLuminance = 0.005 };

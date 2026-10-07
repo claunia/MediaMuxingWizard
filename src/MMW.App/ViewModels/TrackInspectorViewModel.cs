@@ -347,8 +347,12 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
             var s = stream?.Hdr;
             AddMastering(lines, h is { HasMasteringDisplay: true } || s is not { HasMasteringDisplay: true } ? h : s, h is not { HasMasteringDisplay: true } && s is { HasMasteringDisplay: true });
             AddLightLevel(lines, h is { HasLightLevel: true } || s is not { HasLightLevel: true } ? h : s, h is not { HasLightLevel: true } && s is { HasLightLevel: true });
-            if (h?.AmbientIlluminance is { } lux)
-                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_AmbientFormat, lux));
+            var ambient = h is { HasAmbient: true } || s is not { HasAmbient: true } ? h : s;
+            if (ambient?.AmbientIlluminance is { } lux)
+            {
+                var line = string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_AmbientFormat, lux);
+                lines.Add(ambient == h ? line : line + Strings.TrackInspector_FromStreamSuffix);
+            }
 
             return lines.Count == 0 ? Strings.TrackInspector_HdrNone : string.Join("\n", lines);
         }

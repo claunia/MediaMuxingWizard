@@ -58,4 +58,16 @@ public sealed class HdrBoxTests
         byte[] coll = [0, 0, 0, 0, 0x03, 0xE8, 0x01, 0x90];
         AssertBt2020(Describe(new Box("SmDm", smdm), new Box("CoLL", coll)).Hdr, digits: 3);
     }
+
+    [Fact]
+    public void Amve_round_trips()
+    {
+        var ambient = new HdrInfo { AmbientIlluminance = 314, AmbientLight = (0.3127, 0.329) };
+        var amve = Mp4SampleEntries.BuildAmve(ambient)!;
+        Assert.Equal([0x00, 0x2F, 0xE9, 0xA0, 0x3D, 0x13, 0x40, 0x42], amve.Payload);
+        var hdr = Describe(amve).Hdr!;
+        Assert.Equal(314, hdr.AmbientIlluminance!.Value, 4);
+        Assert.Equal(0.329, hdr.AmbientLight!.Value.Y, 4);
+        Assert.Null(Mp4SampleEntries.BuildAmve(new HdrInfo { MaxCll = 1 }));
+    }
 }

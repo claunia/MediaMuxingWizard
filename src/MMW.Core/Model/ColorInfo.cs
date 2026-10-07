@@ -51,6 +51,12 @@ public sealed record HdrInfo
     /// <summary>Ambient viewing environment illuminance in lux, if present.</summary>
     public double? AmbientIlluminance { get; init; }
 
+    /// <summary>Ambient viewing environment light chromaticity (x, y), if present.</summary>
+    public (double X, double Y)? AmbientLight { get; init; }
+
+    /// <summary>True when the ambient viewing environment (HLG reference viewing conditions) is known.</summary>
+    public bool HasAmbient => AmbientIlluminance is not null;
+
     /// <summary>True when the mastering display is described (primaries, white point and maximum luminance).</summary>
     public bool HasMasteringDisplay => DisplayPrimaries is { Length: 3 } && WhitePoint is not null && MaxLuminance is not null;
 
@@ -59,7 +65,7 @@ public sealed record HdrInfo
 
     /// <summary>
     /// <paramref name="primary"/> completed with <paramref name="fallback"/>: the mastering display and the light levels
-    /// are each taken as a whole from the first that has them.
+    /// and the ambient viewing environment are each taken as a whole from the first that has them.
     /// </summary>
     public static HdrInfo? Merge(HdrInfo? primary, HdrInfo? fallback)
     {
@@ -79,6 +85,8 @@ public sealed record HdrInfo
 
         if (!primary.HasLightLevel && fallback.HasLightLevel)
             merged = merged with { MaxCll = fallback.MaxCll, MaxFall = fallback.MaxFall };
+        if (!primary.HasAmbient && fallback.HasAmbient)
+            merged = merged with { AmbientIlluminance = fallback.AmbientIlluminance, AmbientLight = fallback.AmbientLight };
         return merged;
     }
 }

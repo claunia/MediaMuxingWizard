@@ -559,6 +559,8 @@ internal static class Mp4SampleEntries
                 children.Add(mdcv);
             if (BuildClli(hdr) is { } clli)
                 children.Add(clli);
+            if (BuildAmve(hdr) is { } amve)
+                children.Add(amve);
         }
 
         if (c.ParNumerator > 0 && c.ParDenominator > 0 && c.ParNumerator != c.ParDenominator)
@@ -633,10 +635,25 @@ internal static class Mp4SampleEntries
                 Insert(mdcv);
             if (!children.Any(c => c.Type is "clli" or "CoLL") && BuildClli(hdr) is { } clli)
                 Insert(clli);
+            if (!children.Any(c => c.Type == "amve") && BuildAmve(hdr) is { } amve)
+                Insert(amve);
         }
     }
 
     private static int Chroma(double v) => (int)Math.Clamp(Math.Round(v / 0.00002), 0, ushort.MaxValue);
+
+    /// <summary>
+    /// 'amve' (ambient viewing environment: illuminance in 0.0001 lux, light chromaticity in 0.00002 units, as the
+    /// SEI message); null when unknown. A missing chromaticity defaults to D65.
+    /// </summary>
+    public static Box? BuildAmve(HdrInfo hdr)
+    {
+        ArgumentNullException.ThrowIfNull(hdr);
+        if (hdr.AmbientIlluminance is not { } lux || lux <= 0)
+            return null;
+        var (x, y) = hdr.AmbientLight ?? (0.3127, 0.329);
+        return new Box("amve", new PayloadBuilder().U32((uint)Math.Round(lux * 10000)).U16(Chroma(x)).U16(Chroma(y)).ToArray());
+    }
 
     /// <summary>'clli' (MaxCLL, MaxFALL); null when neither is known.</summary>
     public static Box? BuildClli(HdrInfo hdr)

@@ -109,6 +109,17 @@ public static class VideoStreamInfoScanner
         };
     }
 
+    /// <summary>
+    /// Ambient viewing environment (H.264/HEVC SEI 148, and the MP4 'amve' box with the same layout): illuminance in
+    /// 0.0001 lux, light chromaticity in 0.00002 units. Null when the illuminance is 0 (invalid).
+    /// </summary>
+    public static HdrInfo? ParseAmbientViewingEnvironment(ReadOnlySpan<byte> p)
+    {
+        if (p.Length < 8 || BinaryPrimitives.ReadUInt32BigEndian(p) == 0)
+            return null;
+        return new HdrInfo { AmbientIlluminance = BinaryPrimitives.ReadUInt32BigEndian(p) * 0.0001, AmbientLight = Pair(p, 4, 0.00002) };
+    }
+
     /// <summary>AV1 metadata_hdr_mdcv: primaries in R, G, B order as 0.16 fixed point, luminance 24.8 / 18.14 fixed point.</summary>
     public static HdrInfo? ParseAv1Mdcv(ReadOnlySpan<byte> p)
     {
@@ -133,8 +144,10 @@ public static class VideoStreamInfoScanner
         private ColorInfo _color = ColorInfo.Unspecified;
         private HdrInfo? _mastering;
         private (int Cll, int Fall)? _light;
+        private HdrInfo? _ambient;
+        private int? _preferredTransfer;
 
-        public bool Complete => _color.IsSpecified && _mastering is not null && _light is not null;
+        public bool Complete => _color.IsSpecified && _mastering is not null && _light is not null && _ambient is not null && _preferredTransfer is not null;
 
         public void Nal(ReadOnlySpan<byte> nal)
         {
@@ -155,6 +168,10 @@ public static class VideoStreamInfoScanner
                     _mastering ??= ParseMasteringDisplaySei(payload);
                 else if (seiType == Sei.ContentLightLevelInfo && payload.Length >= 4)
                     _light ??= (BinaryPrimitives.ReadUInt16BigEndian(payload), BinaryPrimitives.ReadUInt16BigEndian(payload[2..]));
+                else if (seiType == Sei.AmbientViewingEnvironment)
+                    _ambient ??= ParseAmbientViewingEnvironment(payload);
+                else if (seiType == Sei.AlternativeTransferCharacteristics && payload.Length >= 1 && payload[0] is not (0 or 2))
+                    _preferredTransfer ??= payload[0]; // e.g. HLG (18) signalled as BT.2020 SDR (14) for older decoders
                 return false;
             });
         }
@@ -185,7 +202,13 @@ public static class VideoStreamInfoScanner
             HdrInfo? hdr = _mastering;
             if (_light is { } light)
                 hdr = (hdr ?? new HdrInfo()) with { MaxCll = light.Cll, MaxFall = light.Fall };
-            return new VideoStreamInfo(_color, hdr);
+            if (_ambient is { } ambient)
+                hdr = (hdr ?? new HdrInfo()) with { AmbientIlluminance = ambient.AmbientIlluminance, AmbientLight = ambient.AmbientLight };
+
+            // The alternative transfer characteristics SEI names the transfer the stream really uses (FFmpeg applies it
+            // the same way, and writes it to MP4 'colr').
+            var color = _color.IsSpecified && _preferredTransfer is { } preferred ? _color with { Transfer = preferred } : _color;
+            return new VideoStreamInfo(color, hdr);
         }
 
         /// <summary>A colour description of "unspecified" code points (2/2/2) says nothing.</summary>

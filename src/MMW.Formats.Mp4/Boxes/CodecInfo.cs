@@ -262,7 +262,7 @@ public static class CodecInfo
             maxFall = BinaryPrimitives.ReadUInt16BigEndian(light.AsSpan(2));
         }
 
-        double? ambient = amve is { Length: >= 4 } ? BinaryPrimitives.ReadUInt32BigEndian(amve) * 0.0001 : null;
+        var ambient = amve is { Length: >= 8 } ? VideoStreamInfoScanner.ParseAmbientViewingEnvironment(amve) : null;
         return new HdrInfo
         {
             DisplayPrimaries = mastering?.DisplayPrimaries,
@@ -271,7 +271,8 @@ public static class CodecInfo
             MinLuminance = mastering?.MinLuminance,
             MaxCll = maxCll,
             MaxFall = maxFall,
-            AmbientIlluminance = ambient,
+            AmbientIlluminance = ambient?.AmbientIlluminance,
+            AmbientLight = ambient?.AmbientLight,
         };
     }
 

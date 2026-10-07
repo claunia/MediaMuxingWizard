@@ -6,6 +6,8 @@ public static class Sei
     public const int UserDataRegisteredItuTT35 = 4;
     public const int MasteringDisplayColourVolume = 137;
     public const int ContentLightLevelInfo = 144;
+    public const int AlternativeTransferCharacteristics = 147;
+    public const int AmbientViewingEnvironment = 148;
 
     /// <summary>Callback for <see cref="ForEachMessage"/>; return true to stop.</summary>
     public delegate bool MessageVisitor(int type, ReadOnlySpan<byte> payload);

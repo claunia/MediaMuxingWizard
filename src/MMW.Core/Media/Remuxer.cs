@@ -222,7 +222,7 @@ public static class Remuxer
         if (!VideoStreamInfoScanner.CanScan(config))
             return null;
         var hdr = config.Hdr;
-        if (config.Color.IsSpecified && hdr is { HasMasteringDisplay: true, HasLightLevel: true })
+        if (config.Color.IsSpecified && hdr is { HasMasteringDisplay: true, HasLightLevel: true, HasAmbient: true })
             return null;
         var info = (track as VideoTrack)?.StreamInfo ?? VideoStreamInfoScanner.Scan(source, ct);
         if (info.IsEmpty)
