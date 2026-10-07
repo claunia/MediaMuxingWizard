@@ -174,6 +174,52 @@ public class SaveAsOtherFormatTests
         Assert.Equal(ContainerKind.Mp4, doc.Document.Container);
     }
 
+    /// <summary>tx3g has no Matroska form: Save As asks which text format to convert it to (or to stop).</summary>
+    [AvaloniaTheory]
+    [InlineData("SubRip", "S_TEXT/UTF8")]
+    [InlineData("ASS", "S_TEXT/ASS")]
+    [InlineData("Cancel", null)]
+    public async Task Tx3g_saved_as_matroska_is_converted_to_the_chosen_format(string answer, string? codec)
+    {
+        MediaProbe.RequireFfmpeg();
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var srt = Path.Combine(dir, "subs.srt");
+        await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nHello\n", TestContext.Current.CancellationToken);
+        var mp4 = Path.Combine(dir, "movie.mp4");
+        Fixtures.Run("ffmpeg", $"-y -v error -f lavfi -i testsrc=duration=2:size=160x120:rate=25 -i {Fixtures.Quote(srt)} -c:v libx264 -preset ultrafast -c:s mov_text {Fixtures.Quote(mp4)}");
+        var dialogs = new FakeDialogService();
+        var window = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
+        await window.OpenPathsAsync([mp4]);
+        var doc = window.Document!;
+        Assert.Equal("Tx3g", doc.Document.Tracks.OfType<SubtitleTrack>().Single().Format);
+
+        var mkv = Path.Combine(dir, "movie.mkv");
+        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = mkv });
+        dialogs.DialogResults.Enqueue(answer switch
+        {
+            "SubRip" => Strings.Button_SubRip,
+            "ASS" => Strings.Button_Ass,
+            _ => Strings.Button_Cancel,
+        });
+        await doc.SaveAsCommand.ExecuteAsync(null);
+        Assert.Empty(dialogs.Messages);
+        if (codec is null)
+        {
+            Assert.False(File.Exists(mkv));
+            return;
+        }
+
+        // FFmpeg calls SSA "ass": the Matroska codec ID tells them apart.
+        if (!Fixtures.HasTool("mkvmerge"))
+            Assert.Skip("mkvmerge is needed to read the Matroska codec IDs.");
+        var ids = MediaProbe.MkvIdentify(mkv).GetProperty("tracks").EnumerateArray()
+            .Select(t => t.GetProperty("properties").GetProperty("codec_id").GetString()).ToList();
+        Assert.Contains("V_MPEG4/ISO/AVC", ids);
+        Assert.Contains(codec, ids);
+    }
+
     [AvaloniaFact]
     public async Task Deleting_the_incompatible_tracks_lets_save_as_through()
     {

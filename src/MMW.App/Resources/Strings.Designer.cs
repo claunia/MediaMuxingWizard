@@ -5170,5 +5170,41 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Convert Subtitles.
+        /// </summary>
+        public static string Dialog_ConvertTx3g_Title {
+            get {
+                return ResourceManager.GetString("Dialog_ConvertTx3g_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Matroska cannot store tx3g subtitles, so these tracks have to be converted:.
+        /// </summary>
+        public static string Dialog_ConvertTx3g_MessageFormat {
+            get {
+                return ResourceManager.GetString("Dialog_ConvertTx3g_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SubRip.
+        /// </summary>
+        public static string Button_SubRip {
+            get {
+                return ResourceManager.GetString("Button_SubRip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ASS.
+        /// </summary>
+        public static string Button_Ass {
+            get {
+                return ResourceManager.GetString("Button_Ass", resourceCulture);
+            }
+        }
+        
     }
 }

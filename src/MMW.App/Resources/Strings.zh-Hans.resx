@@ -87,6 +87,9 @@
   <data name="Button_Apply" xml:space="preserve">
     <value>应用</value>
   </data>
+  <data name="Button_Ass" xml:space="preserve">
+    <value>ASS</value>
+  </data>
   <data name="Button_Browse" xml:space="preserve">
     <value>浏览…</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="Button_Search" xml:space="preserve">
     <value>搜索</value>
+  </data>
+  <data name="Button_SubRip" xml:space="preserve">
+    <value>SubRip</value>
   </data>
   <data name="Button_UncheckAll" xml:space="preserve">
     <value>取消全选</value>
@@ -216,6 +222,16 @@
   </data>
   <data name="Dialog_CompleteLanguages_Title" xml:space="preserve">
     <value>补全轨道语言</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_MessageFormat" xml:space="preserve">
+    <value>Matroska 无法存储 tx3g 字幕，因此需要转换以下轨道：
+
+{0}
+
+ASS 会保留样式、位置和卡拉OK；SubRip 保留文本以及粗体、斜体、下划线和颜色。</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_Title" xml:space="preserve">
+    <value>转换字幕</value>
   </data>
   <data name="Dialog_CouldNotExport_Title" xml:space="preserve">
     <value>无法导出轨道</value>

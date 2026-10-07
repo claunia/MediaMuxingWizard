@@ -87,6 +87,9 @@
   <data name="Button_Apply" xml:space="preserve">
     <value>Aplicar</value>
   </data>
+  <data name="Button_Ass" xml:space="preserve">
+    <value>ASS</value>
+  </data>
   <data name="Button_Browse" xml:space="preserve">
     <value>Procurar…</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="Button_Search" xml:space="preserve">
     <value>Buscar</value>
+  </data>
+  <data name="Button_SubRip" xml:space="preserve">
+    <value>SubRip</value>
   </data>
   <data name="Button_UncheckAll" xml:space="preserve">
     <value>Desativar Tudo</value>
@@ -216,6 +222,16 @@ O arquivo só muda quando você salvar.</value>
   </data>
   <data name="Dialog_CompleteLanguages_Title" xml:space="preserve">
     <value>Completar Idiomas das Faixas</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_MessageFormat" xml:space="preserve">
+    <value>O Matroska não pode armazenar legendas tx3g, então estas faixas precisam ser convertidas:
+
+{0}
+
+ASS mantém estilos, posições e karaokê; SubRip mantém o texto com negrito, itálico, sublinhado e cores.</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_Title" xml:space="preserve">
+    <value>Converter Legendas</value>
   </data>
   <data name="Dialog_CouldNotExport_Title" xml:space="preserve">
     <value>Não foi possível exportar a faixa</value>

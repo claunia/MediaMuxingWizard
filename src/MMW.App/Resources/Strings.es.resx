@@ -1782,4 +1782,20 @@ El archivo solo cambia al guardar.</value>
 
 {0}</value>
   </data>
+  <data name="Dialog_ConvertTx3g_Title" xml:space="preserve">
+    <value>Convertir subtítulos</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_MessageFormat" xml:space="preserve">
+    <value>Matroska no puede almacenar subtítulos tx3g, así que estas pistas deben convertirse:
+
+{0}
+
+ASS conserva sus estilos, posiciones y karaoke; SubRip conserva el texto con negrita, cursiva, subrayado y colores.</value>
+  </data>
+  <data name="Button_SubRip" xml:space="preserve">
+    <value>SubRip</value>
+  </data>
+  <data name="Button_Ass" xml:space="preserve">
+    <value>ASS</value>
+  </data>
 </root>

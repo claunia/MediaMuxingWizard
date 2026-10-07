@@ -87,6 +87,9 @@
   <data name="Button_Apply" xml:space="preserve">
     <value>Anwenden</value>
   </data>
+  <data name="Button_Ass" xml:space="preserve">
+    <value>ASS</value>
+  </data>
   <data name="Button_Browse" xml:space="preserve">
     <value>Durchsuchen…</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="Button_Search" xml:space="preserve">
     <value>Suchen</value>
+  </data>
+  <data name="Button_SubRip" xml:space="preserve">
+    <value>SubRip</value>
   </data>
   <data name="Button_UncheckAll" xml:space="preserve">
     <value>Alle abwählen</value>
@@ -216,6 +222,16 @@ Die Datei selbst ändert sich erst beim Speichern.</value>
   </data>
   <data name="Dialog_CompleteLanguages_Title" xml:space="preserve">
     <value>Spursprachen vervollständigen</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_MessageFormat" xml:space="preserve">
+    <value>Matroska kann keine tx3g-Untertitel speichern, daher müssen diese Spuren konvertiert werden:
+
+{0}
+
+ASS behält ihre Stile, Positionen und Karaoke; SubRip behält den Text mit Fett, Kursiv, Unterstreichung und Farben.</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_Title" xml:space="preserve">
+    <value>Untertitel konvertieren</value>
   </data>
   <data name="Dialog_CouldNotExport_Title" xml:space="preserve">
     <value>Track konnte nicht exportiert werden</value>

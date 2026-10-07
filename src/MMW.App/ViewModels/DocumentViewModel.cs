@@ -647,8 +647,31 @@ public sealed partial class DocumentViewModel : ViewModelBase
         // The other container family is written only when every track fits it as it is: Save As converts nothing on its
         // own, the user converts or removes the tracks in the document window first.
         var target = RemuxPolicy.TargetKind(Document, options);
-        if (target != Document.Container && !await TracksFitAsync(target))
-            return false;
+        if (target != Document.Container)
+        {
+            // tx3g has no Matroska form: the tracks kept as they are are converted to the text format the user picks.
+            var subRip = target == ContainerKind.Matroska
+                ? Document.Tracks.OfType<SubtitleTrack>().Where(t => t.Format == "Tx3g" && t.Source is not null && !SubtitleConversions.IsOcr(t) &&
+                                                                     (t.Source.Import?.Action ?? ImportAction.Passthrough) == ImportAction.Passthrough).ToList()
+                : [];
+            if (!await TracksFitAsync(target, subRip))
+                return false;
+            if (subRip.Count > 0)
+            {
+                string srt = Strings.Button_SubRip, ass = Strings.Button_Ass;
+                var names = string.Join("\n", subRip.Select(t => "• " + (string.IsNullOrEmpty(t.Name) ? t.Format : $"{t.Format} – {t.Name}")));
+                var answer = await _dialogs.ShowDialogAsync(new MessageDialogViewModel(Strings.Dialog_ConvertTx3g_Title,
+                    string.Format(CultureInfo.CurrentCulture, Strings.Dialog_ConvertTx3g_MessageFormat, names), [srt, ass, Strings.Button_Cancel], ass));
+                var action = answer == srt ? ImportAction.ConvertToSrt : answer == ass ? ImportAction.ConvertToAss : (ImportAction?)null;
+                if (action is not { } chosen)
+                    return false;
+                using (Undo.Transaction(string.Format(CultureInfo.CurrentCulture, Strings.Undo_ConvertFormat, "Tx3g")))
+                {
+                    foreach (var track in subRip)
+                        TrackConversions.SetAction(Document, track, chosen);
+                }
+            }
+        }
         if (!await SaveCoreAsync(options))
             return false;
         _settings.Settings.AddRecent(options.OutputPath!);
@@ -659,10 +682,11 @@ public sealed partial class DocumentViewModel : ViewModelBase
     // ------------------------------------------------------------------ output format
 
     /// <summary>
-    /// True when every track can be written to <paramref name="target"/> with its current action. Otherwise reports
-    /// the tracks that cannot (to be converted or removed in the document window) and returns false.
+    /// True when every track can be written to <paramref name="target"/> with its current action (or is among the
+    /// <paramref name="converted"/> ones Save As converts after asking the user how). Otherwise reports the tracks that cannot (to be
+    /// converted or removed in the document window) and returns false.
     /// </summary>
-    private async Task<bool> TracksFitAsync(ContainerKind target)
+    private async Task<bool> TracksFitAsync(ContainerKind target, IReadOnlyCollection<Track> converted)
     {
         IsBusy = true;
         IReadOnlyList<MMW.Media.Remux.TrackRetarget> misfits;
@@ -675,6 +699,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             IsBusy = false;
         }
 
+        misfits = [.. misfits.Where(m => !converted.Contains(m.Track))];
         if (misfits.Count == 0)
             return true;
         var lines = misfits.Select(c =>

@@ -1783,4 +1783,20 @@ The file itself only changes when you save.</value>
 
 {0}</value>
   </data>
+  <data name="Dialog_ConvertTx3g_Title" xml:space="preserve">
+    <value>Convert Subtitles</value>
+  </data>
+  <data name="Dialog_ConvertTx3g_MessageFormat" xml:space="preserve">
+    <value>Matroska cannot store tx3g subtitles, so these tracks have to be converted:
+
+{0}
+
+ASS keeps their styles, positions and karaoke; SubRip keeps the text with bold, italic, underline and colours.</value>
+  </data>
+  <data name="Button_SubRip" xml:space="preserve">
+    <value>SubRip</value>
+  </data>
+  <data name="Button_Ass" xml:space="preserve">
+    <value>ASS</value>
+  </data>
 </root>
