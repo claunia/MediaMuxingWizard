@@ -4371,6 +4371,24 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Chapter.
+        /// </summary>
+        public static string Undo_ItemChapter {
+            get {
+                return ResourceManager.GetString("Undo_ItemChapter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Track.
+        /// </summary>
+        public static string Undo_ItemTrack {
+            get {
+                return ResourceManager.GetString("Undo_ItemTrack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Move Artwork.
         /// </summary>
         public static string Undo_MoveArtwork {

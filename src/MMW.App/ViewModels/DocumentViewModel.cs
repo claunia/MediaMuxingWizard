@@ -32,8 +32,8 @@ public sealed partial class DocumentViewModel : ViewModelBase
         _settings = settings;
 
         _tracker = new ObservableUndoTracker(Undo);
-        _tracker.TrackCollection(document.Tracks, "Track");
-        _tracker.TrackCollection(document.Chapters, "Chapter");
+        _tracker.TrackCollection(document.Tracks, Strings.Undo_ItemTrack);
+        _tracker.TrackCollection(document.Chapters, Strings.Undo_ItemChapter);
         Undo.Changed += (_, _) =>
         {
             Document.IsDirty = true;

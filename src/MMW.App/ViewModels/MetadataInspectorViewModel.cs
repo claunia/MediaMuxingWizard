@@ -84,7 +84,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
             return;
 
         // Clearing a value removes the tag but keeps its (empty) row until the user removes it.
-        RecordAndApply(string.Format(CultureInfo.CurrentCulture, normalised is null ? Strings.Undo_ClearTagFormat : Strings.Undo_ChangeTagFormat, definition.Name),
+        RecordAndApply(string.Format(CultureInfo.CurrentCulture, normalised is null ? Strings.Undo_ClearTagFormat : Strings.Undo_ChangeTagFormat, definition.DisplayName),
             () => Metadata.Set(id, normalised), () => Metadata.Set(id, old));
     }
 
@@ -92,7 +92,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
     {
         var old = Metadata[id];
         _items.Remove(id);
-        RecordAndApply(string.Format(CultureInfo.CurrentCulture, Strings.Undo_RemoveTagFormat, TagCatalog.Get(id).Name), () => Metadata.Remove(id), () => Metadata.Set(id, old));
+        RecordAndApply(string.Format(CultureInfo.CurrentCulture, Strings.Undo_RemoveTagFormat, TagCatalog.Get(id).DisplayName), () => Metadata.Remove(id), () => Metadata.Set(id, old));
         Rebuild();
     }
 
@@ -162,7 +162,7 @@ public sealed partial class MetadataInspectorViewModel : ViewModelBase, ITagEdit
         foreach (var group in TagCatalog.All.Where(d => !_items.ContainsKey(d.Id)).GroupBy(d => d.Group))
         {
             AddTagMenu.Add(new MenuNode(TagCatalog.GroupDisplayName(group.Key),
-                children: group.Select(d => new MenuNode(d.Name, AddTagCommand, d.Id)).ToList()));
+                children: group.Select(d => new MenuNode(d.DisplayName, AddTagCommand, d.Id)).ToList()));
         }
 
         SetsMenu.Clear();

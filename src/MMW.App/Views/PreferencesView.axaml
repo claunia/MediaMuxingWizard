@@ -130,7 +130,7 @@
                   <Grid ColumnDefinitions="190,*">
                     <ComboBox ItemsSource="{x:Static vm:PreferencesViewModel.MapTags}" SelectedItem="{Binding Tag}" HorizontalAlignment="Stretch" Margin="0,0,6,0">
                       <ComboBox.ItemTemplate>
-                        <DataTemplate x:DataType="md:TagDefinition"><TextBlock Text="{Binding Name}" /></DataTemplate>
+                        <DataTemplate x:DataType="md:TagDefinition"><TextBlock Text="{Binding DisplayName}" /></DataTemplate>
                       </ComboBox.ItemTemplate>
                     </ComboBox>
                     <TextBox Grid.Column="1" Text="{Binding Template}" FontFamily="Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono,monospace" />

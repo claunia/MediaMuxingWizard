@@ -1667,4 +1667,10 @@ Save anyway?</value>
   <data name="Log_CouldNotSaveQueue" xml:space="preserve">
     <value>Could not save the queue</value>
   </data>
+  <data name="Undo_ItemChapter" xml:space="preserve">
+    <value>Chapter</value>
+  </data>
+  <data name="Undo_ItemTrack" xml:space="preserve">
+    <value>Track</value>
+  </data>
 </root>

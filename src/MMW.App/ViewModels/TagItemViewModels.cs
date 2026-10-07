@@ -32,7 +32,8 @@ public abstract partial class TagItemViewModel : ViewModelBase
 
     protected ITagEditorHost Host { get; }
 
-    public string Name => Definition.Name;
+    /// <summary>The tag's name in the UI language.</summary>
+    public string Name => Definition.DisplayName;
 
     public TagId Id => Definition.Id;
 

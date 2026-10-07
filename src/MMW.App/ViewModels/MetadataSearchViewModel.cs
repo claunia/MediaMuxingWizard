@@ -242,7 +242,7 @@ public sealed partial class MetadataSearchViewModel : DialogViewModel<bool>, IDi
     {
         var set = _service.Maps.For(result.Kind).Apply(result);
         foreach (var id in set.Keys)
-            Preview.Add(new PreviewRow(TagCatalog.Get(id).Name, MetadataSet.FormatValue(id, set[id]!)));
+            Preview.Add(new PreviewRow(TagCatalog.Get(id).DisplayName, MetadataSet.FormatValue(id, set[id]!)));
 
         var first = true;
         foreach (var art in result.Artworks)

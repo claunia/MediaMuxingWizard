@@ -1666,4 +1666,10 @@ Si no los guardas, se perderán.</value>
   <data name="Log_CouldNotSaveQueue" xml:space="preserve">
     <value>No se ha podido guardar la cola</value>
   </data>
+  <data name="Undo_ItemChapter" xml:space="preserve">
+    <value>capítulo</value>
+  </data>
+  <data name="Undo_ItemTrack" xml:space="preserve">
+    <value>pista</value>
+  </data>
 </root>
