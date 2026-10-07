@@ -348,6 +348,9 @@
   <data name="Log_AllSubtitlesForced" xml:space="preserve">
     <value>Piste de sous-titres « {0} » : tous les sous-titres sont forcés.</value>
   </data>
+  <data name="Log_AudioCheckSkippedFormat" xml:space="preserve">
+    <value>Vérification audio de la piste {0} ignorée : {1}</value>
+  </data>
   <data name="Log_Av2SequenceHeaderChanges" xml:space="preserve">
     <value>Piste AV2 {0} : l’en-tête de séquence change pendant le flux ; la nouvelle est conservée dans les échantillons.</value>
   </data>
@@ -387,14 +390,17 @@
   <data name="Log_VideoStartsEarly" xml:space="preserve">
     <value>La vidéo commence {0:0.###} s avant la présentation ; décalage de toutes les pistes.</value>
   </data>
-  <data name="Name_MonoAudio" xml:space="preserve">
-    <value>Audio mono</value>
+  <data name="Name_AudioFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
   </data>
-  <data name="Name_StereoAudio" xml:space="preserve">
-    <value>Audio stéréo</value>
+  <data name="Name_Mono" xml:space="preserve">
+    <value>Mono</value>
   </data>
-  <data name="Name_SurroundAudio" xml:space="preserve">
-    <value>Audio surround</value>
+  <data name="Name_Stereo" xml:space="preserve">
+    <value>Stéréo</value>
+  </data>
+  <data name="Name_SurroundFormat" xml:space="preserve">
+    <value>Surround {0}</value>
   </data>
   <data name="Reason_AudioCannotBeDecoded" xml:space="preserve">
     <value>{0} audio ne peut pas être décodé par {1}</value>

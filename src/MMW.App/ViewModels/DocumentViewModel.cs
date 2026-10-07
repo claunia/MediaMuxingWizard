@@ -229,14 +229,15 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
         }
 
-        // DTS: the product (DTS-HD MA, DTS:X …) is only known from the bitstream; so are Opus's modes and bandwidth, and
+        // Dolby Atmos in TrueHD and E-AC-3, and the DTS product (DTS-HD MA, DTS:X …), are only known from the bitstream; so are Opus's modes and bandwidth, and
         // FLAC's depth, block size and encoder are in its STREAMINFO and vendor string, MPEG audio's bit rate mode in its frames.
         foreach (var audio in Document.Tracks.OfType<AudioTrack>().Where(a => DtsDetector.NeedsCheck(a) || OpusDetector.NeedsCheck(a) || FlacDetector.NeedsCheck(a) ||
-                                                                          MpegAudioDetector.NeedsCheck(a) || EntryCodecDetector.NeedsCheck(a)).ToList())
+                                                                          MpegAudioDetector.NeedsCheck(a) || EntryCodecDetector.NeedsCheck(a) || AtmosDetector.NeedsCheck(a)).ToList())
         {
             try
             {
-                var described = OpusDetector.NeedsCheck(audio) ? await OpusDetector.DescribeAsync(audio)
+                var described = AtmosDetector.NeedsCheck(audio) ? await AtmosDetector.DescribeAsync(audio)
+                    : OpusDetector.NeedsCheck(audio) ? await OpusDetector.DescribeAsync(audio)
                     : FlacDetector.NeedsCheck(audio) ? await FlacDetector.DescribeAsync(audio)
                     : MpegAudioDetector.NeedsCheck(audio) ? await MpegAudioDetector.DescribeAsync(audio)
                     : EntryCodecDetector.NeedsCheck(audio) ? await EntryCodecDetector.DescribeAsync(audio)
@@ -428,8 +429,19 @@ public sealed partial class DocumentViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void PrettifyAudioNames()
+    private async Task PrettifyAudioNames()
     {
+        // Atmos and the DTS product come from the bitstream: read them first so the names say so.
+        IsBusy = true;
+        try
+        {
+            await TrackActions.DescribeAudioAsync(Document);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
         using (Undo.Transaction(Strings.Undo_PrettifyAudioNames))
             TrackActions.PrettifyAudioNames(Document);
     }

@@ -144,10 +144,10 @@ public sealed class PrettifyAudioNamesAction : QueueAction
 {
     public override string Description => Strings.Action_PrettifyAudioNames;
 
-    public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
+    public override async Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
+        await TrackActions.DescribeAudioAsync(context.Document, cancellationToken);
         TrackActions.PrettifyAudioNames(context.Document);
-        return Task.CompletedTask;
     }
 }
 

@@ -348,6 +348,9 @@
   <data name="Log_AllSubtitlesForced" xml:space="preserve">
     <value>Untertitelspur „{0}“: alle Untertitel sind erzwungen.</value>
   </data>
+  <data name="Log_AudioCheckSkippedFormat" xml:space="preserve">
+    <value>Audioprüfung der Spur {0} übersprungen: {1}</value>
+  </data>
   <data name="Log_Av2SequenceHeaderChanges" xml:space="preserve">
     <value>AV2 Spur {0}: die Sequenzheader ändern sich während des Datenstroms; der neue wird in den Samples beibehalten.</value>
   </data>
@@ -387,14 +390,17 @@
   <data name="Log_VideoStartsEarly" xml:space="preserve">
     <value>Video startet {0:0.###} s vor der Präsentation; alle Spuren werden verschoben.</value>
   </data>
-  <data name="Name_MonoAudio" xml:space="preserve">
-    <value>Mono-Audio</value>
+  <data name="Name_AudioFormat" xml:space="preserve">
+    <value>{0} ({1})</value>
   </data>
-  <data name="Name_StereoAudio" xml:space="preserve">
-    <value>Stereo-Audio</value>
+  <data name="Name_Mono" xml:space="preserve">
+    <value>Mono</value>
   </data>
-  <data name="Name_SurroundAudio" xml:space="preserve">
-    <value>Surround-Audio</value>
+  <data name="Name_Stereo" xml:space="preserve">
+    <value>Stereo</value>
+  </data>
+  <data name="Name_SurroundFormat" xml:space="preserve">
+    <value>{0}-Surround</value>
   </data>
   <data name="Reason_AudioCannotBeDecoded" xml:space="preserve">
     <value>{0}-Audio kann nicht von {1} decodiert werden</value>

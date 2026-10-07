@@ -255,7 +255,11 @@ internal static class CommandLine
         if (a.Has("clear-names"))
             TrackActions.ClearTrackNames(doc);
         if (a.Has("prettify-audio-names"))
+        {
+            // Atmos and the DTS product are read from the bitstream first (the console has no synchronisation context).
+            TrackActions.DescribeAudioAsync(doc).GetAwaiter().GetResult();
             TrackActions.PrettifyAudioNames(doc);
+        }
         if (a.Value("enable-audio") is { } audio && !GroupActions.EnableTrackWithLanguage(doc, TrackKind.Audio, audio))
             throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoAudioInLanguage, audio));
         if (a.Value("enable-subtitles") is { } subs && !GroupActions.EnableTrackWithLanguage(doc, TrackKind.Subtitle, subs))
