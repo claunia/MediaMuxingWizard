@@ -36,7 +36,7 @@ public sealed class Av1RawTests
         MediaRemux.EnsureRegistered();
         var tracks = await TrackImporter.InspectAsync(source, target, Ct);
         var track = Assert.Single(tracks);
-        Assert.Equal((CodecType.Av1, 320, 180, "Main@L2.0"), (track.Config.Codec, track.Config.Width, track.Config.Height, track.Config.VideoProfile));
+        Assert.Equal((CodecType.Av1, 320, 180, "Main@L2.0"), (track.Config.Codec, track.Config.Width, track.Config.Height, TrackImporter.ProfileLevel(track.Config)));
         var doc = new MediaDocument(null, target);
         TrackImporter.AddToDocument(doc, tracks);
         var output = MediaProbe.TempPath(target == ContainerKind.Mp4 ? ".mp4" : ".mkv");
@@ -100,5 +100,62 @@ public sealed class Av1RawTests
         Assert.True(MMW.Formats.Elementary.ElementaryFormat.RequiresFrameRate(demuxer));
         Assert.Equal(50, demuxer.Tracks[0].Config.FrameRate, 3);
         Assert.Equal(1.0, demuxer.Duration.TotalSeconds, 3);
+    }
+
+    /// <summary>
+    /// Tracks stored without their configuration (Matroska CodecPrivate turned into a Void element, MP4 'av1C' renamed
+    /// 'free'): it is rebuilt from the sequence header of the first frame, as FFmpeg would have written it.
+    /// </summary>
+    [Theory]
+    [InlineData(".mkv")]
+    [InlineData(".mp4")]
+    public async Task Rebuilds_a_missing_configuration(string extension)
+    {
+        var source = Svt("ivf");
+        var complete = MediaProbe.TempPath(extension);
+        var broken = MediaProbe.TempPath(extension);
+        try
+        {
+            Fixtures.Run("ffmpeg", $"-v error -y -i {Fixtures.Quote(source)} -c copy {Fixtures.Quote(complete)}");
+            var bytes = File.ReadAllBytes(complete);
+            if (extension == ".mkv")
+            {
+                // CodecPrivate (63 A2, one-byte size) → Void (EC, two-byte size) of the same total length.
+                var at = bytes.AsSpan().IndexOf([(byte)0x63, (byte)0xA2]);
+                Assert.True(at > 0 && (bytes[at + 2] & 0x80) != 0);
+                var size = bytes[at + 2] & 0x7F;
+                (bytes[at], bytes[at + 1], bytes[at + 2]) = (0xEC, 0x40, (byte)size);
+            }
+            else
+            {
+                var at = bytes.AsSpan().IndexOf("av1C"u8);
+                Assert.True(at > 0);
+                "free"u8.CopyTo(bytes.AsSpan(at));
+            }
+
+            File.WriteAllBytes(broken, bytes);
+            MediaRemux.EnsureRegistered();
+            using (var reference = MediaFormatRegistry.OpenDemuxer(complete, new DemuxOptions()))
+            using (var demuxer = MediaFormatRegistry.OpenDemuxer(broken, new DemuxOptions()))
+                Assert.Equal(reference.Tracks[0].Config.Extradata, demuxer.Tracks[0].Config.Extradata);
+
+            foreach (var target in new[] { ContainerKind.Mp4, ContainerKind.Matroska })
+            {
+                var output = await SaveAsync(broken, target);
+                try
+                {
+                    Assert.Equal(Frames(source).Split('\n').Where(l => !l.StartsWith('#')).Select(l => l.Split(',').Last()),
+                        Frames(output).Split('\n').Where(l => !l.StartsWith('#')).Select(l => l.Split(',').Last()));
+                }
+                finally
+                {
+                    MediaProbe.Delete(output);
+                }
+            }
+        }
+        finally
+        {
+            MediaProbe.Delete(complete, broken);
+        }
     }
 }

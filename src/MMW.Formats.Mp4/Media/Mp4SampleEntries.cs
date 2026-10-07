@@ -543,6 +543,9 @@ internal static class Mp4SampleEntries
         if (config.Native is Mp4NativeTrack native)
         {
             var entry = BoxParser.ParseList(BoxWriter.ToArray(native.Entry), "stsd")[0];
+            // An 'av01' entry stored without its 'av1C' gets the one rebuilt from the first sample.
+            if (entry.Type is "av01" && entry.Find("av1C") is null && config.Extradata is { Length: >= 4 } av1C && entry.Children is { } children)
+                children.Insert(0, new Box("av1C", av1C));
             // A 'vvc1' source whose samples repeat parameter sets is stored as the 'vvi1' it should have been.
             if (entry.Type == "vvc1" && ctx.InBandParameterSets && entry.Find("vvcC") is { Payload.Length: > 4 } vvcC)
             {

@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Text;
+using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
@@ -181,9 +182,22 @@ internal sealed class Mp4SampleSource : ISampleSource
         StartOffset = TimeSpan.FromSeconds((double)empty / movieTimescale);
     }
 
-    /// <summary>Resolves details that need the first sample (MPEG audio layer).</summary>
+    /// <summary>Resolves details that need the first sample (MPEG audio layer, a missing 'av1C').</summary>
     public void RefineCodec()
     {
+        if (Config.Codec == CodecType.Av1 && Config.Extradata is not { Length: >= 4 } && SampleCountHint > 0)
+        {
+            var data = new byte[Samples[0].Size];
+            _reader.Read(Samples[0].Offset, data);
+            if (Av1.ConfigurationFromSample(data) is { } av1)
+            {
+                AppLog.Info($"AV1 track {TrackId} has no 'av1C'; its configuration was rebuilt from the first sample.");
+                Config = Config with { Extradata = av1.Av1C };
+            }
+
+            return;
+        }
+
         if (Config.Codec != CodecType.Mp3 || SampleCountHint == 0)
             return;
         var first = Samples[0];

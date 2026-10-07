@@ -321,6 +321,21 @@ public static class Av1
         return [.. o];
     }
 
+    /// <summary>
+    /// The 'av1C' record (and the sequence header it describes) from the sequence header OBU of a sample or temporal
+    /// unit, for tracks stored without one; null when the sample has no readable sequence header.
+    /// </summary>
+    public static (byte[] Av1C, Av1SequenceHeader Header)? ConfigurationFromSample(ReadOnlySpan<byte> sample)
+    {
+        var obu = FindSequenceHeader(ToSample(sample)); // with size fields, as configOBUs need them
+        if (obu.IsEmpty)
+            return null;
+        var pos = 1 + ((obu[0] & 0x04) != 0 ? 1 : 0);
+        if (!DolbyVision.Leb128(obu, ref pos, out _) || ParseSequenceHeader(obu[pos..]) is not { } header)
+            return null;
+        return (BuildAv1C(header, obu), header);
+    }
+
     /// <summary>The first sequence header OBU (header, size field and payload) of a temporal unit; empty when it has none.</summary>
     public static ReadOnlySpan<byte> FindSequenceHeader(ReadOnlySpan<byte> sample)
     {

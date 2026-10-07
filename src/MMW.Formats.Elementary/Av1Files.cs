@@ -101,16 +101,13 @@ internal sealed class Av1Source : ISampleSource, IDisposable
         _inner = inner;
         var config = inner.Config;
         inner.Reset();
-        var sample = inner.ReadNext() is { } first ? Av1.ToSample(first.Data.Span) : [];
+        var configuration = inner.ReadNext() is { } first ? Av1.ConfigurationFromSample(first.Data.Span) : null;
         inner.Reset();
-        var obu = Av1.FindSequenceHeader(sample);
-        if (obu.IsEmpty)
-            throw new InvalidDataException("The AV1 stream does not start with a sequence header.");
-        var header = Av1Files.SequenceHeader(obu) ?? throw new InvalidDataException("The AV1 sequence header cannot be read.");
+        var (av1C, header) = configuration ?? throw new InvalidDataException("The AV1 stream does not start with a readable sequence header.");
         _reduced = header.ReducedStillPictureHeader;
         Config = config with
         {
-            Extradata = Av1.BuildAv1C(header, obu),
+            Extradata = av1C,
             Width = header.Width,
             Height = header.Height,
             BitsPerSample = header.BitDepth,

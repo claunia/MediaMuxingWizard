@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.IO.Compression;
+using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
@@ -526,6 +527,13 @@ internal sealed class MatroskaTrackSource : ISampleSource
                 _grid = defaultTicks;
                 if (Config.Codec == CodecType.Vp9 && _demuxer.PeekFirstFrame(this) is { } frame)
                     Config = Config with { Extradata = Vp9.BuildVpcC(frame, Config) };
+                else if (Config.Codec == CodecType.Av1 && Config.Extradata is not { Length: >= 4 } && _demuxer.PeekFirstFrame(this) is { } first &&
+                         Av1.ConfigurationFromSample(first) is { } av1)
+                {
+                    // CodecPrivate is mandatory for V_AV1, but some files lack it: the sequence header in the first frame gives it.
+                    AppLog.Info($"AV1 track {TrackId} has no CodecPrivate; its configuration was rebuilt from the first frame.");
+                    Config = Config with { Extradata = av1.Av1C };
+                }
                 if (defaultTicks > 0)
                     SampleCountHint = (long)(Duration.TotalSeconds * timescale / defaultTicks);
                 break;
