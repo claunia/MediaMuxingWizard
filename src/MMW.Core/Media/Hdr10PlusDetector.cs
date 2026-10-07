@@ -23,7 +23,7 @@ public static class Hdr10PlusDetector
         var config = track.Config;
         if (config.Hdr10Plus || config.Hdr10PlusInBlockAdditions)
             return true;
-        if (config.Kind != TrackKind.Video || config.Codec is not (CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Vp9))
+        if (config.Kind != TrackKind.Video || config.Codec is not (CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Av2 or CodecType.Vp9))
             return false;
 
         var lengthSize = HdrVividDetector.NalLengthSize(config);
@@ -54,7 +54,7 @@ public static class HdrVividDetector
 
     public static bool CanScan(CodecConfig config) =>
         config.Kind == TrackKind.Video && config.Codec is CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or
-            CodecType.Avs2 or CodecType.Avs3;
+            CodecType.Av2 or CodecType.Avs2 or CodecType.Avs3;
 
     /// <summary>True when the track is worth scanning: a video track of the document's own file not known to carry HDR Vivid.</summary>
     public static bool NeedsCheck(VideoTrack video)

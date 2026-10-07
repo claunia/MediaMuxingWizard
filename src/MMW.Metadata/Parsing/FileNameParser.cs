@@ -263,7 +263,7 @@ public static partial class FileNameParser
         @"(?<![A-Za-z0-9])(?:" +
         @"\d{3,4}[pi]|4k|8k|uhd|hdr(?:10)?(?:\+|plus)?|dv|dovi|sdr|" +
         @"blu-?ray|bdrip|brrip|bdremux|bd|dvd(?:rip|scr|r|9|5)?|web(?:-?dl|-?rip)?|hdtv|pdtv|sdtv|dsr|hdrip|tvrip|vhsrip|cam|ts|telesync|screener|" +
-        @"[xh][\. ]?26[45]|hevc|avc|xvid|divx|vc-?1|mpeg-?2|av1|vp9|10-?bit|8-?bit|" +
+        @"[xh][\. ]?26[45]|hevc|avc|xvid|divx|vc-?1|mpeg-?2|av[12]|vp9|10-?bit|8-?bit|" +
         @"aac(?:2[\. ]0|5[\. ]1)?|ac-?3|e-?ac-?3|dts(?:-?hd|-?x|-?ma)?|dd(?:p|\+)?[257][\. ][01]|dd(?:p|\+)?|truehd|atmos|flac|mp3|opus|lpcm|" +
         @"remux|proper|repack|rerip|extended|unrated|uncut|directors[\. ]?cut|theatrical|limited|internal|multi|multisubs|subbed|dubbed|dual[\. ]?audio|complete|" +
         @"nf|amzn|dsnp|hmax|atvp|hulu|pcok|itunes|criterion|remastered|imax" +

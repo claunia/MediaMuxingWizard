@@ -12,6 +12,7 @@ public enum CodecType
     Hevc,
     Vvc,
     Av1,
+    Av2,
     Vp8,
     Vp9,
     Mpeg4Visual,
@@ -233,6 +234,7 @@ public static class CodecNames
         CodecType.Hevc => "HEVC",
         CodecType.Vvc => "VVC",
         CodecType.Av1 => "AV1",
+        CodecType.Av2 => "AV2",
         CodecType.Vp8 => "VP8",
         CodecType.Vp9 => "VP9",
         CodecType.Mpeg4Visual => "MPEG-4 Visual",
@@ -280,5 +282,5 @@ public static class CodecNames
     /// <summary>True for video codecs whose samples may be stored out of presentation order (B-frames).</summary>
     public static bool MayReorder(CodecType codec) =>
         codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Avs2 or
-                 CodecType.Evc or CodecType.Avs3 or CodecType.Avs1;
+                 CodecType.Evc or CodecType.Avs3 or CodecType.Avs1 or CodecType.Av2;
 }

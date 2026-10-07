@@ -27,7 +27,7 @@ public static class VideoStreamInfoScanner
 
     public static bool CanScan(CodecConfig config) =>
         config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or
-            CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3;
+            CodecType.Av2 or CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3;
 
     /// <summary>Scans an open sample source; the source is rewound afterwards.</summary>
     public static VideoStreamInfo Scan(ISampleSource track, CancellationToken cancellationToken = default)
@@ -96,6 +96,9 @@ public static class VideoStreamInfoScanner
             case CodecType.Av1 when config.Extradata is { Length: > 4 } av1c:
                 state.Obus(av1c.AsSpan(4)); // configOBUs
                 break;
+            case CodecType.Av2 when config.Extradata is { Length: > 2 } av2c:
+                state.Av2Obus(av2c.AsSpan(2)); // config OBUs, each with its leb128 length
+                break;
         }
 
         track.Reset();
@@ -108,6 +111,10 @@ public static class VideoStreamInfoScanner
                 if (config.Codec == CodecType.Av1)
                 {
                     state.Obus(data);
+                }
+                else if (config.Codec == CodecType.Av2)
+                {
+                    state.Av2Obus(data);
                 }
                 else
                 {
@@ -268,6 +275,31 @@ public static class VideoStreamInfoScanner
                     else if (metadataType == Av1MetadataHdrCll && payload.Length >= q + 4)
                         _light ??= (BinaryPrimitives.ReadUInt16BigEndian(payload[q..]), BinaryPrimitives.ReadUInt16BigEndian(payload[(q + 2)..]));
                 }
+            }
+
+            return false;
+        });
+
+        /// <summary>
+        /// AV2: colour from the content interpretation OBU, static HDR from metadata OBUs (mastering display in the HEVC SEI
+        /// layout: G, B, R in 0.00002 units, luminance in 0.0001 cd/m²).
+        /// </summary>
+        public void Av2Obus(ReadOnlySpan<byte> data) => Av2.ForEachObu(data, (header, _, payload) =>
+        {
+            if (header.Type == Av2.ObuContentInterpretation && !_color.IsSpecified && Av2.ParseContentInterpretation(payload) is { } ci)
+            {
+                _color = Meaningful(ci.Color);
+            }
+            else if (header.Type is Av2.ObuMetadataShort or Av2.ObuMetadataGroup)
+            {
+                Av2.ForEachMetadata(header.Type, payload, (metadataType, unit) =>
+                {
+                    if (metadataType == Av2.MetadataHdrMdcv)
+                        _mastering ??= ParseMasteringDisplaySei(unit);
+                    else if (metadataType == Av2.MetadataHdrCll && unit.Length >= 4)
+                        _light ??= (BinaryPrimitives.ReadUInt16BigEndian(unit), BinaryPrimitives.ReadUInt16BigEndian(unit[2..]));
+                    return false;
+                });
             }
 
             return false;

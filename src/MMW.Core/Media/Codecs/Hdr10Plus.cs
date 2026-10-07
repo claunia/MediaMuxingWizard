@@ -34,6 +34,7 @@ public static class Hdr10Plus
         {
             CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Evc => InNalUnits(data, nalLengthSize, codec),
             CodecType.Av1 => InAv1(data),
+            CodecType.Av2 => Av2.ForEachT35(data, t35 => IsHdr10PlusT35(t35)),
             _ => false,
         };
     }

@@ -42,6 +42,8 @@ public static class HdrVivid
                 return found;
             }
 
+            case CodecType.Av2:
+                return Av2.ForEachT35(data, t35 => IsHdrVividT35(t35));
             case CodecType.Avs2 or CodecType.Avs3:
                 return Avs.HasHdrDynamicMetadata(data);
             default:

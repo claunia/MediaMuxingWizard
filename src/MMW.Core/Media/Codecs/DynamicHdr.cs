@@ -90,6 +90,13 @@ public static class DynamicHdr
                     return false;
                 });
                 break;
+            case CodecType.Av2:
+                Av2.ForEachT35(data, t35 =>
+                {
+                    found |= Classify(t35);
+                    return false;
+                });
+                break;
         }
 
         return found;
