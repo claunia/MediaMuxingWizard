@@ -455,6 +455,7 @@ internal static class Mp4SampleEntries
             CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
                 "AVS (AVS1-P2 / AVS+) video has no MP4 sample entry (none is registered), so it cannot be stored in MP4; save as Matroska instead"),
             _ when QuickTime.IsEntryCodec(config.Codec) && config.Extradata is { Length: >= 8 } => TrackSupport.Passthrough,
+            CodecType.VfwVideo when VfwNativeSource.CanConvert(config) => TrackSupport.Passthrough,
             CodecType.VfwVideo or CodecType.RealVideo => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
                 $"{config.FormatName} video has no MP4 sample entry, so it cannot be stored in MP4; save as Matroska instead"),
             CodecType.Pgs or CodecType.DvbSub =>

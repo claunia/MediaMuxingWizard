@@ -483,6 +483,41 @@ public static class Vc1
     public static byte[] BuildEntry(ReadOnlySpan<byte> sequenceAndEntryPoint, Vc1Sequence sequence) =>
         QuickTime.VisualEntry("vc-1", sequence.Width, sequence.Height, QuickTime.Box("dvc1", BuildDvc1(sequenceAndEntryPoint, sequence)));
 
+    /// <summary>
+    /// The picture type ('I', 'P', 'B', or '?') of an Advanced profile frame, with or without its frame start code
+    /// (00 00 01 0D), from PTYPE (after FCM when <paramref name="interlaced"/>). BI frames count as B (not references);
+    /// skipped frames as P.
+    /// </summary>
+    public static char PictureType(ReadOnlySpan<byte> frame, bool interlaced)
+    {
+        for (var i = 0; i + 4 < frame.Length; i++)
+        {
+            if (frame[i] == 0 && frame[i + 1] == 0 && frame[i + 2] == 1 && frame[i + 3] == 0x0D)
+            {
+                frame = frame[(i + 4)..];
+                break;
+            }
+        }
+
+        try
+        {
+            var r = new BitReader(frame);
+            if (interlaced && r.Flag() && r.Flag())
+                return "IIPPBBBB"[(int)r.Read(3)]; // field pair: FPTYPE, the first field decides
+            if (!r.Flag())
+                return 'P';
+            if (!r.Flag())
+                return 'B';
+            if (!r.Flag())
+                return 'I';
+            return r.Flag() ? 'P' : 'B'; // 1111 skipped, 1110 BI
+        }
+        catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
+        {
+            return '?';
+        }
+    }
+
     /// <summary>The sequence header fields of a 'vc-1' sample entry's 'dvc1'; null when it has none.</summary>
     public static Vc1Sequence? EntrySequence(ReadOnlySpan<byte> entry)
     {

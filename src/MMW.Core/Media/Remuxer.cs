@@ -331,6 +331,12 @@ public static class Remuxer
                     sampleSource = converter;
                 }
 
+                else if (factory.Kind == ContainerKind.Mp4 && VfwNativeSource.TryCreate(sampleSource) is { } native)
+                {
+                    // MPEG-4 Part 2, VC-1 and H.263 stored the Video for Windows way go to MP4 in their own form.
+                    AppLog.Info($"{sampleSource.Config.FormatName} track '{track.Name}' is stored as {native.Config.FormatName} in MP4.");
+                    sampleSource = native;
+                }
                 else if (factory.Kind == ContainerKind.Mp4 && sampleSource.Config.Codec == CodecType.TrueHd)
                 {
                     // MP4 stores one access unit per sample with exact timing and a dmlp box (Dolby's ISOBMFF spec).

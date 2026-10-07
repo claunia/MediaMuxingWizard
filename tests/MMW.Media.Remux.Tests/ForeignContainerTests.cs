@@ -159,6 +159,60 @@ public sealed class ForeignContainerTests
         }
     }
 
+    /// <summary>
+    /// Video for Windows tracks MP4 can hold natively go there in that form: MPEG-4 Part 2 (DivX/Xvid, with B-frames)
+    /// and H.263, from AVI and from mkvmerge's Matroska files (V_MS/VFW/FOURCC, timed in decoding order).
+    /// </summary>
+    [Theory]
+    [InlineData("vfw-mpeg4-bf.avi", "-c:v mpeg4 -bf 2 -vtag XVID -an", "mp4v")]
+    [InlineData("vfw-h263.avi", "-s 352x288 -c:v h263 -an", "s263")]
+    public async Task Vfw_tracks_go_to_mp4_natively(string name, string options, string entryType)
+    {
+        if (!Fixtures.HasTool("mkvmerge"))
+            Assert.Skip("mkvmerge not installed.");
+        var avi = Make(name, options);
+        var mkv = MediaProbe.TempPath(".mkv");
+        var outputs = new List<string>();
+        try
+        {
+            Fixtures.Run("mkvmerge", $"-q -o {Fixtures.Quote(mkv)} {Fixtures.Quote(avi)}");
+            Assert.Contains("V_MS/VFW/FOURCC", Fixtures.Run("mkvmerge", $"-J {Fixtures.Quote(mkv)}"), StringComparison.Ordinal);
+            foreach (var source in new[] { avi, mkv })
+            {
+                var video = (await TrackImporter.InspectAsync(source, ContainerKind.Mp4, Ct)).Single(t => t.Config.Kind == TrackKind.Video);
+                Assert.Equal(TrackSupportLevel.Passthrough, video.Support.Level);
+                var output = await SaveAsync(source, ContainerKind.Mp4);
+                outputs.Add(output);
+                Assert.Equal(Decode(avi, "v"), Decode(output, "v"));
+                Assert.Contains(entryType, Fixtures.Run("ffprobe", $"-v error -select_streams v -show_entries stream=codec_tag_string -of csv=p=0 {Fixtures.Quote(output)}"), StringComparison.Ordinal);
+            }
+        }
+        finally
+        {
+            MediaProbe.Delete(mkv);
+            foreach (var output in outputs)
+                MediaProbe.Delete(output);
+        }
+    }
+
+    /// <summary>VC-1 from WMV (and from its VFW Matroska form) goes to MP4 as 'vc-1' with start-code frames FFmpeg reads one by one.</summary>
+    [Fact]
+    public async Task Corpus_vc1_from_wmv_goes_to_mp4()
+    {
+        var wmv = Corpus.Directory is { } dir ? Path.Combine(dir, "Video codecs", "VC1.wmv") : string.Empty;
+        Corpus.Require(File.Exists(wmv) ? wmv : string.Empty);
+        MediaProbe.RequireFfmpeg();
+        var output = await SaveAsync(wmv, ContainerKind.Mp4);
+        try
+        {
+            Assert.Equal(Decode(wmv, "v"), Decode(output, "v"));
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
+    }
+
     /// <summary>What the bitstream headers say is shown with the tracks: profile, level, coding tools, colour, encoder, bit rate mode.</summary>
     [Theory]
     [InlineData("details-mpeg2-709.mpg", "-vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709 -c:v mpeg2video -pix_fmt yuv422p -flags +ildct+ilme -c:a mp2 -b:a 192k -f mpeg",
