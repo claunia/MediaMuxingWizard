@@ -72,7 +72,9 @@ internal static partial class TrackCommands
                     choices.FirstOrDefault(c => c.Action == ImportAction.ConvertToAac);
         }
 
-        if (match is null && key == "ocr")
+        // "ocr" is whichever OCR the target offers; "srt-ocr" for an MP4 is its tx3g OCR, which is what OCR to SubRip
+        // becomes in MP4 anyway.
+        if (match is null && key is "ocr" or "srt-ocr")
             match = choices.FirstOrDefault(c => c.Ocr);
         return match ?? throw new UsageException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ActionNotOffered, name, what, string.Join(", ", choices.Select(Name))));
     }

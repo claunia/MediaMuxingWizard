@@ -43,7 +43,9 @@ public static class ContainerSwitch
                 var action = source.Import?.Action ?? ImportAction.Passthrough;
                 // Passthrough stays only where the track is stored unchanged; an automatic conversion (SubRip → tx3g)
                 // becomes the explicit choice the track's conversion menu shows.
-                var kept = info.Choices.Any(c => c.Action == action) ||
+                // OCR to SubRip becomes tx3g in MP4 by itself (SubtitleConversions.TargetIn): nothing to change.
+                var ocrAsTx3g = target == ContainerKind.Mp4 && action == ImportAction.ConvertToSrt && SubtitleConversions.IsOcr(track);
+                var kept = ocrAsTx3g || info.Choices.Any(c => c.Action == action) ||
                            action == ImportAction.Passthrough && info.Support.Level == TrackSupportLevel.Passthrough;
                 if (kept)
                     continue;

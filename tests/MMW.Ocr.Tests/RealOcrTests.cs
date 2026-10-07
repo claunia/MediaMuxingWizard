@@ -238,6 +238,53 @@ public sealed class RealOcrTests
         }
     }
 
+    [Fact]
+    public async Task Ocr_to_srt_in_mp4_is_saved_as_tx3g_as_if_tx3g_had_been_chosen()
+    {
+        RequireTesseract();
+        RequireFfmpeg();
+        if (SubtitleOcr.Factory.CheckLanguage("eng") is { } missing)
+            Assert.Skip(missing);
+        var mks = WriteVobSubMkv([("Good morning", 500, 2000, false), ("Keep out", 3000, 1500, true)]);
+        var output = Path.Combine(Path.GetTempPath(), "mmw-tests", "ocr-" + Guid.NewGuid().ToString("N") + ".mp4");
+        try
+        {
+            // "SRT (OCR)" as Matroska offers it, ending up in an MP4.
+            var item = Assert.Single(await TrackImporter.InspectAsync(mks, ContainerKind.Matroska, Ct));
+            item.Choice = item.Choices.Single(c => c.Ocr);
+            Assert.Equal(ImportAction.ConvertToSrt, item.Action);
+
+            var matroska = new MediaDocument(null, ContainerKind.Matroska);
+            TrackImporter.AddToDocument(matroska, [item]);
+            Assert.Empty(await ContainerSwitch.PlanAsync(matroska, ContainerKind.Mp4, Ct));
+
+            var document = new MediaDocument(null, ContainerKind.Mp4);
+            var track = (SubtitleTrack)Assert.Single(TrackImporter.AddToDocument(document, [item]));
+            Assert.Equal("Tx3g", track.Format);
+            Assert.Equal(TrackSupportLevel.Converted, Assert.Single(await Remuxer.CheckAsync(document, ContainerKind.Mp4, Ct)).Support.Level);
+
+            await Remuxer.SaveAsync(document, new SaveOptions { OutputPath = output }, ContainerKind.Mp4, cancellationToken: Ct);
+            using var demuxer = MediaFormatRegistry.OpenDemuxer(output);
+            var text = Assert.Single(demuxer.Tracks);
+            Assert.Equal(CodecType.Tx3g, text.Config.Codec);
+            var shown = new List<StyledText>();
+            while (text.ReadNext() is { } s)
+            {
+                var cue = SubtitleText.FromTx3g(s.GetData().Span);
+                if (!cue.IsEmpty)
+                    shown.Add(cue);
+            }
+
+            Assert.Equal(["Good morning", "Keep out"], shown.Select(c => c.Text));
+            Assert.Equal([false, true], shown.Select(c => c.Forced));
+        }
+        finally
+        {
+            File.Delete(mks);
+            File.Delete(output);
+        }
+    }
+
     public static IEnumerable<TheoryDataRow<string>> CorpusVobSubFiles() =>
         Corpus.Files(".mkv", ".mks")
             .Where(f => f.Length == 0 || Path.GetFileName(f).Contains("DVD", StringComparison.OrdinalIgnoreCase) ||

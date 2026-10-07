@@ -174,4 +174,18 @@ public class TrackCommandTests
         Assert.Equal(2, code);
         Assert.Contains("choose one of: copy, skip", err, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void Srt_ocr_for_an_mp4_is_its_tx3g_ocr()
+    {
+        // MP4 offers OCR to tx3g; OCR to SubRip there becomes tx3g anyway, so "srt-ocr" names it.
+        MMW.Core.Media.ImportChoice[] mp4 =
+        [
+            new(MMW.Core.Media.ImportAction.Passthrough, "Passthru"),
+            new(MMW.Core.Media.ImportAction.ConvertToTx3g, "Tx3g (OCR)", Ocr: true),
+            new(MMW.Core.Media.ImportAction.Skip, "Skip"),
+        ];
+        Assert.Equal(MMW.Core.Media.ImportAction.ConvertToTx3g, TrackCommands.Resolve(mp4, "srt-ocr", 0, "track 3").Action);
+        Assert.Equal(MMW.Core.Media.ImportAction.ConvertToTx3g, TrackCommands.Resolve(mp4, "tx3g-ocr", 0, "track 3").Action);
+    }
 }

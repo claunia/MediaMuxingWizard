@@ -203,7 +203,7 @@ public static class Remuxer
     /// <summary>Support of a bitmap subtitle track converted to text by OCR.</summary>
     private static TrackSupport CheckOcr(IMuxerFactory factory, CodecConfig config, TrackImportOptions import)
     {
-        var target = SubtitleConversions.Target(import.Action)!.Value;
+        var target = SubtitleConversions.TargetIn(import.Action, factory.Kind)!.Value;
         var label = SubtitleConversions.DisplayName(target);
         if (MediaFormatRegistry.AvailableSubtitleConverter is not { } converter)
         {
@@ -352,7 +352,7 @@ public static class Remuxer
                 sampleSource.Reset();
                 if (SubtitleConversions.IsOcr(source.Import, sampleSource.Config.Codec))
                 {
-                    var target = SubtitleConversions.Target(action)!.Value;
+                    var target = SubtitleConversions.TargetIn(action, factory.Kind)!.Value;
                     var converter = MediaFormatRegistry.AvailableSubtitleConverter!.Create(sampleSource, target, source.Import!.Ocr ?? OcrOptions.Default, ct);
                     if (converter is IDisposable disposable)
                         converters.Add(disposable);

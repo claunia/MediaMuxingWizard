@@ -352,7 +352,7 @@ public static class TrackImporter
         {
             if (item.Action == ImportAction.Skip)
                 continue;
-            var track = CreateTrack(item);
+            var track = CreateTrack(item, document.Container);
             var existingOfKind = document.Tracks.Where(t => t.Kind == track.Kind && t is not ChapterTrack).ToList();
             track.Enabled = existingOfKind.Count == 0 || track.Kind == TrackKind.Video && !existingOfKind.Any(t => t.Enabled);
             track.IsDefault = track.Enabled;
@@ -438,7 +438,7 @@ public static class TrackImporter
         else if (inspected is not null && inspected.TrackId == source.TrackId)
         {
             // A track already in the file: imported again with the action the importer suggests for the container.
-            var imported = CreateTrack(inspected);
+            var imported = CreateTrack(inspected, document.Container);
             copy.Source = source with { Import = imported.Source!.Import };
             if (imported.Source.Import?.Ocr is not null)
             {
@@ -486,7 +486,7 @@ public static class TrackImporter
         return DolbyVision.WithLevel(record, DolbyVision.Level(item.Config.Width, item.Config.Height, DolbyVision.NominalFrameRate(item.FrameRate.Value)));
     }
 
-    private static Track CreateTrack(ImportableTrack item)
+    private static Track CreateTrack(ImportableTrack item, ContainerKind container)
     {
         var c = item.Config;
         Track track;
@@ -552,8 +552,8 @@ public static class TrackImporter
             Import = new TrackImportOptions { Action = item.Action, FrameRate = item.FrameRate, Conversion = conversion, Ocr = ocr },
         };
 
-        // A track converted by OCR is shown with the text format it will have once saved.
-        if (ocr is not null && SubtitleConversions.Target(item.Action) is { } ocrTarget)
+        // A track converted by OCR is shown with the text format it will have once saved (tx3g in MP4).
+        if (ocr is not null && SubtitleConversions.TargetIn(item.Action, container) is { } ocrTarget)
         {
             var output = SubtitleConversions.PredictOutput(c, ocrTarget);
             track.Format = output.FormatName;

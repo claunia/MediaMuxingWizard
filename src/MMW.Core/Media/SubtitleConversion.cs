@@ -95,6 +95,14 @@ public static class SubtitleConversions
         _ => null,
     };
 
+    /// <summary>
+    /// The text format OCR produces for <paramref name="action"/> in <paramref name="container"/>, or null when it is
+    /// not an OCR action. OCR to SubRip in MP4 is OCR to tx3g: MP4 players show tx3g, so the result is the same as if
+    /// tx3g had been chosen, without the user having to.
+    /// </summary>
+    public static SubtitleConversionTarget? TargetIn(ImportAction action, ContainerKind container) =>
+        Target(action) is { } target ? container == ContainerKind.Mp4 && target == SubtitleConversionTarget.Srt ? SubtitleConversionTarget.Tx3g : target : null;
+
     /// <summary>The import action converting to <paramref name="target"/>.</summary>
     public static ImportAction Action(SubtitleConversionTarget target) =>
         target == SubtitleConversionTarget.Tx3g ? ImportAction.ConvertToTx3g : ImportAction.ConvertToSrt;
