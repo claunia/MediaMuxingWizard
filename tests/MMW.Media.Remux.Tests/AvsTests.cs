@@ -58,7 +58,8 @@ public sealed partial class AvsTests
         var display = B(2, 4) + B(5, 3) + "0" + "1" + B(9, 8) + B(transfer, 8) + B(8, 8) + B(320, 14) + "1" + B(176, 14) + "0" + "1";
         int[] values = [13250, 34500, 7500, 3000, 34000, 16000, 15635, 16450, 1000, 50, 1000, 400];
         var mastering = B(10, 4) + string.Concat(values.Select(v => B(v, 16) + "1")) + B(0, 16);
-        byte[] dynamic = [0, 0, 1, Avs.Extension, 0x55, 0x01, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF1, 0x23]; // id 0101, CUVA metadata
+        // id 0101, hdr_dynamic_metadata_type 5, the T.35 message (China, HDR Vivid) and the start of the CUVA metadata.
+        byte[] dynamic = [0, 0, 1, Avs.Extension, 0x55, 0x26, 0x00, 0x04, 0x00, 0x05, 0x01, 0x00, 0x0B, 0xF6, 0x5C, 0x2F, 0x8C, 0xFA];
 
         var data = File.ReadAllBytes(source);
         using var output = new MemoryStream();
@@ -325,5 +326,25 @@ public sealed partial class AvsTests
         {
             MediaProbe.Delete(output);
         }
+    }
+
+    /// <summary>
+    /// The DVB / UWA HDR Vivid test streams (EBU, CC BY 4.0): AVS3 with HDR picture extensions, VVC with T.35 SEI, and
+    /// HEVC carrying four kinds of dynamic metadata at once (ST 2094-10, SL-HDR2, HDR10+, HDR Vivid).
+    /// </summary>
+    [Theory]
+    [InlineData("DVB_2160p50_HDR_with_HDR_Vivid_DM_AVS3_20250923_2.ts", "AVS3", "3840×2160, 50 fps, High 10@L8.0.60, HDR Vivid", 1000)]
+    [InlineData("DVB_2160p50_HDR_with_HDR_Vivid_DM_H266_20250930_1.ts", "VVC", "3840×2160, 50 fps, Main 10@L5.1, HDR Vivid", null)] // HDR Vivid SEI only, no static metadata
+    [InlineData("DVB_2160p50_HDR_with_Switched_four_DMI_2094-10_2094-40_SL-HDR2_HDR_Vivid_20250926_1.ts", "HEVC", "3840×2160, 50 fps, Main 10@5.1, HDR10+, HDR Vivid", 1000)]
+    public async Task Corpus_dvb_stream_shows_hdr_vivid(string name, string format, string details, int? maxCll)
+    {
+        var source = Corpus.Directory is { } dir ? Path.Combine(dir, "High Dynamic Range", "HDR Vivid", name) : string.Empty;
+        Corpus.Require(File.Exists(source) ? source : string.Empty);
+        var tracks = await TrackImporter.InspectAsync(source, ContainerKind.Matroska, Ct);
+        var video = Assert.Single(tracks, t => t.Config.Kind == TrackKind.Video);
+        Assert.Equal(format, video.Format);
+        Assert.Equal(details, video.Details);
+        Assert.Equal(new ColorInfo(9, 16, 9, false), video.Config.EffectiveColor);
+        Assert.Equal(maxCll, video.Config.EffectiveHdr?.MaxCll);
     }
 }

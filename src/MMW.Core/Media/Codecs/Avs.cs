@@ -90,6 +90,9 @@ public static class Avs
 
     private const int SequenceDisplayExtension = 0b0010;
     private const int HdrDynamicMetadataExtension = 0b0101;
+
+    /// <summary>hdr_dynamic_metadata_type of HDR Vivid (as the DVB / UWA test streams carry it).</summary>
+    private const int HdrVividMetadataType = 5;
     private const int MasteringDisplayExtension = 0b1010;
 
     private static readonly double[] s_frameRates = [0, 24000 / 1001.0, 24, 25, 30000 / 1001.0, 30, 50, 60000 / 1001.0, 60, 100, 120, 200, 240, 300];
@@ -633,8 +636,9 @@ public static class Avs
     }
 
     /// <summary>
-    /// True when <paramref name="data"/> (a picture's units) carries HDR dynamic metadata: the AVS2/AVS3 HDR picture
-    /// extension (extension_id 0101), which carries HDR Vivid (CUVA / T/UWA 005.1) metadata.
+    /// True when <paramref name="data"/> (a picture's units) carries HDR Vivid (CUVA / T/UWA 005.1) metadata: an AVS2/AVS3
+    /// HDR picture extension (extension_id 0101) of hdr_dynamic_metadata_type 5, whose bytes are the T.35 message
+    /// (country 0x26, provider 0x0004, oriented code 0x0005) as HEVC carries it.
     /// </summary>
     public static bool HasHdrDynamicMetadata(ReadOnlySpan<byte> data)
     {
@@ -647,7 +651,8 @@ public static class Avs
                 afterPicture = true;
             else if (code == SequenceHeader)
                 afterPicture = false;
-            else if (afterPicture && code == Extension && unit.Length > 4 && unit[4] >> 4 == HdrDynamicMetadataExtension)
+            else if (afterPicture && code == Extension && unit.Length > 4 && unit[4] >> 4 == HdrDynamicMetadataExtension &&
+                     (unit[4] & 0xF) == HdrVividMetadataType)
                 return true;
         }
 

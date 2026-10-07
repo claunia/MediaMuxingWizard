@@ -459,11 +459,12 @@ public static class TrackImporter
                 if (config.DolbyVisionConfig is not null)
                     parts.Add("Dolby Vision");
                 var color = config.EffectiveColor;
+                // A stream may carry several kinds of dynamic metadata (DVB test streams carry four).
                 if (config.Hdr10Plus)
                     parts.Add("HDR10+");
-                else if (config.HdrVivid)
+                if (config.HdrVivid)
                     parts.Add("HDR Vivid");
-                else if (config.DolbyVisionConfig is null && (config.EffectiveHdr is not null || color.Transfer is 16 or 18))
+                if (!config.Hdr10Plus && !config.HdrVivid && config.DolbyVisionConfig is null && (config.EffectiveHdr is not null || color.Transfer is 16 or 18))
                     parts.Add(color.Transfer == 18 ? "HLG" : "HDR10");
                 break;
             case TrackKind.Audio:

@@ -100,10 +100,14 @@ public sealed class AvsTests
     {
         Assert.True(HdrVivid.IsHdrVividT35([0x26, 0x00, 0x04, 0x00, 0x05, 0x01]));
         Assert.False(HdrVivid.IsHdrVividT35([0xB5, 0x00, 0x3C, 0x00, 0x01, 0x04])); // HDR10+
-        // An AVS3 picture: picture header, HDR picture extension (id 0101), first slice.
-        byte[] picture = [0, 0, 1, 0xB6, 0x80, 0, 0, 0, 0, 1, 0xB5, 0x55, 0x01, 0x12, 0, 0, 1, 0x00, 0xAA];
+        // An AVS3 picture as the DVB/UWA test stream carries it: picture header, HDR picture extension (id 0101,
+        // hdr_dynamic_metadata_type 5) holding the T.35 message, first slice.
+        byte[] picture = [0, 0, 1, 0xB6, 0x80, 0, 0, 0, 0, 1, 0xB5, 0x55, 0x26, 0x00, 0x04, 0x00, 0x05, 0x01, 0x00, 0x0B, 0xF6, 0, 0, 1, 0x00, 0xAA];
         Assert.True(Avs.HasHdrDynamicMetadata(picture));
         Assert.True(HdrVivid.InSample(CodecType.Avs3, picture, 4));
+        byte[] otherType = [.. picture];
+        otherType[11] = 0x54; // hdr_dynamic_metadata_type 4
+        Assert.False(Avs.HasHdrDynamicMetadata(otherType));
         byte[] sequenceExtension = [0, 0, 1, 0xB0, 0x22, 0x6A, 0, 0, 1, 0xB5, 0x55, 0x01];
         Assert.False(Avs.HasHdrDynamicMetadata(sequenceExtension)); // only after a picture header
     }
