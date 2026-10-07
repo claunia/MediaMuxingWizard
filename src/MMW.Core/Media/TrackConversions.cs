@@ -10,11 +10,15 @@ namespace MMW.Core.Media;
 /// </summary>
 public static class TrackConversions
 {
-    /// <summary>True when a track of <paramref name="document"/> asks for an audio conversion or a subtitle OCR on save.</summary>
+    /// <summary>
+    /// True when a track of <paramref name="document"/> asks for an audio conversion, a subtitle OCR or a text
+    /// subtitle conversion on save.
+    /// </summary>
     public static bool HasConversions(MediaDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
-        return document.Tracks.Any(t => t.Source?.Import is { } i && (ConversionDefaults.IsConversion(i.Action) || SubtitleConversions.IsOcr(t)));
+        return document.Tracks.Any(t => t.Source?.Import is { } i && (ConversionDefaults.IsConversion(i.Action) || SubtitleConversions.IsOcr(t) ||
+                                                                      t is SubtitleTrack && Subtitles.TextSubtitleConverter.Target(i.Action) is not null));
     }
 
     /// <summary>
