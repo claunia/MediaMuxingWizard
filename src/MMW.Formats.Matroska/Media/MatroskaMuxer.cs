@@ -524,6 +524,13 @@ internal sealed class MatroskaMuxer : IMuxer
             ptsMs = 0;
         var durationMs = sample.Duration > 0 ? (long)Math.Round(sample.Duration * 1000 / timescale) : 0;
 
+        var additions = sample.Additions;
+        if (t.Config.Codec == CodecType.WebVtt && !t.WebVttLines && !string.IsNullOrWhiteSpace(sample.CueSettings) && !(additions?.Any(a => a.Id == 1) ?? false))
+        {
+            // S_TEXT/WEBVTT (mkvmerge): the settings go in a BlockAddition (ID 1) as "settings\nidentifier".
+            additions = [.. additions ?? [], new BlockAddition(1, Encoding.UTF8.GetBytes(sample.CueSettings.Trim() + "\n"))];
+        }
+
         ReadOnlySpan<byte> data;
         if (t.ConvertTx3g)
         {
@@ -551,8 +558,11 @@ internal sealed class MatroskaMuxer : IMuxer
         }
         else if (t.WebVttLines)
         {
-            byte[] lines = [(byte)'\n', (byte)'\n', .. sample.GetData().Span];
+            // "identifier\nsettings\ntext", as FFmpeg writes it (the identifier is not kept).
+            var settings = string.IsNullOrWhiteSpace(sample.CueSettings) ? [] : Encoding.UTF8.GetBytes(sample.CueSettings.Trim());
+            byte[] lines = [(byte)'\n', .. settings, (byte)'\n', .. sample.GetData().Span];
             data = lines;
+            additions = null;
         }
         else
         {
@@ -571,7 +581,7 @@ internal sealed class MatroskaMuxer : IMuxer
         var subtitle = t.Config.Kind is TrackKind.Subtitle or TrackKind.ClosedCaption;
         var oddAudio = t.Config.Kind == TrackKind.Audio && sample.Duration > 0 && t.Config.DefaultSampleDuration > 0 &&
                        sample.Duration != t.Config.DefaultSampleDuration;
-        if (sample.Additions is { Count: > 0 } additions)
+        if (additions is { Count: > 0 })
         {
             // BlockAdditions (e.g. HDR10+ of VP9) only fit in a BlockGroup; non-key frames then need a ReferenceBlock.
             long? reference = sample.IsSync || t.LastPtsMs < 0 ? null : t.LastPtsMs - ptsMs is 0 ? -1 : t.LastPtsMs - ptsMs;

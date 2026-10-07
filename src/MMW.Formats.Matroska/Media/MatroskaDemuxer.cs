@@ -667,6 +667,8 @@ internal sealed class MatroskaTrackSource : ISampleSource
 
             if (Config.Codec == CodecType.WebVtt && Config.SourceCodecId.StartsWith("D_WEBVTT", StringComparison.Ordinal))
                 sample = WebVttCueText(sample);
+            else if (Config.Codec == CodecType.WebVtt)
+                WebVttSettingsFromAddition(sample);
             else if (Config.Codec == CodecType.ProRes)
                 RestoreProResHeader(sample);
 
@@ -732,7 +734,10 @@ internal sealed class MatroskaTrackSource : ISampleSource
             sample.Prefix = (byte[])[.. header, .. sample.Prefix.Span];
     }
 
-    /// <summary>D_WEBVTT blocks are "identifier\nsettings\ntext"; samples carry the cue text only.</summary>
+    /// <summary>
+    /// D_WEBVTT blocks (FFmpeg) are "identifier\nsettings\ntext"; samples carry the cue text, with the settings in
+    /// <see cref="MediaSample.CueSettings"/>.
+    /// </summary>
     private static MediaSample WebVttCueText(MediaSample sample)
     {
         var data = sample.GetData().ToArray();
@@ -741,8 +746,29 @@ internal sealed class MatroskaTrackSource : ISampleSource
         sample.Reader = null;
         sample.Prefix = default;
         sample.Data = second < 0 ? data : data[(second + 1)..];
+        if (second > first + 1)
+            sample.CueSettings = NonEmpty(System.Text.Encoding.UTF8.GetString(data, first + 1, second - first - 1));
         return sample;
     }
+
+    /// <summary>
+    /// S_TEXT/WEBVTT blocks (mkvmerge) hold the cue text; a BlockAddition (BlockAddID 1) holds "settings\nidentifier"
+    /// followed by the NOTE blocks before the cue. The addition stays on the sample (Matroska passthrough keeps it).
+    /// </summary>
+    private static void WebVttSettingsFromAddition(MediaSample sample)
+    {
+        foreach (var addition in sample.Additions ?? [])
+        {
+            if (addition.Id != 1)
+                continue;
+            var text = System.Text.Encoding.UTF8.GetString(addition.Data.Span);
+            var end = text.IndexOf('\n', StringComparison.Ordinal);
+            sample.CueSettings = NonEmpty(end < 0 ? text : text[..end]);
+            return;
+        }
+    }
+
+    private static string? NonEmpty(string text) => text.Trim() is { Length: > 0 } trimmed ? trimmed : null;
 
     private static long Ticks(double ns, double timescale) => (long)Math.Round(ns * timescale / 1e9);
 

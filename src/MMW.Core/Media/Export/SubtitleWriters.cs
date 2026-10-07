@@ -48,8 +48,11 @@ internal abstract class CueWriter(ExportContext context) : TrackWriter(context)
             : Config.Timescale * 2L;
         var start = Math.Max(0, Context.Milliseconds(sample.Pts));
         var end = Math.Max(start, Context.Milliseconds(sample.Pts + duration));
-        WriteCue(start, end, data);
+        WriteCue(start, end, data, sample.CueSettings);
     }
+
+    /// <summary>Writes one cue with its WebVTT cue settings (null when it has none); writers without them ignore them.</summary>
+    protected virtual void WriteCue(double start, double end, byte[] data, string? cueSettings) => WriteCue(start, end, data);
 
     protected void WriteText(string text) => Output.Write(s_utf8.GetBytes(text));
 
@@ -94,12 +97,15 @@ internal sealed class WebVttWriter(ExportContext context) : CueWriter(context)
         WriteText(header + "\n\n");
     }
 
-    protected override void WriteCue(double start, double end, byte[] data)
+    protected override void WriteCue(double start, double end, byte[] data) => WriteCue(start, end, data, null);
+
+    protected override void WriteCue(double start, double end, byte[] data, string? cueSettings)
     {
         var text = Lines(Utf8(data));
         if (text.Trim().Length == 0)
             return;
-        WriteText($"{Time(start, '.')} --> {Time(end, '.')}\n{text}\n\n");
+        var settings = string.IsNullOrWhiteSpace(cueSettings) ? string.Empty : " " + cueSettings.Trim();
+        WriteText($"{Time(start, '.')} --> {Time(end, '.')}{settings}\n{text}\n\n");
     }
 }
 

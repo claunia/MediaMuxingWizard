@@ -442,8 +442,8 @@ internal static class Mp4SampleEntries
                     : TrackSupport.Passthrough,
             CodecType.Aac or CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts or CodecType.Opus or CodecType.Flac or CodecType.Alac or
                 CodecType.Mp3 or CodecType.Mp2 or CodecType.Mp1 => TrackSupport.Passthrough,
-            CodecType.Tx3g or CodecType.VobSub => TrackSupport.Passthrough,
-            CodecType.TextUtf8 or CodecType.Ass or CodecType.Ssa or CodecType.WebVtt =>
+            CodecType.Tx3g or CodecType.VobSub or CodecType.WebVtt => TrackSupport.Passthrough, // WebVTT as ISO/IEC 14496-30 'wvtt'
+            CodecType.TextUtf8 or CodecType.Ass or CodecType.Ssa =>
                 new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToTx3g, "converted to 3GPP timed text (tx3g)"),
             // Dolby TrueHD (FBA syntax) is stored as mlpa + dmlp; DVD-Audio MLP (FBB) is not allowed in ISO files.
             CodecType.TrueHd => TrackSupport.Passthrough,
@@ -519,7 +519,12 @@ internal static class Mp4SampleEntries
     {
         TrackKind.Video => "vide",
         TrackKind.Audio => "soun",
-        TrackKind.Subtitle => config.Codec == CodecType.VobSub ? "subp" : "sbtl",
+        TrackKind.Subtitle => config.Codec switch
+        {
+            CodecType.VobSub => "subp",
+            CodecType.WebVtt => "text", // ISO/IEC 14496-30 (with a null media header), as GPAC writes it
+            _ => "sbtl",
+        },
         TrackKind.ClosedCaption => "clcp",
         _ => "meta",
     };
@@ -969,7 +974,16 @@ internal static class Mp4SampleEntries
                 return new Box("tx3g", [0, 0, 0, 0, 0, 0, 0, 1, .. prefix], children);
             }
 
-            case CodecType.Tx3g or CodecType.TextUtf8 or CodecType.Ass or CodecType.Ssa or CodecType.WebVtt:
+            case CodecType.WebVtt:
+            {
+                // WVTTSampleEntry (ISO/IEC 14496-30): SampleEntry fields, then the WebVTT header in 'vttC'.
+                var header = c.Extradata is { Length: > 0 } extra ? Encoding.UTF8.GetString(extra).TrimEnd('\0', '\n', '\r') : string.Empty;
+                if (!header.StartsWith("WEBVTT", StringComparison.Ordinal))
+                    header = "WEBVTT";
+                return new Box("wvtt", [0, 0, 0, 0, 0, 0, 0, 1], [new Box("vttC", Encoding.UTF8.GetBytes(header))]);
+            }
+
+            case CodecType.Tx3g or CodecType.TextUtf8 or CodecType.Ass or CodecType.Ssa:
             {
                 var entry = SubtitleText.BuildTx3gEntry(ctx.TextWidth, ctx.TextHeight, SubtitleText.DefaultFontSize(ctx.TextHeight), ctx.Tx3gDisplayFlags);
                 var children = BoxParser.ParseList(entry.AsSpan(30), "tx3g");

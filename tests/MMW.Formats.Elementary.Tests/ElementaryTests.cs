@@ -14,7 +14,7 @@ public sealed class SubtitleFileTests
         var file = SubtitleFiles.ParseSrt(srt);
         Assert.Equal(CodecType.TextUtf8, file.Config.Codec);
         Assert.Equal(1000u, file.Config.Timescale);
-        Assert.Equal([(1000L, 2000L, "First"), (3000L, 4500L, "<i>Second</i>\nline two")], file.Cues);
+        Assert.Equal([(1000L, 2000L, "First", (string?)null), (3000L, 4500L, "<i>Second</i>\nline two", null)], file.Cues);
     }
 
     [Fact]
@@ -41,8 +41,8 @@ public sealed class SubtitleFileTests
         Assert.Contains("Format: Layer, Start, End", header, StringComparison.Ordinal);
         Assert.DoesNotContain("Dialogue", header, StringComparison.Ordinal);
         Assert.Equal(2, file.Cues.Count);
-        Assert.Equal((1000L, 2000L, "1,1,Default,Bob,0,0,0,,First\\Nline"), file.Cues[0]);
-        Assert.Equal((2500L, 4000L, "0,0,Default,,0,0,0,,{\\i1}Hello{\\i0}, world"), file.Cues[1]);
+        Assert.Equal((1000L, 2000L, "1,1,Default,Bob,0,0,0,,First\\Nline", (string?)null), file.Cues[0]);
+        Assert.Equal((2500L, 4000L, "0,0,Default,,0,0,0,,{\\i1}Hello{\\i0}, world", (string?)null), file.Cues[1]);
 
         var styled = SubtitleText.FromAss(SubtitleText.AssBlockText(file.Cues[1].Text, ssa: false));
         Assert.Equal("Hello, world", styled.Text);
@@ -55,9 +55,10 @@ public sealed class SubtitleFileTests
         const string vtt = "WEBVTT\n\nSTYLE\n::cue { color: red }\n\nid1\n00:01.000 --> 00:02.000 line:0\n<b>Bold</b> &amp; plain\n\n00:00:03.000 --> 00:00:04.000\nNext\n";
         var file = SubtitleFiles.ParseWebVtt(vtt);
         Assert.Equal(CodecType.WebVtt, file.Config.Codec);
-        Assert.StartsWith("WEBVTT", System.Text.Encoding.UTF8.GetString(file.Config.Extradata!), StringComparison.Ordinal);
+        Assert.Equal("WEBVTT\n\nSTYLE\n::cue { color: red }", System.Text.Encoding.UTF8.GetString(file.Config.Extradata!));
         Assert.Equal(2, file.Cues.Count);
-        Assert.Equal((1000L, 2000L, "<b>Bold</b> &amp; plain"), file.Cues[0]);
+        Assert.Equal((1000L, 2000L, "<b>Bold</b> &amp; plain", "line:0"), file.Cues[0]);
+        Assert.Equal((3000L, 4000L, "Next", (string?)null), file.Cues[1]);
         var styled = SubtitleText.FromWebVtt(file.Cues[0].Text);
         Assert.Equal("Bold & plain", styled.Text);
         Assert.Equal([new StyleRun(0, 4, TextStyle.Bold)], styled.Runs);

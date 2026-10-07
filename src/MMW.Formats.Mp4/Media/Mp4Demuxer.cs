@@ -136,6 +136,8 @@ internal sealed class Mp4SampleSource : ISampleSource
     private SampleInfo[]? _samples;
     private int[]? _chunkFirstSample;
     private int _next;
+    private readonly Queue<MediaSample> _webVttReady = new();
+    private Mp4WebVttCueMerger? _webVtt;
 
     public Mp4SampleSource(uint trackId, CodecConfig config, Box stbl, FileSampleReader reader)
     {
@@ -251,10 +253,17 @@ internal sealed class Mp4SampleSource : ISampleSource
         }
     }
 
-    public void Reset() => _next = 0;
+    public void Reset()
+    {
+        _next = 0;
+        _webVtt?.Clear();
+        _webVttReady.Clear();
+    }
 
     public MediaSample? ReadNext()
     {
+        if (Config.Codec == CodecType.WebVtt)
+            return ReadWebVtt();
         var samples = Samples;
         while (_next < samples.Length)
         {
@@ -283,20 +292,39 @@ internal sealed class Mp4SampleSource : ISampleSource
             if (TrimsEnd && Config.Kind == TrackKind.Audio && sample.Pts + s.Duration > MediaEnd)
                 sample.TrimEnd = Math.Min(s.Duration, sample.Pts + s.Duration - MediaEnd);
 
-            if (Config.Codec == CodecType.WebVtt)
-            {
-                // ISO/IEC 14496-30 samples: keep the cue text only; 'vtte' (no cue) samples become gaps.
-                var text = WebVttText(sample.GetData().Span);
-                if (text is null)
-                    continue;
-                sample.Reader = null;
-                sample.Data = Encoding.UTF8.GetBytes(text);
-            }
-
             return sample;
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// ISO/IEC 14496-30 samples: one sample per cue (text, with its settings), cues repeated in consecutive samples
+    /// merged back into one; 'vtte' (no cue) samples are gaps.
+    /// </summary>
+    private MediaSample? ReadWebVtt()
+    {
+        var samples = Samples;
+        var merger = _webVtt ??= new Mp4WebVttCueMerger();
+        while (_webVttReady.Count == 0)
+        {
+            if (_next >= samples.Length || (TrimsEnd && samples[_next].Dts + samples[_next].CompositionOffset >= MediaEnd))
+            {
+                _next = samples.Length;
+                foreach (var cue in merger.Complete())
+                    _webVttReady.Enqueue(cue);
+                break;
+            }
+
+            var s = samples[_next++];
+            var data = new byte[s.Size];
+            _reader.Read(s.Offset, data);
+            var start = s.Dts + s.CompositionOffset;
+            foreach (var cue in merger.Add(start, start + s.Duration, Mp4WebVtt.Parse(data)))
+                _webVttReady.Enqueue(cue);
+        }
+
+        return _webVttReady.TryDequeue(out var next) ? next : null;
     }
 
     private MediaSample ReadPcmGroup(SampleInfo[] samples)
@@ -339,35 +367,5 @@ internal sealed class Mp4SampleSource : ISampleSource
         }
 
         return [.. starts];
-    }
-
-    private static string? WebVttText(ReadOnlySpan<byte> sample)
-    {
-        var cues = new List<string>();
-        var pos = 0;
-        while (pos + 8 <= sample.Length)
-        {
-            var size = (int)BinaryPrimitives.ReadUInt32BigEndian(sample[pos..]);
-            if (size < 8 || pos + size > sample.Length)
-                break;
-            if (sample.Slice(pos + 4, 4).SequenceEqual("vttc"u8))
-            {
-                var inner = sample.Slice(pos + 8, size - 8);
-                var ip = 0;
-                while (ip + 8 <= inner.Length)
-                {
-                    var isize = (int)BinaryPrimitives.ReadUInt32BigEndian(inner[ip..]);
-                    if (isize < 8 || ip + isize > inner.Length)
-                        break;
-                    if (inner.Slice(ip + 4, 4).SequenceEqual("payl"u8))
-                        cues.Add(Encoding.UTF8.GetString(inner.Slice(ip + 8, isize - 8)));
-                    ip += isize;
-                }
-            }
-
-            pos += size;
-        }
-
-        return cues.Count == 0 ? null : string.Join('\n', cues);
     }
 }

@@ -7,7 +7,7 @@ using MMW.Core.Model;
 namespace MMW.Formats.Elementary;
 
 /// <summary>A parsed text subtitle file: codec description and cues in milliseconds.</summary>
-internal sealed record SubtitleFile(CodecConfig Config, List<(long Start, long End, string Text)> Cues);
+internal sealed record SubtitleFile(CodecConfig Config, List<(long Start, long End, string Text, string? Settings)> Cues);
 
 /// <summary>Parsers for SubRip, (Advanced) SubStation Alpha and WebVTT files.</summary>
 internal static partial class SubtitleFiles
@@ -67,7 +67,7 @@ internal static partial class SubtitleFiles
     /// <summary>Parses a SubRip file.</summary>
     public static SubtitleFile ParseSrt(string text)
     {
-        var cues = new List<(long, long, string)>();
+        var cues = new List<(long, long, string, string?)>();
         var lines = Lines(text);
         for (var i = 0; i < lines.Length; i++)
         {
@@ -79,7 +79,7 @@ internal static partial class SubtitleFiles
                 body.Add(lines[i].TrimEnd());
 
             // A following index line that was swallowed (no blank line separator) is not text.
-            cues.Add((start, Math.Max(end, start), string.Join('\n', body)));
+            cues.Add((start, Math.Max(end, start), string.Join('\n', body), null));
         }
 
         if (cues.Count == 0)
@@ -87,36 +87,57 @@ internal static partial class SubtitleFiles
         return new SubtitleFile(Config(CodecType.TextUtf8, "srt", null), Sorted(cues));
     }
 
-    /// <summary>Parses a WebVTT file (cue text only; cue settings are dropped).</summary>
+    /// <summary>
+    /// Parses a WebVTT file. Cues keep their text and settings (the rest of the timing line); cue identifiers and the
+    /// NOTE blocks after the first cue are dropped. The header (the "WEBVTT" block and the STYLE, REGION and NOTE
+    /// blocks before the first cue, verbatim) becomes the extradata.
+    /// </summary>
     public static SubtitleFile ParseWebVtt(string text)
     {
         var lines = Lines(text);
         if (lines.Length == 0 || !lines[0].TrimStart('﻿').StartsWith("WEBVTT", StringComparison.Ordinal))
             throw new InvalidDataException("Not a WebVTT file.");
+        lines[0] = lines[0].TrimStart('﻿');
         var header = new StringBuilder();
-        var cues = new List<(long, long, string)>();
+        var cues = new List<(long, long, string, string?)>();
         var inHeader = true;
-        for (var i = 0; i < lines.Length; i++)
+        var i = 0;
+        while (i < lines.Length)
         {
-            var timing = CueTimingRegex().Match(lines[i]);
-            if (!timing.Success || !lines[i].Contains("-->", StringComparison.Ordinal))
+            if (lines[i].Trim().Length == 0)
             {
-                if (inHeader && !(i + 1 < lines.Length && lines[i + 1].Contains("-->", StringComparison.Ordinal)))
-                    header.Append(lines[i].TrimStart('﻿')).Append('\n');
+                i++;
+                continue;
+            }
+
+            // One block: consecutive non-blank lines.
+            var first = i;
+            while (i < lines.Length && lines[i].Trim().Length > 0)
+                i++;
+            var block = lines[first..i];
+            var timingIndex = first == 0 ? -1 : Array.FindIndex(block, l => l.Contains("-->", StringComparison.Ordinal));
+            if (timingIndex < 0)
+            {
+                if (inHeader)
+                {
+                    if (header.Length > 0)
+                        header.Append("\n\n");
+                    header.AppendJoin('\n', block.Select(l => l.TrimEnd()));
+                }
+
                 continue;
             }
 
             inHeader = false;
-            if (ParseTime(timing.Groups[1].Value) is not { } start || ParseTime(timing.Groups[2].Value) is not { } end)
+            var timing = CueTimingRegex().Match(block[timingIndex]);
+            if (!timing.Success || ParseTime(timing.Groups[1].Value) is not { } start || ParseTime(timing.Groups[2].Value) is not { } end)
                 continue;
-            var body = new List<string>();
-            for (i++; i < lines.Length && lines[i].Trim().Length > 0; i++)
-                body.Add(lines[i].TrimEnd());
-            cues.Add((start, Math.Max(end, start), string.Join('\n', body)));
+            var settings = block[timingIndex][timing.Length..].Trim();
+            var body = string.Join('\n', block[(timingIndex + 1)..].Select(l => l.TrimEnd()));
+            cues.Add((start, Math.Max(end, start), body, settings.Length == 0 ? null : settings));
         }
 
-        var headerText = header.ToString().TrimEnd('\n');
-        return new SubtitleFile(Config(CodecType.WebVtt, "vtt", Encoding.UTF8.GetBytes(headerText)), Sorted(cues));
+        return new SubtitleFile(Config(CodecType.WebVtt, "vtt", Encoding.UTF8.GetBytes(header.ToString())), Sorted(cues));
     }
 
     /// <summary>Parses an ASS/SSA file into Matroska-style blocks ("ReadOrder,Layer,Style,Name,MarginL,MarginR,MarginV,Effect,Text").</summary>
@@ -124,7 +145,7 @@ internal static partial class SubtitleFiles
     {
         var lines = Lines(text);
         var header = new StringBuilder();
-        var cues = new List<(long, long, string)>();
+        var cues = new List<(long, long, string, string?)>();
         string[]? format = null;
         var section = string.Empty;
         var ssa = false;
@@ -161,7 +182,7 @@ internal static partial class SubtitleFiles
                         layer = Field("marked").Replace("Marked=", string.Empty, StringComparison.OrdinalIgnoreCase);
                     var block = string.Join(',', order++.ToString(CultureInfo.InvariantCulture), layer.Length == 0 ? "0" : layer, Field("style"), Field("name"),
                         Field("marginl"), Field("marginr"), Field("marginv"), Field("effect"), Field("text"));
-                    cues.Add((start, Math.Max(end, start), block));
+                    cues.Add((start, Math.Max(end, start), block, null));
                     continue;
                 }
 
@@ -212,7 +233,7 @@ internal static partial class SubtitleFiles
         return result;
     }
 
-    private static List<(long, long, string)> Sorted(List<(long Start, long End, string Text)> cues) =>
+    private static List<(long, long, string, string?)> Sorted(List<(long Start, long End, string Text, string? Settings)> cues) =>
         cues.Select((c, i) => (c, i)).OrderBy(x => x.c.Start).ThenBy(x => x.i).Select(x => x.c).ToList();
 
     private static CodecConfig Config(CodecType codec, string id, byte[]? extradata) => new()
@@ -228,17 +249,17 @@ internal static partial class SubtitleFiles
 /// <summary>Delivers the cues of a parsed subtitle file as samples (millisecond timescale).</summary>
 internal sealed class SubtitleCueParser : IElementaryParser
 {
-    private readonly List<(long Start, long End, string Text)> _cues;
+    private readonly List<(long Start, long End, string Text, string? Settings)> _cues;
     private int _next;
 
-    public SubtitleCueParser(List<(long Start, long End, string Text)> cues) => _cues = cues;
+    public SubtitleCueParser(List<(long Start, long End, string Text, string? Settings)> cues) => _cues = cues;
 
     public MediaSample? Next()
     {
         if (_next >= _cues.Count)
             return null;
-        var (start, end, text) = _cues[_next++];
-        return new MediaSample { Dts = start, Duration = Math.Max(1, end - start), IsSync = true, Data = Encoding.UTF8.GetBytes(text) };
+        var (start, end, text, settings) = _cues[_next++];
+        return new MediaSample { Dts = start, Duration = Math.Max(1, end - start), IsSync = true, Data = Encoding.UTF8.GetBytes(text), CueSettings = settings };
     }
 
     public void Dispose()

@@ -83,6 +83,9 @@ internal sealed class Mp4Muxer : IMuxer
 
         public SubtitleTimeline? Timeline { get; init; }
 
+        /// <summary>WebVTT cues written as ISO/IEC 14496-30 samples (one per interval of unchanged active cues).</summary>
+        public Mp4WebVttTimeline? WebVttTimeline { get; init; }
+
         public List<int> Sizes { get; } = [];
 
         public List<long> Dts { get; } = [];
@@ -136,7 +139,9 @@ internal sealed class Mp4Muxer : IMuxer
         // QuickTime PCM entries ('sowt', 'twos', 'in24', 'lpcm' …) are rewritten as the ISO 'ipcm' / 'fpcm'.
         if (config.Codec == CodecType.Pcm && config.Native is Mp4NativeTrack { Entry.Type: not ("ipcm" or "fpcm") } && Mp4SampleEntries.PcmWritable(config))
             config = config with { Native = null };
-        var text = config.Native is not Mp4NativeTrack && CodecNames.IsText(config.Codec);
+        // WebVTT samples carry single cues (also when read from 'wvtt'); they are always rebuilt as 14496-30 samples.
+        var webVtt = config.Codec == CodecType.WebVtt;
+        var text = config.Native is not Mp4NativeTrack && CodecNames.IsText(config.Codec) && !webVtt;
         var timescale = config.Timescale == 0 ? 1000u : config.Timescale;
         var state = new TrackState
         {
@@ -146,6 +151,7 @@ internal sealed class Mp4Muxer : IMuxer
             Timescale = timescale,
             TextConversion = text,
             Timeline = text ? new SubtitleTimeline() : null,
+            WebVttTimeline = webVtt ? new Mp4WebVttTimeline() : null,
         };
 
         if (config.Codec == CodecType.Hevc && config.Extradata is { } hvcC && Mp4RemuxOptions.ForceHvc1)
@@ -195,6 +201,16 @@ internal sealed class Mp4Muxer : IMuxer
         if (state.TextConversion)
         {
             WriteText(state, sample);
+            return;
+        }
+
+        if (state.WebVttTimeline is { } timeline)
+        {
+            var start = sample.Pts;
+            var end = start + (sample.Duration > 0 ? sample.Duration : state.Timescale * 2L);
+            var cue = new Mp4WebVttCue(null, sample.CueSettings, Encoding.UTF8.GetString(sample.GetData().Span));
+            foreach (var interval in timeline.Add(start, end, cue))
+                AppendWebVtt(state, interval);
             return;
         }
 
@@ -301,6 +317,9 @@ internal sealed class Mp4Muxer : IMuxer
             AppendCue(state, cue);
     }
 
+    private void AppendWebVtt(TrackState state, (long Start, long End, List<Mp4WebVttCue> Cues) interval) =>
+        Append(state, Mp4WebVtt.Build(interval.Cues), interval.Start, 0, interval.End - interval.Start, true);
+
     private void AppendCue(TrackState state, SubtitleCue cue)
     {
         var bytes = SubtitleText.ToTx3g(cue.Text, SubtitleText.DefaultFontSize(TextCanvas(state).Height));
@@ -393,7 +412,7 @@ internal sealed class Mp4Muxer : IMuxer
                     TrackKind.Audio => (long)(seconds * 50),
                     _ => (long)(seconds / 2),
                 };
-            var perSample = t.Config.Kind == TrackKind.Video ? 24 : t.TextConversion ? 16 : 8;
+            var perSample = t.Config.Kind == TrackKind.Video || t.WebVttTimeline is not null ? 24 : t.TextConversion ? 16 : 8;
             total += 4096 + count * perSample + (long)(seconds * 2 + 1) * 8 + (t.Config.Extradata?.Length ?? 0);
         }
 
@@ -418,6 +437,12 @@ internal sealed class Mp4Muxer : IMuxer
         {
             foreach (var cue in t.Timeline!.Complete())
                 AppendCue(t, cue);
+        }
+
+        foreach (var t in _tracks)
+        {
+            foreach (var interval in t.WebVttTimeline?.Complete() ?? [])
+                AppendWebVtt(t, interval);
         }
 
         // Chapter text samples go at the end of the media data.
