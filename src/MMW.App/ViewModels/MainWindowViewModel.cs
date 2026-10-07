@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Diagnostics;
+using MMW.Core.Media;
 using MMW.Core.Model;
 
 namespace MMW.App.ViewModels;
@@ -96,6 +97,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// Handles files opened from this window (open dialog, drop): documents fill this window when it is empty and get
     /// windows of their own otherwise; artwork, NFO, chapter and track files go into its document. Track files with
     /// no document to go into (a TS, raw streams, subtitles…) start a new MP4 or Matroska document, as the user chooses.
+    /// The files are checked first: when one cannot be imported, or holds a track the container cannot store even
+    /// converted, the user is told and nothing is done.
     /// </summary>
     public async Task OpenPathsAsync(IEnumerable<string> paths)
     {
@@ -105,64 +108,143 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                             MMW.Media.Conversion.FFmpegDemuxerFactory.VobSubIndex(p) is { } idx &&
                             list.Any(o => string.Equals(o, idx, StringComparison.OrdinalIgnoreCase)));
 
-        // Documents first, so the other files of the same drop go into the document they came with.
-        list = [.. list.Where(DocumentService.IsSupported), .. list.Where(p => !DocumentService.IsSupported(p))];
-        var loose = new List<string>();
-        foreach (var path in list)
+        var documents = list.Where(DocumentService.IsSupported).ToList();
+        var others = list.Where(p => !DocumentService.IsSupported(p)).ToList();
+        var problems = new List<string>();
+        var tracks = new List<string>();
+        var attachments = new List<string>();
+        // Documents of the same drop come first, so the other files go into the document they came with.
+        var willHaveDocument = Document is not null || (documents.Count > 0 && !IsOpening);
+        foreach (var path in others)
         {
             var ext = Path.GetExtension(path).ToLowerInvariant();
-            if (DocumentService.IsSupported(path))
+            if (s_imageExtensions.Contains(ext) || ext == ".nfo" || s_chapterExtensions.Contains(ext))
             {
-                if (App.FindWindow(path) is { } open)
-                    open.RequestActivate();
-                else if (Document is null && !IsOpening)
-                    await LoadDocumentAsync(path);
+                if (willHaveDocument)
+                    attachments.Add(path);
                 else
-                    await App.OpenInNewWindowAsync(path);
-                continue;
-            }
-
-            if (Document is { } doc && s_imageExtensions.Contains(ext))
-            {
-                doc.MetadataInspector.AddArtworkData([await File.ReadAllBytesAsync(path)]);
-                doc.SelectedRow = doc.Rows[0];
-            }
-            else if (Document is { } nfoDoc && ext == ".nfo")
-            {
-                try
-                {
-                    nfoDoc.ImportNfo(path);
-                }
-                catch (System.Xml.XmlException ex)
-                {
-                    await Dialogs.ShowMessageAsync(Strings.Dialog_CouldNotImportNfo_Title, ex.Message);
-                }
-            }
-            else if (Document is { } chapterDoc && s_chapterExtensions.Contains(ext))
-            {
-                await chapterDoc.ImportChaptersAsync(path);
+                    problems.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_NeedsDocumentFormat, Path.GetFileName(path)));
             }
             else if (IsTrackFile(ext))
             {
-                if (Document is not null)
-                    await ImportIntoSelectedAsync([path]);
-                else
-                    loose.Add(path);
+                tracks.Add(path);
+            }
+            else
+            {
+                problems.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_UnsupportedFileFormat, Path.GetFileName(path)));
             }
         }
 
-        if (loose.Count > 0)
-            await NewDocumentForTracksAsync(loose);
+        // Track files go into this window's document, the first document of the drop, or a new one of the chosen kind.
+        ContainerKind? newDocument = null;
+        var target = Document?.Document.Container;
+        if (tracks.Count > 0 && target is null)
+        {
+            if (documents.Count > 0 && !IsOpening)
+            {
+                target = ContainerKinds.FromPath(documents[0]);
+            }
+            else if (problems.Count == 0)
+            {
+                newDocument = await AskNewDocumentKindAsync(tracks);
+                if (newDocument is null)
+                    return;
+                target = newDocument;
+            }
+        }
+
+        if (tracks.Count > 0 && target is { } kind)
+            problems.AddRange(await IncompatibleTracksAsync(tracks, kind));
+        if (problems.Count > 0)
+        {
+            await Dialogs.ShowMessageAsync(Strings.Drop_Rejected_Title,
+                string.Format(CultureInfo.CurrentCulture, Strings.Drop_Rejected_MessageFormat, string.Join("\n", problems)));
+            return;
+        }
+
+        foreach (var path in documents)
+        {
+            if (App.FindWindow(path) is { } open)
+                open.RequestActivate();
+            else if (Document is null && !IsOpening)
+                await LoadDocumentAsync(path);
+            else
+                await App.OpenInNewWindowAsync(path);
+        }
+
+        foreach (var path in attachments)
+            await AttachAsync(path);
+
+        if (newDocument is { } kindForNew)
+            await NewDocumentForTracksAsync(tracks, kindForNew);
+        else if (tracks.Count > 0)
+            await ImportIntoSelectedAsync(tracks);
+    }
+
+    /// <summary>Artwork, an NFO or a chapter file for this window's document.</summary>
+    private async Task AttachAsync(string path)
+    {
+        if (Document is not { } doc)
+            return;
+        var ext = Path.GetExtension(path).ToLowerInvariant();
+        if (s_imageExtensions.Contains(ext))
+        {
+            doc.MetadataInspector.AddArtworkData([await File.ReadAllBytesAsync(path)]);
+            doc.SelectedRow = doc.Rows[0];
+        }
+        else if (ext == ".nfo")
+        {
+            try
+            {
+                doc.ImportNfo(path);
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                await Dialogs.ShowMessageAsync(Strings.Dialog_CouldNotImportNfo_Title, ex.Message);
+            }
+        }
+        else
+        {
+            await doc.ImportChaptersAsync(path);
+        }
+    }
+
+    /// <summary>
+    /// The files that cannot be read, and the tracks <paramref name="target"/> cannot store even converted (nothing
+    /// but "Not available" to choose from), one line each.
+    /// </summary>
+    private static async Task<List<string>> IncompatibleTracksAsync(IReadOnlyList<string> files, ContainerKind target)
+    {
+        var problems = new List<string>();
+        foreach (var file in files)
+        {
+            var name = Path.GetFileName(file);
+            try
+            {
+                var inspected = await MMW.Media.Remux.TrackImporter.InspectAsync(file, target);
+                if (inspected.Count == 0)
+                    problems.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_NoTracksFormat, name));
+                foreach (var track in inspected.Where(t => t.Choices.All(c => c.Action == ImportAction.Skip)))
+                {
+                    problems.Add(track.Support.Reason is { } reason
+                        ? string.Format(CultureInfo.CurrentCulture, Strings.Drop_TrackReasonFormat, name, track.TrackId, track.Format, reason)
+                        : string.Format(CultureInfo.CurrentCulture, Strings.Drop_TrackFormat, name, track.TrackId, track.Format));
+                }
+            }
+            catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or EndOfStreamException)
+            {
+                problems.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_UnreadableFormat, name, ex.Message));
+            }
+        }
+
+        return problems;
     }
 
     private static bool IsTrackFile(string extension) =>
         s_trackExtensions.Contains(extension) || MMW.Media.Remux.MediaRemux.ImportExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Track files dropped where there is no document: asks whether to make an MP4 or a Matroska file of them, then
-    /// shows the import dialog for a new, untitled document. Nothing is left behind when the user cancels.
-    /// </summary>
-    private async Task NewDocumentForTracksAsync(IReadOnlyList<string> files)
+    /// <summary>Asks whether track files with no document to go into become an MP4 or a Matroska file; null when cancelled.</summary>
+    private async Task<ContainerKind?> AskNewDocumentKindAsync(IReadOnlyList<string> files)
     {
         string mp4 = Strings.Button_Mp4, matroska = Strings.Button_Matroska;
         var names = string.Join("\n", files.Select(f => "• " + Path.GetFileName(f)));
@@ -170,11 +252,19 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             string.Format(CultureInfo.CurrentCulture, Strings.Dialog_NewDocument_MessageFormat, names),
             [mp4, matroska, Strings.Button_Cancel], Settings.NewDocumentFormat == "mkv" ? matroska : mp4));
         if (answer != mp4 && answer != matroska)
-            return;
+            return null;
         Settings.NewDocumentFormat = answer == matroska ? "mkv" : "mp4";
         App.SettingsService.Save();
+        return answer == matroska ? ContainerKind.Matroska : ContainerKind.Mp4;
+    }
 
-        var window = NewDocument(answer == matroska ? ContainerKind.Matroska : ContainerKind.Mp4);
+    /// <summary>
+    /// Shows the import dialog for a new, untitled document of <paramref name="kind"/> holding <paramref name="files"/>;
+    /// nothing is left behind when the user cancels.
+    /// </summary>
+    private async Task NewDocumentForTracksAsync(IReadOnlyList<string> files, ContainerKind kind)
+    {
+        var window = NewDocument(kind);
         await window.ImportIntoSelectedAsync(files);
         if (window.Document is { } doc && doc.Document.Tracks.Count == 0 && !doc.IsDirty)
         {
@@ -241,7 +331,27 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         var filter = new FileFilter(Strings.FileFilter_Importable, MMW.Media.Remux.MediaRemux.ImportExtensions.Select(e => e.TrimStart('.')).ToList());
         var files = await Dialogs.OpenFilesAsync(Strings.Dialog_ImportTracks_Title, [filter, FileFilters.All], allowMultiple: true);
         if (files.Count > 0)
-            await ImportIntoSelectedAsync(files);
+            await ImportFilesAsync(files);
+    }
+
+    /// <summary>
+    /// Imports track files into this window's document, after checking them: when one cannot be read or holds a
+    /// track the document's container cannot store even converted, the user is told and nothing is imported.
+    /// </summary>
+    public async Task<bool> ImportFilesAsync(IReadOnlyList<string> files)
+    {
+        if (Document is not { } doc)
+            return false;
+        var problems = await IncompatibleTracksAsync(files, doc.Document.Container);
+        if (problems.Count > 0)
+        {
+            await Dialogs.ShowMessageAsync(Strings.Drop_Rejected_Title,
+                string.Format(CultureInfo.CurrentCulture, Strings.Drop_Rejected_MessageFormat, string.Join("\n", problems)));
+            return false;
+        }
+
+        await ImportIntoSelectedAsync(files);
+        return true;
     }
 
     /// <summary>Shows the import dialog for <paramref name="files"/> and this window's document.</summary>

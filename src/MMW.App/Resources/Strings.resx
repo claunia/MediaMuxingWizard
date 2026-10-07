@@ -1749,4 +1749,30 @@ The file itself only changes when you save.</value>
   <data name="Incompatible_LineReasonFormat" xml:space="preserve">
     <value>• {0}: {1}</value>
   </data>
+  <data name="Drop_Rejected_Title" xml:space="preserve">
+    <value>Cannot Add Files</value>
+  </data>
+  <data name="Drop_Rejected_MessageFormat" xml:space="preserve">
+    <value>Nothing was added: these files or tracks cannot be used here, not even converted:
+
+{0}</value>
+  </data>
+  <data name="Drop_UnsupportedFileFormat" xml:space="preserve">
+    <value>• {0}: not a media file this application can import</value>
+  </data>
+  <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
+    <value>• {0}: needs an open document</value>
+  </data>
+  <data name="Drop_NoTracksFormat" xml:space="preserve">
+    <value>• {0}: no track that can be imported</value>
+  </data>
+  <data name="Drop_UnreadableFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
+  </data>
+  <data name="Drop_TrackFormat" xml:space="preserve">
+    <value>• {0}, track {1} ({2}): this format cannot store it</value>
+  </data>
+  <data name="Drop_TrackReasonFormat" xml:space="preserve">
+    <value>• {0}, track {1} ({2}): {3}</value>
+  </data>
 </root>

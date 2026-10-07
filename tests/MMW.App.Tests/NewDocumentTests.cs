@@ -193,3 +193,65 @@ public class SaveAsOtherFormatTests
         Assert.Equal("h264", Assert.Single(streams).Codec);
     }
 }
+
+/// <summary>Dropped or imported files are checked first: anything that cannot be used, even converted, rejects the whole drop.</summary>
+public class DropRejectionTests
+{
+    private static (MainWindowViewModel Window, FakeDialogService Dialogs, string Dir) CreateWindow()
+    {
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var dialogs = new FakeDialogService();
+        return (new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json"))), dialogs, dir);
+    }
+
+    [AvaloniaFact]
+    public async Task A_file_that_cannot_be_imported_rejects_the_whole_drop()
+    {
+        var fixture = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(fixture))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        var (window, dialogs, dir) = CreateWindow();
+        await window.OpenPathsAsync([Fixtures.CopyToTemp(fixture)]);
+        var before = window.Document!.Document.Tracks.Count;
+        var srt = Path.Combine(dir, "subs.srt");
+        await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nHello\n", TestContext.Current.CancellationToken);
+        var pdf = Path.Combine(dir, "notes.pdf");
+        await File.WriteAllTextAsync(pdf, "%PDF-1.4", TestContext.Current.CancellationToken);
+        var importShown = false;
+        dialogs.OnShowDialog = d => Task.FromResult(importShown |= d is ImportDialogViewModel);
+
+        await window.OpenPathsAsync([srt, pdf]);
+        var message = Assert.Single(dialogs.Messages);
+        Assert.StartsWith(Strings.Drop_Rejected_Title, message, StringComparison.Ordinal);
+        Assert.Contains("notes.pdf", message, StringComparison.Ordinal);
+        Assert.False(importShown);
+        Assert.Equal(before, window.Document.Document.Tracks.Count);
+    }
+
+    [AvaloniaFact]
+    public async Task Artwork_alone_needs_a_document()
+    {
+        var (window, dialogs, dir) = CreateWindow();
+        var jpg = Path.Combine(dir, "cover.jpg");
+        await File.WriteAllBytesAsync(jpg, [0xFF, 0xD8, 0xFF, 0xD9], TestContext.Current.CancellationToken);
+        await window.OpenPathsAsync([jpg]);
+        Assert.Contains("cover.jpg", Assert.Single(dialogs.Messages), StringComparison.Ordinal);
+        Assert.Null(window.Document);
+    }
+
+    [AvaloniaFact]
+    public async Task A_track_the_container_cannot_store_even_converted_is_rejected()
+    {
+        var evc = Path.Combine(Corpus.Directory ?? string.Empty, "Video codecs", "MPEG-5 EVC.mp4");
+        Corpus.Require(evc);
+        var (window, dialogs, _) = CreateWindow();
+        window.NewDocumentCommand.Execute("mkv");
+
+        // Matroska has no codec ID for MPEG-5 EVC, and video is never converted.
+        Assert.False(await window.ImportFilesAsync([evc]));
+        Assert.Contains("EVC", Assert.Single(dialogs.Messages), StringComparison.Ordinal);
+        Assert.Empty(window.Document!.Document.Tracks);
+    }
+}

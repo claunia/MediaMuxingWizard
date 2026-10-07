@@ -1748,4 +1748,30 @@ El archivo solo cambia al guardar.</value>
   <data name="Incompatible_LineReasonFormat" xml:space="preserve">
     <value>• {0}: {1}</value>
   </data>
+  <data name="Drop_Rejected_Title" xml:space="preserve">
+    <value>No se pueden añadir los archivos</value>
+  </data>
+  <data name="Drop_Rejected_MessageFormat" xml:space="preserve">
+    <value>No se añadió nada: estos archivos o pistas no se pueden usar aquí, ni siquiera convertidos:
+
+{0}</value>
+  </data>
+  <data name="Drop_UnsupportedFileFormat" xml:space="preserve">
+    <value>• {0}: no es un archivo multimedia que esta aplicación pueda importar</value>
+  </data>
+  <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
+    <value>• {0}: necesita un documento abierto</value>
+  </data>
+  <data name="Drop_NoTracksFormat" xml:space="preserve">
+    <value>• {0}: ninguna pista que se pueda importar</value>
+  </data>
+  <data name="Drop_UnreadableFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
+  </data>
+  <data name="Drop_TrackFormat" xml:space="preserve">
+    <value>• {0}, pista {1} ({2}): este formato no puede almacenarla</value>
+  </data>
+  <data name="Drop_TrackReasonFormat" xml:space="preserve">
+    <value>• {0}, pista {1} ({2}): {3}</value>
+  </data>
 </root>

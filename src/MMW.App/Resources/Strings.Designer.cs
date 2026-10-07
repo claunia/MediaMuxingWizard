@@ -5080,5 +5080,77 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot Add Files.
+        /// </summary>
+        public static string Drop_Rejected_Title {
+            get {
+                return ResourceManager.GetString("Drop_Rejected_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing was added: these files or tracks cannot be used here, not even converted:.
+        /// </summary>
+        public static string Drop_Rejected_MessageFormat {
+            get {
+                return ResourceManager.GetString("Drop_Rejected_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: not a media file this application can import.
+        /// </summary>
+        public static string Drop_UnsupportedFileFormat {
+            get {
+                return ResourceManager.GetString("Drop_UnsupportedFileFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: needs an open document.
+        /// </summary>
+        public static string Drop_NeedsDocumentFormat {
+            get {
+                return ResourceManager.GetString("Drop_NeedsDocumentFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: no track that can be imported.
+        /// </summary>
+        public static string Drop_NoTracksFormat {
+            get {
+                return ResourceManager.GetString("Drop_NoTracksFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: {1}.
+        /// </summary>
+        public static string Drop_UnreadableFormat {
+            get {
+                return ResourceManager.GetString("Drop_UnreadableFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}, track {1} ({2}): this format cannot store it.
+        /// </summary>
+        public static string Drop_TrackFormat {
+            get {
+                return ResourceManager.GetString("Drop_TrackFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}, track {1} ({2}): {3}.
+        /// </summary>
+        public static string Drop_TrackReasonFormat {
+            get {
+                return ResourceManager.GetString("Drop_TrackReasonFormat", resourceCulture);
+            }
+        }
+        
     }
 }

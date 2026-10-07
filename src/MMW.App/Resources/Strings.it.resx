@@ -307,6 +307,32 @@ Le tue modifiche andranno perse se non le salvi.</value>
   <data name="Dialog_SaveChanges_Title" xml:space="preserve">
     <value>Modifiche non salvate</value>
   </data>
+  <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
+    <value>• {0}: richiede un documento aperto</value>
+  </data>
+  <data name="Drop_NoTracksFormat" xml:space="preserve">
+    <value>• {0}: nessuna traccia importabile</value>
+  </data>
+  <data name="Drop_Rejected_MessageFormat" xml:space="preserve">
+    <value>Non è stato aggiunto nulla: questi file o tracce non possono essere usati qui, nemmeno convertiti:
+
+{0}</value>
+  </data>
+  <data name="Drop_Rejected_Title" xml:space="preserve">
+    <value>Impossibile aggiungere i file</value>
+  </data>
+  <data name="Drop_TrackFormat" xml:space="preserve">
+    <value>• {0}, traccia {1} ({2}): questo formato non può memorizzarla</value>
+  </data>
+  <data name="Drop_TrackReasonFormat" xml:space="preserve">
+    <value>• {0}, traccia {1} ({2}): {3}</value>
+  </data>
+  <data name="Drop_UnreadableFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
+  </data>
+  <data name="Drop_UnsupportedFileFormat" xml:space="preserve">
+    <value>• {0}: non è un file multimediale che questa applicazione può importare</value>
+  </data>
   <data name="Error_ChapterTime" xml:space="preserve">
     <value>Usa hh:mm:ss.fff</value>
   </data>

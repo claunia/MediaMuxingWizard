@@ -307,6 +307,32 @@
   <data name="Dialog_SaveChanges_Title" xml:space="preserve">
     <value>未保存的更改</value>
   </data>
+  <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
+    <value>• {0}：需要一个已打开的文档</value>
+  </data>
+  <data name="Drop_NoTracksFormat" xml:space="preserve">
+    <value>• {0}：没有可导入的轨道</value>
+  </data>
+  <data name="Drop_Rejected_MessageFormat" xml:space="preserve">
+    <value>未添加任何内容：以下文件或轨道无法在此使用，即使转换也不行：
+
+{0}</value>
+  </data>
+  <data name="Drop_Rejected_Title" xml:space="preserve">
+    <value>无法添加文件</value>
+  </data>
+  <data name="Drop_TrackFormat" xml:space="preserve">
+    <value>• {0}，轨道 {1}（{2}）：此格式无法存储</value>
+  </data>
+  <data name="Drop_TrackReasonFormat" xml:space="preserve">
+    <value>• {0}，轨道 {1}（{2}）：{3}</value>
+  </data>
+  <data name="Drop_UnreadableFormat" xml:space="preserve">
+    <value>• {0}：{1}</value>
+  </data>
+  <data name="Drop_UnsupportedFileFormat" xml:space="preserve">
+    <value>• {0}：不是本应用可以导入的媒体文件</value>
+  </data>
   <data name="Error_ChapterTime" xml:space="preserve">
     <value>使用 hh:mm:ss.fff</value>
   </data>
