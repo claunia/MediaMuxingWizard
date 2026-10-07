@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action_ApplyColorSpace" xml:space="preserve">
+    <value>Aplicar el espacio de color {0}-{1}-{2}</value>
+  </data>
+  <data name="Action_ApplySet" xml:space="preserve">
+    <value>Aplicar el conjunto «{0}»</value>
+  </data>
+  <data name="Action_ClearMetadata" xml:space="preserve">
+    <value>Borrar los metadatos existentes</value>
+  </data>
+  <data name="Action_ClearTrackNames" xml:space="preserve">
+    <value>Borrar nombres de pistas</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>Completar los idiomas de las pistas ({0})</value>
+  </data>
+  <data name="Action_EnableAudio" xml:space="preserve">
+    <value>Activar la pista de audio en {0}</value>
+  </data>
+  <data name="Action_EnableSubtitles" xml:space="preserve">
+    <value>Activar la pista de subtítulos en {0}</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>Corregir audio de reserva</value>
+  </data>
+  <data name="Action_ImportChaptersFile" xml:space="preserve">
+    <value>Cargar capítulos de un archivo .txt junto al original</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>Organizar grupos alternativos</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>Embellecer nombres de pistas de audio</value>
+  </data>
+  <data name="Action_RenameChapters" xml:space="preserve">
+    <value>Renombrar capítulos</value>
+  </data>
+  <data name="Action_SetOutputFileName" xml:space="preserve">
+    <value>Establecer el nombre del archivo de salida</value>
+  </data>
+  <data name="Error_DestinationExists" xml:space="preserve">
+    <value>«{0}» ya existe.</value>
+  </data>
+  <data name="Error_NoWriter" xml:space="preserve">
+    <value>No hay ningún escritor para {0}.</value>
+  </data>
+  <data name="Log_ChaptersLoaded" xml:space="preserve">
+    <value>Se han cargado {0} capítulos de {1}.</value>
+  </data>
+  <data name="Log_CouldNotReadQueue" xml:space="preserve">
+    <value>No se ha podido leer la cola guardada</value>
+  </data>
+  <data name="Log_ItemDone" xml:space="preserve">
+    <value>Cola: {0} → {1}</value>
+  </data>
+  <data name="Log_ItemFailed" xml:space="preserve">
+    <value>Cola: {0} ha fallado</value>
+  </data>
+  <data name="Log_ItemFailedDetail" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="Log_NoAudioTrack" xml:space="preserve">
+    <value>No hay ninguna pista de audio en {0}.</value>
+  </data>
+  <data name="Log_NoSubtitleTrack" xml:space="preserve">
+    <value>No hay ninguna pista de subtítulos en {0}.</value>
+  </data>
+  <data name="Log_Opened" xml:space="preserve">
+    <value>Se ha abierto {0}.</value>
+  </data>
+  <data name="Log_Saved" xml:space="preserve">
+    <value>Se ha guardado {0}.</value>
+  </data>
+  <data name="Power_ProcessingQueue" xml:space="preserve">
+    <value>Procesando la cola</value>
+  </data>
+</root>

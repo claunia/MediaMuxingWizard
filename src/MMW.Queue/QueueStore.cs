@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using MMW.Core.Diagnostics;
+using MMW.Queue.Resources;
 
 namespace MMW.Queue;
 
@@ -82,7 +84,7 @@ public static class QueueStore
         }
         catch (JsonException ex)
         {
-            AppLog.Error("Could not read the saved queue", ex);
+            AppLog.Error(Strings.Log_CouldNotReadQueue, ex);
         }
     }
 

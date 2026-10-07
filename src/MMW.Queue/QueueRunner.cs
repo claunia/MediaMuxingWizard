@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MMW.Core.Diagnostics;
 using MMW.Core.Model;
+using MMW.Queue.Resources;
 
 namespace MMW.Queue;
 
@@ -70,7 +72,7 @@ public sealed partial class QueueRunner : ObservableObject
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var completed = 0;
         var failed = 0;
-        using var sleep = _power?.PreventSleep("Processing the queue");
+        using var sleep = _power?.PreventSleep(Strings.Power_ProcessingQueue);
         try
         {
             while (Items.FirstOrDefault(i => i.Status == QueueItemStatus.Ready) is { } item)
@@ -107,7 +109,7 @@ public sealed partial class QueueRunner : ObservableObject
                 Services = Services,
                 TargetContainer = target == ContainerKind.Unknown ? document.Container : target,
             };
-            context.Log($"Opened {item.Name}.");
+            context.Log(string.Format(CultureInfo.CurrentCulture, Strings.Log_Opened, item.Name));
 
             foreach (var action in item.Actions)
             {
@@ -120,11 +122,11 @@ public sealed partial class QueueRunner : ObservableObject
             item.DestinationPath = destination;
             var inPlace = string.Equals(Path.GetFullPath(destination), Path.GetFullPath(item.SourcePath), StringComparison.Ordinal);
             if (!inPlace && File.Exists(destination))
-                throw new IOException($"'{destination}' already exists.");
+                throw new IOException(string.Format(CultureInfo.CurrentCulture, Strings.Error_DestinationExists, destination));
             if (!inPlace)
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
 
-            var handler = _registry.Get(document.Container) ?? throw new NotSupportedException($"No writer for {document.Container}.");
+            var handler = _registry.Get(document.Container) ?? throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoWriter, document.Container));
             var progress = new Progress<double>(p => item.Progress = p);
             await handler.SaveAsync(document, new SaveOptions
             {
@@ -134,8 +136,8 @@ public sealed partial class QueueRunner : ObservableObject
 
             item.Progress = 1;
             item.Status = QueueItemStatus.Completed;
-            context.Log($"Saved {Path.GetFileName(destination)}.");
-            AppLog.Info($"Queue: {item.Name} → {destination}");
+            context.Log(string.Format(CultureInfo.CurrentCulture, Strings.Log_Saved, Path.GetFileName(destination)));
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_ItemDone, item.Name, destination));
             return true;
         }
         catch (OperationCanceledException)
@@ -148,8 +150,8 @@ public sealed partial class QueueRunner : ObservableObject
             item.Status = QueueItemStatus.Failed;
             item.Error = ex.Message;
             lock (item.Log)
-                item.Log.Add($"Failed: {ex.Message}");
-            AppLog.Error($"Queue: {item.Name} failed", ex);
+                item.Log.Add(string.Format(CultureInfo.CurrentCulture, Strings.Log_ItemFailedDetail, ex.Message));
+            AppLog.Error(string.Format(CultureInfo.CurrentCulture, Strings.Log_ItemFailed, item.Name), ex);
             return false;
         }
     }

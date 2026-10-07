@@ -1,0 +1,6 @@
+<Project>
+  <!-- Every test assembly runs with English messages (see TestCulture.cs). -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'MMW.TestSupport'">
+    <Compile Include="$(MSBuildThisFileDirectory)TestCulture.cs" Link="TestCulture.cs" />
+  </ItemGroup>
+</Project>

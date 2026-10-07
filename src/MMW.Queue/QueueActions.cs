@@ -1,8 +1,10 @@
+using System.Globalization;
 using System.Text.Json.Serialization;
 using MMW.Core.Actions;
 using MMW.Core.Chapters;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
+using MMW.Queue.Resources;
 
 namespace MMW.Queue;
 
@@ -37,7 +39,7 @@ public sealed class ApplyPresetAction : QueueAction
 {
     public MetadataPreset Preset { get; set; } = new();
 
-    public override string Description => $"Apply set \"{Preset.Name}\"";
+    public override string Description => string.Format(CultureInfo.CurrentCulture, Strings.Action_ApplySet, Preset.Name);
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -48,7 +50,7 @@ public sealed class ApplyPresetAction : QueueAction
 
 public sealed class ClearMetadataAction : QueueAction
 {
-    public override string Description => "Clear existing metadata";
+    public override string Description => Strings.Action_ClearMetadata;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -64,7 +66,7 @@ public sealed class SetOutputFileNameAction : QueueAction
 
     public string TvFormat { get; set; } = FileNameFormatter.DefaultTvFormat;
 
-    public override string Description => "Set output file name";
+    public override string Description => Strings.Action_SetOutputFileName;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -78,7 +80,7 @@ public sealed class OrganizeGroupsAction : QueueAction
 {
     public bool InferMediaCharacteristics { get; set; } = true;
 
-    public override string Description => "Organize alternate groups";
+    public override string Description => Strings.Action_OrganizeGroups;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -89,7 +91,7 @@ public sealed class OrganizeGroupsAction : QueueAction
 
 public sealed class FixFallbacksAction : QueueAction
 {
-    public override string Description => "Fix audio fallbacks";
+    public override string Description => Strings.Action_FixFallbacks;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -102,7 +104,7 @@ public sealed class CompleteLanguagesAction : QueueAction
 {
     public string Language { get; set; } = "en";
 
-    public override string Description => $"Complete track languages ({Core.Languages.LanguageTable.DisplayName(Language)})";
+    public override string Description => string.Format(CultureInfo.CurrentCulture, Strings.Action_CompleteLanguages, Core.Languages.LanguageTable.DisplayName(Language));
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -117,19 +119,19 @@ public sealed class EnableTrackWithLanguageAction : QueueAction
 
     public string Language { get; set; } = "en";
 
-    public override string Description => $"Enable {(Kind == TrackKind.Audio ? "audio" : "subtitle")} track in {Core.Languages.LanguageTable.DisplayName(Language)}";
+    public override string Description => string.Format(CultureInfo.CurrentCulture, Kind == TrackKind.Audio ? Strings.Action_EnableAudio : Strings.Action_EnableSubtitles, Core.Languages.LanguageTable.DisplayName(Language));
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
         if (!GroupActions.EnableTrackWithLanguage(context.Document, Kind, Language))
-            context.Log($"No {Kind.ToString().ToLowerInvariant()} track in {Language}.");
+            context.Log(string.Format(CultureInfo.CurrentCulture, Kind == TrackKind.Audio ? Strings.Log_NoAudioTrack : Strings.Log_NoSubtitleTrack, Language));
         return Task.CompletedTask;
     }
 }
 
 public sealed class ClearTrackNamesAction : QueueAction
 {
-    public override string Description => "Clear track names";
+    public override string Description => Strings.Action_ClearTrackNames;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -140,7 +142,7 @@ public sealed class ClearTrackNamesAction : QueueAction
 
 public sealed class PrettifyAudioNamesAction : QueueAction
 {
-    public override string Description => "Prettify audio track names";
+    public override string Description => Strings.Action_PrettifyAudioNames;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -151,7 +153,7 @@ public sealed class PrettifyAudioNamesAction : QueueAction
 
 public sealed class RenameChaptersAction : QueueAction
 {
-    public override string Description => "Rename chapters";
+    public override string Description => Strings.Action_RenameChapters;
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -168,7 +170,7 @@ public sealed class ApplyColorSpaceAction : QueueAction
 
     public int Matrix { get; set; } = 1;
 
-    public override string Description => $"Apply colour space {Primaries}-{Transfer}-{Matrix}";
+    public override string Description => string.Format(CultureInfo.CurrentCulture, Strings.Action_ApplyColorSpace, Primaries, Transfer, Matrix);
 
     public override Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -180,7 +182,7 @@ public sealed class ApplyColorSpaceAction : QueueAction
 /// <summary>Imports a chapter text file found next to the source (same base name, .txt).</summary>
 public sealed class ImportChaptersFileAction : QueueAction
 {
-    public override string Description => "Load chapters from a .txt file next to the source";
+    public override string Description => Strings.Action_ImportChaptersFile;
 
     public override async Task ApplyAsync(QueueContext context, CancellationToken cancellationToken)
     {
@@ -192,7 +194,7 @@ public sealed class ImportChaptersFileAction : QueueAction
         if (chapters.Count > 0)
         {
             TrackActions.ReplaceChapters(context.Document, chapters);
-            context.Log($"Loaded {chapters.Count} chapters from {Path.GetFileName(candidate)}.");
+            context.Log(string.Format(CultureInfo.CurrentCulture, Strings.Log_ChaptersLoaded, chapters.Count, Path.GetFileName(candidate)));
         }
     }
 }

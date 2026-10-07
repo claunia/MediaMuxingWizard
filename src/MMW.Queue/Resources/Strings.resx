@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Action_ApplyColorSpace" xml:space="preserve">
+    <value>Apply colour space {0}-{1}-{2}</value>
+  </data>
+  <data name="Action_ApplySet" xml:space="preserve">
+    <value>Apply set "{0}"</value>
+  </data>
+  <data name="Action_ClearMetadata" xml:space="preserve">
+    <value>Clear existing metadata</value>
+  </data>
+  <data name="Action_ClearTrackNames" xml:space="preserve">
+    <value>Clear track names</value>
+  </data>
+  <data name="Action_CompleteLanguages" xml:space="preserve">
+    <value>Complete track languages ({0})</value>
+  </data>
+  <data name="Action_EnableAudio" xml:space="preserve">
+    <value>Enable audio track in {0}</value>
+  </data>
+  <data name="Action_EnableSubtitles" xml:space="preserve">
+    <value>Enable subtitle track in {0}</value>
+  </data>
+  <data name="Action_FixFallbacks" xml:space="preserve">
+    <value>Fix audio fallbacks</value>
+  </data>
+  <data name="Action_ImportChaptersFile" xml:space="preserve">
+    <value>Load chapters from a .txt file next to the source</value>
+  </data>
+  <data name="Action_OrganizeGroups" xml:space="preserve">
+    <value>Organize alternate groups</value>
+  </data>
+  <data name="Action_PrettifyAudioNames" xml:space="preserve">
+    <value>Prettify audio track names</value>
+  </data>
+  <data name="Action_RenameChapters" xml:space="preserve">
+    <value>Rename chapters</value>
+  </data>
+  <data name="Action_SetOutputFileName" xml:space="preserve">
+    <value>Set output file name</value>
+  </data>
+  <data name="Error_DestinationExists" xml:space="preserve">
+    <value>'{0}' already exists.</value>
+  </data>
+  <data name="Error_NoWriter" xml:space="preserve">
+    <value>No writer for {0}.</value>
+  </data>
+  <data name="Log_ChaptersLoaded" xml:space="preserve">
+    <value>Loaded {0} chapters from {1}.</value>
+  </data>
+  <data name="Log_CouldNotReadQueue" xml:space="preserve">
+    <value>Could not read the saved queue</value>
+  </data>
+  <data name="Log_ItemDone" xml:space="preserve">
+    <value>Queue: {0} → {1}</value>
+  </data>
+  <data name="Log_ItemFailed" xml:space="preserve">
+    <value>Queue: {0} failed</value>
+  </data>
+  <data name="Log_ItemFailedDetail" xml:space="preserve">
+    <value>Failed: {0}</value>
+  </data>
+  <data name="Log_NoAudioTrack" xml:space="preserve">
+    <value>No audio track in {0}.</value>
+  </data>
+  <data name="Log_NoSubtitleTrack" xml:space="preserve">
+    <value>No subtitle track in {0}.</value>
+  </data>
+  <data name="Log_Opened" xml:space="preserve">
+    <value>Opened {0}.</value>
+  </data>
+  <data name="Log_Saved" xml:space="preserve">
+    <value>Saved {0}.</value>
+  </data>
+  <data name="Power_ProcessingQueue" xml:space="preserve">
+    <value>Processing the queue</value>
+  </data>
+</root>
