@@ -324,6 +324,76 @@ public sealed class MpegTsTests
         }
     }
 
+    /// <summary>
+    /// AC-4 in a DVB transport stream (stream type 0x06 with the AC-4 descriptor, sync frames cut across PES packets),
+    /// written from Dolby's raw streams: the samples and the 'ac-4' entry (its 'dac4' rebuilt from the frames) are those
+    /// of Dolby's own MP4 of the same audio. The raw stream imported directly gives the same.
+    /// </summary>
+    [Theory]
+    [InlineData("AC-4 2.0")]
+    [InlineData("AC-4 5.1")]
+    [InlineData("AC-4 5.1.4")]
+    [InlineData("AC-4 Immersive Stereo")]
+    public async Task Corpus_ac4_streams_match_dolbys_mp4(string name)
+    {
+        var dir = Corpus.Directory;
+        var raw = dir is null ? string.Empty : Path.Combine(dir, "Multichannel audio", $"{{{name} - Raw}} Dolby Audio ID.ac4");
+        Corpus.Require(File.Exists(raw) ? raw : string.Empty);
+        MediaProbe.RequireFfmpeg();
+        var reference = Path.Combine(dir!, "Multichannel audio", $"{{{name} - MP4}} Dolby Audio ID.mp4");
+        string Packets(string path) => Fixtures.Run("ffmpeg", $"-v error -i {Fixtures.Quote(path)} -map 0:a -c copy -f framemd5 -")
+            .Split('\n').Where(l => l.Length > 0 && l[0] != '#').Select(l => l.Split(',')[^1].Trim()).Aggregate(string.Empty, (a, b) => a + b + "\n");
+        static byte[] Entry(string path)
+        {
+            var d = File.ReadAllBytes(path);
+            var at = d.AsSpan().IndexOf("ac-4\0"u8);
+            var size = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(d.AsSpan(at - 4));
+            return d.AsSpan(at - 4, size).ToArray();
+        }
+
+        var ts = MediaProbe.TempPath(".ts");
+        var outputs = new List<string>();
+        try
+        {
+            File.WriteAllBytes(ts, DvbAc4(File.ReadAllBytes(raw)));
+            foreach (var source in new[] { ts, raw })
+            {
+                var output = await ImportAll(source, ContainerKind.Mp4);
+                outputs.Add(output);
+                Assert.Equal(Packets(reference), Packets(output));
+                Assert.Equal(Entry(reference), Entry(output));
+            }
+        }
+        finally
+        {
+            MediaProbe.Delete(ts);
+            foreach (var output in outputs)
+                MediaProbe.Delete(output);
+        }
+    }
+
+    /// <summary>Raw AC-4 sync frames in a DVB transport stream, three frames (of 1920 samples at 48 kHz) per PES.</summary>
+    private static byte[] DvbAc4(byte[] raw)
+    {
+        var o = new List<byte>();
+        var counters = new Dictionary<int, int>();
+        TsWriter.Psi(o, counters, 0x06, [0x7F, 0x02, 0x15, 0x00]);
+        var at = 0;
+        var frame = 0L;
+        while (at < raw.Length)
+        {
+            var start = at;
+            for (var i = 0; i < 3 && at < raw.Length; i++)
+                at += Math.Max(1, MMW.Core.Media.Codecs.Ac4.SyncFrameLength(raw.AsSpan(at)));
+            TsWriter.Packets(o, counters, 0x100, TsWriter.Pes(raw[start..at], 90000 + frame * 3600), frame == 0);
+            frame += 3;
+            if (frame % 30 == 0)
+                TsWriter.Psi(o, counters, 0x06, [0x7F, 0x02, 0x15, 0x00]);
+        }
+
+        return [.. o];
+    }
+
     /// <summary>Each stream starts at the same time relative to the others as in the source.</summary>
     private static void AssertInSync(string source, string output)
     {

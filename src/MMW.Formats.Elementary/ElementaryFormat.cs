@@ -16,6 +16,7 @@ public enum ElementaryKind
     Avs3,
     Aac,
     Ac3,
+    Ac4,
     Dts,
     Flac,
     Av2Ivf,
@@ -35,7 +36,7 @@ public static class ElementaryFormat
 
     /// <summary>File extensions recognised as elementary streams or subtitle files.</summary>
     public static IReadOnlyList<string> Extensions { get; } =
-        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".flac", ".fla", ".ivf", ".obu", ".av1", ".srt", ".ass", ".ssa", ".vtt"];
+        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".ac4", ".dts", ".dtshd", ".flac", ".fla", ".ivf", ".obu", ".av1", ".srt", ".ass", ".ssa", ".vtt"];
 
     public static void Register()
     {
@@ -61,6 +62,7 @@ public static class ElementaryFormat
             ".avs3" => AvsSequenceStart(header) is not null ? ElementaryKind.Avs3 : ElementaryKind.None,
             ".aac" or ".adts" => header.IndexOf((byte)0xFF) >= 0 ? ElementaryKind.Aac : ElementaryKind.None,
             ".ac3" or ".eac3" or ".ec3" => header.IndexOf([(byte)0x0B, (byte)0x77]) >= 0 ? ElementaryKind.Ac3 : ElementaryKind.None,
+            ".ac4" => Ac4.FindSync(header) >= 0 ? ElementaryKind.Ac4 : ElementaryKind.None,
             ".dts" or ".dtshd" => header.StartsWith("DTSHDHDR"u8) || header.IndexOf([(byte)0x7F, (byte)0xFE, (byte)0x80, (byte)0x01]) >= 0
                 ? ElementaryKind.Dts
                 : ElementaryKind.None,
@@ -152,6 +154,17 @@ public static class ElementaryFormat
                 var duration = TimeSpan.FromSeconds(count * (double)config.DefaultSampleDuration / Math.Max(1, config.SampleRate));
                 return new ElementaryDemuxer(path, config.Codec == CodecType.Eac3 ? "E-AC-3" : "AC-3",
                     new ElementarySource(config, () => new Ac3Parser(OpenStream(path)), duration, count));
+            }
+
+            case ElementaryKind.Ac4:
+            {
+                CodecConfig config;
+                long count;
+                using (var fs = File.OpenRead(path))
+                    config = Ac4Parser.Probe(fs, out count);
+                var duration = TimeSpan.FromSeconds(count * (double)config.DefaultSampleDuration / Math.Max(1, config.Timescale));
+                var frame = (int)config.DefaultSampleDuration;
+                return new ElementaryDemuxer(path, "AC-4", new ElementarySource(config, () => new Ac4Parser(OpenStream(path), frame), duration, count));
             }
 
             case ElementaryKind.Dts:

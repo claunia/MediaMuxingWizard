@@ -216,6 +216,70 @@ internal sealed class Ac3Parser : IElementaryParser
 }
 
 /// <summary>
+/// Raw AC-4 (.ac4): sync frames (0xAC40, or 0xAC41 with a CRC) whose raw frames are the samples; the 'ac-4' sample
+/// entry and its 'dac4' are built from the first frame's table of contents. Times are in the frame rate's media
+/// timescale (48000, or 240000 for the NTSC rates).
+/// </summary>
+internal sealed class Ac4Parser : IElementaryParser
+{
+    private readonly FrameReader _reader;
+    private readonly int _duration;
+    private long _dts;
+
+    public Ac4Parser(Stream stream, int duration)
+    {
+        _reader = new FrameReader(stream);
+        _duration = duration;
+    }
+
+    public static CodecConfig Probe(Stream stream, out long sampleCountHint)
+    {
+        using var parser = new Ac4Parser(stream, 0);
+        var first = parser.Next() ?? throw new InvalidDataException("No AC-4 sync frame found.");
+        var raw = first.Data.ToArray();
+        var info = Ac4.Parse(raw) ?? throw new InvalidDataException("The AC-4 table of contents cannot be read.");
+        var entry = Ac4.BuildEntry(raw) ?? throw new InvalidDataException("The AC-4 decoder configuration cannot be built.");
+        sampleCountHint = stream.Length / Math.Max(1, raw.Length + 4);
+        return new CodecConfig
+        {
+            Codec = CodecType.Ac4,
+            Kind = TrackKind.Audio,
+            SourceCodecId = "ac-4",
+            Extradata = entry,
+            Timescale = (uint)(info.MediaTimescale > 0 ? info.MediaTimescale : info.SampleRate),
+            DefaultSampleDuration = info.SampleDuration > 0 ? info.SampleDuration : 2048,
+            SampleRate = info.SampleRate,
+            Channels = info.ChannelCount,
+            AudioProfile = Ac4.Describe(info),
+        };
+    }
+
+    public MediaSample? Next()
+    {
+        while (_reader.Ensure(7))
+        {
+            var length = Ac4.SyncFrameLength(_reader.Available);
+            if (length > 0 && _reader.Ensure(length))
+            {
+                var raw = Ac4.RawFrame(_reader.Available[..length]);
+                _reader.Skip(length);
+                if (raw is null)
+                    continue;
+                var sample = new MediaSample { Dts = _dts, Duration = _duration, IsSync = true, Data = raw };
+                _dts += _duration;
+                return sample;
+            }
+
+            _reader.Skip(1);
+        }
+
+        return null;
+    }
+
+    public void Dispose() => _reader.Dispose();
+}
+
+/// <summary>
 /// Raw DTS (.dts: core frames, each optionally followed by a DTS-HD extension substream) and DTS-HD Master Audio
 /// stream files (.dtshd: the same frames in the STRMDATA chunk of a DTSHDHDR file).
 /// </summary>

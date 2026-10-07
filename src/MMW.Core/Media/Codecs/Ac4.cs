@@ -249,7 +249,20 @@ public static class Ac4
     /// A short description of the stream for the UI: the layout of the default presentation ("2.0", "5.1",
     /// "5.1.4", "Immersive Stereo", "Object based"), plus the number of presentations when there are several.
     /// </summary>
-    public static string Describe(Ac4Info info)
+    public static string Describe(Ac4Info info) => DescribeInfo(info);
+
+    /// <summary>
+    /// The 'ac-4' sample entry (ETSI TS 103 190-2 Annex E) for a stream whose first raw frame is
+    /// <paramref name="rawFrame"/>, with the 'dac4' built from it; null when the frame cannot be parsed.
+    /// </summary>
+    public static byte[]? BuildEntry(ReadOnlySpan<byte> rawFrame)
+    {
+        if (Parse(rawFrame) is not { } info || BuildDsi(info) is not { } dsi)
+            return null;
+        return QuickTime.AudioEntry("ac-4", info.ChannelCount > 0 ? info.ChannelCount : 2, info.SampleRate, QuickTime.Box("dac4", dsi));
+    }
+
+    private static string DescribeInfo(Ac4Info info)
     {
         ArgumentNullException.ThrowIfNull(info);
         if (info.Presentations.Count == 0)

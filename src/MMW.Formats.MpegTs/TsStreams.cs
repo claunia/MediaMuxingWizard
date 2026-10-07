@@ -92,6 +92,8 @@ internal abstract class TsStream
                     return new AudioStream(info, AudioKind.Opus);
                 if (registration == "VC-1")
                     return new Vc1TsStream(info);
+                if (info.Descriptor(0x7F) is [0x15, ..]) // DVB AC-4_descriptor (extension descriptor)
+                    return new Ac4TsStream(info, known);
                 if (registration is "AV01" or "AV1G") // AOMedia's mapping; GStreamer's earlier custom one
                     return new Av1TsStream(info);
                 if (info.Descriptor(0x59) is { Length: >= 8 })
@@ -108,6 +110,7 @@ internal abstract class TsStream
         CodecType.Dts => new AudioStream(info, AudioKind.Dts),
         CodecType.Opus => new AudioStream(info, AudioKind.Opus),
         CodecType.Av1 => new Av1TsStream(info),
+        CodecType.Ac4 => new Ac4TsStream(info, known),
         CodecType.Aac => new AudioStream(info, AudioKind.Adts),
         CodecType.Mp1 or CodecType.Mp2 or CodecType.Mp3 => new AudioStream(info, AudioKind.MpegAudio),
         _ => null,
@@ -1727,6 +1730,97 @@ internal sealed class Vc1TsStream(TsStreamInfo info) : TsStream(info)
             DefaultSampleDuration = rate > 0 ? (long)Math.Round(90000 / rate) : 0,
             StreamColor = sequence.Color,
             VideoProfile = $"Advanced@L{sequence.Level}" + (sequence.Interlaced ? ", interlaced" : string.Empty),
+        };
+    }
+}
+
+/// <summary>
+/// AC-4 in DVB transport streams (stream type 0x06 with an AC-4 descriptor): sync frames across PES packets, whose raw
+/// frames become the samples (a PES holding a raw frame without sync word is taken as one frame). The 'ac-4' entry and
+/// its 'dac4' are built from the first frame. Times are in the frame rate's media timescale.
+/// </summary>
+internal sealed class Ac4TsStream(TsStreamInfo info, CodecConfig? known) : TsStream(info)
+{
+    private readonly List<byte> _pending = [];
+    private (Ac4Info Info, byte[] Entry)? _configuration;
+    private long _nextDts = long.MinValue;
+    private long? _pesPts;
+    private int _samples;
+
+    public override uint Timescale => known?.Timescale is > 0 and var probed ? probed
+        : _configuration?.Info is { MediaTimescale: > 0 } i ? (uint)i.MediaTimescale : 48000;
+
+    public override bool Ready => _configuration is not null && _samples >= 2;
+
+    public override void OnPes(Pes pes, Queue<MediaSample> output)
+    {
+        if (pes.Pts is { } pts)
+            _pesPts = pts;
+        if (_pending.Count == 0 && pes.Data.Length >= 2 && Ac4.SyncFrameHeaderLength(pes.Data, out _, out _) == 0)
+        {
+            Emit(pes.Data, output); // a raw frame per PES
+            return;
+        }
+
+        _pending.AddRange(pes.Data);
+        var data = _pending.ToArray();
+        var at = 0;
+        while (at < data.Length)
+        {
+            var length = Ac4.SyncFrameLength(data.AsSpan(at));
+            if (length == 0)
+            {
+                if (data.Length - at < 7)
+                    break; // a header cut by the PES
+                at++;
+                continue;
+            }
+
+            if (at + length > data.Length)
+                break;
+            if (Ac4.RawFrame(data.AsSpan(at, length)) is { } raw)
+                Emit(raw, output);
+            at += length;
+        }
+
+        _pending.RemoveRange(0, at);
+    }
+
+    private void Emit(byte[] raw, Queue<MediaSample> output)
+    {
+        if (_configuration is null)
+        {
+            if (Ac4.Parse(raw) is not { } parsed || Ac4.BuildEntry(raw) is not { } entry)
+                return; // decoding starts at a frame whose table of contents can be read
+            _configuration = (parsed, entry);
+        }
+
+        var duration = _configuration.Value.Info.SampleDuration > 0 ? _configuration.Value.Info.SampleDuration : 2048;
+        if (_pesPts is { } start)
+        {
+            _nextDts = (long)Math.Round(start * (double)Timescale / 90000); // the first frame starting in a PES takes its time
+            _pesPts = null;
+        }
+
+        if (_nextDts == long.MinValue)
+            return;
+        _samples++;
+        output.Enqueue(new MediaSample { Dts = _nextDts, Duration = duration, IsSync = true, Data = raw });
+        _nextDts += duration;
+    }
+
+    public override CodecConfig Describe()
+    {
+        var (parsed, entry) = _configuration!.Value;
+        return Base(TrackKind.Audio) with
+        {
+            Codec = CodecType.Ac4,
+            SourceCodecId = "ac-4",
+            Extradata = entry,
+            SampleRate = parsed.SampleRate,
+            Channels = parsed.ChannelCount,
+            DefaultSampleDuration = parsed.SampleDuration,
+            AudioProfile = Ac4.Describe(parsed),
         };
     }
 }
