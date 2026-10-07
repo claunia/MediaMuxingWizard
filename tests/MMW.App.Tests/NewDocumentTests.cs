@@ -254,7 +254,7 @@ public class DropRejectionTests
     public async Task A_file_is_rejected_only_when_none_of_its_tracks_can_be_stored()
     {
         var corpusFile = Path.Combine(Corpus.Directory ?? string.Empty, "Video codecs", "MPEG-5 EVC.mp4");
-        Corpus.Require(corpusFile);
+        Corpus.Require(Corpus.Directory is not null && File.Exists(corpusFile) ? corpusFile : string.Empty);
         MediaProbe.RequireFfmpeg();
         var (window, dialogs, dir) = CreateWindow();
         window.NewDocumentCommand.Execute("mkv");
