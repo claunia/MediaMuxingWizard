@@ -33,10 +33,10 @@ public sealed class QuickTimeCodecTests
     }
 
     [Theory]
-    [InlineData("qt-h263.3gp", "-s 352x288 -c:v h263 -c:a aac -f 3gp", "s263", "H.263")]
-    [InlineData("qt-dirac.mp4", "-c:v vc2 -strict -1 -c:a aac", "drac", "Dirac")]
-    [InlineData("qt-dnxhr.mov", "-c:v dnxhd -profile:v dnxhr_lb -pix_fmt yuv422p -c:a aac", "AVdh", "DNxHD")]
-    public async Task Sample_entry_codecs_round_trip_through_matroska(string name, string options, string entryType, string format)
+    [InlineData("qt-h263.3gp", "-s 352x288 -c:v h263 -c:a aac -f 3gp", "s263", "H.263", "Profile 0@L")]
+    [InlineData("qt-dirac.mp4", "-c:v vc2 -strict -1 -c:a aac", "drac", "Dirac", "@L")]
+    [InlineData("qt-dnxhr.mov", "-c:v dnxhd -profile:v dnxhr_lb -pix_fmt yuv422p -c:a aac", "AVdh", "DNxHD", "DNxHR LB, 8-bit")]
+    public async Task Sample_entry_codecs_round_trip_through_matroska(string name, string options, string entryType, string format, string details)
     {
         if (!Fixtures.HasTool("mkvmerge"))
             Assert.Skip("mkvmerge not installed.");
@@ -44,6 +44,7 @@ public sealed class QuickTimeCodecTests
         MediaRemux.EnsureRegistered();
         var video = (await TrackImporter.InspectAsync(source, ContainerKind.Matroska, Ct)).Single(t => t.Config.Kind == TrackKind.Video);
         Assert.Equal(format, video.Format);
+        Assert.Contains(details, video.Details, StringComparison.Ordinal);
         Assert.Equal(TrackSupportLevel.Passthrough, video.Support.Level);
 
         var mkv = await SaveAsync(source, ContainerKind.Matroska);

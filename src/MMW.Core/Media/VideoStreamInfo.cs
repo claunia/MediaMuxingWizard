@@ -28,7 +28,7 @@ public static class VideoStreamInfoScanner
     public static bool CanScan(CodecConfig config) =>
         config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or
             CodecType.Av2 or CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3 or CodecType.Mpeg1Video or CodecType.Mpeg2Video or CodecType.Mpeg4Visual or
-            CodecType.VfwVideo;
+            CodecType.VfwVideo or CodecType.Vc1 or CodecType.H263 or CodecType.Dirac or CodecType.Dnxhd;
 
     /// <summary>Scans an open sample source; the source is rewound afterwards.</summary>
     public static VideoStreamInfo Scan(ISampleSource track, CancellationToken cancellationToken = default)
@@ -39,8 +39,17 @@ public static class VideoStreamInfoScanner
             return VideoStreamInfo.None;
         if (Avs.Generation(config.Codec) is { } generation)
             return ScanAvs(track, generation, cancellationToken);
-        if (config.Codec is CodecType.Mpeg1Video or CodecType.Mpeg2Video or CodecType.Mpeg4Visual or CodecType.VfwVideo)
+        if (config.Codec is CodecType.Mpeg1Video or CodecType.Mpeg2Video or CodecType.Mpeg4Visual or CodecType.VfwVideo or CodecType.Dirac or CodecType.Dnxhd)
             return ScanLegacy(track, cancellationToken);
+        if (config.Codec == CodecType.Vc1)
+        {
+            return Vc1.EntrySequence(config.Extradata) is { } sequence
+                ? new VideoStreamInfo(State.Meaningful(sequence.Color), null, $"Advanced@L{sequence.Level}" + (sequence.Interlaced ? ", interlaced" : string.Empty))
+                : VideoStreamInfo.None;
+        }
+
+        if (config.Codec == CodecType.H263)
+            return H263.ProfileLevel(config.Extradata) is { Length: > 0 } h263 ? new VideoStreamInfo(ColorInfo.Unspecified, null, h263) : VideoStreamInfo.None;
 
         var state = new State(config.Codec);
         var lengthSize = 4;
@@ -177,9 +186,11 @@ public static class VideoStreamInfoScanner
         {
             CodecType.Mpeg1Video or CodecType.Mpeg2Video => Mpeg12Video.Describe,
             CodecType.Mpeg4Visual => Mpeg4Part2.Describe,
+            CodecType.Dirac => data => Dirac.ProfileLevel(data) is { Length: > 0 } dirac ? new LegacyVideoInfo(dirac, ColorInfo.Unspecified) : null,
+            CodecType.Dnxhd => data => Dnxhd.Describe(data) is { Length: > 0 } dnx ? new LegacyVideoInfo(dnx, ColorInfo.Unspecified) : null,
             _ => null,
         };
-        var extradata = config.Extradata;
+        var extradata = config.Codec is CodecType.Dirac or CodecType.Dnxhd ? null : config.Extradata; // their entry is not a bitstream header
         if (config.Codec == CodecType.VfwVideo)
         {
             if (Vfw.ParseBitmapInfoHeader(config.Extradata) is not { } bih)

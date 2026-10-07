@@ -165,6 +165,7 @@ public static class TrackImporter
             config = WithDtsDescription(source, config);
             config = WithOpusDescription(source, config);
             config = WithMpegAudioDescription(source, config);
+            config = WithEntryCodecDescription(source, config);
             if (config.AudioProfile.Length == 0 && FlacDetector.Detect(config) is { Length: > 0 } flac)
                 config = config with { AudioProfile = flac };
             var support = muxer.CheckSupport(config);
@@ -262,6 +263,22 @@ public static class TrackImporter
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
             AppLog.Debug($"MPEG audio check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
+    }
+
+    /// <summary>AC-4 layout and presentations, MPEG-H profile and speaker layout, AMR bit rates.</summary>
+    private static CodecConfig WithEntryCodecDescription(ISampleSource source, CodecConfig config)
+    {
+        if (!EntryCodecDetector.CanScan(config) || config.AudioProfile.Length > 0)
+            return config;
+        try
+        {
+            return config with { AudioProfile = EntryCodecDetector.Detect(source) };
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"Audio check of track {source.TrackId} failed: {ex.Message}");
             return config;
         }
     }

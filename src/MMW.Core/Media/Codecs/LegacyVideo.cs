@@ -589,3 +589,87 @@ public static class DvVideo
         return new LegacyVideoInfo(name, ColorInfo.Unspecified);
     }
 }
+
+/// <summary>H.263 as 3GPP stores it: the 'd263' box of an 's263' sample entry.</summary>
+public static class H263
+{
+    /// <summary>"Profile 0@L30" from the 'd263' of a sample entry; empty when it has none.</summary>
+    public static string ProfileLevel(ReadOnlySpan<byte> entry) =>
+        QuickTime.EntryBox(entry, "d263") is { Length: >= 7 } d263 ? $"Profile {d263[6]}@L{d263[5]}" : string.Empty;
+}
+
+/// <summary>Dirac / SMPTE VC-2 (SMPTE ST 2042-1) parse info and sequence header.</summary>
+public static class Dirac
+{
+    /// <summary>"Main@L128 …" from the first sequence header in <paramref name="data"/>; empty when there is none.</summary>
+    public static string ProfileLevel(ReadOnlySpan<byte> data)
+    {
+        for (var i = 0; i + 13 < data.Length; i++)
+        {
+            if (!data.Slice(i, 4).SequenceEqual("BBCD"u8) || data[i + 4] != 0x00)
+                continue; // parse_info_prefix, parse code 0x00: sequence header
+            try
+            {
+                var r = new BitReader(data[(i + 13)..]);
+                var major = Uint(ref r);
+                Uint(ref r); // minor version
+                var profile = Uint(ref r);
+                var level = Uint(ref r);
+                var name = profile switch
+                {
+                    0 => "Low Delay",
+                    1 => "Simple",
+                    2 => "Main",
+                    3 => "High Quality",
+                    8 => "Main (Dirac)",
+                    _ => $"Profile {profile}",
+                };
+                return $"{name}@L{level}, version {major}";
+            }
+            catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
+            {
+                return string.Empty;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>uint(): interleaved exp-Golomb (§5.5.3).</summary>
+    private static uint Uint(ref BitReader r)
+    {
+        uint value = 1;
+        while (!r.Flag())
+            value = (value << 1) | r.Read(1);
+        return value - 1;
+    }
+}
+
+/// <summary>Avid DNxHD / DNxHR (SMPTE ST 2019-1, VC-3) frame headers.</summary>
+public static class Dnxhd
+{
+    /// <summary>"DNxHR LB, 8-bit", "DNxHD (CID 1237), 8-bit" from a frame header; empty when it is not one.</summary>
+    public static string Describe(ReadOnlySpan<byte> frame)
+    {
+        if (frame.Length < 0x2C || frame[0] != 0 || frame[1] != 0 || frame[2] != 2 || frame[3] != 0x80)
+            return string.Empty;
+        var cid = System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(frame[0x28..]);
+        var depth = ((frame[0x21] >> 5) & 3) switch
+        {
+            1 => "8-bit",
+            2 => "10-bit",
+            3 => "12-bit",
+            _ => string.Empty,
+        };
+        var name = cid switch
+        {
+            1270 => "DNxHR 444",
+            1271 => "DNxHR HQX",
+            1272 => "DNxHR HQ",
+            1273 => "DNxHR SQ",
+            1274 => "DNxHR LB",
+            _ => $"DNxHD (CID {cid})",
+        };
+        return depth.Length > 0 ? $"{name}, {depth}" : name;
+    }
+}
