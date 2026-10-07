@@ -68,7 +68,9 @@ public sealed class CorpusRemuxTests
             await handler.SaveAsync(doc, new SaveOptions { OutputPath = output }, cancellationToken: Ct);
             var source = MediaProbe.Streams(file);
             var result = MediaProbe.Streams(output).Where(s => s.Type != "attachment" && s.Type != "data").ToList();
-            Assert.Equal(kept.Count, result.Count);
+            // WebVTT is kept natively in MP4 ('wvtt'), which FFmpeg lists as a data stream, like the chapter text tracks.
+            var probed = kept.Where(k => !(target == ContainerKind.Mp4 && k.Track is SubtitleTrack && k.Track.Format == "WebVTT")).ToList();
+            Assert.Equal(probed.Count, result.Count);
             // Timestamp complaints that ffmpeg also has with its own remux of the same streams (e.g. TrueHD units
             // 1/1200 s apart in Matroska's 1 ms timestamps, VVC without DTS in Matroska, VFR sources) are a property
             // of the source/target pair, not of this muxer.
@@ -101,9 +103,9 @@ public sealed class CorpusRemuxTests
             }
 
             double? presentationShift = null;
-            for (var i = 0; i < kept.Count; i++)
+            for (var i = 0; i < probed.Count; i++)
             {
-                var (track, sourceIndex) = kept[i];
+                var (track, sourceIndex) = probed[i];
                 var src = source.First(s => s.Index == sourceIndex);
                 var dst = result[i];
                 Assert.Equal(src.Type, dst.Type);
