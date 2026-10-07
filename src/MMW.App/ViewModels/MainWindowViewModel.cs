@@ -17,7 +17,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Files that only contain tracks (no document of their own): dropping them imports into the open document.</summary>
     private static readonly string[] s_trackExtensions =
-        [".srt", ".ass", ".ssa", ".vtt", ".aac", ".ac3", ".eac3", ".ec3", ".264", ".h264", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".dts", ".dtshd", ".flac", ".fla", ".ivf", ".obu", ".av1", .. MMW.Formats.MpegTs.TsFormat.Extensions, .. MMW.Formats.Ogg.OggFormat.Extensions];
+        [".srt", ".ass", ".ssa", ".vtt", ".aac", ".ac3", ".eac3", ".ec3", ".264", ".h264", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".dts", ".dtshd", ".flac", ".fla", ".ivf", ".obu", ".av1", .. MMW.Formats.MpegTs.TsFormat.Extensions, .. MMW.Formats.Ogg.OggFormat.Extensions,
+         .. MMW.Media.Conversion.FFmpegDemuxerFactory.Extensions];
 
     private readonly DocumentService _documents;
     private readonly IDialogService _dialogs;
@@ -132,7 +133,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     /// <summary>Handles files opened from the command line, the open dialog or dropped on the window.</summary>
     public async Task OpenPathsAsync(IEnumerable<string> paths)
     {
-        foreach (var path in paths)
+        // A VobSub pair (.idx + .sub) is one track: import it once, through its .idx.
+        var list = paths.ToList();
+        list.RemoveAll(p => Path.GetExtension(p).Equals(".sub", StringComparison.OrdinalIgnoreCase) &&
+                            MMW.Media.Conversion.FFmpegDemuxerFactory.VobSubIndex(p) is { } idx &&
+                            list.Any(o => string.Equals(o, idx, StringComparison.OrdinalIgnoreCase)));
+        foreach (var path in list)
         {
             var ext = Path.GetExtension(path).ToLowerInvariant();
             if (SelectedDocument is { } doc && s_imageExtensions.Contains(ext))

@@ -108,8 +108,21 @@ internal static unsafe class AvUtil
                     break;
             }
 
-            if (CodecMapping.DecoderExtradata(config) is { Length: > 0 } extradata)
+            if (config.Native is FFmpegCodec native && CodecMapping.IsNativeOnly(config))
+            {
+                // A codec only FFmpeg knows (WMA, DVD LPCM, …): its own parameters as the demuxer gave them.
+                context->block_align = native.BlockAlign;
+                context->bit_rate = native.BitRate;
+                if (native.BitsPerCodedSample > 0)
+                    context->bits_per_coded_sample = native.BitsPerCodedSample;
+                context->codec_tag = native.Tag;
+                if (native.Extradata is { Length: > 0 } nativeExtradata)
+                    SetExtradata(context, nativeExtradata);
+            }
+            else if (CodecMapping.DecoderExtradata(config) is { Length: > 0 } extradata)
+            {
                 SetExtradata(context, extradata);
+            }
             if (options is not null)
             {
                 foreach (var (key, value) in options)

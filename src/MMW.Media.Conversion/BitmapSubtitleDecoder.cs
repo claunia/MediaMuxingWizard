@@ -43,7 +43,7 @@ public static class BitmapSubtitleDecoder
     public static bool CanDecode(CodecConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
-        return config.Codec is CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub && FFmpegLoader.IsAvailable &&
+        return config.Codec is CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub or CodecType.Xsub && FFmpegLoader.IsAvailable &&
                AvUtil.HasDecoder(CodecMapping.DecoderId(config));
     }
 

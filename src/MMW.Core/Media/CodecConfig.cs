@@ -59,6 +59,9 @@ public enum CodecType
     VobSub,
     Pgs,
     DvbSub,
+
+    /// <summary>DivX XSUB bitmap subtitles (AVI); only converted to text by OCR.</summary>
+    Xsub,
     Cea608,
     Ttml,
 
@@ -270,6 +273,7 @@ public static class CodecNames
         CodecType.VobSub => "VobSub",
         CodecType.Pgs => "PGS",
         CodecType.DvbSub => "DVB",
+        CodecType.Xsub => "XSUB",
         CodecType.Cea608 => "CEA-608",
         CodecType.Ttml => "TTML",
         _ => fallback.Length > 0 ? fallback : "Unknown",

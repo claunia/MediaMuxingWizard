@@ -216,6 +216,22 @@ public static class ElementaryFormat
     }
 
     /// <summary>
+    /// Annex B H.264 / HEVC / VVC video read from a byte stream that has no usable timing of its own (the packets of a
+    /// container such as AVI): access units with length-prefixed NAL units and presentation times from the picture
+    /// order count, starting at 0 at <paramref name="frameRate"/>.
+    /// </summary>
+    /// <param name="open">Opens a new stream over the video from its start (called once to probe, then per read pass).</param>
+    public static ISampleSource OpenAnnexBVideo(Func<Stream> open, CodecType codec, double? frameRate)
+    {
+        ArgumentNullException.ThrowIfNull(open);
+        AnnexBProbe probe;
+        using (var stream = open())
+            probe = AnnexBVideoParser.Probe(stream, codec, frameRate);
+        var config = probe.Config;
+        return new ElementarySource(config, () => new AnnexBVideoParser(open(), codec, config.DefaultSampleDuration, probe.ParameterSets), TimeSpan.Zero, -1);
+    }
+
+    /// <summary>
     /// The tags and artwork a file carries outside of any container this application edits (FLAC's Vorbis comments
     /// and pictures); null for other files.
     /// </summary>

@@ -78,13 +78,14 @@ public static class SubtitleConversions
     public const string SrtOcrName = "SRT (OCR)";
 
     /// <summary>True for bitmap subtitle codecs (PGS, VobSub, DVB).</summary>
-    public static bool IsBitmap(CodecType codec) => codec is CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub;
+    public static bool IsBitmap(CodecType codec) => codec is CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub or CodecType.Xsub;
 
     /// <summary>True for a track <see cref="Track.Format"/> naming a bitmap subtitle codec ("PGS", "VobSub", "DVB").</summary>
     public static bool IsBitmapFormat(string? format) =>
         format is not null && (format.Equals(CodecNames.Display(CodecType.Pgs), StringComparison.OrdinalIgnoreCase) ||
                                format.Equals(CodecNames.Display(CodecType.VobSub), StringComparison.OrdinalIgnoreCase) ||
-                               format.Equals(CodecNames.Display(CodecType.DvbSub), StringComparison.OrdinalIgnoreCase));
+                               format.Equals(CodecNames.Display(CodecType.DvbSub), StringComparison.OrdinalIgnoreCase) ||
+                               format.Equals(CodecNames.Display(CodecType.Xsub), StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The text format an import action produces from a bitmap track, or null when it is not an OCR action.</summary>
     public static SubtitleConversionTarget? Target(ImportAction action) => action switch

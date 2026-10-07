@@ -36,7 +36,8 @@ public static class MediaRemux
 
     /// <summary>Every file extension that can be inspected for tracks to import.</summary>
     public static IReadOnlyList<string> ImportExtensions { get; } =
-        [.. ContainerKinds.Mp4Extensions, .. ContainerKinds.MatroskaExtensions, .. ElementaryFormat.Extensions, .. TsFormat.Extensions, .. OggFormat.Extensions];
+        [.. ContainerKinds.Mp4Extensions, .. ContainerKinds.MatroskaExtensions, .. ElementaryFormat.Extensions, .. TsFormat.Extensions, .. OggFormat.Extensions,
+         .. MMW.Media.Conversion.FFmpegDemuxerFactory.Extensions];
 }
 
 /// <summary>A track of a file that can be added to a document.</summary>

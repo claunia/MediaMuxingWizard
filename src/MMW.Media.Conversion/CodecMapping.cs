@@ -27,7 +27,8 @@ internal static class CodecMapping
         CodecType.Pgs => AVCodecID.AV_CODEC_ID_HDMV_PGS_SUBTITLE,
         CodecType.VobSub => AVCodecID.AV_CODEC_ID_DVD_SUBTITLE,
         CodecType.DvbSub => AVCodecID.AV_CODEC_ID_DVB_SUBTITLE,
-        _ => AVCodecID.AV_CODEC_ID_NONE,
+        CodecType.Xsub => AVCodecID.AV_CODEC_ID_XSUB,
+        _ => config.Native is FFmpegCodec native ? native.Id : AVCodecID.AV_CODEC_ID_NONE,
     };
 
     private static AVCodecID PcmId(CodecConfig c) => (c.BitsPerSample, c.PcmFloat, c.PcmBigEndian) switch
@@ -45,6 +46,9 @@ internal static class CodecMapping
         (64, _, true) => AVCodecID.AV_CODEC_ID_PCM_F64BE,
         _ => AVCodecID.AV_CODEC_ID_NONE,
     };
+
+    /// <summary>True when the track's codec is known only by the FFmpeg codec it came from (<see cref="FFmpegCodec"/>).</summary>
+    public static bool IsNativeOnly(CodecConfig config) => config.Codec == CodecType.Unknown && config.Native is FFmpegCodec;
 
     /// <summary>Extradata in the form FFmpeg's decoder expects.</summary>
     public static byte[]? DecoderExtradata(CodecConfig config)

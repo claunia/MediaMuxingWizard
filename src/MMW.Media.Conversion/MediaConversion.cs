@@ -7,11 +7,18 @@ namespace MMW.Media.Conversion;
 public static class MediaConversion
 {
     /// <summary>
-    /// Registers the FFmpeg audio converter with <see cref="MediaFormatRegistry"/> (idempotent). Does not load FFmpeg:
+    /// Registers the FFmpeg audio converter and the reader of foreign containers with <see cref="MediaFormatRegistry"/> (idempotent). Does not load FFmpeg:
     /// the libraries are looked for on first use, and a missing FFmpeg only makes the converter report itself
     /// unavailable.
     /// </summary>
-    public static void Register() => MediaFormatRegistry.Register(FFmpegAudioConverterFactory.Instance);
+    public static void Register()
+    {
+        MediaFormatRegistry.Register(FFmpegAudioConverterFactory.Instance);
+        MediaFormatRegistry.Register(Demuxers);
+    }
+
+    /// <summary>The FFmpeg-backed reader of foreign containers (AVI, MPEG-PS, ASF, WAV, MP3, DV, VobSub …).</summary>
+    public static FFmpegDemuxerFactory Demuxers { get; } = new();
 
     /// <summary>True when FFmpeg is loaded (conversions, thumbnails and bitmap subtitle decoding work).</summary>
     public static bool IsAvailable => FFmpegLoader.IsAvailable;

@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MMW.Core\MMW.Core.csproj" />
+    <ProjectReference Include="..\MMW.Formats.Elementary\MMW.Formats.Elementary.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" CopyToOutputDirectory="PreserveNewest" />
