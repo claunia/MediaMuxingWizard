@@ -222,12 +222,12 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
         }
 
-        // DTS: the product (DTS-HD MA, DTS:X …) is only known from the bitstream.
-        foreach (var audio in Document.Tracks.OfType<AudioTrack>().Where(DtsDetector.NeedsCheck).ToList())
+        // DTS: the product (DTS-HD MA, DTS:X …) is only known from the bitstream; so are Opus's modes and bandwidth.
+        foreach (var audio in Document.Tracks.OfType<AudioTrack>().Where(a => DtsDetector.NeedsCheck(a) || OpusDetector.NeedsCheck(a)).ToList())
         {
             try
             {
-                if (await DtsDetector.DescribeAsync(audio))
+                if (OpusDetector.NeedsCheck(audio) ? await OpusDetector.DescribeAsync(audio) : await DtsDetector.DescribeAsync(audio))
                 {
                     if (_trackInspectors.TryGetValue(audio, out var inspector))
                         inspector.RefreshHdr();
@@ -237,7 +237,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
             {
-                AppLog.Debug($"DTS scan skipped for {Document.DisplayName}: {ex.Message}");
+                AppLog.Debug($"Audio scan skipped for {Document.DisplayName}: {ex.Message}");
             }
         }
     }

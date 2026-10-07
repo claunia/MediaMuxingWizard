@@ -162,6 +162,7 @@ public static class TrackImporter
             config = WithDetectedHdrVivid(source, config);
             config = WithStreamInfo(source, config);
             config = WithDtsDescription(source, config);
+            config = WithOpusDescription(source, config);
             var support = muxer.CheckSupport(config);
             var canConvert = ConversionDefaults.CanConvert(config);
             var canOcr = ConversionDefaults.CanOcr(config);
@@ -225,6 +226,22 @@ public static class TrackImporter
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
             AppLog.Debug($"DTS check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
+    }
+
+    /// <summary>Opus coding modes, bandwidth and frame durations from the packets' TOC bytes.</summary>
+    private static CodecConfig WithOpusDescription(ISampleSource source, CodecConfig config)
+    {
+        if (!OpusDetector.CanScan(config) || config.AudioProfile.Length > 0)
+            return config;
+        try
+        {
+            return config with { AudioProfile = OpusDetector.Detect(source) };
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"Opus check of track {source.TrackId} failed: {ex.Message}");
             return config;
         }
     }

@@ -97,6 +97,19 @@ public sealed class OpusTests
         }
     }
 
+    /// <summary>The packets' TOC bytes describe what the encoder chose: CELT for music, SILK for low-rate speech.</summary>
+    [Fact]
+    public async Task Import_describes_the_coding_mode()
+    {
+        var music = Assert.Single(await TrackImporter.InspectAsync(Matroska("stereo"), ContainerKind.Mp4, Ct));
+        Assert.StartsWith("CELT, fullband, 20 ms frames, Stereo", music.Details, StringComparison.Ordinal);
+
+        var speech = Fixtures.Get("opus-voip.opus", "ffmpeg",
+            "-v error -y -f lavfi -i sine=f=300:d=2:sample_rate=16000 -c:a libopus -application voip -b:a 12k -frame_duration 40 {out}");
+        var track = Assert.Single(await TrackImporter.InspectAsync(speech, ContainerKind.Matroska, Ct));
+        Assert.Equal("SILK, wideband, 40 ms frames", track.Config.AudioProfile);
+    }
+
     [Fact]
     public async Task Corpus_opus_keeps_its_exact_length()
     {

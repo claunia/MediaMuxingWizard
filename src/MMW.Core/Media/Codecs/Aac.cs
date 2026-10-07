@@ -608,6 +608,74 @@ public static class Opus
         };
         return frame * frames;
     }
+
+    /// <summary>Coding mode, audio bandwidth (Hz) and frame duration (in 1/400 s) from a packet's TOC byte (RFC 6716 §3.1).</summary>
+    public static (OpusModes Mode, int Bandwidth, int FrameQuarterMs) Toc(byte toc)
+    {
+        var config = toc >> 3;
+        return config switch
+        {
+            < 12 => (OpusModes.Silk, (config >> 2) switch { 0 => 4000, 1 => 6000, _ => 8000 }, (config & 3) switch { 0 => 40, 1 => 80, 2 => 160, _ => 240 }),
+            < 16 => (OpusModes.Hybrid, config < 14 ? 12000 : 20000, (config & 1) == 0 ? 40 : 80),
+            _ => (OpusModes.Celt, ((config - 16) >> 2) switch { 0 => 4000, 1 => 8000, 2 => 12000, _ => 20000 }, 10 << (config & 3)),
+        };
+    }
+
+    /// <summary>
+    /// What a stream's packets use: the coding modes (SILK for speech, CELT for music, Hybrid between), the audio
+    /// bandwidth and the frame durations, e.g. "CELT, fullband, 20 ms frames". Empty when there are no packets.
+    /// </summary>
+    public static string DescribeStream(IEnumerable<ReadOnlyMemory<byte>> packets)
+    {
+        ArgumentNullException.ThrowIfNull(packets);
+        var modes = OpusModes.None;
+        int minBandwidth = int.MaxValue, maxBandwidth = 0, minFrame = int.MaxValue, maxFrame = 0;
+        foreach (var packet in packets)
+        {
+            if (packet.Length < 2) // DTX / lost frames carry no TOC worth counting
+                continue;
+            var (mode, bandwidth, frame) = Toc(packet.Span[0]);
+            modes |= mode;
+            minBandwidth = Math.Min(minBandwidth, bandwidth);
+            maxBandwidth = Math.Max(maxBandwidth, bandwidth);
+            minFrame = Math.Min(minFrame, frame);
+            maxFrame = Math.Max(maxFrame, frame);
+        }
+
+        if (modes == OpusModes.None)
+            return string.Empty;
+        var names = new List<string>();
+        if (modes.HasFlag(OpusModes.Silk))
+            names.Add("SILK");
+        if (modes.HasFlag(OpusModes.Hybrid))
+            names.Add("Hybrid");
+        if (modes.HasFlag(OpusModes.Celt))
+            names.Add("CELT");
+        var band = minBandwidth == maxBandwidth ? BandwidthName(maxBandwidth) : $"{BandwidthName(minBandwidth)} to {BandwidthName(maxBandwidth)}";
+        var frames = minFrame == maxFrame ? $"{Milliseconds(maxFrame)} ms" : $"{Milliseconds(minFrame)}–{Milliseconds(maxFrame)} ms";
+        return $"{string.Join('/', names)}, {band}, {frames} frames";
+    }
+
+    private static string BandwidthName(int hz) => hz switch
+    {
+        4000 => "narrowband",
+        6000 => "medium band",
+        8000 => "wideband",
+        12000 => "super-wideband",
+        _ => "fullband",
+    };
+
+    private static string Milliseconds(int quarterMs) => (quarterMs / 4.0).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+}
+
+/// <summary>Opus coding modes (RFC 6716 §2).</summary>
+[Flags]
+public enum OpusModes
+{
+    None = 0,
+    Silk = 1,
+    Hybrid = 2,
+    Celt = 4,
 }
 
 /// <summary>FLAC STREAMINFO and frame header helpers.</summary>
