@@ -5044,5 +5044,41 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot Save.
+        /// </summary>
+        public static string Dialog_IncompatibleTracks_Title {
+            get {
+                return ResourceManager.GetString("Dialog_IncompatibleTracks_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are tracks incompatible with the destination format ({0}), convert or delete them:.
+        /// </summary>
+        public static string Dialog_IncompatibleTracks_MessageFormat {
+            get {
+                return ResourceManager.GetString("Dialog_IncompatibleTracks_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}.
+        /// </summary>
+        public static string Incompatible_LineFormat {
+            get {
+                return ResourceManager.GetString("Incompatible_LineFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: {1}.
+        /// </summary>
+        public static string Incompatible_LineReasonFormat {
+            get {
+                return ResourceManager.GetString("Incompatible_LineReasonFormat", resourceCulture);
+            }
+        }
+        
     }
 }

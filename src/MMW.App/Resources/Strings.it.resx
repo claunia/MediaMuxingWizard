@@ -253,6 +253,14 @@ Il file cambia solo quando salvi.</value>
   <data name="Dialog_ImportTracks_Title" xml:space="preserve">
     <value>Importa tracce</value>
   </data>
+  <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
+    <value>Ci sono tracce incompatibili con il formato di destinazione ({0}); convertile o eliminale:
+
+{1}</value>
+  </data>
+  <data name="Dialog_IncompatibleTracks_Title" xml:space="preserve">
+    <value>Impossibile salvare</value>
+  </data>
   <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
     <value>MP4 non può mantenere tutto ciò che queste tracce trasportano:
 
@@ -409,6 +417,12 @@ Le tue modifiche andranno perse se non le salvi.</value>
   </data>
   <data name="Import_TracksFoundFormat" xml:space="preserve">
     <value>{0} traccia(i) trovata(e).</value>
+  </data>
+  <data name="Incompatible_LineFormat" xml:space="preserve">
+    <value>• {0}</value>
+  </data>
+  <data name="Incompatible_LineReasonFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
   </data>
   <data name="LanguagePicker_Search" xml:space="preserve">
     <value>Cerca lingue</value>

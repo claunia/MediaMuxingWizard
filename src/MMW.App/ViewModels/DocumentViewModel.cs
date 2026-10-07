@@ -632,9 +632,10 @@ public sealed partial class DocumentViewModel : ViewModelBase
         if (options is null)
             return false;
 
-        // A format of the other family switches the output format first, so every track is planned for it.
+        // The other container family is written only when every track fits it as it is: Save As converts nothing on its
+        // own, the user converts or removes the tracks in the document window first.
         var target = RemuxPolicy.TargetKind(Document, options);
-        if (target != Document.Container && !await ChangeContainerAsync(target))
+        if (target != Document.Container && !await TracksFitAsync(target))
             return false;
         if (!await SaveCoreAsync(options))
             return false;
@@ -644,6 +645,37 @@ public sealed partial class DocumentViewModel : ViewModelBase
     }
 
     // ------------------------------------------------------------------ output format
+
+    /// <summary>
+    /// True when every track can be written to <paramref name="target"/> with its current action. Otherwise reports
+    /// the tracks that cannot (to be converted or removed in the document window) and returns false.
+    /// </summary>
+    private async Task<bool> TracksFitAsync(ContainerKind target)
+    {
+        IsBusy = true;
+        IReadOnlyList<MMW.Media.Remux.TrackRetarget> misfits;
+        try
+        {
+            misfits = await MMW.Media.Remux.ContainerSwitch.PlanAsync(Document, target);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        if (misfits.Count == 0)
+            return true;
+        var lines = misfits.Select(c =>
+        {
+            var track = string.IsNullOrEmpty(c.Track.Name) ? c.Track.Format : $"{c.Track.Format} – {c.Track.Name}";
+            return c.Reason is null
+                ? string.Format(CultureInfo.CurrentCulture, Strings.Incompatible_LineFormat, track)
+                : string.Format(CultureInfo.CurrentCulture, Strings.Incompatible_LineReasonFormat, track, c.Reason);
+        });
+        await _dialogs.ShowMessageAsync(Strings.Dialog_IncompatibleTracks_Title,
+            string.Format(CultureInfo.CurrentCulture, Strings.Dialog_IncompatibleTracks_MessageFormat, ContainerName(target), string.Join("\n", lines)));
+        return false;
+    }
 
     public bool IsMp4Output => Document.Container == ContainerKind.Mp4;
 

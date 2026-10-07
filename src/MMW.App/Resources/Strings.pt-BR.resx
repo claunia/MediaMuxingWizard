@@ -253,6 +253,14 @@ O arquivo só muda quando você salvar.</value>
   <data name="Dialog_ImportTracks_Title" xml:space="preserve">
     <value>Importar Faixas</value>
   </data>
+  <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
+    <value>Há faixas incompatíveis com o formato de destino ({0}); converta-as ou exclua-as:
+
+{1}</value>
+  </data>
+  <data name="Dialog_IncompatibleTracks_Title" xml:space="preserve">
+    <value>Não Foi Possível Salvar</value>
+  </data>
   <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
     <value>MP4 não pode manter tudo que essas faixas carregam:
 
@@ -409,6 +417,12 @@ Suas alterações serão perdidas se você não as salvar.</value>
   </data>
   <data name="Import_TracksFoundFormat" xml:space="preserve">
     <value>{0} faixa(s) encontrada(s).</value>
+  </data>
+  <data name="Incompatible_LineFormat" xml:space="preserve">
+    <value>• {0}</value>
+  </data>
+  <data name="Incompatible_LineReasonFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
   </data>
   <data name="LanguagePicker_Search" xml:space="preserve">
     <value>Buscar idiomas</value>

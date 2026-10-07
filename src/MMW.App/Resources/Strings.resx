@@ -1735,4 +1735,18 @@ The file itself only changes when you save.</value>
   <data name="Undo_ChangeContainerFormat" xml:space="preserve">
     <value>Change Output Format to {0}</value>
   </data>
+  <data name="Dialog_IncompatibleTracks_Title" xml:space="preserve">
+    <value>Cannot Save</value>
+  </data>
+  <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
+    <value>There are tracks incompatible with the destination format ({0}), convert or delete them:
+
+{1}</value>
+  </data>
+  <data name="Incompatible_LineFormat" xml:space="preserve">
+    <value>• {0}</value>
+  </data>
+  <data name="Incompatible_LineReasonFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
+  </data>
 </root>

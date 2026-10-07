@@ -129,3 +129,67 @@ public class NewDocumentTests
         Assert.False(home.Document.ChangeOutputFormatCommand.CanExecute("mkv"));
     }
 }
+
+/// <summary>Save As into the other container family converts nothing: tracks that do not fit stop it until the user converts or deletes them.</summary>
+public class SaveAsOtherFormatTests
+{
+    private static async Task<(MainWindowViewModel Window, FakeDialogService Dialogs, string Dir)> OpenMkvWithSubRipAsync()
+    {
+        MediaProbe.RequireFfmpeg();
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var srt = Path.Combine(dir, "subs.srt");
+        await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nHello\n", TestContext.Current.CancellationToken);
+        var mkv = Path.Combine(dir, "movie.mkv");
+        Fixtures.Run("ffmpeg", $"-y -v error -f lavfi -i testsrc=duration=2:size=160x120:rate=25 -i {Fixtures.Quote(srt)} -c:v libx264 -preset ultrafast -c:s srt -f matroska {Fixtures.Quote(mkv)}");
+        var dialogs = new FakeDialogService();
+        var window = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
+        await window.OpenPathsAsync([mkv]);
+        return (window, dialogs, dir);
+    }
+
+    [AvaloniaFact]
+    public async Task Incompatible_tracks_stop_save_as_until_they_are_converted()
+    {
+        var (window, dialogs, dir) = await OpenMkvWithSubRipAsync();
+        var doc = window.Document!;
+        var m4v = Path.Combine(dir, "movie.m4v");
+
+        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
+        await doc.SaveAsCommand.ExecuteAsync(null);
+        var error = Assert.Single(dialogs.Messages);
+        Assert.StartsWith(Strings.Dialog_IncompatibleTracks_Title, error, StringComparison.Ordinal);
+        Assert.Contains("SRT", error, StringComparison.Ordinal);
+        Assert.False(File.Exists(m4v));
+        Assert.Equal(ContainerKind.Matroska, doc.Document.Container);
+
+        // Converting the subtitles in the document window to a format MP4 takes (WebVTT) lets Save As through.
+        var subtitle = doc.Document.Tracks.OfType<SubtitleTrack>().Single();
+        await doc.SetConversionAsync(subtitle, new ImportChoice(ImportAction.ConvertToWebVtt, "WebVTT"));
+        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
+        await doc.SaveAsCommand.ExecuteAsync(null);
+        Assert.Single(dialogs.Messages);
+        Assert.True(File.Exists(m4v));
+        Assert.Equal(ContainerKind.Mp4, doc.Document.Container);
+    }
+
+    [AvaloniaFact]
+    public async Task Deleting_the_incompatible_tracks_lets_save_as_through()
+    {
+        var (window, dialogs, dir) = await OpenMkvWithSubRipAsync();
+        var doc = window.Document!;
+        var m4v = Path.Combine(dir, "movie.m4v");
+        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
+        await doc.SaveAsCommand.ExecuteAsync(null);
+        Assert.Single(dialogs.Messages);
+
+        doc.SelectedRow = doc.Rows.First(r => r.Track is SubtitleTrack);
+        doc.DeleteTracksCommand.Execute(null);
+        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
+        await doc.SaveAsCommand.ExecuteAsync(null);
+        Assert.Single(dialogs.Messages);
+        var streams = MediaProbe.Streams(m4v);
+        Assert.Equal("h264", Assert.Single(streams).Codec);
+    }
+}

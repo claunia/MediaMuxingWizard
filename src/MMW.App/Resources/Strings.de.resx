@@ -253,6 +253,14 @@ Die Datei selbst ändert sich erst beim Speichern.</value>
   <data name="Dialog_ImportTracks_Title" xml:space="preserve">
     <value>Spuren importieren</value>
   </data>
+  <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
+    <value>Es gibt Spuren, die mit dem Zielformat ({0}) nicht kompatibel sind; konvertieren oder löschen Sie sie:
+
+{1}</value>
+  </data>
+  <data name="Dialog_IncompatibleTracks_Title" xml:space="preserve">
+    <value>Speichern nicht möglich</value>
+  </data>
   <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
     <value>MP4 kann nicht alles beibehalten, was diese Spuren enthalten:
 
@@ -409,6 +417,12 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   </data>
   <data name="Import_TracksFoundFormat" xml:space="preserve">
     <value>{0} Spur(en) gefunden.</value>
+  </data>
+  <data name="Incompatible_LineFormat" xml:space="preserve">
+    <value>• {0}</value>
+  </data>
+  <data name="Incompatible_LineReasonFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
   </data>
   <data name="LanguagePicker_Search" xml:space="preserve">
     <value>Sprachen suchen</value>

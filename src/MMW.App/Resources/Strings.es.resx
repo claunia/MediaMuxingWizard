@@ -1734,4 +1734,18 @@ El archivo solo cambia al guardar.</value>
   <data name="Undo_ChangeContainerFormat" xml:space="preserve">
     <value>Cambiar formato de salida a {0}</value>
   </data>
+  <data name="Dialog_IncompatibleTracks_Title" xml:space="preserve">
+    <value>No se puede guardar</value>
+  </data>
+  <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
+    <value>Hay pistas incompatibles con el formato de destino ({0}); conviértalas o elimínelas:
+
+{1}</value>
+  </data>
+  <data name="Incompatible_LineFormat" xml:space="preserve">
+    <value>• {0}</value>
+  </data>
+  <data name="Incompatible_LineReasonFormat" xml:space="preserve">
+    <value>• {0}: {1}</value>
+  </data>
 </root>

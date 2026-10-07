@@ -253,6 +253,14 @@ Le fichier lui-même ne change qu’à l’enregistrement.</value>
   <data name="Dialog_ImportTracks_Title" xml:space="preserve">
     <value>Importer des pistes</value>
   </data>
+  <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
+    <value>Des pistes sont incompatibles avec le format de destination ({0}) ; convertissez-les ou supprimez-les :
+
+{1}</value>
+  </data>
+  <data name="Dialog_IncompatibleTracks_Title" xml:space="preserve">
+    <value>Enregistrement impossible</value>
+  </data>
   <data name="Dialog_MetadataLoss_MessageFormat" xml:space="preserve">
     <value>MP4 ne peut pas conserver tout ce que ces pistes portent :
 
@@ -409,6 +417,12 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   </data>
   <data name="Import_TracksFoundFormat" xml:space="preserve">
     <value>{0} piste(s) trouvée(s).</value>
+  </data>
+  <data name="Incompatible_LineFormat" xml:space="preserve">
+    <value>• {0}</value>
+  </data>
+  <data name="Incompatible_LineReasonFormat" xml:space="preserve">
+    <value>• {0} : {1}</value>
   </data>
   <data name="LanguagePicker_Search" xml:space="preserve">
     <value>Rechercher des langues</value>
