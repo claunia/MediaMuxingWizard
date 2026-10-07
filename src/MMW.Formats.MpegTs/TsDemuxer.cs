@@ -80,94 +80,146 @@ internal sealed class TsDemuxer : IDemuxer
         new(new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 1 << 16, FileOptions.SequentialScan), Stride,
             position < 0 ? Offset : position);
 
-    /// <summary>Finds the first program, describes its streams and measures them.</summary>
+    /// <summary>
+    /// Picks the program (the one with video and the most supported streams, for multi-program broadcast captures),
+    /// describes its streams and measures them.
+    /// </summary>
     private void Probe()
     {
-        var pat = new PsiAssembler();
-        var pmt = new PsiAssembler();
-        var pmtPid = -1;
-        List<TsStreamInfo>? streams = null;
-        var probes = new Dictionary<int, (TsStream Stream, PesAssembler Pes, Queue<MediaSample> Out)>();
-        var first = new Dictionary<int, double>(); // seconds of the first sample
+        var streams = ChooseProgram() ?? throw new InvalidDataException($"'{System.IO.Path.GetFileName(Path)}' has no program map table.");
+        var specs = Specs(streams, log: true);
+        var probes = specs.Select(spec => (Spec: spec, Stream: spec.Create(null), Out: new Queue<MediaSample>())).ToList();
+        var byPid = probes.GroupBy(p => p.Spec.Info.Pid).ToDictionary(g => g.Key, g => (Pes: new PesAssembler(), Streams: g.ToList()));
+        var first = new Dictionary<uint, double>(); // seconds of the first sample, by track
         var unwrap = new TimestampUnwrapper();
 
         using (var reader = OpenReader())
         {
             while (reader.Position - Offset < ProbeBytes && reader.Next(out var h, out var payload))
             {
-                if (streams is null)
-                {
-                    if (h.Pid == 0 && pat.Add(payload, h.PayloadStart) is { } patSection && Psi.ParsePat(patSection) is { Count: > 0 } programs)
-                        pmtPid = programs[0].PmtPid;
-                    else if (h.Pid == pmtPid && pmt.Add(payload, h.PayloadStart) is { } pmtSection)
-                    {
-                        streams = Psi.ParsePmt(pmtSection);
-                        foreach (var info in streams ?? [])
-                        {
-                            if (TsStream.Create(info) is { } stream)
-                                probes[info.Pid] = (stream, new PesAssembler(), new Queue<MediaSample>());
-                            else
-                                AppLog.Info($"{System.IO.Path.GetFileName(Path)}: stream 0x{info.Pid:X} of type 0x{info.StreamType:X2} is not supported.");
-                        }
-                    }
-
+                if (!byPid.TryGetValue(h.Pid, out var p) || p.Pes.Add(payload, h.PayloadStart, h.RandomAccess) is not { } pes)
                     continue;
-                }
-
-                if (!probes.TryGetValue(h.Pid, out var p) || p.Pes.Add(payload, h.PayloadStart, h.RandomAccess) is not { } pes)
-                    continue;
-                Feed(p.Stream, Unwrapped(pes, unwrap), p.Out, first, h.Pid);
-                if (probes.Values.All(x => x.Stream.Ready))
+                foreach (var s in p.Streams)
+                    Feed(s.Stream, Unwrapped(pes, unwrap), s.Out, first, s.Spec.TrackId);
+                if (probes.All(x => x.Stream.Ready))
                     break;
             }
 
             // Streams still incomplete get what was assembled so far.
-            foreach (var (pid, p) in probes)
+            foreach (var (_, p) in byPid)
             {
-                if (!p.Stream.Ready && p.Pes.Flush() is { } pes)
-                    Feed(p.Stream, Unwrapped(pes, unwrap), p.Out, first, pid);
+                if (p.Streams.All(s => s.Stream.Ready) || p.Pes.Flush() is not { } pes)
+                    continue;
+                foreach (var s in p.Streams)
+                    Feed(s.Stream, Unwrapped(pes, unwrap), s.Out, first, s.Spec.TrackId);
             }
         }
 
-        if (streams is null)
-            throw new InvalidDataException($"'{System.IO.Path.GetFileName(Path)}' has no program map table.");
-
-        var usable = probes.Where(p => p.Value.Stream.Ready || p.Value.Stream is NalVideoStream { HasConfig: true }).ToList();
+        var usable = probes.Where(p => p.Stream.Ready || p.Stream is NalVideoStream { HasConfig: true }).ToList();
         if (usable.Count == 0)
             throw new InvalidDataException($"'{System.IO.Path.GetFileName(Path)}' has no stream that can be read.");
-        var start = usable.Where(p => first.ContainsKey(p.Key)).Select(p => first[p.Key]).DefaultIfEmpty(0).Min();
-        var last = LastTimestamps(usable.Select(p => p.Key).ToHashSet(), (long)Math.Round(start * 90000));
+        var start = usable.Where(p => first.ContainsKey(p.Spec.TrackId)).Select(p => first[p.Spec.TrackId]).DefaultIfEmpty(0).Min();
+        var last = LastTimestamps(usable.Select(p => p.Spec.Info.Pid).ToHashSet(), (long)Math.Round(start * 90000));
 
         var tracks = new List<ISampleSource>();
-        foreach (var (pid, p) in usable.OrderBy(p => p.Key))
+        foreach (var p in usable.OrderBy(p => p.Spec.Info.Pid).ThenBy(p => p.Spec.TrackId))
         {
             var config = p.Stream.Describe();
             // From the first sample to the end of the last one (its start plus one frame).
             var frame = config.DefaultSampleDuration > 0 && config.Timescale > 0 ? config.DefaultSampleDuration / (double)config.Timescale : 0;
-            var duration = last.TryGetValue(pid, out var end) && first.TryGetValue(pid, out var begin)
+            var begin = first.TryGetValue(p.Spec.TrackId, out var b) ? b : start;
+            var duration = last.TryGetValue(p.Spec.Info.Pid, out var end)
                 ? TimeSpan.FromSeconds(Math.Max(0, end / 90000.0 - begin + frame))
                 : TimeSpan.Zero;
             var hint = config.DefaultSampleDuration > 0 && config.Timescale > 0
                 ? (long)(duration.TotalSeconds * config.Timescale / config.DefaultSampleDuration)
                 : -1;
-            tracks.Add(new TsTrackSource(this, streams.First(s => s.Pid == pid), config, (long)Math.Round(start * config.Timescale), duration, hint));
+            tracks.Add(new TsTrackSource(this, p.Spec, config, (long)Math.Round(start * config.Timescale), duration, hint));
         }
 
         Tracks = tracks;
         Duration = tracks.Select(t => t.Duration).DefaultIfEmpty(TimeSpan.Zero).Max();
     }
 
+    /// <summary>
+    /// Reads the PAT and every PMT, and returns the streams of the program to import: the one with a supported video
+    /// stream and the most supported streams (broadcast captures may carry a whole multiplex).
+    /// </summary>
+    private List<TsStreamInfo>? ChooseProgram()
+    {
+        var pat = new PsiAssembler();
+        var pmtAssemblers = new Dictionary<int, PsiAssembler>();
+        var pmts = new Dictionary<int, List<TsStreamInfo>>();
+        List<(int Program, int PmtPid)>? programs = null;
+        using var reader = OpenReader();
+        while (reader.Position - Offset < ProbeBytes && reader.Next(out var h, out var payload))
+        {
+            if (h.Pid == 0 && programs is null && pat.Add(payload, h.PayloadStart) is { } patSection && Psi.ParsePat(patSection) is { Count: > 0 } list)
+            {
+                programs = list;
+                foreach (var (_, pmtPid) in list)
+                    pmtAssemblers.TryAdd(pmtPid, new PsiAssembler());
+            }
+            else if (pmtAssemblers.TryGetValue(h.Pid, out var assembler) && !pmts.ContainsKey(h.Pid) &&
+                     assembler.Add(payload, h.PayloadStart) is { } section && Psi.ParsePmt(section) is { } pmt)
+            {
+                pmts[h.Pid] = pmt;
+            }
+
+            if (programs is not null && programs.All(p => pmts.ContainsKey(p.PmtPid)))
+                break;
+        }
+
+        if (programs is null || pmts.Count == 0)
+            return null;
+        var candidates = programs.Where(p => pmts.ContainsKey(p.PmtPid)).Select(p => (p.Program, Streams: pmts[p.PmtPid])).ToList();
+        var best = candidates
+            .OrderByDescending(c => Specs(c.Streams, log: false).Any(s => s.IsVideo))
+            .ThenByDescending(c => Specs(c.Streams, log: false).Count)
+            .First();
+        if (candidates.Count > 1)
+            AppLog.Info($"{System.IO.Path.GetFileName(Path)}: {candidates.Count} programs; importing program {best.Program}.");
+        return best.Streams;
+    }
+
+    /// <summary>The tracks a program offers: one per supported stream, one per teletext subtitle page.</summary>
+    private List<TsTrackSpec> Specs(List<TsStreamInfo> streams, bool log)
+    {
+        var specs = new List<TsTrackSpec>();
+        foreach (var info in streams)
+        {
+            var pages = TeletextStream.SubtitlePages(info).ToList();
+            if (pages.Count > 0)
+            {
+                foreach (var (magazine, page, language, hearingImpaired) in pages)
+                {
+                    var trackId = (uint)info.Pid | (uint)((magazine << 8 | page) + 1) << 16;
+                    specs.Add(new TsTrackSpec(info, trackId, false, _ => new TeletextStream(info, magazine, page, language, hearingImpaired)));
+                }
+
+                continue;
+            }
+
+            if (TsStream.Create(info) is { } probe)
+                specs.Add(new TsTrackSpec(info, (uint)info.Pid, probe is NalVideoStream or MpegVideoStream, known => TsStream.Create(info, known)!));
+            else if (log)
+                AppLog.Info($"{System.IO.Path.GetFileName(Path)}: stream 0x{info.Pid:X} of type 0x{info.StreamType:X2} is not supported.");
+        }
+
+        return specs;
+    }
+
     private static Pes Unwrapped(Pes pes, TimestampUnwrapper unwrap) =>
         pes.Pts is null ? pes : pes with { Pts = unwrap.Unwrap(pes.Pts.Value), Dts = pes.Dts is { } d ? unwrap.Unwrap(d) : null };
 
-    private static void Feed(TsStream stream, Pes pes, Queue<MediaSample> output, Dictionary<int, double> first, int pid)
+    private static void Feed(TsStream stream, Pes pes, Queue<MediaSample> output, Dictionary<uint, double> first, uint trackId)
     {
         stream.OnPes(pes, output);
         while (output.Count > 0)
         {
             var sample = output.Dequeue();
-            if (!first.ContainsKey(pid))
-                first[pid] = sample.Pts / (double)Math.Max(1, stream.Timescale);
+            if (!first.ContainsKey(trackId))
+                first[trackId] = sample.Pts / (double)Math.Max(1, stream.Timescale);
         }
     }
 
@@ -207,7 +259,7 @@ internal sealed class TsDemuxer : IDemuxer
 internal sealed class TsScanner : IDisposable
 {
     private readonly TsDemuxer _demuxer;
-    private readonly Dictionary<int, (TsTrackSource Track, PesAssembler Pes)> _attached = [];
+    private readonly Dictionary<int, List<(TsTrackSource Track, PesAssembler Pes)>> _attached = [];
     private readonly TimestampUnwrapper _unwrap = new();
     private TsPacketReader? _reader;
     private bool _ended;
@@ -216,9 +268,18 @@ internal sealed class TsScanner : IDisposable
 
     public bool Started => _reader is not null;
 
-    public void Attach(TsTrackSource track) => _attached[(int)track.TrackId] = (track, new PesAssembler());
+    public void Attach(TsTrackSource track)
+    {
+        if (!_attached.TryGetValue(track.Pid, out var list))
+            _attached[track.Pid] = list = [];
+        list.Add((track, new PesAssembler()));
+    }
 
-    public void Detach(TsTrackSource track) => _attached.Remove((int)track.TrackId);
+    public void Detach(TsTrackSource track)
+    {
+        if (_attached.TryGetValue(track.Pid, out var list))
+            list.RemoveAll(a => a.Track == track);
+    }
 
     /// <summary>Processes the next packet; false at the end of the file (after the last PES were delivered).</summary>
     public bool Advance()
@@ -228,15 +289,19 @@ internal sealed class TsScanner : IDisposable
         _reader ??= _demuxer.OpenReader();
         while (_reader.Next(out var h, out var payload))
         {
-            if (!_attached.TryGetValue(h.Pid, out var a))
+            if (!_attached.TryGetValue(h.Pid, out var list) || list.Count == 0)
                 continue;
-            if (a.Pes.Add(payload, h.PayloadStart, h.RandomAccess) is { } pes)
-                a.Track.OnPes(Unwrapped(pes));
+            foreach (var (track, assembler) in list.ToList())
+            {
+                if (assembler.Add(payload, h.PayloadStart, h.RandomAccess) is { } pes)
+                    track.OnPes(Unwrapped(pes));
+            }
+
             return true;
         }
 
         _ended = true;
-        foreach (var (track, assembler) in _attached.Values.ToList())
+        foreach (var (track, assembler) in _attached.Values.SelectMany(l => l).ToList())
         {
             if (assembler.Flush() is { } pes)
                 track.OnPes(Unwrapped(pes));
@@ -256,25 +321,27 @@ internal sealed class TsScanner : IDisposable
 internal sealed class TsTrackSource : ISampleSource, IDisposable
 {
     private readonly TsDemuxer _demuxer;
-    private readonly TsStreamInfo _info;
+    private readonly TsTrackSpec _spec;
     private readonly Queue<MediaSample> _out = new();
     private TsStream? _stream;
     private TsScanner? _scanner;
     private bool _ownScanner;
     private bool _ended;
 
-    public TsTrackSource(TsDemuxer demuxer, TsStreamInfo info, CodecConfig config, long mediaStart, TimeSpan duration, long sampleCountHint)
+    public TsTrackSource(TsDemuxer demuxer, TsTrackSpec spec, CodecConfig config, long mediaStart, TimeSpan duration, long sampleCountHint)
     {
         _demuxer = demuxer;
-        _info = info;
+        _spec = spec;
         Config = config;
         MediaStart = mediaStart;
         Duration = duration;
         SampleCountHint = sampleCountHint;
     }
 
-    /// <summary>The PID.</summary>
-    public uint TrackId => (uint)_info.Pid;
+    /// <summary>The PID (teletext pages: the PID with the page number in the high bits).</summary>
+    public uint TrackId => _spec.TrackId;
+
+    public int Pid => _spec.Info.Pid;
 
     public CodecConfig Config { get; }
 
@@ -291,7 +358,7 @@ internal sealed class TsTrackSource : ISampleSource, IDisposable
     {
         if (_scanner is null)
         {
-            _stream = TsStream.Create(_info, Config) ?? throw new InvalidDataException("Unsupported stream.");
+            _stream = _spec.Create(Config);
             if (_stream is AudioStream audio)
                 audio.WithConfig(Config);
             _ownScanner = _demuxer.Shared.Started;
@@ -333,3 +400,6 @@ internal sealed class TsTrackSource : ISampleSource, IDisposable
 
     public void Dispose() => Reset();
 }
+
+/// <summary>A track of the chosen program: its stream, ID and how to create its handler (with the probed configuration).</summary>
+internal sealed record TsTrackSpec(TsStreamInfo Info, uint TrackId, bool IsVideo, Func<CodecConfig?, TsStream> Create);
