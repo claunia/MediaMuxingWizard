@@ -8,7 +8,7 @@ using MMW.Formats.Mp4.Boxes;
 
 namespace MMW.Formats.Mp4.Media;
 
-/// <summary>Reads the tracks of an MP4/MOV file from its sample tables (fragmented files are not supported).</summary>
+/// <summary>Reads the tracks of an MP4/MOV file from its sample tables and, for fragmented files, its movie fragments.</summary>
 internal sealed class Mp4Demuxer : IDemuxer
 {
     private readonly FileSampleReader _reader;
@@ -37,8 +37,9 @@ internal sealed class Mp4Demuxer : IDemuxer
         try
         {
             Mp4Layout layout;
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 64 * 1024))
-                layout = Mp4Layout.Read(fs);
+            Dictionary<uint, List<SampleInfo>>? fragments = null;
+            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 64 * 1024);
+            layout = Mp4Layout.Read(fs);
             var moov = layout.Moov.Loaded!;
             var mvhd = moov.Find("mvhd") ?? throw new InvalidDataException("The file has no 'mvhd' box.");
             var movieTimescale = Math.Max(1u, HeaderBoxes.MvhdTimescale(mvhd));
@@ -69,8 +70,17 @@ internal sealed class Mp4Demuxer : IDemuxer
                 }
 
                 var source = new Mp4SampleSource(id, config, stbl, reader);
+                if (layout.Boxes.Any(b => b.Type == "moof"))
+                {
+                    // Fragmented file: the samples are in the movie fragments (after any in the sample tables).
+                    fragments ??= Mp4Fragments.Read(fs, layout, moov, traks.ToDictionary(t => HeaderBoxes.TkhdTrackId(t.Find("tkhd")!), EndOfTables));
+                    if (fragments.TryGetValue(id, out var more) && more.Count > 0)
+                        source.AppendFragments(more);
+                }
+
                 source.ReadEditList(trak.FindPath("edts/elst"), movieTimescale);
-                source.Duration = TimeSpan.FromSeconds((double)HeaderBoxes.MdhdDuration(mdhd) / timescale);
+                var mediaDuration = HeaderBoxes.MdhdDuration(mdhd);
+                source.Duration = TimeSpan.FromSeconds((double)(mediaDuration > 0 ? mediaDuration : source.EndOfSamples) / timescale);
                 source.RefineCodec();
                 tracks.Add(source);
             }
@@ -83,6 +93,15 @@ internal sealed class Mp4Demuxer : IDemuxer
             reader.Dispose();
             throw;
         }
+    }
+
+    /// <summary>The decoding time after the last sample of a track's sample tables (where its fragments continue).</summary>
+    private static long EndOfTables(Box trak)
+    {
+        if (trak.FindPath("mdia/minf/stbl") is not { } stbl)
+            return 0;
+        var samples = SampleTable.Expand(stbl);
+        return samples.Length == 0 ? 0 : samples[^1].Dts + samples[^1].Duration;
     }
 
     /// <summary>The most common sample duration in the stts table (0 when there is none).</summary>
@@ -127,6 +146,26 @@ internal sealed class Mp4SampleSource : ISampleSource
         SampleCountHint = SampleTable.Summary(stbl).Count;
     }
 
+    /// <summary>Adds the samples of the movie fragments; the typical frame duration comes from them when the tables had none.</summary>
+    public void AppendFragments(List<SampleInfo> fragments)
+    {
+        _samples = [.. SampleTable.Expand(_stbl), .. fragments];
+        SampleCountHint = _samples.Length;
+        if (Config.DefaultSampleDuration == 0)
+        {
+            var typical = fragments.GroupBy(s => s.Duration).Where(g => g.Key > 0).OrderByDescending(g => g.Count()).Select(g => (long)g.Key).FirstOrDefault();
+            if (typical > 0)
+            {
+                Config = Config with { DefaultSampleDuration = typical };
+                if (Config.Kind == TrackKind.Video && Config.FrameRate == 0)
+                    Config = Config with { FrameRate = (double)Config.Timescale / typical };
+            }
+        }
+    }
+
+    /// <summary>The decoding time after the last sample.</summary>
+    public long EndOfSamples => Samples.Length == 0 ? 0 : Samples[^1].Dts + Samples[^1].Duration;
+
     public uint TrackId { get; }
 
     public CodecConfig Config { get; private set; }
@@ -146,7 +185,7 @@ internal sealed class Mp4SampleSource : ISampleSource
 
     public TimeSpan Duration { get; set; }
 
-    public long SampleCountHint { get; }
+    public long SampleCountHint { get; private set; }
 
     private SampleInfo[] Samples => _samples ??= SampleTable.Expand(_stbl);
 

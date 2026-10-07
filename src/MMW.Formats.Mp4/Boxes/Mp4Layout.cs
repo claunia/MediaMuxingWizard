@@ -89,7 +89,7 @@ public sealed class Mp4Layout
         }
 
         if (!boxes.Any(b => b.Type == "moov"))
-            throw new InvalidDataException("Not an MP4 file: no 'moov' box found (fragmented-only files are not supported).");
+            throw new InvalidDataException("Not an MP4 file: no 'moov' box found.");
 
         return new Mp4Layout(boxes, length);
     }
