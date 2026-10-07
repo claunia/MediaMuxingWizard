@@ -68,4 +68,46 @@ public sealed class QuickTimeCodecTests
                 MediaProbe.Delete(mp4);
         }
     }
+
+    public static TheoryData<string, string, string, bool> CorpusFiles() => new()
+    {
+        { Path.Combine("Video codecs", "VC1.mp4"), "v", "V_QUICKTIME", false }, // FFmpeg reads one packet of it from MP4 (all from Matroska)
+        { Path.Combine("Containers", "3GPP.3gp"), "a", "A_QUICKTIME", true }, // AMR-NB
+        { Path.Combine("Multichannel audio", "{AC-4 5.1 - MP4} Dolby Audio ID.mp4"), "a", "A_QUICKTIME", true },
+        { Path.Combine("Multichannel audio", "{AC-4 5.1.4 - MP4} Dolby Audio ID.mp4"), "a", "A_QUICKTIME", true },
+        { Path.Combine("Multichannel audio", "{AC-4 Immersive Stereo - MP4} Dolby Audio ID.mp4"), "a", "A_QUICKTIME", true },
+        { Path.Combine("Multichannel audio", "{MPEG-H 5.1 - MP4} Fraunhofer.mp4"), "a", "A_QUICKTIME", true },
+        { Path.Combine("Multichannel audio", "{MPEG-H 2.0, 5.1.2, 5.1 config change - MP4} Fraunhofer.mp4"), "a", "A_QUICKTIME", true },
+    };
+
+    /// <summary>Codecs FFmpeg cannot decode (or decodes badly): the packets go through Matroska and back to MP4 unchanged.</summary>
+    [Theory]
+    [MemberData(nameof(CorpusFiles))]
+    public async Task Corpus_sample_entry_codecs_keep_their_packets(string relative, string stream, string codecId, bool compareMatroska)
+    {
+        var source = Corpus.Directory is { } dir ? Path.Combine(dir, relative) : string.Empty;
+        Corpus.Require(File.Exists(source) ? source : string.Empty);
+        MediaProbe.RequireFfmpeg();
+        string Packets(string path) => Fixtures.Run("ffmpeg", $"-v error -i {Fixtures.Quote(path)} -map 0:{stream}:0 -c copy -f framemd5 -")
+            .Split('\n').Where(l => l.Length > 0 && !l.StartsWith('#')).Select(l => l.Split(',').Last()).Aggregate(string.Empty, (a, b) => a + b + "\n");
+
+        var mkv = await SaveAsync(source, ContainerKind.Matroska);
+        string? mp4 = null;
+        try
+        {
+            var info = System.Text.Json.JsonDocument.Parse(Fixtures.Run("mkvmerge", $"-J {Fixtures.Quote(mkv)}"));
+            Assert.Contains(info.RootElement.GetProperty("tracks").EnumerateArray(), t => t.GetProperty("properties").GetProperty("codec_id").GetString() == codecId);
+            var expected = Packets(source);
+            if (compareMatroska)
+                Assert.Equal(expected, Packets(mkv));
+            mp4 = await SaveAsync(mkv, ContainerKind.Mp4);
+            Assert.Equal(expected, Packets(mp4));
+        }
+        finally
+        {
+            MediaProbe.Delete(mkv);
+            if (mp4 is not null)
+                MediaProbe.Delete(mp4);
+        }
+    }
 }

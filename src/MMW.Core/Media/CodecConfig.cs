@@ -105,6 +105,9 @@ public enum CodecType
 
     /// <summary>AMR wideband ('sawb' with 'damr').</summary>
     AmrWb,
+
+    /// <summary>MPEG-H 3D Audio (ISO/IEC 23008-3; 'mhm1'/'mhm2' MHAS packets, 'mha1'/'mha2' with 'mhaC').</summary>
+    MpegH,
 }
 
 /// <summary>
@@ -134,7 +137,7 @@ public enum CodecType
 /// <item><term>VFW video</term><description>BITMAPINFOHEADER followed by the codec's extra data (Matroska V_MS/VFW/FOURCC CodecPrivate).</description></item>
 /// <item><term>ACM audio</term><description>WAVEFORMATEX followed by the codec's extra data (Matroska A_MS/ACM CodecPrivate).</description></item>
 /// <item><term>RealVideo</term><description>The RealMedia 'VIDO' type-specific data (Matroska V_REAL/* CodecPrivate).</description></item>
-/// <item><term>VC-1, H.263, Dirac, DNxHD, AMR</term><description>The QuickTime / ISO sample entry, header included (Matroska V_QUICKTIME / A_QUICKTIME CodecPrivate).</description></item>
+/// <item><term>VC-1, H.263, Dirac, DNxHD, AMR, AC-4, MPEG-H</term><description>The QuickTime / ISO sample entry, header included (Matroska V_QUICKTIME / A_QUICKTIME CodecPrivate).</description></item>
 /// </list>
 /// </remarks>
 public sealed record CodecConfig
@@ -322,6 +325,7 @@ public static class CodecNames
         CodecType.Dnxhd => "DNxHD",
         CodecType.AmrNb => "AMR-NB",
         CodecType.AmrWb => "AMR-WB",
+        CodecType.MpegH => "MPEG-H",
         _ => fallback.Length > 0 ? fallback : "Unknown",
     };
 

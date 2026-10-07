@@ -143,7 +143,13 @@ internal static class MatroskaCodecMapping
             case "A_MLP":
                 return c with { Codec = CodecType.Mlp };
             case "A_AC4":
-                return c with { Codec = CodecType.Ac4, Extradata = priv };
+                // An unofficial ID with the 'dac4' payload as CodecPrivate: kept as the 'ac-4' sample entry it describes.
+                return c with
+                {
+                    Codec = CodecType.Ac4,
+                    Extradata = priv is { Length: > 0 } ? QuickTime.AudioEntry("ac-4", Math.Max(2, c.Channels), c.SampleRate, QuickTime.Box("dac4", priv)) : null,
+                    BitsPerSample = 0,
+                };
             case "A_OPUS":
             {
                 var head = priv is { Length: >= 19 } ? priv : Opus.DefaultHead(c.Channels, (int)Math.Round(c.CodecDelay.TotalSeconds * 48000), c.SampleRate);
@@ -319,14 +325,13 @@ internal static class MatroskaCodecMapping
         CodecType.AcmAudio => "A_MS/ACM", // the WAVEFORMATEX as CodecPrivate, as mkvmerge writes it
         // The QuickTime sample description as CodecPrivate, as mkvmerge writes these codecs from MP4/MOV.
         CodecType.Vc1 or CodecType.H263 or CodecType.Dirac or CodecType.Dnxhd when c.Extradata is { Length: >= 8 } => "V_QUICKTIME",
-        CodecType.AmrNb or CodecType.AmrWb when c.Extradata is { Length: >= 8 } => "A_QUICKTIME",
+        CodecType.AmrNb or CodecType.AmrWb or CodecType.Ac4 or CodecType.MpegH when c.Extradata is { Length: >= 8 } => "A_QUICKTIME",
         CodecType.Mjpeg => "V_MJPEG",
         CodecType.Theora => "V_THEORA",
         CodecType.ProRes => "V_PRORES",
         CodecType.Aac => "A_AAC",
         CodecType.Ac3 => "A_AC3",
         CodecType.Eac3 => "A_EAC3",
-        CodecType.Ac4 => "A_AC4",
         CodecType.Dts => "A_DTS",
         CodecType.TrueHd => "A_TRUEHD",
         CodecType.Mlp => "A_MLP",
@@ -353,7 +358,7 @@ internal static class MatroskaCodecMapping
     {
         CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1 or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or
             CodecType.Theora or CodecType.Aac or CodecType.Vorbis or CodecType.Ass or CodecType.Ssa or CodecType.VobSub or CodecType.Pgs or
-            CodecType.DvbSub or CodecType.Ac4 => c.Extradata,
+            CodecType.DvbSub => c.Extradata,
         CodecType.ProRes => c.Extradata is { Length: 4 } ? c.Extradata : c.SourceCodecId.Length == 4 ? Encoding.ASCII.GetBytes(c.SourceCodecId) : null,
         CodecType.Avs1 => MatroskaCodecs.BitmapInfoHeader(c.Width, c.Height, "CAVS"),
         CodecType.Opus => c.Extradata,
