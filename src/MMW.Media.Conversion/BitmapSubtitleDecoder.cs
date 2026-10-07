@@ -171,16 +171,15 @@ public static class BitmapSubtitleDecoder
 
                 _pending.Clear();
 
+                // An event's own end (VobSub stop command, DVB page time-out) is an upper bound: the next event replaces
+                // the screen if it comes first (DVB live subtitles update the page word by word).
                 TimeSpan? end = decoded.EndMs is { } e ? time + TimeSpan.FromMilliseconds(e) : null;
                 var sampleEnd = sample.Duration > 0 ? time + TimeSpan.FromSeconds(sample.Duration / _timescale) : TimeSpan.Zero;
                 foreach (var r in decoded.Rects)
                 {
                     var bitmap = new SubtitleBitmap(start, end ?? start, r.X, r.Y, r.Width, r.Height, r.Rgba, r.Forced, _decoder.CanvasWidth,
                         _decoder.CanvasHeight);
-                    if (end is not null)
-                        ready.Add(bitmap);
-                    else
-                        _pending.Add((bitmap, sampleEnd));
+                    _pending.Add((bitmap, end ?? sampleEnd));
                 }
             }
 

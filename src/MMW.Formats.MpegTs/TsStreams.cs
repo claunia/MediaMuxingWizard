@@ -70,6 +70,8 @@ internal abstract class TsStream
                     return new AudioStream(info, AudioKind.Dts);
                 if (registration == "HEVC")
                     return new NalVideoStream(info, hevc: true);
+                if (info.Descriptor(0x59) is { Length: >= 8 })
+                    return new DvbSubtitleStream(info);
                 return info.Descriptor(0x59) is null && info.Descriptor(0x56) is null ? new SniffedStream(info) : null; // not DVB subtitles/teletext
             default:
                 return null;
@@ -1046,4 +1048,44 @@ internal sealed class LpcmStream(TsStreamInfo info, CodecConfig? known) : TsStre
     }
 
     public override CodecConfig Describe() => _config!;
+}
+
+/// <summary>
+/// DVB subtitles (EN 300 743; stream type 0x06 with a subtitling descriptor): bitmap pages, one per PES. Samples hold
+/// the subtitling segments (data_identifier, subtitle_stream_id and the end marker removed), as decoders and Matroska
+/// S_DVBSUB expect; the configuration carries composition page, ancillary page and subtitling type.
+/// </summary>
+internal sealed class DvbSubtitleStream(TsStreamInfo info) : TsStream(info)
+{
+    private bool _seen;
+
+    public override uint Timescale => 90000;
+
+    public override bool Ready => _seen;
+
+    public override void OnPes(Pes pes, Queue<MediaSample> output)
+    {
+        var d = pes.Data;
+        if (pes.Pts is not { } pts || d.Length < 3 || d[0] != 0x20 || d[1] != 0x00)
+            return;
+        var end = d.Length;
+        while (end > 2 && d[end - 1] == 0xFF)
+            end--; // end_of_PES_data_field_marker (and stuffing)
+        if (end - 2 < 6 || d[2] != 0x0F)
+            return;
+        _seen = true;
+        output.Enqueue(new MediaSample { Dts = pts, IsSync = true, Data = d[2..end] });
+    }
+
+    public override CodecConfig Describe()
+    {
+        var descriptor = Info.Descriptor(0x59)!; // ISO 639 language (3), subtitling_type, composition_page_id, ancillary_page_id
+        var language = System.Text.Encoding.ASCII.GetString(descriptor, 0, 3);
+        return Base(TrackKind.Subtitle) with
+        {
+            Codec = CodecType.DvbSub,
+            Extradata = [descriptor[4], descriptor[5], descriptor[6], descriptor[7], descriptor[3]],
+            Language = MMW.Core.Languages.LanguageTable.ToBcp47(language),
+        };
+    }
 }
