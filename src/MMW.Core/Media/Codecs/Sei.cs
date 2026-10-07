@@ -1,6 +1,6 @@
 namespace MMW.Core.Media.Codecs;
 
-/// <summary>H.264/HEVC/VVC SEI messages (payloadType/payloadSize coded as runs of 0xFF plus a final byte).</summary>
+/// <summary>H.264/HEVC/VVC/EVC SEI messages (payloadType/payloadSize coded as runs of 0xFF plus a final byte).</summary>
 public static class Sei
 {
     public const int UserDataRegisteredItuTT35 = 4;
@@ -47,7 +47,7 @@ public static class Sei
     }
 
     /// <summary>
-    /// Calls <paramref name="visit"/> for the SEI messages of the SEI NAL units in a length-prefixed H.264/HEVC/VVC sample.
+    /// Calls <paramref name="visit"/> for the SEI messages of the SEI NAL units in a length-prefixed H.264/HEVC/VVC/EVC sample.
     /// </summary>
     public static void ForEachMessageInSample(ReadOnlySpan<byte> data, int nalLengthSize, CodecType codec, MessageVisitor visit)
     {
@@ -60,17 +60,18 @@ public static class Sei
         }
     }
 
-    /// <summary>Calls <paramref name="visit"/> for the messages of one NAL unit when it is a SEI (HEVC/VVC prefix/suffix, H.264 SEI).</summary>
+    /// <summary>Calls <paramref name="visit"/> for the messages of one NAL unit when it is a SEI (HEVC/VVC prefix/suffix, H.264/EVC SEI).</summary>
     public static void ForEachMessageInNal(ReadOnlySpan<byte> nal, CodecType codec, MessageVisitor visit)
     {
         var isSei = codec switch
         {
             CodecType.Hevc => NalUnits.HevcType(nal) is Hevc.NalSeiPrefix or Hevc.NalSeiSuffix,
             CodecType.Vvc => Vvc.NalType(nal) is Vvc.NalSeiPrefix or Vvc.NalSeiSuffix,
+            CodecType.Evc => Evc.NalType(nal) == Evc.NalSei,
             _ => NalUnits.H264Type(nal) == 6,
         };
         var headerLength = codec == CodecType.H264 ? 1 : 2;
         if (isSei && nal.Length > headerLength)
-            ForEachMessage(NalUnits.ToRbsp(nal[headerLength..]), visit);
+            ForEachMessage(codec == CodecType.Evc ? nal[headerLength..] : NalUnits.ToRbsp(nal[headerLength..]), visit); // EVC has no emulation prevention
     }
 }

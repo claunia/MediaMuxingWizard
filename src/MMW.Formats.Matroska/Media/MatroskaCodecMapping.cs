@@ -227,6 +227,12 @@ internal static class MatroskaCodecMapping
             return TrackSupport.Passthrough;
         if (config.Codec == CodecType.Tx3g)
             return new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToSrt, "converted to SubRip text (S_TEXT/UTF8)");
+        if (config.Codec == CodecType.Evc)
+        {
+            return new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
+                "MPEG-5 EVC has no Matroska codec ID (neither the Matroska specification nor other tools define one), so it cannot be stored in Matroska; save as MP4 instead");
+        }
+
         if (config.Codec == CodecType.Pcm && config.PcmFloat && config.PcmBigEndian)
             return new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, "big-endian floating-point PCM cannot be stored in Matroska");
         return CodecIdFor(config) is null

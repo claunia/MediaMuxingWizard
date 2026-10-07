@@ -4,7 +4,7 @@ namespace MMW.Core.Media.Codecs;
 
 /// <summary>
 /// Recognises HDR10+ dynamic metadata (SMPTE ST 2094-40 application 4, as ITU-T T.35 messages registered by
-/// Samsung) in HEVC/H.264/VVC SEI, AV1 metadata OBUs and Matroska BlockAdditions.
+/// Samsung) in HEVC/H.264/VVC/EVC SEI, AV1 metadata OBUs and Matroska BlockAdditions.
 /// </summary>
 public static class Hdr10Plus
 {
@@ -18,7 +18,7 @@ public static class Hdr10Plus
         t35.Length >= 6 && t35[0] == 0xB5 && BinaryPrimitives.ReadUInt16BigEndian(t35[1..]) == 0x003C &&
         BinaryPrimitives.ReadUInt16BigEndian(t35[3..]) == 0x0001 && t35[5] == 4;
 
-    /// <summary>True when a frame of <paramref name="codec"/> (length-prefixed NAL units for H.264/HEVC/VVC) or its block additions carry HDR10+.</summary>
+    /// <summary>True when a frame of <paramref name="codec"/> (length-prefixed NAL units for H.264/HEVC/VVC/EVC) or its block additions carry HDR10+.</summary>
     public static bool InSample(CodecType codec, ReadOnlySpan<byte> data, int nalLengthSize, IReadOnlyList<BlockAddition>? additions = null)
     {
         if (additions is not null)
@@ -32,7 +32,7 @@ public static class Hdr10Plus
 
         return codec switch
         {
-            CodecType.Hevc or CodecType.H264 or CodecType.Vvc => InNalUnits(data, nalLengthSize, codec),
+            CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Evc => InNalUnits(data, nalLengthSize, codec),
             CodecType.Av1 => InAv1(data),
             _ => false,
         };

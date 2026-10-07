@@ -20,6 +20,7 @@ public static class CodecInfo
             "dav1" => "AV1 Dolby Vision",
             "av01" => "AV1",
             "vvc1" or "vvi1" => "VVC",
+            "evc1" => "EVC",
             "mp4v" => "MPEG-4 Visual",
             "avst" => "AVS2",
             "jpeg" => "JPEG",
@@ -231,6 +232,9 @@ public static class CodecInfo
             var level = hvcc.Payload[12] / 30.0;
             return string.Create(CultureInfo.InvariantCulture, $"{profile}@L{level:0.#}");
         }
+
+        if (entry.Find("evcC") is { Payload.Length: >= 3 } evcc)
+            return Evc.ProfileLevel(evcc.Payload);
 
         if (entry.Find("vvcC") is { Payload.Length: > 4 } vvcc)
             return Vvc.ProfileLevel(vvcc.Payload.AsSpan(4)); // FullBox

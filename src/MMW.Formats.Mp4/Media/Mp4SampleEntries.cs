@@ -73,6 +73,7 @@ internal static class Mp4SampleEntries
             "avc1" or "avc2" or "avc3" or "avc4" or "dva1" or "dvav" => (CodecType.H264, entry.Find("avcC")?.Payload),
             "hvc1" or "hev1" or "dvh1" or "dvhe" => (CodecType.Hevc, entry.Find("hvcC")?.Payload),
             "vvc1" or "vvi1" => (CodecType.Vvc, entry.Find("vvcC") is { Payload.Length: > 4 } vvcC ? vvcC.Payload[4..] : null), // vvcC is a FullBox
+            "evc1" => (CodecType.Evc, entry.Find("evcC")?.Payload),
             "av01" or "dav1" => (CodecType.Av1, entry.Find("av1C")?.Payload),
             "vp09" => (CodecType.Vp9, entry.Find("vpcC")?.Payload),
             "vp08" => (CodecType.Vp8, entry.Find("vpcC")?.Payload),
@@ -427,8 +428,9 @@ internal static class Mp4SampleEntries
             return TrackSupport.Passthrough;
         return config.Codec switch
         {
-            CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or CodecType.Mpeg4Visual or
-                CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 => config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1
+            CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or
+                CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 =>
+                config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1
                     ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the codec configuration is missing")
                     : TrackSupport.Passthrough,
             CodecType.Aac or CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts or CodecType.Opus or CodecType.Flac or CodecType.Alac or
@@ -525,6 +527,10 @@ internal static class Mp4SampleEntries
                 // 'vvi1' when the samples repeat parameter sets (ISO/IEC 14496-15 §11.2.1).
                 type = ctx.InBandParameterSets ? "vvi1" : "vvc1";
                 children.Add(new Box("vvcC", [0, 0, 0, 0, .. Vvc.MarkArraysComplete(c.Extradata!, !ctx.InBandParameterSets)]));
+                break;
+            case CodecType.Evc:
+                type = "evc1";
+                children.Add(new Box("evcC", c.Extradata!));
                 break;
             case CodecType.Av1:
                 type = "av01";

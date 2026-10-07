@@ -407,7 +407,7 @@ public static class TrackImporter
         return track;
     }
 
-    /// <summary>"Profile@Level" of an H.264, HEVC or VVC configuration record; empty for other codecs.</summary>
+    /// <summary>"Profile@Level" of an H.264, HEVC, VVC or EVC configuration record; empty for other codecs.</summary>
     public static string ProfileLevel(CodecConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
@@ -417,6 +417,7 @@ public static class TrackImporter
                 CodecType.H264 => H264.ProfileLevel(record),
                 CodecType.Hevc => Hevc.ProfileLevel(record),
                 CodecType.Vvc => Vvc.ProfileLevel(record),
+                CodecType.Evc => Evc.ProfileLevel(record),
                 _ => string.Empty,
             };
     }

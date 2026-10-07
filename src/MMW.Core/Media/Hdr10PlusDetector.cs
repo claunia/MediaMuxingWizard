@@ -23,7 +23,7 @@ public static class Hdr10PlusDetector
         var config = track.Config;
         if (config.Hdr10Plus || config.Hdr10PlusInBlockAdditions)
             return true;
-        if (config.Kind != TrackKind.Video || config.Codec is not (CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Av1 or CodecType.Vp9))
+        if (config.Kind != TrackKind.Video || config.Codec is not (CodecType.Hevc or CodecType.H264 or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Vp9))
             return false;
 
         var lengthSize = config.Codec switch
@@ -31,6 +31,7 @@ public static class Hdr10PlusDetector
             CodecType.Hevc when config.Extradata is { Length: > 21 } hvcc => (hvcc[21] & 3) + 1,
             CodecType.H264 when config.Extradata is { Length: > 4 } avcc => (avcc[4] & 3) + 1,
             CodecType.Vvc when config.Extradata is { Length: > 0 } vvcc => ((vvcc[0] >> 1) & 3) + 1,
+            CodecType.Evc when config.Extradata is { } evcc => Evc.LengthSize(evcc),
             _ => 4,
         };
         track.Reset();

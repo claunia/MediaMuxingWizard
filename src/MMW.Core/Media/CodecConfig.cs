@@ -65,6 +65,9 @@ public enum CodecType
 
     /// <summary>AVS2 video (IEEE 1857.4 / GB/T 33475.2): start-code delimited stream, sequence header in-band.</summary>
     Avs2,
+
+    /// <summary>MPEG-5 Essential Video Coding (ISO/IEC 23094-1).</summary>
+    Evc,
 }
 
 /// <summary>
@@ -75,6 +78,8 @@ public enum CodecType
 /// <list type="table">
 /// <item><term>H.264</term><description>AVCDecoderConfigurationRecord (avcC); samples are length-prefixed NAL units.</description></item>
 /// <item><term>HEVC</term><description>HEVCDecoderConfigurationRecord (hvcC); samples are length-prefixed NAL units.</description></item>
+/// <item><term>VVC</term><description>VVCDecoderConfigurationRecord (vvcC without its FullBox header); samples are length-prefixed NAL units.</description></item>
+/// <item><term>EVC</term><description>EVCDecoderConfigurationRecord (evcC); samples are length-prefixed NAL units.</description></item>
 /// <item><term>AV1</term><description>AV1CodecConfigurationRecord (av1C).</description></item>
 /// <item><term>VP8/VP9</term><description>VPCodecConfigurationRecord as stored in a vpcC box payload (version/flags included); optional.</description></item>
 /// <item><term>MPEG-1/2/4 video</term><description>Decoder specific info (sequence / VOL headers).</description></item>
@@ -221,6 +226,7 @@ public static class CodecNames
         CodecType.Theora => "Theora",
         CodecType.Mjpeg => "Motion JPEG",
         CodecType.Avs2 => "AVS2",
+        CodecType.Evc => "EVC",
         CodecType.Aac => "AAC",
         CodecType.Ac3 => "AC-3",
         CodecType.Eac3 => "E-AC-3",
@@ -255,5 +261,6 @@ public static class CodecNames
 
     /// <summary>True for video codecs whose samples may be stored out of presentation order (B-frames).</summary>
     public static bool MayReorder(CodecType codec) =>
-        codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Avs2;
+        codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Avs2 or
+                 CodecType.Evc;
 }

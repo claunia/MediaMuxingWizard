@@ -5,7 +5,7 @@ using MMW.Core.Model;
 namespace MMW.Core.Media;
 
 /// <summary>
-/// Colour description and static HDR10 metadata carried by the video bitstream itself (H.264/HEVC/VVC VUI and SEI, AV1
+/// Colour description and static HDR10 metadata carried by the video bitstream itself (H.264/HEVC/VVC/EVC VUI and SEI, AV1
 /// sequence header and metadata OBUs), independently of what the container signals.
 /// </summary>
 public sealed record VideoStreamInfo(ColorInfo Color, HdrInfo? Hdr)
@@ -25,7 +25,7 @@ public static class VideoStreamInfoScanner
     private const long Av1MetadataHdrMdcv = 2;
 
     public static bool CanScan(CodecConfig config) =>
-        config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1;
+        config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1;
 
     /// <summary>Scans an open sample source; the source is rewound afterwards.</summary>
     public static VideoStreamInfo Scan(ISampleSource track, CancellationToken cancellationToken = default)
@@ -76,6 +76,19 @@ public static class VideoStreamInfoScanner
                 }
 
                 break;
+            case CodecType.Evc when config.Extradata is { } evcc:
+                try
+                {
+                    var record = Evc.ParseEvcC(evcc);
+                    lengthSize = record.LengthSize;
+                    foreach (var (_, _, nal) in record.Nals)
+                        state.Nal(nal);
+                }
+                catch (InvalidDataException)
+                {
+                }
+
+                break;
             case CodecType.Av1 when config.Extradata is { Length: > 4 } av1c:
                 state.Obus(av1c.AsSpan(4)); // configOBUs
                 break;
@@ -107,7 +120,7 @@ public static class VideoStreamInfoScanner
         return state.Result();
     }
 
-    /// <summary>Mastering display colour volume SEI (H.264/HEVC/VVC): primaries in G, B, R order, 0.00002 and 0.0001 cd/m² units.</summary>
+    /// <summary>Mastering display colour volume SEI (H.264/HEVC/VVC/EVC): primaries in G, B, R order, 0.00002 and 0.0001 cd/m² units.</summary>
     public static HdrInfo? ParseMasteringDisplaySei(ReadOnlySpan<byte> p)
     {
         if (p.Length < 24)
@@ -123,7 +136,7 @@ public static class VideoStreamInfoScanner
     }
 
     /// <summary>
-    /// Ambient viewing environment (H.264/HEVC/VVC SEI 148, and the MP4 'amve' box with the same layout): illuminance in
+    /// Ambient viewing environment (H.264/HEVC/VVC/EVC SEI 148, and the MP4 'amve' box with the same layout): illuminance in
     /// 0.0001 lux, light chromaticity in 0.00002 units. Null when the illuminance is 0 (invalid).
     /// </summary>
     public static HdrInfo? ParseAmbientViewingEnvironment(ReadOnlySpan<byte> p)
@@ -175,6 +188,9 @@ public static class VideoStreamInfoScanner
                             break;
                         case CodecType.Vvc when Vvc.NalType(nal) == Vvc.NalSps:
                             _color = Meaningful(Vvc.ParseSps(nal).Color);
+                            break;
+                        case CodecType.Evc when Evc.NalType(nal) == Evc.NalSps:
+                            _color = Meaningful(Evc.ParseSps(nal).Color);
                             break;
                         case CodecType.H264 when NalUnits.H264Type(nal) == H264.NalSps:
                             _color = Meaningful(H264.ParseSps(nal).Color);

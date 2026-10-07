@@ -13,7 +13,7 @@ public static class BoxParser
 
     private static readonly HashSet<string> s_visualEntries =
     [
-        "avc1", "avc2", "avc3", "avc4", "hvc1", "hev1", "dvh1", "dvhe", "dva1", "dvav", "dav1", "av01", "vvc1", "vvi1", "avst",
+        "avc1", "avc2", "avc3", "avc4", "hvc1", "hev1", "dvh1", "dvhe", "dva1", "dvav", "dav1", "av01", "vvc1", "vvi1", "evc1", "avst",
         "mp4v", "jpeg", "png ", "encv", "s263", "vp08", "vp09", "apcn", "apch", "apcs", "apco", "ap4h", "ap4x",
     ];
 
