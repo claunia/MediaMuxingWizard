@@ -65,6 +65,7 @@
         <MenuItem Header="{x:Static res:Strings.Menu_Tracks_MoveUp}" Command="{Binding SelectedDocument.MoveTrackUpCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="{x:Static res:Strings.Menu_Tracks_MoveDown}" Command="{Binding SelectedDocument.MoveTrackDownCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="{x:Static res:Strings.Menu_Tracks_Offset}" Command="{Binding SelectedDocument.OffsetTracksCommand, FallbackValue={x:Null}}" />
+        <MenuItem Header="{x:Static res:Strings.Menu_Tracks_Duplicate}" Command="{Binding SelectedDocument.DuplicateTrackCommand, FallbackValue={x:Null}}" />
         <Separator />
         <MenuItem Header="{x:Static res:Strings.Menu_Tracks_OrganizeGroups}" Command="{Binding SelectedDocument.OrganizeGroupsCommand, FallbackValue={x:Null}}" />
         <MenuItem Header="{x:Static res:Strings.Menu_Tracks_FixFallbacks}" Command="{Binding SelectedDocument.FixFallbacksCommand, FallbackValue={x:Null}}" />

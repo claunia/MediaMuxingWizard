@@ -42,6 +42,7 @@
           <MenuItem Header="{x:Static res:Strings.Tracks_Menu_MoveUp}" Command="{Binding MoveTrackUpCommand}" />
           <MenuItem Header="{x:Static res:Strings.Tracks_Menu_MoveDown}" Command="{Binding MoveTrackDownCommand}" />
           <Separator />
+          <MenuItem Header="{x:Static res:Strings.Tracks_Menu_Duplicate}" Command="{Binding DuplicateTrackCommand}" />
           <MenuItem Header="{x:Static res:Strings.Tracks_Menu_Export}" Command="{Binding ExportTrackCommand}" />
         </ContextMenu>
       </DataGrid.ContextMenu>

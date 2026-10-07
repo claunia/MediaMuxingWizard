@@ -1410,6 +1410,15 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Duplicate _Track.
+        /// </summary>
+        public static string Menu_Tracks_Duplicate {
+            get {
+                return ResourceManager.GetString("Menu_Tracks_Duplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Fix Audio Fallbacks.
         /// </summary>
         public static string Menu_Tracks_FixFallbacks {
@@ -4074,6 +4083,15 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Duplicate Track.
+        /// </summary>
+        public static string Tracks_Menu_Duplicate {
+            get {
+                return ResourceManager.GetString("Tracks_Menu_Duplicate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Export Track….
         /// </summary>
         public static string Tracks_Menu_Export {
@@ -4268,6 +4286,15 @@ namespace MMW.App.Resources {
         public static string Undo_DeleteTracks {
             get {
                 return ResourceManager.GetString("Undo_DeleteTracks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate Track.
+        /// </summary>
+        public static string Undo_DuplicateTrack {
+            get {
+                return ResourceManager.GetString("Undo_DuplicateTrack", resourceCulture);
             }
         }
         

@@ -376,6 +376,102 @@ public static class TrackImporter
         return added;
     }
 
+    /// <summary>True when <paramref name="track"/> can be duplicated with <see cref="Duplicate"/> (a subtitle track with a source).</summary>
+    public static bool CanDuplicate(Track? track) => track is SubtitleTrack { Source: not null };
+
+    /// <summary>
+    /// Adds a copy of the subtitle track <paramref name="original"/> right after it, as a pending track read from the
+    /// same source track, so the same subtitles can be muxed a second time with another import action (e.g. once as
+    /// SubRip and once converted to ASS). The copy keeps the original's name, language, flags, characteristics,
+    /// alternate group and offset, but is disabled and not default (the original stays the one that plays).
+    /// </summary>
+    /// <param name="document">Document holding <paramref name="original"/>.</param>
+    /// <param name="original">Track to duplicate.</param>
+    /// <param name="inspected">
+    /// The importer's view of the original's source track (from <see cref="InspectAsync"/> of its source file with the
+    /// document's container), giving the suggested action of a track that is already in the file. Ignored for a
+    /// pending track, whose import options are copied; null for a track in the file means passthrough.
+    /// </param>
+    /// <returns>The new track (already inserted in <see cref="MediaDocument.Tracks"/>).</returns>
+    /// <exception cref="InvalidOperationException">The track has no source or is not in the document.</exception>
+    public static SubtitleTrack Duplicate(MediaDocument document, SubtitleTrack original, ImportableTrack? inspected = null)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(original);
+        var source = original.Source ?? throw new InvalidOperationException($"Track '{original.Name}' ({original.Format}) has no source file.");
+        var index = document.Tracks.IndexOf(original);
+        if (index < 0)
+            throw new InvalidOperationException($"Track '{original.Name}' is not part of the document.");
+
+        var copy = new SubtitleTrack
+        {
+            Id = 0,
+            Name = original.Name,
+            Language = original.Language,
+            AlternateGroup = original.AlternateGroup,
+            StartOffset = original.StartOffset,
+            IsForced = original.IsForced,
+            ForcedMode = original.ForcedMode,
+            ForcedTrack = original.ForcedTrack,
+            PlaceAtTop = original.PlaceAtTop,
+            Width = original.Width,
+            Height = original.Height,
+            Format = original.Format,
+            CodecId = original.CodecId,
+            FormatDetails = original.FormatDetails,
+            Duration = original.Duration,
+            Timescale = original.Timescale,
+            // Only one track of an alternate group (or of a kind, in Matroska) should play by default.
+            Enabled = false,
+            IsDefault = false,
+        };
+        foreach (var characteristic in original.MediaCharacteristics)
+            copy.MediaCharacteristics.Add(characteristic);
+
+        if (original.IsPending)
+        {
+            // Same source track and the same import settings (records are immutable: changing the copy's action
+            // replaces its own TrackSource and leaves the original's alone).
+            copy.Source = source with { Import = source.Import ?? new TrackImportOptions() };
+        }
+        else if (inspected is not null && inspected.TrackId == source.TrackId)
+        {
+            // A track already in the file: imported again with the action the importer suggests for the container.
+            var imported = CreateTrack(inspected);
+            copy.Source = source with { Import = imported.Source!.Import };
+            if (imported.Source.Import?.Ocr is not null)
+            {
+                copy.Format = imported.Format;
+                copy.CodecId = imported.CodecId;
+                copy.FormatDetails = imported.FormatDetails;
+                copy.Timescale = imported.Timescale;
+            }
+        }
+        else
+        {
+            copy.Source = source with { Import = new TrackImportOptions() };
+        }
+
+        document.Tracks.Insert(index + 1, copy);
+        return copy;
+    }
+
+    /// <summary>
+    /// <see cref="Duplicate"/> after inspecting the source file of a track that is already in the file (for the
+    /// suggested import action).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The track has no source or is not in the document.</exception>
+    public static async Task<SubtitleTrack> DuplicateAsync(MediaDocument document, SubtitleTrack original, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(original);
+        var source = original.Source ?? throw new InvalidOperationException($"Track '{original.Name}' ({original.Format}) has no source file.");
+        ImportableTrack? inspected = null;
+        if (!original.IsPending)
+            inspected = (await InspectAsync(source.Path, document.Container, cancellationToken)).FirstOrDefault(t => t.TrackId == source.TrackId);
+        return Duplicate(document, original, inspected);
+    }
+
     /// <summary>
     /// The track's Dolby Vision record; for raw streams imported with a chosen frame rate the level is recomputed with
     /// it (the bitstream scan used the stream's timing, or assumed one).

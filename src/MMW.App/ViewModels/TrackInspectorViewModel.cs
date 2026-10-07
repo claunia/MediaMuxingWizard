@@ -58,7 +58,8 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         Track = track;
         _document = document;
         _owner = owner;
-        if (owner is not null && track is AudioTrack or SubtitleTrack && !track.IsPending)
+        // Pending tracks too (imported, or duplicated): their choices are those of their own source file.
+        if (owner is not null && track is AudioTrack or SubtitleTrack && (track.Source is not null || !track.IsPending))
             _ = LoadConversionChoicesAsync();
         Characteristics = new ObservableCollection<CharacteristicItemViewModel>(
             MediaCharacteristics.For(track.Kind).Select(c => new CharacteristicItemViewModel(track, c)));
@@ -196,15 +197,20 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     {
         try
         {
-            var tracks = await _owner!.GetSourceTracksAsync();
+            var tracks = Track.Source is { } trackSource ? await _owner!.GetSourceTracksAsync(trackSource.Path) : await _owner!.GetSourceTracksAsync();
             var source = tracks.FirstOrDefault(t => t.TrackId == (Track.Source?.TrackId ?? Track.Id));
             if (source is null)
                 return;
             _loadingConversion = true;
             foreach (var c in source.Choices.Where(c => c.Action != MMW.Core.Media.ImportAction.Skip))
                 ConversionChoices.Add(c);
-            var current = Track.Source?.Import?.Action ?? MMW.Core.Media.ImportAction.Passthrough;
-            SelectedConversion = ConversionChoices.FirstOrDefault(c => c.Action == current) ?? ConversionChoices.FirstOrDefault();
+            var import = Track.Source?.Import;
+            var current = import?.Action ?? MMW.Core.Media.ImportAction.Passthrough;
+            // Several choices share an action (AAC mixdowns, OCR or not): prefer the one matching the stored settings.
+            SelectedConversion = ConversionChoices.FirstOrDefault(c => c.Action == current && (c.Mixdown is null || c.Mixdown == import?.Conversion?.Mixdown) &&
+                                                                       c.Ocr == (import?.Ocr is not null))
+                                 ?? ConversionChoices.FirstOrDefault(c => c.Action == current)
+                                 ?? ConversionChoices.FirstOrDefault();
             _loadingConversion = false;
             OnPropertyChanged(nameof(HasConversionChoices));
         }

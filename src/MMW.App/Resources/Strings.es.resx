@@ -1573,6 +1573,15 @@ Si no los guardas, se perderán.</value>
   <data name="Tracks_Menu_Export" xml:space="preserve">
     <value>Exportar pista…</value>
   </data>
+  <data name="Tracks_Menu_Duplicate" xml:space="preserve">
+    <value>Duplicar pista</value>
+  </data>
+  <data name="Menu_Tracks_Duplicate" xml:space="preserve">
+    <value>Du_plicar pista</value>
+  </data>
+  <data name="Undo_DuplicateTrack" xml:space="preserve">
+    <value>Duplicar pista</value>
+  </data>
   <data name="Dialog_ExportTrack_Title" xml:space="preserve">
     <value>Exportar pista</value>
   </data>

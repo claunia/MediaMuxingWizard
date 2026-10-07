@@ -71,7 +71,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     public bool IsDirty => Document.IsDirty;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(DeleteTracksCommand), nameof(MoveTrackUpCommand), nameof(MoveTrackDownCommand), nameof(ExportTrackCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DeleteTracksCommand), nameof(MoveTrackUpCommand), nameof(MoveTrackDownCommand), nameof(ExportTrackCommand), nameof(DuplicateTrackCommand))]
     private TrackRowViewModel? _selectedRow;
 
     /// <summary>All selected rows (set by the view; the grid supports extended selection).</summary>
@@ -82,6 +82,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         {
             _selectedRows = value;
             DeleteTracksCommand.NotifyCanExecuteChanged();
+            DuplicateTrackCommand.NotifyCanExecuteChanged();
             UpdateInspector();
         }
     }
@@ -92,7 +93,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     private object? _inspector;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportTrackCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportTrackCommand), nameof(DuplicateTrackCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
@@ -279,13 +280,23 @@ public sealed partial class DocumentViewModel : ViewModelBase
     [RelayCommand]
     private void DismissDolbyVisionNotice() => DolbyVisionNotice = null;
 
-    private Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>? _sourceTracks;
+    private readonly Dictionary<string, Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>> _sourceTracks = new(StringComparer.Ordinal);
 
     /// <summary>The document's own tracks as the importer sees them (codec details and conversion choices).</summary>
     public Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>> GetSourceTracksAsync() =>
-        _sourceTracks ??= Document.Path is { } path
-            ? MMW.Media.Remux.TrackImporter.InspectAsync(path, Document.Container)
-            : Task.FromResult<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>([]);
+        Document.Path is { } path ? GetSourceTracksAsync(path) : Task.FromResult<IReadOnlyList<MMW.Media.Remux.ImportableTrack>>([]);
+
+    /// <summary>
+    /// The tracks of a source file (the document's own, or the file a pending track is imported from) as the importer
+    /// sees them for the document's container: codec details and conversion choices. Cached until the next save.
+    /// </summary>
+    public Task<IReadOnlyList<MMW.Media.Remux.ImportableTrack>> GetSourceTracksAsync(string path)
+    {
+        var full = Path.GetFullPath(path);
+        if (!_sourceTracks.TryGetValue(full, out var task))
+            _sourceTracks[full] = task = MMW.Media.Remux.TrackImporter.InspectAsync(full, Document.Container);
+        return task;
+    }
 
     /// <summary>Sets how a track is converted on the next save (may add an AAC companion track).</summary>
     public async Task SetConversionAsync(Track track, MMW.Core.Media.ImportChoice choice)
@@ -481,6 +492,38 @@ public sealed partial class DocumentViewModel : ViewModelBase
             await File.WriteAllTextAsync(path, MMW.Metadata.Nfo.NfoMetadata.Export(Document.Metadata));
     }
 
+    private bool CanDuplicateTrack() => !IsBusy && SelectedTracks().Take(2).ToList() is [var track] && MMW.Media.Remux.TrackImporter.CanDuplicate(track);
+
+    /// <summary>
+    /// Adds a pending copy of the selected subtitle track after it (undoable), so the same subtitles can be muxed
+    /// again with another conversion (chosen in the copy's inspector).
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanDuplicateTrack))]
+    private async Task DuplicateTrack()
+    {
+        if (SelectedTracks().Take(2).ToList() is not [SubtitleTrack { Source: { } source } original])
+            return;
+        MMW.Media.Remux.ImportableTrack? inspected = null;
+        if (!original.IsPending)
+        {
+            try
+            {
+                inspected = (await GetSourceTracksAsync(source.Path)).FirstOrDefault(t => t.TrackId == source.TrackId);
+            }
+            catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+            {
+                AppLog.Debug($"Track {source.TrackId} of '{source.Path}' could not be inspected; the copy is passed through: {ex.Message}");
+            }
+        }
+
+        if (!Document.Tracks.Contains(original))
+            return; // deleted while the file was inspected
+        SubtitleTrack copy;
+        using (Undo.Transaction(Strings.Undo_DuplicateTrack))
+            copy = MMW.Media.Remux.TrackImporter.Duplicate(Document, original, inspected);
+        SelectedRow = Rows.FirstOrDefault(r => r.Track == copy) ?? SelectedRow;
+    }
+
     private bool CanExportTrack() => !IsBusy && SelectedRow?.Track is { Source: not null } and not ChapterTrack;
 
     /// <summary>Writes the selected track as a raw stream (.h264, .aac, .flac, .srt …), as its codec stores it outside a container.</summary>
@@ -646,7 +689,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             var handler = _documents.HandlerFor(Document);
             var progress = new Progress<double>(p => Progress = p);
             await handler.SaveAsync(Document, options, progress);
-            _sourceTracks = null;
+            _sourceTracks.Clear();
             _trackInspectors.Clear();
             OnPropertyChanged(nameof(StatusText));
             foreach (var row in Rows)
