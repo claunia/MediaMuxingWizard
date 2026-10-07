@@ -571,9 +571,11 @@ internal sealed class MatroskaMuxer : IMuxer
             long? reference = sample.IsSync || t.LastPtsMs < 0 ? null : t.LastPtsMs - ptsMs is 0 ? -1 : t.LastPtsMs - ptsMs;
             WriteBlockGroup(t.Number, (short)relative, data, subtitle || oddAudio ? durationMs : 0, additions, reference);
         }
-        else if (subtitle || oddAudio)
+        else if (subtitle || oddAudio || sample.TrimEnd > 0)
         {
-            WriteBlockGroup(t.Number, (short)relative, data, durationMs);
+            // The encoder padding of the last audio frame is DiscardPadding (nanoseconds).
+            var discardNs = sample.TrimEnd > 0 && t.Config.Timescale > 0 ? (long)Math.Round(sample.TrimEnd * 1e9 / t.Config.Timescale) : 0;
+            WriteBlockGroup(t.Number, (short)relative, data, subtitle || oddAudio ? durationMs : 0, discardPaddingNs: discardNs);
         }
         else
         {
@@ -652,11 +654,12 @@ internal sealed class MatroskaMuxer : IMuxer
     }
 
     private void WriteBlockGroup(uint track, short relative, ReadOnlySpan<byte> data, long durationMs,
-        IReadOnlyList<BlockAddition>? additions = null, long? referenceMs = null)
+        IReadOnlyList<BlockAddition>? additions = null, long? referenceMs = null, long discardPaddingNs = 0)
     {
         var trackLength = EbmlVarInt.SizeLength(track);
         var blockSize = (ulong)(trackLength + 3 + data.Length);
-        // Elements after the Block, in the specification's order: BlockAdditions, BlockDuration, ReferenceBlock.
+        // Elements after the Block, in the specification's order: BlockAdditions, BlockDuration, ReferenceBlock,
+        // DiscardPadding.
         var duration = new EbmlWriter();
         if (additions is { Count: > 0 })
         {
@@ -677,6 +680,8 @@ internal sealed class MatroskaMuxer : IMuxer
             duration.UInt(BlockDuration, (ulong)durationMs);
         if (referenceMs is { } reference)
             duration.Int(ReferenceBlock, reference);
+        if (discardPaddingNs > 0)
+            duration.Int(DiscardPadding, discardPaddingNs);
         var blockElementSize = EbmlVarInt.IdLength(MatroskaMediaIds.Block) + EbmlVarInt.SizeLength(blockSize) + (long)blockSize;
         var groupSize = (ulong)(blockElementSize + duration.Length);
 

@@ -126,6 +126,9 @@ internal sealed record BlockInfo(ulong Track, long Timestamp, bool Keyframe, boo
 {
     /// <summary>BlockAdditions of a BlockGroup (BlockMore elements); null when there are none.</summary>
     public List<BlockAddition>? Additions { get; init; }
+
+    /// <summary>DiscardPadding of a BlockGroup: nanoseconds at the end of the block not to be played; 0 for none.</summary>
+    public long DiscardPaddingNs { get; init; }
 }
 
 /// <summary>Walks the clusters of a file in order and dispatches blocks to the attached tracks.</summary>
@@ -244,6 +247,7 @@ internal sealed class ClusterScanner
         long? duration = null;
         var hasReference = false;
         List<BlockAddition>? additions = null;
+        long discardPadding = 0;
         var pos = group.DataPosition;
         while (pos < end && ebml.TryReadHeader(pos, end, out var child) && !child.IsUnknownSize)
         {
@@ -262,6 +266,9 @@ internal sealed class ClusterScanner
                 case BlockAdditions:
                     additions = ReadBlockAdditions(ebml.ReadData(child));
                     break;
+                case DiscardPadding:
+                    discardPadding = EbmlParser.ReadInt(ebml.ReadData(child));
+                    break;
             }
 
             pos = child.End;
@@ -270,7 +277,9 @@ internal sealed class ClusterScanner
         if (blockPos < 0)
             return null;
         var block = ReadBlock(blockPos, blockSize, simple: false, keyframe: !hasReference, duration: duration, discardable: false);
-        return block is not null && additions is { Count: > 0 } ? block with { Additions = additions } : block;
+        if (block is null)
+            return null;
+        return block with { Additions = additions is { Count: > 0 } ? additions : null, DiscardPaddingNs = discardPadding };
     }
 
     /// <summary>Reads the BlockMore elements of a BlockAdditions (BlockAddID defaults to 1).</summary>
@@ -678,6 +687,8 @@ internal sealed class MatroskaTrackSource : ISampleSource
                 durationTicks = Config.DefaultSampleDuration;
             sample.Dts = Snap(ticks, durationTicks);
             sample.Duration = durationTicks;
+            if (i == count - 1 && block.DiscardPaddingNs > 0)
+                sample.TrimEnd = Ticks(block.DiscardPaddingNs, timescale);
             Enqueue(sample);
         }
     }

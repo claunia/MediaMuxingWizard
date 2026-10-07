@@ -12,6 +12,7 @@ internal static class MatroskaMediaIds
     public const ulong BlockAddId = 0xEE;
     public const ulong BlockAdditional = 0xA5;
     public const ulong EncryptedBlock = 0xAF;
+    public const ulong DiscardPadding = 0x75A2;
 
     // Cues
     public const ulong CuePoint = 0xBB;

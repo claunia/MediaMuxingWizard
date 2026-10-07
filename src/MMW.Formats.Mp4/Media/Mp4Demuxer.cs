@@ -226,6 +226,10 @@ internal sealed class Mp4SampleSource : ISampleSource
                 StoredSize = s.Size,
             };
 
+            // An edit ending inside the last presented audio sample trims its end (encoder padding).
+            if (TrimsEnd && Config.Kind == TrackKind.Audio && sample.Pts + s.Duration > MediaEnd)
+                sample.TrimEnd = Math.Min(s.Duration, sample.Pts + s.Duration - MediaEnd);
+
             if (Config.Codec == CodecType.WebVtt)
             {
                 // ISO/IEC 14496-30 samples: keep the cue text only; 'vtte' (no cue) samples become gaps.

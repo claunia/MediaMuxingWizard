@@ -31,7 +31,13 @@ namespace MMW.Formats.Mp4.Media;
 /// </remarks>
 internal sealed class Mp4Muxer : IMuxer
 {
-    private const uint MovieTimescale = 1000;
+    private const uint DefaultMovieTimescale = 1000;
+
+    /// <summary>
+    /// The movie timescale (edit list and movie durations): milliseconds, or the timescale of an audio track whose end
+    /// is trimmed, so its edit ends on the exact sample.
+    /// </summary>
+    private uint MovieTimescale { get; set; } = DefaultMovieTimescale;
     private const long ChunkByteLimit = 4L * 1024 * 1024;
 
     private readonly Stream _out;
@@ -92,6 +98,12 @@ internal sealed class Mp4Muxer : IMuxer
         public List<int> ChunkCounts { get; } = [];
 
         public byte[]? FirstSample { get; set; }
+
+        /// <summary>Samples not presented at the end of the last sample (encoder padding), shortening the edit.</summary>
+        public long TrimEnd { get; set; }
+
+        /// <summary>Decoded length of the last sample from its bitstream (audio), or 0 when unknown.</summary>
+        public long LastFrameSamples { get; set; }
 
         public bool InBandParameterSets { get; set; }
 
@@ -195,6 +207,10 @@ internal sealed class Mp4Muxer : IMuxer
             state.InBandParameterSets = HasVvcParameterSets(state, data);
 
         Append(state, data, sample.Dts, sample.CtsOffset, sample.Duration, sample.IsSync);
+        state.TrimEnd = sample.TrimEnd; // only the last sample's counts
+        state.LastFrameSamples = sample.TrimEnd > 0 && state.Config.Kind == TrackKind.Audio && state.Config.SampleRate == state.Timescale
+            ? AudioFrames.Samples(state.Config, data)
+            : 0;
     }
 
     private static bool IsKnown(byte[][] known, ReadOnlySpan<byte> nal)
@@ -376,6 +392,8 @@ internal sealed class Mp4Muxer : IMuxer
             throw new InvalidOperationException("The muxer was already finished.");
         _finished = true;
         EnsureHeader();
+        if (_tracks.FirstOrDefault(t => t.TrimEnd > 0 && t.Config.Kind == TrackKind.Audio) is { Timescale: > 0 and <= 192000 } trimmed)
+            MovieTimescale = trimmed.Timescale;
 
         foreach (var t in _tracks.Where(t => t.TextConversion))
         {
@@ -575,6 +593,14 @@ internal sealed class Mp4Muxer : IMuxer
 
         if (n == 0)
             earliest = end = 0;
+        else if (t.TrimEnd > 0 && t.Dts[n - 1] + t.Cto[n - 1] + durations[n - 1] == end)
+        {
+            // The edit stops before the encoder padding: the last frame's decoded length (its bitstream says) minus the
+            // trim, whatever duration the source gave it; the sample table keeps the whole frame.
+            var frame = Math.Max(durations[n - 1], t.LastFrameSamples);
+            durations[n - 1] = frame;
+            end = t.Dts[n - 1] + t.Cto[n - 1] + Math.Max(0, frame - t.TrimEnd);
+        }
         // Presentation starts at the first sample shown: samples before zero, or before the source's own edit, are hidden.
         var start = Math.Max(earliest, (long)Math.Round(t.Settings.VisibleFrom.TotalSeconds * t.Timescale));
         var mediaTime = start - t0 + shift;

@@ -34,6 +34,14 @@ public sealed class MediaSample
     /// <summary>Duration in the source timescale; 0 when unknown (the next sample's DTS decides).</summary>
     public long Duration { get; set; }
 
+    /// <summary>
+    /// Samples at the end of this frame that are not presented (encoder padding of the last audio frame: Matroska
+    /// DiscardPadding, the end of an MP4 edit list, the Ogg end granule position), in the source timescale; 0 for none.
+    /// Counted from the end of the decoded frame (its full sample count), which <see cref="Duration"/> may already stop
+    /// short of (FFmpeg gives the last Matroska block the played duration only).
+    /// </summary>
+    public long TrimEnd { get; set; }
+
     /// <summary>True for random access points (key frames).</summary>
     public bool IsSync { get; set; }
 
