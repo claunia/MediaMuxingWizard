@@ -14,6 +14,19 @@ public sealed class VvcTests
     public void Names_profile_and_level(int profile, int level, bool highTier, string expected) =>
         Assert.Equal(expected, Vvc.ProfileLevel(profile, level, highTier));
 
+    [Fact]
+    public void Reads_the_nal_unit_header_and_pps_identifiers()
+    {
+        byte[] pps = [0, (Vvc.NalPps << 3) | 1, 0b000101_00, 0b11_000000, 0x80]; // pps_pic_parameter_set_id 5, sps 3
+        Assert.Equal(Vvc.NalPps, Vvc.NalType(pps));
+        Assert.Equal(0, Vvc.TemporalId(pps));
+        Assert.Equal(new VvcPps(5, 3), Vvc.ParsePps(pps));
+        Assert.True(Vvc.IsIrap(Vvc.NalCra));
+        Assert.False(Vvc.IsIrap(Vvc.NalGdr));
+        Assert.True(Vvc.IsVcl(Vvc.NalRasl));
+        Assert.False(Vvc.IsVcl(Vvc.NalPictureHeader));
+    }
+
     /// <summary>A record with two sub-layers (one sub-layer level), a sub-profile and a DCI array (no num_nalus field).</summary>
     [Fact]
     public void Parses_a_record_with_sublayers_sub_profiles_and_a_dci()

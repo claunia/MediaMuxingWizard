@@ -103,20 +103,21 @@ internal sealed class AnnexBReader : IDisposable
     public void Dispose() => _stream.Dispose();
 }
 
-/// <summary>What the start of a raw H.264/HEVC stream reveals.</summary>
+/// <summary>What the start of a raw H.264/HEVC/VVC stream reveals.</summary>
 internal sealed record AnnexBProbe(CodecConfig Config, bool HasTiming, List<byte[]> ParameterSets);
 
 /// <summary>
-/// Parses a raw H.264 or HEVC Annex B stream into access units with length-prefixed NAL units, deriving
+/// Parses a raw H.264, HEVC or VVC Annex B stream into access units with length-prefixed NAL units, deriving
 /// presentation times from the picture order count.
 /// </summary>
 /// <remarks>
-/// Access units are delimited per H.264 7.4.1.2.3 / H.265 7.4.2.4.4 (AUD, parameter sets or SEI after a picture, or
-/// the first slice of a new picture; the second field of a field pair stays with the first). Presentation order is
+/// Access units are delimited per H.264 7.4.1.2.3 / H.265 7.4.2.4.4 / H.266 7.4.2.4.4 (AUD, parameter sets, picture
+/// header or SEI after a picture, or the first slice of a new picture; the second field of a field pair stays with the
+/// first). Presentation order is
 /// the picture order count order within each "POC period" (from an IDR / IRAP with NoRaslOutputFlag to the next),
 /// sorted with a sliding window of <see cref="ReorderWindow"/> pictures; decoding times step by one frame duration.
 /// Access unit delimiters and filler data are dropped, and so are in-band parameter sets identical to the ones in
-/// the decoder configuration record (so the track can be stored as avc1/hvc1). RASL pictures of a leading CRA are
+/// the decoder configuration record (so the track can be stored as avc1/hvc1/vvc1). RASL pictures of a leading CRA are
 /// dropped as they cannot be decoded.
 /// </remarks>
 internal sealed class AnnexBVideoParser : IElementaryParser
@@ -138,12 +139,15 @@ internal sealed class AnnexBVideoParser : IElementaryParser
 
     private readonly AnnexBReader _reader;
     private readonly bool _hevc;
+    private readonly bool _vvc;
     private readonly long _frameTicks;
     private readonly List<byte[]> _configNals;
     private readonly Dictionary<int, H264Sps> _spsH = [];
     private readonly Dictionary<int, H264Pps> _ppsH = [];
     private readonly Dictionary<int, HevcSps> _spsV = [];
     private readonly Dictionary<int, HevcPps> _ppsV = [];
+    private readonly Dictionary<int, VvcSps> _spsW = [];
+    private readonly Dictionary<int, VvcPps> _ppsW = [];
     private readonly Queue<Frame> _decode = new();
     private readonly PriorityQueue<Frame, long> _heap = new();
     private readonly Queue<MediaSample> _out = new();
@@ -162,6 +166,7 @@ internal sealed class AnnexBVideoParser : IElementaryParser
     {
         _reader = new AnnexBReader(stream);
         _hevc = codec == CodecType.Hevc;
+        _vvc = codec == CodecType.Vvc;
         _frameTicks = frameTicks;
         _configNals = configNals.ToList();
     }
@@ -171,25 +176,36 @@ internal sealed class AnnexBVideoParser : IElementaryParser
     {
         using var reader = new AnnexBReader(stream);
         var hevc = codec == CodecType.Hevc;
+        var vvc = codec == CodecType.Vvc;
+        var name = CodecNames.Display(codec);
         List<byte[]> vps = [], sps = [], pps = [];
         var limit = 64L * 1024 * 1024;
         while (reader.Next() is { } nal && reader.Position < limit)
         {
-            var type = hevc ? NalUnits.HevcType(nal) : NalUnits.H264Type(nal);
-            List<byte[]>? list = hevc
-                ? type switch
+            var type = NalType(codec, nal);
+            List<byte[]>? list = codec switch
+            {
+                CodecType.Vvc => type switch
+                {
+                    Vvc.NalVps => vps,
+                    Vvc.NalSps => sps,
+                    Vvc.NalPps => pps,
+                    _ => null,
+                },
+                CodecType.Hevc => type switch
                 {
                     Hevc.NalVps => vps,
                     Hevc.NalSps => sps,
                     Hevc.NalPps => pps,
                     _ => null,
-                }
-                : type switch
+                },
+                _ => type switch
                 {
                     H264.NalSps => sps,
                     H264.NalPps => pps,
                     _ => null,
-                };
+                },
+            };
             if (list is not null)
             {
                 if (!list.Any(x => x.AsSpan().SequenceEqual(nal)))
@@ -197,19 +213,25 @@ internal sealed class AnnexBVideoParser : IElementaryParser
                 continue;
             }
 
-            var vcl = hevc ? Hevc.IsVcl(type) : type is 1 or 5;
-            if (vcl && sps.Count > 0 && pps.Count > 0)
+            if (IsVcl(codec, type) && sps.Count > 0 && pps.Count > 0)
                 break;
         }
 
+        // A VVC VPS is optional (single-layer streams may refer to VPS 0, "none").
         if (sps.Count == 0 || pps.Count == 0 || (hevc && vps.Count == 0))
-            throw new InvalidDataException($"No {(hevc ? "VPS/SPS/PPS" : "SPS/PPS")} found at the start of the {(hevc ? "HEVC" : "H.264")} stream.");
+            throw new InvalidDataException($"No {(hevc ? "VPS/SPS/PPS" : "SPS/PPS")} found at the start of the {name} stream.");
 
         int width, height, sarW, sarH;
         double vuiRate;
         ColorInfo color;
         byte[] extradata;
-        if (hevc)
+        if (vvc)
+        {
+            var info = Vvc.ParseSps(sps[0]);
+            (width, height, sarW, sarH, vuiRate, color) = (info.Width, info.Height, info.SarWidth, info.SarHeight, info.FrameRate, info.Color);
+            extradata = Vvc.BuildVvcC(vps, sps, pps);
+        }
+        else if (hevc)
         {
             var info = Hevc.ParseSps(sps[0]);
             (width, height, sarW, sarH, vuiRate, color) = (info.Width, info.Height, info.SarWidth, info.SarHeight, info.FrameRate, info.Color);
@@ -225,13 +247,13 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         var hasTiming = vuiRate is > 1 and < 1000;
         var fps = frameRate is > 0 ? frameRate.Value : hasTiming ? vuiRate : 25.0;
         if (frameRate is null && !hasTiming)
-            AppLog.Warn($"The {(hevc ? "HEVC" : "H.264")} stream has no timing information; assuming 25 fps.");
+            AppLog.Warn($"The {name} stream has no timing information; assuming 25 fps.");
         var (timescale, ticks) = FrameTiming(fps);
         var config = new CodecConfig
         {
             Codec = codec,
             Kind = TrackKind.Video,
-            SourceCodecId = hevc ? "hevc" : "h264",
+            SourceCodecId = vvc ? "vvc" : hevc ? "hevc" : "h264",
             Extradata = extradata,
             Timescale = timescale,
             DefaultSampleDuration = ticks,
@@ -244,6 +266,22 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         };
         return new AnnexBProbe(config, hasTiming, [.. vps, .. sps, .. pps]);
     }
+
+    private static int NalType(CodecType codec, ReadOnlySpan<byte> nal) => codec switch
+    {
+        CodecType.Vvc => Vvc.NalType(nal),
+        CodecType.Hevc => NalUnits.HevcType(nal),
+        _ => NalUnits.H264Type(nal),
+    };
+
+    private static bool IsVcl(CodecType codec, int type) => codec switch
+    {
+        CodecType.Vvc => Vvc.IsVcl(type),
+        CodecType.Hevc => Hevc.IsVcl(type),
+        _ => type is 1 or 5,
+    };
+
+    private CodecType Codec => _vvc ? CodecType.Vvc : _hevc ? CodecType.Hevc : CodecType.H264;
 
     /// <summary>A timescale and frame duration representing <paramref name="fps"/> exactly (e.g. 24000/1001).</summary>
     public static (uint Timescale, long FrameTicks) FrameTiming(double fps)
@@ -292,10 +330,24 @@ internal sealed class AnnexBVideoParser : IElementaryParser
             _pending = null;
             if (nal is null)
                 break;
-            var type = _hevc ? NalUnits.HevcType(nal) : NalUnits.H264Type(nal);
+            var type = NalType(Codec, nal);
             TrackParameterSet(nal, type);
 
-            if (_hevc)
+            if (_vvc)
+            {
+                // OPI, DCI, VPS, SPS, PPS, prefix APS, PH, AUD, prefix SEI, reserved/unspecified 26–29, or a slice carrying
+                // its picture header start a new picture unit.
+                if (hasVcl && (type is >= Vvc.NalOpi and <= Vvc.NalPrefixAps or Vvc.NalPictureHeader or Vvc.NalAud or Vvc.NalSeiPrefix or >= 26 and <= 29 ||
+                               (Vvc.IsVcl(type) && Vvc.HasPictureHeaderInSlice(nal))))
+                {
+                    _pending = nal;
+                    break;
+                }
+
+                if (Vvc.IsVcl(type))
+                    hasVcl = true;
+            }
+            else if (_hevc)
             {
                 if (hasVcl && (type is >= 32 and <= 35 or 39 or >= 41 and <= 44 or >= 48 and <= 55 ||
                                (Hevc.IsVcl(type) && Hevc.IsFirstSliceSegment(nal))))
@@ -361,7 +413,20 @@ internal sealed class AnnexBVideoParser : IElementaryParser
     {
         try
         {
-            if (_hevc)
+            if (_vvc)
+            {
+                if (type == Vvc.NalSps)
+                {
+                    var s = Vvc.ParseSps(nal);
+                    _spsW[s.Id] = s;
+                }
+                else if (type == Vvc.NalPps)
+                {
+                    var p = Vvc.ParsePps(nal);
+                    _ppsW[p.Id] = p;
+                }
+            }
+            else if (_hevc)
             {
                 if (type == Hevc.NalSps)
                 {
@@ -393,14 +458,27 @@ internal sealed class AnnexBVideoParser : IElementaryParser
 
     private void Process(List<byte[]> nals)
     {
-        var vclIndex = nals.FindIndex(n => _hevc ? Hevc.IsVcl(NalUnits.HevcType(n)) : NalUnits.H264Type(n) is 1 or 5);
+        var vclIndex = nals.FindIndex(n => IsVcl(Codec, NalType(Codec, n)));
         if (vclIndex < 0)
             return; // Trailing non-picture NAL units (end of stream).
 
         var vcl = nals[vclIndex];
         long poc;
         bool sync, reset;
-        if (_hevc)
+        if (_vvc)
+        {
+            var type = Vvc.NalType(vcl);
+            if (Vvc.IsRasl(type) && _skipRasl)
+                return;
+            sync = Vvc.IsIrap(type);
+            var noRaslOutput = Vvc.IsIdr(type) || _firstPicture;
+            if (sync)
+                _skipRasl = noRaslOutput && type == Vvc.NalCra; // RASL pictures of a leading CRA cannot be decoded
+            reset = (sync || type == Vvc.NalGdr) && noRaslOutput;
+            var header = nals.Find(n => Vvc.NalType(n) == Vvc.NalPictureHeader) ?? vcl;
+            poc = VvcPoc(header, vcl, type, reset);
+        }
+        else if (_hevc)
         {
             var type = NalUnits.HevcType(vcl);
             if (Hevc.IsRasl(type) && _skipRasl)
@@ -437,10 +515,13 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         Span<byte> length = stackalloc byte[4];
         foreach (var nal in nals)
         {
-            var type = _hevc ? NalUnits.HevcType(nal) : NalUnits.H264Type(nal);
-            var drop = _hevc
-                ? type is Hevc.NalAud or Hevc.NalFiller || (type is Hevc.NalVps or Hevc.NalSps or Hevc.NalPps && IsConfigNal(nal))
-                : type is H264.NalAud or H264.NalFiller || (type is H264.NalSps or H264.NalPps && IsConfigNal(nal));
+            var type = NalType(Codec, nal);
+            var drop = Codec switch
+            {
+                CodecType.Vvc => type is Vvc.NalAud or Vvc.NalFiller || (Vvc.IsParameterSet(type) && IsConfigNal(nal)),
+                CodecType.Hevc => type is Hevc.NalAud or Hevc.NalFiller || (type is Hevc.NalVps or Hevc.NalSps or Hevc.NalPps && IsConfigNal(nal)),
+                _ => type is H264.NalAud or H264.NalFiller || (type is H264.NalSps or H264.NalPps && IsConfigNal(nal)),
+            };
             if (drop)
                 continue;
             System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(length, (uint)nal.Length);
@@ -512,6 +593,40 @@ internal sealed class AnnexBVideoParser : IElementaryParser
         // prevTid0Pic: TemporalId 0 and not RASL, RADL or a sub-layer non-reference picture.
         var subLayerNonRef = type <= 14 && type % 2 == 0;
         if (Hevc.TemporalId(vcl) == 0 && !Hevc.IsRasl(type) && type is not (6 or 7) && !subLayerNonRef)
+        {
+            _prevPocMsb = msb;
+            _prevPocLsb = lsb;
+        }
+
+        return msb + lsb;
+    }
+
+    private long VvcPoc(byte[] header, byte[] vcl, int type, bool reset)
+    {
+        int lsb, log2;
+        bool nonRef;
+        try
+        {
+            (lsb, log2, nonRef) = Vvc.ParsePocLsb(header, _spsW, _ppsW);
+        }
+        catch (InvalidDataException)
+        {
+            return _decodeIndex;
+        }
+
+        var max = 1L << log2;
+        long msb;
+        if (reset)
+            msb = 0;
+        else if (lsb < _prevPocLsb && _prevPocLsb - lsb >= max / 2)
+            msb = _prevPocMsb + max;
+        else if (lsb > _prevPocLsb && lsb - _prevPocLsb > max / 2)
+            msb = _prevPocMsb - max;
+        else
+            msb = _prevPocMsb;
+
+        // prevTid0Pic: TemporalId 0, not RASL or RADL, and not a non-reference picture.
+        if (Vvc.TemporalId(vcl) == 0 && type is not (Vvc.NalRasl or Vvc.NalRadl) && !nonRef)
         {
             _prevPocMsb = msb;
             _prevPocLsb = lsb;

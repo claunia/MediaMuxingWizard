@@ -49,6 +49,9 @@ public sealed record VvcSps
     public double FrameRate => NumUnitsInTick > 0 && TimeScale > 0 ? (double)TimeScale / NumUnitsInTick : 0;
 }
 
+/// <summary>The fields of a VVC picture parameter set needed to find its SPS.</summary>
+public sealed record VvcPps(int Id, int SpsId);
+
 /// <summary>VVC (H.266, ISO/IEC 23090-3) bitstream and decoder configuration record ('vvcC', ISO/IEC 14496-15 §11) helpers.</summary>
 public static class Vvc
 {
@@ -793,6 +796,47 @@ public static class Vvc
                 r.Skip(log2MaxPocLsb); // rpls_poc_lsb_lt
             }
         }
+    }
+
+    /// <summary>Parses the identifiers of a picture parameter set NAL unit (with its header).</summary>
+    public static VvcPps ParsePps(ReadOnlySpan<byte> nal)
+    {
+        if (nal.Length < 4)
+            throw new InvalidDataException("Truncated VVC PPS.");
+        var r = new BitReader(nal[2..4]); // no emulation prevention can occur in the first 10 bits
+        return new VvcPps((int)r.Read(6), (int)r.Read(4));
+    }
+
+    /// <summary>
+    /// The picture order count LSB of a picture, from its picture header NAL unit or from a slice that carries the picture
+    /// header (sh_picture_header_in_slice_header_flag), with the SPS's LSB size and ph_non_ref_pic_flag.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The NAL unit has no picture header, or its PPS / SPS is unknown.</exception>
+    public static (int Lsb, int Log2MaxPocLsb, bool NonReference) ParsePocLsb(
+        ReadOnlySpan<byte> nal, IReadOnlyDictionary<int, VvcSps> spss, IReadOnlyDictionary<int, VvcPps> ppss)
+    {
+        ArgumentNullException.ThrowIfNull(spss);
+        ArgumentNullException.ThrowIfNull(ppss);
+        var type = NalType(nal);
+        var rbsp = NalUnits.ToRbsp(nal[..Math.Min(nal.Length, 64)]);
+        var r = new BitReader(rbsp);
+        r.Skip(16);
+        if (IsVcl(type) && !r.Flag()) // sh_picture_header_in_slice_header_flag
+            throw new InvalidDataException("The slice has no picture header.");
+        if (type != NalPictureHeader && !IsVcl(type))
+            throw new InvalidDataException("Not a picture header or slice.");
+
+        // picture_header_structure()
+        var gdrOrIrap = r.Flag();
+        var nonRef = r.Flag();
+        if (gdrOrIrap)
+            r.Skip(1); // ph_gdr_pic_flag
+        if (r.Flag()) // ph_inter_slice_allowed_flag
+            r.Skip(1); // ph_intra_slice_allowed_flag
+        var ppsId = (int)r.Ue();
+        if (!ppss.TryGetValue(ppsId, out var pps) || !spss.TryGetValue(pps.SpsId, out var sps))
+            throw new InvalidDataException($"Unknown VVC PPS {ppsId}.");
+        return ((int)r.Read(sps.Log2MaxPocLsb), sps.Log2MaxPocLsb, nonRef);
     }
 
     private static int CeilLog2(int x) => x <= 1 ? 0 : 32 - BitOperations.LeadingZeroCount((uint)(x - 1));
