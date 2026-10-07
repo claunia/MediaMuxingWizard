@@ -133,26 +133,48 @@ public class NewDocumentTests
 /// <summary>Save As into the other container family converts nothing: tracks that do not fit stop it until the user converts or deletes them.</summary>
 public class SaveAsOtherFormatTests
 {
-    private static async Task<(MainWindowViewModel Window, FakeDialogService Dialogs, string Dir)> OpenMkvWithSubRipAsync()
+    private static (MainWindowViewModel Window, FakeDialogService Dialogs, string Dir) CreateWindow()
     {
-        MediaProbe.RequireFfmpeg();
         MMW.Media.Remux.MediaRemux.EnsureRegistered();
         var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(dir);
+        var dialogs = new FakeDialogService();
+        return (new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json"))), dialogs, dir);
+    }
+
+    /// <summary>SubRip, ASS and SSA have no MP4 form: the subtitle converters turn them into tx3g, without asking.</summary>
+    [AvaloniaFact]
+    public async Task Text_subtitles_become_tx3g_when_saved_as_mp4()
+    {
+        MediaProbe.RequireFfmpeg();
+        var (window, dialogs, dir) = CreateWindow();
         var srt = Path.Combine(dir, "subs.srt");
         await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nHello\n", TestContext.Current.CancellationToken);
         var mkv = Path.Combine(dir, "movie.mkv");
-        Fixtures.Run("ffmpeg", $"-y -v error -f lavfi -i testsrc=duration=2:size=160x120:rate=25 -i {Fixtures.Quote(srt)} -c:v libx264 -preset ultrafast -c:s srt -f matroska {Fixtures.Quote(mkv)}");
-        var dialogs = new FakeDialogService();
-        var window = new MainWindowViewModel(new DocumentService(), dialogs, new SettingsService(Path.Combine(dir, "settings.json")));
+        Fixtures.Run("ffmpeg", $"-y -v error -f lavfi -i testsrc=duration=2:size=160x120:rate=25 -i {Fixtures.Quote(srt)} " +
+                               $"-map 0:v -map 1 -map 1 -map 1 -c:v libx264 -preset ultrafast -c:s:0 srt -c:s:1 ass -c:s:2 ssa -f matroska {Fixtures.Quote(mkv)}");
         await window.OpenPathsAsync([mkv]);
-        return (window, dialogs, dir);
+        var doc = window.Document!;
+        Assert.Equal(3, doc.Document.Tracks.OfType<SubtitleTrack>().Count());
+
+        var m4v = Path.Combine(dir, "movie.m4v");
+        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
+        await doc.SaveAsCommand.ExecuteAsync(null);
+        Assert.Empty(dialogs.Messages);
+        var streams = MediaProbe.Streams(m4v);
+        Assert.Contains(streams, s => s.Codec == "h264");
+        Assert.Equal(["mov_text", "mov_text", "mov_text"], streams.Where(s => s.Type == "subtitle").Select(s => s.Codec));
     }
 
+    /// <summary>A track that cannot go into MP4 (AVS1 video has no sample entry) stops Save As until it is removed.</summary>
     [AvaloniaFact]
-    public async Task Incompatible_tracks_stop_save_as_until_they_are_converted()
+    public async Task Incompatible_tracks_stop_save_as_until_they_are_removed()
     {
-        var (window, dialogs, dir) = await OpenMkvWithSubRipAsync();
+        var avs = Path.Combine(Corpus.Directory ?? string.Empty, "Video codecs", "AVS.mkv");
+        Corpus.Require(Corpus.Directory is not null && File.Exists(avs) ? avs : string.Empty);
+        MediaProbe.RequireFfmpeg();
+        var (window, dialogs, dir) = CreateWindow();
+        await window.OpenPathsAsync([Fixtures.CopyToTemp(avs)]);
         var doc = window.Document!;
         var m4v = Path.Combine(dir, "movie.m4v");
 
@@ -160,18 +182,15 @@ public class SaveAsOtherFormatTests
         await doc.SaveAsCommand.ExecuteAsync(null);
         var error = Assert.Single(dialogs.Messages);
         Assert.StartsWith(Strings.Dialog_IncompatibleTracks_Title, error, StringComparison.Ordinal);
-        Assert.Contains("SRT", error, StringComparison.Ordinal);
+        Assert.Contains("AVS", error, StringComparison.Ordinal);
         Assert.False(File.Exists(m4v));
-        Assert.Equal(ContainerKind.Matroska, doc.Document.Container);
 
-        // Converting the subtitles in the document window to a format MP4 takes (WebVTT) lets Save As through.
-        var subtitle = doc.Document.Tracks.OfType<SubtitleTrack>().Single();
-        await doc.SetConversionAsync(subtitle, new ImportChoice(ImportAction.ConvertToWebVtt, "WebVTT"));
+        doc.SelectedRow = doc.Rows.First(r => r.Track is VideoTrack);
+        doc.DeleteTracksCommand.Execute(null);
         dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
         await doc.SaveAsCommand.ExecuteAsync(null);
         Assert.Single(dialogs.Messages);
-        Assert.True(File.Exists(m4v));
-        Assert.Equal(ContainerKind.Mp4, doc.Document.Container);
+        Assert.Equal("aac", Assert.Single(MediaProbe.Streams(m4v)).Codec);
     }
 
     /// <summary>tx3g has no Matroska form: Save As asks which text format to convert it to (or to stop).</summary>
@@ -220,24 +239,6 @@ public class SaveAsOtherFormatTests
         Assert.Contains(codec, ids);
     }
 
-    [AvaloniaFact]
-    public async Task Deleting_the_incompatible_tracks_lets_save_as_through()
-    {
-        var (window, dialogs, dir) = await OpenMkvWithSubRipAsync();
-        var doc = window.Document!;
-        var m4v = Path.Combine(dir, "movie.m4v");
-        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
-        await doc.SaveAsCommand.ExecuteAsync(null);
-        Assert.Single(dialogs.Messages);
-
-        doc.SelectedRow = doc.Rows.First(r => r.Track is SubtitleTrack);
-        doc.DeleteTracksCommand.Execute(null);
-        dialogs.DialogResults.Enqueue(new SaveOptions { OutputPath = m4v });
-        await doc.SaveAsCommand.ExecuteAsync(null);
-        Assert.Single(dialogs.Messages);
-        var streams = MediaProbe.Streams(m4v);
-        Assert.Equal("h264", Assert.Single(streams).Codec);
-    }
 }
 
 /// <summary>Dropped or imported files are checked first: anything that cannot be used, even converted, rejects the whole drop.</summary>

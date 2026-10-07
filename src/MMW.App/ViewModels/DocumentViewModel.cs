@@ -644,8 +644,9 @@ public sealed partial class DocumentViewModel : ViewModelBase
         if (options is null)
             return false;
 
-        // The other container family is written only when every track fits it as it is: Save As converts nothing on its
-        // own, the user converts or removes the tracks in the document window first.
+        // The other container family: text subtitles are converted with the subtitle converters (SubRip, SSA and ASS
+        // become tx3g in MP4; tx3g becomes SubRip or ASS in Matroska, as the user picks); any other track that does
+        // not fit stops Save As, to be converted or removed in the document window first.
         var target = RemuxPolicy.TargetKind(Document, options);
         if (target != Document.Container)
         {
@@ -654,7 +655,8 @@ public sealed partial class DocumentViewModel : ViewModelBase
                 ? Document.Tracks.OfType<SubtitleTrack>().Where(t => t.Format == "Tx3g" && t.Source is not null && !SubtitleConversions.IsOcr(t) &&
                                                                      (t.Source.Import?.Action ?? ImportAction.Passthrough) == ImportAction.Passthrough).ToList()
                 : [];
-            if (!await TracksFitAsync(target, subRip))
+            var (fits, textConversions) = await TracksFitAsync(target, subRip);
+            if (!fits)
                 return false;
             if (subRip.Count > 0)
             {
@@ -671,7 +673,17 @@ public sealed partial class DocumentViewModel : ViewModelBase
                         TrackConversions.SetAction(Document, track, chosen);
                 }
             }
+
+            if (textConversions.Count > 0)
+            {
+                using (Undo.Transaction(string.Format(CultureInfo.CurrentCulture, Strings.Undo_ConvertFormat, string.Join(", ", textConversions.Select(c => c.Track.Format).Distinct()))))
+                {
+                    foreach (var change in textConversions)
+                        TrackConversions.SetAction(Document, change.Track, change.To.Action);
+                }
+            }
         }
+
         if (!await SaveCoreAsync(options))
             return false;
         _settings.Settings.AddRecent(options.OutputPath!);
@@ -682,26 +694,29 @@ public sealed partial class DocumentViewModel : ViewModelBase
     // ------------------------------------------------------------------ output format
 
     /// <summary>
-    /// True when every track can be written to <paramref name="target"/> with its current action (or is among the
-    /// <paramref name="converted"/> ones Save As converts after asking the user how). Otherwise reports the tracks that cannot (to be
-    /// converted or removed in the document window) and returns false.
+    /// Checks every track against <paramref name="target"/>. Text subtitles that do not fit are converted with the
+    /// subtitle converters (returned, to be applied: SubRip, SSA and ASS become tx3g in MP4), and the
+    /// <paramref name="converted"/> tracks Save As asks about are left to it; any other track that does not fit is
+    /// reported (to be converted or removed in the document window) and the result is false.
     /// </summary>
-    private async Task<bool> TracksFitAsync(ContainerKind target, IReadOnlyCollection<Track> converted)
+    private async Task<(bool Fits, IReadOnlyList<MMW.Media.Remux.TrackRetarget> TextConversions)> TracksFitAsync(ContainerKind target, IReadOnlyCollection<Track> converted)
     {
         IsBusy = true;
-        IReadOnlyList<MMW.Media.Remux.TrackRetarget> misfits;
+        IReadOnlyList<MMW.Media.Remux.TrackRetarget> plan;
         try
         {
-            misfits = await MMW.Media.Remux.ContainerSwitch.PlanAsync(Document, target);
+            plan = await MMW.Media.Remux.ContainerSwitch.PlanAsync(Document, target);
         }
         finally
         {
             IsBusy = false;
         }
 
-        misfits = [.. misfits.Where(m => !converted.Contains(m.Track))];
+        var text = plan.Where(c => c.Track is SubtitleTrack && !c.To.Ocr && !SubtitleConversions.IsOcr(c.Track) && !converted.Contains(c.Track) &&
+                                   MMW.Core.Media.Subtitles.TextSubtitleConverter.Target(c.To.Action) is not null).ToList();
+        var misfits = plan.Where(c => !converted.Contains(c.Track) && !text.Contains(c)).ToList();
         if (misfits.Count == 0)
-            return true;
+            return (true, text);
         var lines = misfits.Select(c =>
         {
             var track = string.IsNullOrEmpty(c.Track.Name) ? c.Track.Format : $"{c.Track.Format} – {c.Track.Name}";
@@ -711,7 +726,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         });
         await _dialogs.ShowMessageAsync(Strings.Dialog_IncompatibleTracks_Title,
             string.Format(CultureInfo.CurrentCulture, Strings.Dialog_IncompatibleTracks_MessageFormat, ContainerName(target), string.Join("\n", lines)));
-        return false;
+        return (false, []);
     }
 
     public bool IsMp4Output => Document.Container == ContainerKind.Mp4;
