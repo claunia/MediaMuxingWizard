@@ -217,9 +217,9 @@ internal sealed class TsDemuxer : IDemuxer
         stream.OnPes(pes, output);
         while (output.Count > 0)
         {
-            var sample = output.Dequeue();
-            if (!first.ContainsKey(trackId))
-                first[trackId] = sample.Pts / (double)Math.Max(1, stream.Timescale);
+            // The earliest presentation time: with reordering, the first frame decoded is not the first one shown.
+            var pts = output.Dequeue().Pts / (double)Math.Max(1, stream.Timescale);
+            first[trackId] = first.TryGetValue(trackId, out var earliest) ? Math.Min(earliest, pts) : pts;
         }
     }
 
