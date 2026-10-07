@@ -329,6 +329,7 @@ public static class TrackImporter
                 {
                     PixelWidth = c.Width,
                     PixelHeight = c.Height,
+                    ProfileLevel = ProfileLevel(c),
                     DisplayWidth = Math.Round(c.Width * par),
                     DisplayHeight = c.Height,
                     ParNumerator = c.ParNumerator,
@@ -406,6 +407,20 @@ public static class TrackImporter
         return track;
     }
 
+    /// <summary>"Profile@Level" of an H.264, HEVC or VVC configuration record; empty for other codecs.</summary>
+    public static string ProfileLevel(CodecConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Extradata is not { Length: > 0 } record ? string.Empty
+            : config.Codec switch
+            {
+                CodecType.H264 => H264.ProfileLevel(record),
+                CodecType.Hevc => Hevc.ProfileLevel(record),
+                CodecType.Vvc => Vvc.ProfileLevel(record),
+                _ => string.Empty,
+            };
+    }
+
     /// <summary>Human-readable details of a codec configuration.</summary>
     public static string Describe(CodecConfig config)
     {
@@ -418,6 +433,8 @@ public static class TrackImporter
                     parts.Add(string.Create(CultureInfo.InvariantCulture, $"{config.Width}×{config.Height}"));
                 if (config.FrameRate > 0)
                     parts.Add(string.Create(CultureInfo.InvariantCulture, $"{config.FrameRate:0.###} fps"));
+                if (ProfileLevel(config) is { Length: > 0 } profile)
+                    parts.Add(profile);
                 if (config.DolbyVisionConfig is not null)
                     parts.Add("Dolby Vision");
                 var color = config.EffectiveColor;

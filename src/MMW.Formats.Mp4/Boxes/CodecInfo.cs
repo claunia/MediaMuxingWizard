@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using MMW.Core.Media;
+using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 
 namespace MMW.Formats.Mp4.Boxes;
@@ -230,6 +231,9 @@ public static class CodecInfo
             var level = hvcc.Payload[12] / 30.0;
             return string.Create(CultureInfo.InvariantCulture, $"{profile}@L{level:0.#}");
         }
+
+        if (entry.Find("vvcC") is { Payload.Length: > 4 } vvcc)
+            return Vvc.ProfileLevel(vvcc.Payload.AsSpan(4)); // FullBox
 
         return string.Empty;
     }

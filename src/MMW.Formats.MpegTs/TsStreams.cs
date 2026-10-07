@@ -281,7 +281,7 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
         else if (!hevc && type == 6 && !au.HasVcl)
         {
             var recovery = false;
-            Sei.ForEachMessageInNal(bytes, false, (t, _) => recovery = t == 6); // recovery point: open-GOP random access
+            Sei.ForEachMessageInNal(bytes, CodecType.H264, (t, _) => recovery = t == 6); // recovery point: open-GOP random access
             au.Sync |= recovery;
         }
 

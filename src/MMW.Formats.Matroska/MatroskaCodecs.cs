@@ -1,4 +1,5 @@
 using System.Globalization;
+using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 
 namespace MMW.Formats.Matroska;
@@ -76,49 +77,10 @@ internal static class MatroskaCodecs
     }
 
     /// <summary>Decodes "Profile@Level" from an avcC record (AVC CodecPrivate).</summary>
-    public static string AvcProfileLevel(ReadOnlySpan<byte> avcC)
-    {
-        if (avcC.Length < 4 || avcC[0] != 1)
-            return string.Empty;
-
-        var profile = avcC[1] switch
-        {
-            66 => "Baseline",
-            77 => "Main",
-            88 => "Extended",
-            100 => "High",
-            110 => "High 10",
-            122 => "High 4:2:2",
-            244 => "High 4:4:4",
-            44 => "CAVLC 4:4:4",
-            var p => "Profile " + p.ToString(CultureInfo.InvariantCulture),
-        };
-        var level = avcC[3];
-        return string.Create(CultureInfo.InvariantCulture, $"{profile}@{level / 10}.{level % 10}");
-    }
+    public static string AvcProfileLevel(ReadOnlySpan<byte> avcC) => H264.ProfileLevel(avcC);
 
     /// <summary>Decodes "Profile@Level" from an hvcC record (HEVC CodecPrivate).</summary>
-    public static string HevcProfileLevel(ReadOnlySpan<byte> hvcC)
-    {
-        if (hvcC.Length < 13 || hvcC[0] != 1)
-            return string.Empty;
-
-        var profileIdc = hvcC[1] & 0x1F;
-        var highTier = (hvcC[1] & 0x20) != 0;
-        var profile = profileIdc switch
-        {
-            1 => "Main",
-            2 => "Main 10",
-            3 => "Main Still",
-            4 => "RExt",
-            var p => "Profile " + p.ToString(CultureInfo.InvariantCulture),
-        };
-        var levelIdc = hvcC[12];
-        var text = levelIdc == 0
-            ? profile
-            : string.Create(CultureInfo.InvariantCulture, $"{profile}@{levelIdc / 30}.{levelIdc % 30 / 3}");
-        return highTier ? text + " High" : text;
-    }
+    public static string HevcProfileLevel(ReadOnlySpan<byte> hvcC) => Hevc.ProfileLevel(hvcC);
 
     /// <summary>Decodes a Dolby Vision decoder configuration record ('dvcC'/'dvvC').</summary>
     public static DolbyVisionInfo? DolbyVision(ReadOnlySpan<byte> record)

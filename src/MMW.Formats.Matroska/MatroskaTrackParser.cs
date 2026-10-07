@@ -1,5 +1,6 @@
 using System.Globalization;
 using MMW.Core.Languages;
+using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
 using static MMW.Formats.Matroska.MatroskaIds;
@@ -111,6 +112,7 @@ internal static class MatroskaTrackParser
             {
                 "V_MPEG4/ISO/AVC" => MatroskaCodecs.AvcProfileLevel(priv.Data.Span),
                 "V_MPEGH/ISO/HEVC" => MatroskaCodecs.HevcProfileLevel(priv.Data.Span),
+                "V_MPEGI/ISO/VVC" => Vvc.ProfileLevel(priv.Data.Span),
                 _ => string.Empty,
             };
         }

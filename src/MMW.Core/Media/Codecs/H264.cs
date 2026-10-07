@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace MMW.Core.Media.Codecs;
 
 /// <summary>Fields of an H.264 sequence parameter set.</summary>
@@ -84,6 +86,9 @@ public static class H264
     [
         (0, 0), (1, 1), (12, 11), (10, 11), (16, 11), (40, 33), (24, 11), (20, 11), (32, 11), (80, 33), (18, 11), (15, 11), (64, 33), (160, 99), (4, 3), (3, 2), (2, 1),
     ];
+
+    /// <summary>Sample aspect ratio of an aspect_ratio_idc (H.264 Table E-1, shared by HEVC and VVC); null when reserved.</summary>
+    internal static (int W, int H)? SampleAspectRatio(int idc) => idc > 0 && idc < s_sar.Length ? s_sar[idc] : null;
 
     public static bool HasChromaInfo(int profileIdc) => profileIdc is 100 or 110 or 122 or 244 or 44 or 83 or 86 or 118 or 128 or 138 or 139 or 134 or 135;
 
@@ -384,5 +389,27 @@ public static class H264
         }
 
         return list;
+    }
+
+    /// <summary>Decodes "Profile@Level" from an avcC record (also the Matroska CodecPrivate).</summary>
+    public static string ProfileLevel(ReadOnlySpan<byte> avcC)
+    {
+        if (avcC.Length < 4 || avcC[0] != 1)
+            return string.Empty;
+
+        var profile = avcC[1] switch
+        {
+            66 => "Baseline",
+            77 => "Main",
+            88 => "Extended",
+            100 => "High",
+            110 => "High 10",
+            122 => "High 4:2:2",
+            244 => "High 4:4:4",
+            44 => "CAVLC 4:4:4",
+            var p => "Profile " + p.ToString(CultureInfo.InvariantCulture),
+        };
+        var level = avcC[3];
+        return string.Create(CultureInfo.InvariantCulture, $"{profile}@{level / 10}.{level % 10}");
     }
 }

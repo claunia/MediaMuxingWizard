@@ -72,6 +72,16 @@ public sealed class Hdr10PlusTests
     }
 
     [Fact]
+    public void Finds_hdr10plus_in_vvc_sei()
+    {
+        byte[] slice = [0, (8 << 3) | 1, 0xC0, 0x88]; // IDR_N_LP
+        Assert.True(Hdr10Plus.InSample(CodecType.Vvc, LengthPrefixed(Sei([0, (23 << 3) | 1], T35), slice), 4)); // prefix SEI
+        Assert.True(Hdr10Plus.InSample(CodecType.Vvc, LengthPrefixed(slice, Sei([0, (24 << 3) | 1], T35)), 4)); // suffix SEI
+        Assert.False(Hdr10Plus.InSample(CodecType.Vvc, LengthPrefixed(Sei([0, (23 << 3) | 1], DolbyT35), slice), 4));
+        Assert.False(Hdr10Plus.InSample(CodecType.Vvc, LengthPrefixed(Sei([39 << 1, 1], T35), slice), 4)); // an HEVC SEI header
+    }
+
+    [Fact]
     public void Finds_hdr10plus_in_av1_metadata_obus()
     {
         byte[] temporalDelimiter = [(2 << 3) | 2, 0];

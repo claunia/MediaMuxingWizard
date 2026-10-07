@@ -1,6 +1,6 @@
 namespace MMW.Core.Media.Codecs;
 
-/// <summary>H.264/HEVC SEI messages (payloadType/payloadSize coded as runs of 0xFF plus a final byte).</summary>
+/// <summary>H.264/HEVC/VVC SEI messages (payloadType/payloadSize coded as runs of 0xFF plus a final byte).</summary>
 public static class Sei
 {
     public const int UserDataRegisteredItuTT35 = 4;
@@ -47,24 +47,29 @@ public static class Sei
     }
 
     /// <summary>
-    /// Calls <paramref name="visit"/> for the SEI messages of the SEI NAL units in a length-prefixed H.264/HEVC sample.
+    /// Calls <paramref name="visit"/> for the SEI messages of the SEI NAL units in a length-prefixed H.264/HEVC/VVC sample.
     /// </summary>
-    public static void ForEachMessageInSample(ReadOnlySpan<byte> data, int nalLengthSize, bool hevc, MessageVisitor visit)
+    public static void ForEachMessageInSample(ReadOnlySpan<byte> data, int nalLengthSize, CodecType codec, MessageVisitor visit)
     {
         foreach (var range in NalUnits.SplitLengthPrefixed(data, nalLengthSize))
         {
             var stop = false;
-            ForEachMessageInNal(data[range], hevc, (t, p) => stop = visit(t, p));
+            ForEachMessageInNal(data[range], codec, (t, p) => stop = visit(t, p));
             if (stop)
                 return;
         }
     }
 
-    /// <summary>Calls <paramref name="visit"/> for the messages of one NAL unit when it is a SEI (HEVC prefix/suffix, H.264 SEI).</summary>
-    public static void ForEachMessageInNal(ReadOnlySpan<byte> nal, bool hevc, MessageVisitor visit)
+    /// <summary>Calls <paramref name="visit"/> for the messages of one NAL unit when it is a SEI (HEVC/VVC prefix/suffix, H.264 SEI).</summary>
+    public static void ForEachMessageInNal(ReadOnlySpan<byte> nal, CodecType codec, MessageVisitor visit)
     {
-        var isSei = hevc ? NalUnits.HevcType(nal) is 39 or 40 : NalUnits.H264Type(nal) == 6;
-        var headerLength = hevc ? 2 : 1;
+        var isSei = codec switch
+        {
+            CodecType.Hevc => NalUnits.HevcType(nal) is Hevc.NalSeiPrefix or Hevc.NalSeiSuffix,
+            CodecType.Vvc => Vvc.NalType(nal) is Vvc.NalSeiPrefix or Vvc.NalSeiSuffix,
+            _ => NalUnits.H264Type(nal) == 6,
+        };
+        var headerLength = codec == CodecType.H264 ? 1 : 2;
         if (isSei && nal.Length > headerLength)
             ForEachMessage(NalUnits.ToRbsp(nal[headerLength..]), visit);
     }

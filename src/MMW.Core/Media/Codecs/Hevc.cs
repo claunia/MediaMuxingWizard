@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace MMW.Core.Media.Codecs;
 
 /// <summary>Fields of an HEVC sequence parameter set.</summary>
@@ -443,5 +445,28 @@ public static class Hevc
         }
 
         return copy;
+    }
+
+    /// <summary>Decodes "Profile@Level" from an hvcC record (also the Matroska CodecPrivate).</summary>
+    public static string ProfileLevel(ReadOnlySpan<byte> hvcC)
+    {
+        if (hvcC.Length < 13 || hvcC[0] != 1)
+            return string.Empty;
+
+        var profileIdc = hvcC[1] & 0x1F;
+        var highTier = (hvcC[1] & 0x20) != 0;
+        var profile = profileIdc switch
+        {
+            1 => "Main",
+            2 => "Main 10",
+            3 => "Main Still",
+            4 => "RExt",
+            var p => "Profile " + p.ToString(CultureInfo.InvariantCulture),
+        };
+        var levelIdc = hvcC[12];
+        var text = levelIdc == 0
+            ? profile
+            : string.Create(CultureInfo.InvariantCulture, $"{profile}@{levelIdc / 30}.{levelIdc % 30 / 3}");
+        return highTier ? text + " High" : text;
     }
 }
