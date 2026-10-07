@@ -27,7 +27,8 @@ public static class VideoStreamInfoScanner
 
     public static bool CanScan(CodecConfig config) =>
         config.Kind == TrackKind.Video && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or
-            CodecType.Av2 or CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3;
+            CodecType.Av2 or CodecType.Avs1 or CodecType.Avs2 or CodecType.Avs3 or CodecType.Mpeg1Video or CodecType.Mpeg2Video or CodecType.Mpeg4Visual or
+            CodecType.VfwVideo;
 
     /// <summary>Scans an open sample source; the source is rewound afterwards.</summary>
     public static VideoStreamInfo Scan(ISampleSource track, CancellationToken cancellationToken = default)
@@ -38,6 +39,8 @@ public static class VideoStreamInfoScanner
             return VideoStreamInfo.None;
         if (Avs.Generation(config.Codec) is { } generation)
             return ScanAvs(track, generation, cancellationToken);
+        if (config.Codec is CodecType.Mpeg1Video or CodecType.Mpeg2Video or CodecType.Mpeg4Visual or CodecType.VfwVideo)
+            return ScanLegacy(track, cancellationToken);
 
         var state = new State(config.Codec);
         var lengthSize = 4;
@@ -161,6 +164,61 @@ public static class VideoStreamInfoScanner
         return sequence is null
             ? VideoStreamInfo.None
             : new VideoStreamInfo(State.Meaningful(sequence.Color), sequence.Hdr, Avs.ProfileLevel(generation, sequence.ProfileId, sequence.LevelId));
+    }
+
+    /// <summary>
+    /// MPEG-1/2, MPEG-4 Part 2, VC-1 and DV: profile, level and colour from the configuration (sequence / VOL headers,
+    /// the VC-1 sequence header) or, when it has none, the first frames.
+    /// </summary>
+    private static VideoStreamInfo ScanLegacy(ISampleSource track, CancellationToken cancellationToken)
+    {
+        var config = track.Config;
+        Func<ReadOnlySpan<byte>, LegacyVideoInfo?>? describe = config.Codec switch
+        {
+            CodecType.Mpeg1Video or CodecType.Mpeg2Video => Mpeg12Video.Describe,
+            CodecType.Mpeg4Visual => Mpeg4Part2.Describe,
+            _ => null,
+        };
+        var extradata = config.Extradata;
+        if (config.Codec == CodecType.VfwVideo)
+        {
+            if (Vfw.ParseBitmapInfoHeader(config.Extradata) is not { } bih)
+                return VideoStreamInfo.None;
+            extradata = bih.Extra;
+            var name = Vfw.VideoName(bih.FourCc);
+            if (name == "VC-1" || name == "WMV 9")
+                return Vc1.Describe(bih.FourCc, bih.Extra) is { } vc1 ? new VideoStreamInfo(State.Meaningful(vc1.Color), null, vc1.ProfileLevel) : VideoStreamInfo.None;
+            describe = name switch
+            {
+                "DV" => DvVideo.Describe,
+                "MPEG-4 Visual" => Mpeg4Part2.Describe,
+                _ => null,
+            };
+            if (name == "DV")
+                extradata = null; // every frame describes itself
+        }
+
+        if (describe is null)
+            return VideoStreamInfo.None;
+        var info = extradata is { Length: > 0 } ? describe(extradata) : null;
+        if (info is null)
+        {
+            track.Reset();
+            try
+            {
+                for (var i = 0; i < MaxSamples && info is null && track.ReadNext() is { } sample; i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    info = describe(sample.GetData().Span);
+                }
+            }
+            finally
+            {
+                track.Reset();
+            }
+        }
+
+        return info is null ? VideoStreamInfo.None : new VideoStreamInfo(State.Meaningful(info.Color), null, info.ProfileLevel);
     }
 
     /// <summary>Mastering display colour volume SEI (H.264/HEVC/VVC/EVC): primaries in G, B, R order, 0.00002 and 0.0001 cd/m² units.</summary>

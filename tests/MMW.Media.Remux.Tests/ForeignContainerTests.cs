@@ -159,6 +159,26 @@ public sealed class ForeignContainerTests
         }
     }
 
+    /// <summary>What the bitstream headers say is shown with the tracks: profile, level, coding tools, colour, encoder, bit rate mode.</summary>
+    [Theory]
+    [InlineData("details-mpeg2-709.mpg", "-vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709 -c:v mpeg2video -pix_fmt yuv422p -flags +ildct+ilme -c:a mp2 -b:a 192k -f mpeg",
+        "4:2:2@Main, interlaced", "CBR 192 kbps")]
+    [InlineData("details-xvid.avi", "-c:v mpeg4 -vtag XVID -flags +qpel+ildct -mpeg_quant 1 -c:a libmp3lame -q:a 2", "QPel, interlaced, MPEG quantisation", "VBR")]
+    [InlineData("details-dv.dv", "-s 720x576 -r 25 -aspect 16:9 -pix_fmt yuv420p -c:v dvvideo -c:a pcm_s16le -ar 48000 -ac 2 -f dv", "DV 625/50 4:2:0, 16:9", null)]
+    [InlineData("details-wmv.asf", "-c:v wmv2 -c:a wmav2 -b:a 96k", "WMV 8", "96 kbps")]
+    public async Task Bitstream_details_are_described(string name, string options, string video, string? audio)
+    {
+        var source = Make(name, options);
+        MediaRemux.EnsureRegistered();
+        var tracks = await TrackImporter.InspectAsync(source, ContainerKind.Matroska, Ct);
+        var v = tracks.Single(t => t.Config.Kind == TrackKind.Video);
+        Assert.Contains(video, $"{v.Format} {v.Details}", StringComparison.Ordinal);
+        if (audio is not null)
+            Assert.Contains(audio, tracks.Single(t => t.Config.Kind == TrackKind.Audio).Details, StringComparison.Ordinal);
+        if (name.EndsWith(".mpg", StringComparison.Ordinal))
+            Assert.Equal(new ColorInfo(1, 1, 1), v.Config.StreamColor);
+    }
+
     /// <summary>A VobSub pair: either file opens the track; it passes through with the subpictures' own durations, and OCR is offered.</summary>
     [Fact]
     public async Task Vobsub_pairs_import_and_offer_ocr()

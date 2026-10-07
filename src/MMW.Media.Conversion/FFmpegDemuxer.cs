@@ -174,7 +174,11 @@ internal sealed record StreamInfo(int Index, int Id, CodecConfig Config, PacketF
             Language = language is { Length: 3 } ? LanguageTable.ToBcp47(language) : "und",
             Name = title,
         };
-        var frameRate = st->avg_frame_rate.num > 0 && st->avg_frame_rate.den > 0 ? st->avg_frame_rate : st->r_frame_rate;
+        // The average rate, unless it is implausible next to the base rate (raw DV reports its time base).
+        var frameRate = st->avg_frame_rate.num > 0 && st->avg_frame_rate.den > 0 &&
+                        !(st->r_frame_rate.num > 0 && st->r_frame_rate.den > 0 && ffmpeg.av_q2d(st->avg_frame_rate) > 2 * ffmpeg.av_q2d(st->r_frame_rate))
+            ? st->avg_frame_rate
+            : st->r_frame_rate;
         long frameTicks = 0;
         if (frameRate.num > 0 && frameRate.den > 0)
             frameTicks = (long)Math.Round((double)frameRate.den * tb.den / ((double)frameRate.num * tb.num));

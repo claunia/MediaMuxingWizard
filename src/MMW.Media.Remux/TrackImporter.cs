@@ -164,6 +164,7 @@ public static class TrackImporter
             config = WithStreamInfo(source, config);
             config = WithDtsDescription(source, config);
             config = WithOpusDescription(source, config);
+            config = WithMpegAudioDescription(source, config);
             if (config.AudioProfile.Length == 0 && FlacDetector.Detect(config) is { Length: > 0 } flac)
                 config = config with { AudioProfile = flac };
             var support = muxer.CheckSupport(config);
@@ -245,6 +246,22 @@ public static class TrackImporter
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
             AppLog.Debug($"Opus check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
+    }
+
+    /// <summary>MPEG audio bit rate mode, channel mode and encoder from the first frames.</summary>
+    private static CodecConfig WithMpegAudioDescription(ISampleSource source, CodecConfig config)
+    {
+        if (!MpegAudioDetector.CanScan(config) || config.AudioProfile.Length > 0)
+            return config;
+        try
+        {
+            return config with { AudioProfile = MpegAudioDetector.Detect(source) };
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"MPEG audio check of track {source.TrackId} failed: {ex.Message}");
             return config;
         }
     }
@@ -514,6 +531,8 @@ public static class TrackImporter
             case TrackKind.Audio:
                 if (config.AudioProfile.Length > 0)
                     parts.Add(config.AudioProfile);
+                else if (config.Codec == CodecType.AcmAudio && Vfw.ParseWaveFormatEx(config.Extradata) is { BitRate: > 0 } wfx)
+                    parts.Add(string.Create(CultureInfo.InvariantCulture, $"{Math.Round(wfx.BitRate / 1000.0)} kbps"));
                 if (config.Channels > 0)
                     parts.Add(Formats.Mp4.Boxes.CodecInfo.ChannelDescription(config.Channels));
                 if (config.SampleRate > 0)

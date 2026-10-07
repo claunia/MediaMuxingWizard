@@ -779,6 +779,89 @@ public static class MpegAudio
         };
         return (rate, (frame[3] >> 6) == 3 ? 1 : 2);
     }
+
+    /// <summary>Bit rate in kbit/s of an MPEG audio frame header; 0 for free format or an invalid header.</summary>
+    public static int BitRate(ReadOnlySpan<byte> frame)
+    {
+        if (frame.Length < 4 || frame[0] != 0xFF || (frame[1] & 0xE0) != 0xE0)
+            return 0;
+        var mpeg1 = ((frame[1] >> 3) & 3) == 3;
+        var layer = (frame[1] >> 1) & 3; // 3 = Layer I, 2 = Layer II, 1 = Layer III
+        var index = frame[2] >> 4;
+        if (index is 0 or 15 || layer == 0)
+            return 0;
+        ReadOnlySpan<short> table = (mpeg1, layer) switch
+        {
+            (true, 3) => [32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448],
+            (true, 2) => [32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384],
+            (true, _) => [32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320],
+            (false, 3) => [32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256],
+            _ => [8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160],
+        };
+        return table[index - 1];
+    }
+
+    /// <summary>
+    /// "CBR 128 kbps, joint stereo" / "VBR 190 kbps, LAME3.100": the bit rate mode and (average) rate, the channel mode
+    /// and the encoder of a LAME/Xing header, from the first frames of a stream.
+    /// </summary>
+    public static string DescribeStream(IEnumerable<ReadOnlyMemory<byte>> frames)
+    {
+        ArgumentNullException.ThrowIfNull(frames);
+        var rates = new List<int>();
+        var mode = -1;
+        bool? vbr = null;
+        var encoder = string.Empty;
+        foreach (var memory in frames)
+        {
+            var frame = memory.Span;
+            if (BitRate(frame) is not (> 0 and var rate))
+                continue;
+            var head = frame[..Math.Min(frame.Length, 64)];
+            var xing = head.IndexOf("Xing"u8) >= 0;
+            if (xing || head.IndexOf("Info"u8) >= 0 || head.IndexOf("VBRI"u8) >= 0)
+            {
+                // The encoder's summary frame (no audio): VBR or CBR, and the LAME version that wrote it.
+                vbr = xing || head.IndexOf("VBRI"u8) >= 0;
+                if (frame.IndexOf("LAME"u8) is >= 0 and var lame)
+                {
+                    var end = lame + 4;
+                    while (end < frame.Length && end < lame + 9 && frame[end] is (byte)'.' or >= (byte)'0' and <= (byte)'9')
+                        end++;
+                    encoder = System.Text.Encoding.ASCII.GetString(frame[lame..end]).TrimEnd('.');
+                }
+
+                continue;
+            }
+
+            rates.Add(rate);
+            if (mode < 0)
+                mode = frame[3] >> 6;
+        }
+
+        if (rates.Count == 0)
+            return string.Empty;
+        var variable = vbr ?? rates.Distinct().Skip(1).Any();
+        var parts = new List<string>
+        {
+            variable
+                ? string.Create(System.Globalization.CultureInfo.InvariantCulture, $"VBR {Math.Round(rates.Average())} kbps")
+                : string.Create(System.Globalization.CultureInfo.InvariantCulture, $"CBR {rates[0]} kbps"),
+        };
+        switch (mode)
+        {
+            case 1:
+                parts.Add("joint stereo");
+                break;
+            case 2:
+                parts.Add("dual channel");
+                break;
+        }
+
+        if (encoder.Length > 0)
+            parts.Add(encoder);
+        return string.Join(", ", parts);
+    }
 }
 
 /// <summary>Durations of audio frames derived from the bitstream.</summary>
