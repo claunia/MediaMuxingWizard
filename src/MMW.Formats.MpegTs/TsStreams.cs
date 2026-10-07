@@ -47,6 +47,8 @@ internal abstract class TsStream
                 return new MpegVideoStream(info, CodecType.Mpeg1Video);
             case 0x02:
                 return new MpegVideoStream(info, CodecType.Mpeg2Video);
+            case 0x10:
+                return new MpegVideoStream(info, CodecType.Mpeg4Visual);
             case 0x03 or 0x04:
                 return new AudioStream(info, AudioKind.MpegAudio);
             case 0x0F:
@@ -77,6 +79,8 @@ internal abstract class TsStream
                 return new PgsStream(info);
             case 0x2D:
                 return new MpegHTsStream(info, known);
+            case 0xEA:
+                return new Vc1TsStream(info);
             case 0x06:
                 if (info.Descriptor(0x6A) is not null || info.Descriptor(0x7A) is not null || registration is "AC-3" or "EAC3")
                     return new AudioStream(info, AudioKind.Ac3);
@@ -86,6 +90,8 @@ internal abstract class TsStream
                     return new NalVideoStream(info, CodecType.Hevc);
                 if (registration == "Opus")
                     return new AudioStream(info, AudioKind.Opus);
+                if (registration == "VC-1")
+                    return new Vc1TsStream(info);
                 if (registration is "AV01" or "AV1G") // AOMedia's mapping; GStreamer's earlier custom one
                     return new Av1TsStream(info);
                 if (info.Descriptor(0x59) is { Length: >= 8 })
@@ -502,9 +508,10 @@ internal sealed class NalVideoStream(TsStreamInfo info, CodecType codec) : TsStr
 }
 
 /// <summary>
-/// MPEG-1/2 and AVS1/AVS2/AVS3 video: one picture per PES (PES without timestamp continue it). All use 00 00 01 start
-/// codes: MPEG sequence header 0xB3 and picture 0x00 (intra when picture_coding_type is 1); AVS sequence header 0xB0
-/// and intra picture 0xB3.
+/// MPEG-1/2, MPEG-4 Part 2 and AVS1/AVS2/AVS3 video: one picture per PES (PES without timestamp continue it). All use
+/// 00 00 01 start codes: MPEG sequence header 0xB3 and picture 0x00 (intra when picture_coding_type is 1); MPEG-4 visual
+/// object sequence 0xB0 / visual object 0xB5 / video object layer 0x20–0x2F before the VOP 0xB6 (intra when
+/// vop_coding_type is 0); AVS sequence header 0xB0 and intra picture 0xB3.
 /// </summary>
 internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsStream(info)
 {
@@ -529,6 +536,12 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
         }
 
         Emit(output);
+        if (codec == CodecType.Mpeg4Visual)
+        {
+            OnMpeg4Picture(pes, pts);
+            return;
+        }
+
         var sequence = IndexOf(pes.Data, IsAvs ? Avs.SequenceHeader : (byte)0xB3);
         if (sequence >= 0 && _sequenceHeader is null)
         {
@@ -556,6 +569,31 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
 
         var dts = pes.Dts ?? pts;
         _pending = new MediaSample { Dts = dts, CtsOffset = pts - dts, IsSync = intra, Data = pes.Data };
+    }
+
+    /// <summary>MPEG-4 Part 2: the configuration is every header before the first group of VOPs (0xB3) or VOP (0xB6).</summary>
+    private void OnMpeg4Picture(Pes pes, long pts)
+    {
+        var data = pes.Data;
+        var vop = IndexOf(data, 0xB6);
+        if (_sequenceHeader is null && Mpeg4Part2.LayerSize(data) is not null)
+        {
+            var start = -1;
+            for (var i = 0; i + 3 < data.Length && start < 0; i++)
+            {
+                if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1 && data[i + 3] is 0xB0 or 0xB5 or <= 0x2F)
+                    start = i;
+            }
+
+            var gov = IndexOf(data, 0xB3);
+            var end = new[] { vop, gov }.Where(p => p > start).DefaultIfEmpty(data.Length).Min();
+            if (start >= 0)
+                _sequenceHeader = data[start..end];
+        }
+
+        var intra = vop >= 0 && vop + 4 < data.Length && data[vop + 4] >> 6 == 0;
+        var dts = pes.Dts ?? pts;
+        _pending = new MediaSample { Dts = dts, CtsOffset = pts - dts, IsSync = intra, Data = data };
     }
 
     public override void Flush(Queue<MediaSample> output) => Emit(output);
@@ -608,6 +646,21 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
                 FrameRate = rate,
                 DefaultSampleDuration = rate > 0 ? (long)Math.Round(90000 / rate) : 0,
                 VideoProfile = avs is null ? string.Empty : Avs.ProfileLevel(generation, avs.ProfileId, avs.LevelId),
+            };
+        }
+
+        if (codec == CodecType.Mpeg4Visual)
+        {
+            var (vw, vh, vr) = Mpeg4Part2.LayerSize(s) ?? (0, 0, 0);
+            return Base(TrackKind.Video) with
+            {
+                Codec = codec,
+                Extradata = s,
+                BitsPerSample = 8,
+                Width = vw,
+                Height = vh,
+                FrameRate = vr,
+                DefaultSampleDuration = vr > 0 ? (long)Math.Round(90000 / vr) : 0,
             };
         }
 
@@ -1576,6 +1629,104 @@ internal sealed class MpegHTsStream(TsStreamInfo info, CodecConfig? known) : TsS
             SampleRate = parsed.SampleRate,
             Channels = MpegH.Channels(parsed.Cicp),
             DefaultSampleDuration = parsed.FrameLength,
+        };
+    }
+}
+
+/// <summary>
+/// VC-1 Advanced profile (SMPTE RP 227: stream type 0xEA, registration 'VC-1'): start-code delimited EBDUs, one frame per
+/// PES (PES without timestamp continue it). Random access points carry the sequence header and entry point, which
+/// become the 'dvc1' of a 'vc-1' sample entry; the frames are kept as they are.
+/// </summary>
+internal sealed class Vc1TsStream(TsStreamInfo info) : TsStream(info)
+{
+    private const byte SequenceHeader = 0x0F;
+    private const byte EntryPoint = 0x0E;
+    private (byte[] Headers, Vc1Sequence Sequence)? _configuration;
+    private MediaSample? _pending;
+    private bool _seenSync;
+    private int _samples;
+    private long _firstPts = -1;
+    private long _secondPts = -1;
+
+    public override uint Timescale => 90000;
+
+    public override bool Ready => _configuration is not null && _samples >= 2;
+
+    public override void OnPes(Pes pes, Queue<MediaSample> output)
+    {
+        if (pes.Pts is not { } pts)
+        {
+            if (_pending is not null)
+                _pending.Data = (byte[])[.. _pending.Data.Span, .. pes.Data];
+            return;
+        }
+
+        Emit(output);
+        var data = pes.Data;
+        var entry = IndexOf(data, EntryPoint);
+        if (_configuration is null && IndexOf(data, SequenceHeader) is >= 0 and var sequence && entry > sequence)
+        {
+            // The sequence header and entry point (each with its start code), up to the next unit.
+            var end = entry + 4;
+            while (end + 3 < data.Length && !(data[end] == 0 && data[end + 1] == 0 && data[end + 2] == 1))
+                end++;
+            if (end + 3 >= data.Length)
+                end = data.Length;
+            var parsed = Vc1.ParseSequence(data.AsSpan(sequence + 4));
+            if (parsed.Profile == 3)
+                _configuration = (data[sequence..end], parsed);
+        }
+
+        var dts = pes.Dts ?? pts;
+        if (_firstPts < 0)
+            _firstPts = pts;
+        else if (_secondPts < 0)
+            _secondPts = pts;
+        _pending = new MediaSample { Dts = dts, CtsOffset = pts - dts, IsSync = entry >= 0, Data = data };
+    }
+
+    public override void Flush(Queue<MediaSample> output) => Emit(output);
+
+    private void Emit(Queue<MediaSample> output)
+    {
+        if (_pending is not { } sample)
+            return;
+        _pending = null;
+        if (!_seenSync && !sample.IsSync)
+            return;
+        _seenSync = true;
+        _samples++;
+        output.Enqueue(sample);
+    }
+
+    private static int IndexOf(byte[] data, byte code)
+    {
+        for (var i = 0; i + 3 < data.Length; i++)
+        {
+            if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1 && data[i + 3] == code)
+                return i;
+        }
+
+        return -1;
+    }
+
+    public override CodecConfig Describe()
+    {
+        var (headers, sequence) = _configuration!.Value;
+        var rate = sequence.FrameRate > 0 ? sequence.FrameRate : _secondPts > _firstPts && _firstPts >= 0 ? 90000.0 / Math.Abs(_secondPts - _firstPts) : 0;
+        return Base(TrackKind.Video) with
+        {
+            Codec = CodecType.Vc1,
+            SourceCodecId = "vc-1",
+            Extradata = Vc1.BuildEntry(headers, sequence with { FrameRate = rate }),
+            Width = sequence.Width,
+            Height = sequence.Height,
+            BitsPerSample = 8,
+            FrameRate = rate,
+            DefaultSampleDuration = rate > 0 ? (long)Math.Round(90000 / rate) : 0,
+            StreamColor = sequence.Color,
+            VideoProfile = $"Advanced@L{sequence.Level}" + (sequence.Interlaced ? ", interlaced" : string.Empty),
         };
     }
 }

@@ -53,6 +53,31 @@ public static class QuickTime
         return e;
     }
 
+    /// <summary>An ISO VisualSampleEntry of <paramref name="type"/> (72 dpi, one frame per sample, 24-bit depth) holding the given boxes.</summary>
+    public static byte[] VisualEntry(string type, int width, int height, params byte[][] boxes)
+    {
+        var length = 86 + boxes.Sum(b => b.Length);
+        var e = new byte[length];
+        BinaryPrimitives.WriteInt32BigEndian(e, length);
+        Encoding.ASCII.GetBytes(type.AsSpan(0, 4), e.AsSpan(4, 4));
+        BinaryPrimitives.WriteUInt16BigEndian(e.AsSpan(14), 1); // data_reference_index
+        BinaryPrimitives.WriteUInt16BigEndian(e.AsSpan(32), (ushort)width);
+        BinaryPrimitives.WriteUInt16BigEndian(e.AsSpan(34), (ushort)height);
+        BinaryPrimitives.WriteUInt32BigEndian(e.AsSpan(36), 0x00480000);
+        BinaryPrimitives.WriteUInt32BigEndian(e.AsSpan(40), 0x00480000);
+        BinaryPrimitives.WriteUInt16BigEndian(e.AsSpan(48), 1); // frame_count
+        BinaryPrimitives.WriteUInt16BigEndian(e.AsSpan(82), 0x0018);
+        BinaryPrimitives.WriteInt16BigEndian(e.AsSpan(84), -1);
+        var at = 86;
+        foreach (var box in boxes)
+        {
+            box.CopyTo(e, at);
+            at += box.Length;
+        }
+
+        return e;
+    }
+
     /// <summary>A box (size, type, payload).</summary>
     public static byte[] Box(string type, ReadOnlySpan<byte> payload)
     {

@@ -274,6 +274,28 @@ public sealed class MpegTsTests
         }
     }
 
+    /// <summary>MPEG-4 Part 2 video (stream type 0x10) with B-frames: the VOL becomes the configuration, frames keep their times.</summary>
+    [Theory]
+    [InlineData(ContainerKind.Matroska)]
+    [InlineData(ContainerKind.Mp4)]
+    public async Task Mpeg4_part2_streams_remux_frame_exact(ContainerKind target)
+    {
+        var source = Ts("ts-mpeg4.ts", "-f lavfi -i testsrc2=duration=2:size=320x240:rate=25 -c:v mpeg4 -bf 2 -g 12 -f mpegts");
+        var track = Assert.Single(await TrackImporter.InspectAsync(source, target, Ct));
+        Assert.Equal(CodecType.Mpeg4Visual, track.Config.Codec);
+        Assert.Equal((320, 240), (track.Config.Width, track.Config.Height));
+        Assert.Contains("Simple", track.Details, StringComparison.Ordinal);
+        var output = await ImportAll(source, target);
+        try
+        {
+            Assert.Equal(FrameHashes(source, "0:v:0"), FrameHashes(output, "0:v:0"));
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
+    }
+
     /// <summary>
     /// MPEG-H 3D Audio (stream type 0x2D, MHAS): the access units (configuration changes included) and the 'mhm1' entry
     /// written to MP4 are those of the encoder's own MP4 of the same content.

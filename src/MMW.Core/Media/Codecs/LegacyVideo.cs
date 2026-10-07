@@ -150,6 +150,66 @@ public static partial class Mpeg4Part2
         return new LegacyVideoInfo(string.Join(", ", parts), color);
     }
 
+    /// <summary>
+    /// The picture size and (fixed) frame rate of the first rectangular video object layer in <paramref name="data"/>;
+    /// null when there is none. The frame rate is 0 when the layer does not fix it.
+    /// </summary>
+    public static (int Width, int Height, double FrameRate)? LayerSize(ReadOnlySpan<byte> data)
+    {
+        for (var i = 0; i + 4 < data.Length; i++)
+        {
+            if (data[i] != 0 || data[i + 1] != 0 || data[i + 2] != 1 || data[i + 3] is < 0x20 or > 0x2F)
+                continue;
+            try
+            {
+                var r = new BitReader(data[(i + 4)..]);
+                r.Skip(1 + 8);
+                var verid = 1u;
+                if (r.Flag())
+                {
+                    verid = r.Read(4);
+                    r.Skip(3);
+                }
+
+                if (r.Read(4) == 15)
+                    r.Skip(16);
+                if (r.Flag())
+                {
+                    r.Skip(3);
+                    if (r.Flag())
+                        r.Skip(15 + 1 + 15 + 1 + 15 + 1 + 3 + 11 + 1 + 15 + 1);
+                }
+
+                var shape = r.Read(2);
+                if (shape == 3 && verid != 1)
+                    r.Skip(4);
+                r.Skip(1);
+                var resolution = r.Read(16);
+                r.Skip(1);
+                double rate = 0;
+                if (r.Flag())
+                {
+                    var increment = r.Read(Math.Max(1, 32 - System.Numerics.BitOperations.LeadingZeroCount(Math.Max(1, resolution - 1))));
+                    rate = increment > 0 ? resolution / (double)increment : 0;
+                }
+
+                if (shape != 0)
+                    return null;
+                r.Skip(1);
+                var width = (int)r.Read(13);
+                r.Skip(1);
+                var height = (int)r.Read(13);
+                return (width, height, rate);
+            }
+            catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
+            {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>profile_and_level_indication (Annex G) as "Profile@Level".</summary>
     public static string ProfileLevel(int indication)
     {
@@ -339,24 +399,52 @@ public static class Vc1
 
     private static LegacyVideoInfo Advanced(ReadOnlySpan<byte> header)
     {
+        var s = ParseSequence(header);
+        var name = s.Profile == 3 ? $"Advanced@L{s.Level}" : string.Empty;
+        return new LegacyVideoInfo(s.Interlaced && name.Length > 0 ? name + ", interlaced" : name, s.Color);
+    }
+
+    /// <summary>
+    /// The fields of an Advanced profile sequence header (after its 00 00 01 0F start code) that describe the track:
+    /// coded size, interlace, frame rate and colour of the display extension.
+    /// </summary>
+    public static Vc1Sequence ParseSequence(ReadOnlySpan<byte> header)
+    {
         var r = new BitReader(header);
-        var profile = r.Read(2);
-        var level = r.Read(3);
-        var name = profile == 3 ? $"Advanced@L{level}" : string.Empty;
-        var color = ColorInfo.Unspecified;
+        int profile = 0, level = 0, width = 0, height = 0;
         var interlaced = false;
+        double rate = 0;
+        var color = ColorInfo.Unspecified;
         try
         {
-            r.Skip(2 + 3 + 5 + 1 + 12 + 12 + 1); // colordiff, frame/bit rate quantisers, postproc, max coded size, pulldown
+            profile = (int)r.Read(2);
+            level = (int)r.Read(3);
+            r.Skip(2 + 3 + 5 + 1); // colordiff_format, frame/bit rate quantisers, postprocflag
+            width = (int)(r.Read(12) + 1) * 2;
+            height = (int)(r.Read(12) + 1) * 2;
+            r.Skip(1); // pulldown
             interlaced = r.Flag();
             r.Skip(4); // tfcntrflag, finterpflag, reserved, psf
             if (r.Flag()) // display_ext
             {
-                r.Skip(28);
+                r.Skip(28); // display size
                 if (r.Flag() && r.Read(4) == 15)
                     r.Skip(16);
                 if (r.Flag())
-                    r.Skip(r.Flag() ? 16 : 12);
+                {
+                    if (r.Flag())
+                    {
+                        rate = (r.Read(16) + 1) / 32.0; // framerateexp
+                    }
+                    else
+                    {
+                        var nr = r.Read(8);
+                        var dr = r.Read(4);
+                        double[] rates = [0, 24, 25, 30, 50, 60, 48, 72];
+                        rate = nr is > 0 and < 8 && dr is 1 or 2 ? rates[nr] * 1000 / (dr == 1 ? 1000 : 1001) : 0;
+                    }
+                }
+
                 if (r.Flag())
                     color = new ColorInfo((int)r.Read(8), (int)r.Read(8), (int)r.Read(8));
             }
@@ -365,9 +453,54 @@ public static class Vc1
         {
         }
 
-        return new LegacyVideoInfo(interlaced && name.Length > 0 ? name + ", interlaced" : name, color);
+        return new Vc1Sequence(profile, level, width, height, interlaced, rate, color);
+    }
+
+    /// <summary>
+    /// The 'dvc1' payload (SMPTE RP 2025 VC1DecSpecStruc, as FFmpeg writes it) for an Advanced profile stream: profile,
+    /// level, flags, the integer frame rate, then the sequence header and entry point with their start codes.
+    /// </summary>
+    public static byte[] BuildDvc1(ReadOnlySpan<byte> sequenceAndEntryPoint, Vc1Sequence sequence)
+    {
+        var w = new BitWriter();
+        w.Write(12, 4); // profile: advanced
+        w.Write((ulong)sequence.Level, 3);
+        w.Write(0, 1);
+        w.Write((ulong)sequence.Level, 3);
+        w.Write(0, 1); // cbr
+        w.Write(0, 6);
+        w.Flag(!sequence.Interlaced);
+        w.Flag(true); // no_multiple_seq
+        w.Flag(true); // no_multiple_entry
+        w.Flag(true); // no_slice_code
+        w.Flag(false); // no_bframe: B frames may be present
+        w.Write(0, 1);
+        w.Write(sequence.FrameRate > 0 ? (ulong)Math.Round(sequence.FrameRate) : 0xFFFFFFFF, 32);
+        return [.. w.ToArray(), .. sequenceAndEntryPoint];
+    }
+
+    /// <summary>A 'vc-1' sample entry with its 'dvc1', for an Advanced profile stream that comes without one.</summary>
+    public static byte[] BuildEntry(ReadOnlySpan<byte> sequenceAndEntryPoint, Vc1Sequence sequence) =>
+        QuickTime.VisualEntry("vc-1", sequence.Width, sequence.Height, QuickTime.Box("dvc1", BuildDvc1(sequenceAndEntryPoint, sequence)));
+
+    /// <summary>The sequence header fields of a 'vc-1' sample entry's 'dvc1'; null when it has none.</summary>
+    public static Vc1Sequence? EntrySequence(ReadOnlySpan<byte> entry)
+    {
+        if (QuickTime.EntryBox(entry, "dvc1") is not { Length: > 7 } dvc1)
+            return null;
+        var data = dvc1.AsSpan(7);
+        for (var i = 0; i + 4 < data.Length; i++)
+        {
+            if (data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1 && data[i + 3] == 0x0F)
+                return ParseSequence(data[(i + 4)..]);
+        }
+
+        return null;
     }
 }
+
+/// <summary>Fields of a VC-1 Advanced profile sequence header.</summary>
+public sealed record Vc1Sequence(int Profile, int Level, int Width, int Height, bool Interlaced, double FrameRate, ColorInfo Color);
 
 /// <summary>DV (IEC 61834, SMPTE 314M) frames: DIF header and video auxiliary packs.</summary>
 public static class DvVideo

@@ -98,8 +98,8 @@ public sealed class Av1TsTests
         byte[] pmt = [0x02, 0xB0, (byte)(body.Length + 4), .. body];
         void Psi()
         {
-            Packets(o, counters, 0, [0, .. pat, .. Crc(pat)], false);
-            Packets(o, counters, 0x1000, [0, .. pmt, .. Crc(pmt)], false);
+            TsWriter.Packets(o, counters, 0, [0, .. pat, .. TsWriter.Crc(pat)], false);
+            TsWriter.Packets(o, counters, 0x1000, [0, .. pmt, .. TsWriter.Crc(pmt)], false);
         }
 
         Psi();
@@ -143,7 +143,7 @@ public sealed class Av1TsTests
                 for (var j = 0; j < units[k].Count; j++)
                     payload.AddRange(TsObu(units[k][j], keepSize: j % 2 == 0));
                 var key = units[k].Any(x => ((x[0] >> 3) & 0xF) == 1);
-                Packets(o, counters, 0x100, Pes([.. payload], time - (units.Count - 1 - k)), key);
+                TsWriter.Packets(o, counters, 0x100, TsWriter.Pes([.. payload], time - (units.Count - 1 - k)), key);
             }
 
             if (++frame % 10 == 0)
@@ -182,56 +182,5 @@ public sealed class Av1TsTests
         }
 
         return [.. o];
-    }
-
-    private static byte[] Pes(byte[] payload, long pts)
-    {
-        var length = 3 + 5 + payload.Length;
-        return
-        [
-            0, 0, 1, 0xBD, (byte)(length > 0xFFFF ? 0 : length >> 8), (byte)(length > 0xFFFF ? 0 : length), 0x84, 0x80, 5,
-            (byte)(0x21 | ((pts >> 29) & 0x0E)), (byte)(pts >> 22), (byte)(((pts >> 14) & 0xFE) | 1), (byte)(pts >> 7), (byte)(((pts << 1) & 0xFE) | 1),
-            .. payload,
-        ];
-    }
-
-    private static void Packets(List<byte> o, Dictionary<int, int> counters, int pid, byte[] data, bool randomAccess)
-    {
-        var first = true;
-        var at = 0;
-        while (first || at < data.Length)
-        {
-            var counter = counters.GetValueOrDefault(pid);
-            counters[pid] = (counter + 1) & 15;
-            var remaining = data.Length - at;
-            var adaptation = (first && randomAccess) || remaining < 184;
-            var room = adaptation ? 182 : 184;
-            var take = Math.Min(room, remaining);
-            o.AddRange([0x47, (byte)((first ? 0x40 : 0) | (pid >> 8)), (byte)pid, (byte)((adaptation ? 0x30 : 0x10) | counter)]);
-            if (adaptation)
-            {
-                o.Add((byte)(1 + room - take));
-                o.Add((byte)(first && randomAccess ? 0x40 : 0));
-                o.AddRange(Enumerable.Repeat((byte)0xFF, room - take));
-            }
-
-            o.AddRange(data.AsSpan(at, take).ToArray());
-            at += take;
-            first = false;
-        }
-    }
-
-    /// <summary>CRC-32/MPEG-2 of a PSI section, big-endian.</summary>
-    private static byte[] Crc(byte[] section)
-    {
-        var crc = 0xFFFFFFFFu;
-        foreach (var b in section)
-        {
-            crc ^= (uint)b << 24;
-            for (var i = 0; i < 8; i++)
-                crc = (crc & 0x80000000) != 0 ? (crc << 1) ^ 0x04C11DB7 : crc << 1;
-        }
-
-        return [(byte)(crc >> 24), (byte)(crc >> 16), (byte)(crc >> 8), (byte)crc];
     }
 }
