@@ -11,6 +11,7 @@ internal sealed class Arguments
     private static readonly HashSet<string> s_flags =
     [
         "json", "replace", "remove-all", "clear", "organize-groups", "fix-fallbacks", "clear-names", "prettify-audio-names", "optimize", "apply",
+        "all", "dry-run", "drop-unsupported",
     ];
 
     public static Arguments Parse(IReadOnlyList<string> args)

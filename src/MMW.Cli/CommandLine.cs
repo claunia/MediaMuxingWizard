@@ -26,6 +26,8 @@ internal static class CommandLine
           tracks <file> [--organize-groups] [--fix-fallbacks] [--clear-names] [--prettify-audio-names]
                         [--complete-languages <lang>] [--enable-audio <lang>] [--enable-subtitles <lang>]
                         [--track <id> --name <name> --language <lang> --enabled <true|false>]
+                        [--action <id>=<action>] [--duplicate <id>=<action>] [--forced|--default <id>=<bool>]
+                                               Edit tracks; actions and duplicates remux the file on save
           queue add <file>... | queue start | queue status | queue clear-completed
                                                Use the editor's saved queue (and its options)
           search <file> [--title t] [--year y] [--season n] [--episode n] [--provider p] [--language l]
@@ -33,13 +35,33 @@ internal static class CommandLine
                                                Search online metadata; --apply writes the chosen result
           nfo <file> --import [nfo] | --export [nfo]
                                                Merge tags from a Kodi .nfo, or write one
-          import <file> <source>... [--language l] [--frame-rate fps] [--only video|audio|subtitle]
-                                               Add tracks from other files (remuxes on save)
-          remux <file> <output>                Rewrite as MP4 or Matroska (by extension), no re-encoding
-          extract <file> <track-id> [output]   Write one track as a raw stream (.h264, .aac, .flac, .srt …)
+          probe <source>... [--target mp4|mkv] [--json]
+                                               List a file's tracks and the actions offered for each
+                                               (* = recommended), for MP4 and Matroska
+          import <file> <source[:tracks]>... [--track [n:]<tracks>] [--only video|audio|subtitle]
+                        [--action [<track>=]<action>] [--language [<track>=]<lang>] [--name <track>=<name>]
+                        [--forced|--default|--enabled <track>=<bool>] [--ocr-language [<track>=]<lang>]
+                        [--frame-rate [<track>=]<fps>] [--duplicate <track>=<action>] [--dry-run]
+                                               Add tracks from other files (remuxes on save). Pick tracks
+                                               with "movie.mkv:2,4-5" or --track; without, every track that
+                                               can be stored is taken with its recommended action
+          remux <file> <output> [--track <ids>] [--action <id>=<action>] [--duplicate <id>=<action>]
+                        [--name|--language <id>=<value>] [--forced|--default|--enabled <id>=<bool>]
+                        [--drop-unsupported] [--dry-run]
+                                               Rewrite as MP4 or Matroska (by extension); tracks the target
+                                               cannot hold as they are get their recommended conversion
+                                               (--drop-unsupported leaves them out instead)
+          extract <file> <track-ids>... [output] | extract <file> --all [--output-dir <dir>]
+                                               Write tracks as raw streams (.h264, .aac, .flac, .srt …)
           tag-names                            List the tag names accepted by "set"
 
-        Every editing command saves the file in place, or to --output <path> when given.
+        Tracks are the numbers "info" or "probe" show; with several import sources, "<n>:<track>" names track
+        <track> of source <n> (counted from 1). Actions: copy, aac, aac-stereo, aac-mono, aac-dpl2, aac-dpl,
+        aac-multichannel, ac3, aac+copy, aac+ac3, pcm, alac, tx3g, srt, ass, ssa, webvtt, tx3g-ocr, srt-ocr,
+        skip, as "probe" offers them for each track.
+
+        Every editing command saves the file in place, or to --output <path> when given (--optimize for
+        fast start); --dry-run prints what would be done without saving.
         """;
 
     public static async Task<int> RunAsync(string[] args, TextWriter output, TextWriter error, string? queuePath = null)
@@ -60,14 +82,15 @@ internal static class CommandLine
                 "clear-tags" => await EditAsync(Arguments.Parse(args[1..]), output, (doc, _) => doc.Metadata.Clear()),
                 "artwork" => await EditAsync(Arguments.Parse(args[1..]), output, Artwork),
                 "chapters" => await EditAsync(Arguments.Parse(args[1..]), output, Chapters),
-                "tracks" => await EditAsync(Arguments.Parse(args[1..]), output, Tracks),
+                "tracks" => await TrackCommands.TracksAsync(Arguments.Parse(args[1..]), output, Registry(), Tracks),
                 "queue" => await QueueAsync(args[1..], output, queuePath ?? DefaultQueuePath),
                 "tag-names" => await TagNamesAsync(output),
                 "search" => await MediaCommands.SearchAsync(Arguments.Parse(args[1..]), output, Registry()),
                 "nfo" => await MediaCommands.NfoAsync(Arguments.Parse(args[1..]), output, Registry()),
-                "import" => await MediaCommands.ImportAsync(Arguments.Parse(args[1..]), output, Registry()),
-                "remux" => await MediaCommands.RemuxAsync(Arguments.Parse(args[1..]), output, Registry()),
-                "extract" => await MediaCommands.ExtractAsync(Arguments.Parse(args[1..]), output),
+                "import" => await TrackCommands.ImportAsync(Arguments.Parse(args[1..]), output, Registry()),
+                "remux" => await TrackCommands.RemuxAsync(Arguments.Parse(args[1..]), output, Registry()),
+                "extract" => await TrackCommands.ExtractAsync(Arguments.Parse(args[1..]), output),
+                "probe" => await TrackCommands.ProbeAsync(Arguments.Parse(args[1..]), output),
                 _ => throw new UsageException($"Unknown command '{args[0]}'."),
             };
         }
@@ -270,7 +293,7 @@ internal static class CommandLine
             throw new UsageException("Use --import <txt>, --export <txt>, --every <minutes> or --clear.");
     }
 
-    private static void Tracks(MediaDocument doc, Arguments a)
+    internal static void Tracks(MediaDocument doc, Arguments a)
     {
         if (a.Value("complete-languages") is { } complete)
             GroupActions.CompleteLanguages(doc, LanguageTable.ToBcp47(complete));
@@ -291,14 +314,17 @@ internal static class CommandLine
         {
             var id = uint.Parse(idText, CultureInfo.InvariantCulture);
             var track = doc.Tracks.FirstOrDefault(t => t.Id == id && t is not ChapterTrack) ?? throw new UsageException($"No track with id {id}.");
-            if (a.Value("name") is { } name)
+            // "--name 3=…" / "--language 3=…" name their track themselves (applied with the other per-track options).
+            if (a.Values("name").LastOrDefault(v => !PerTrack(v)) is { } name)
                 track.Name = name;
-            if (a.Value("language") is { } lang)
+            if (a.Values("language").LastOrDefault(v => !PerTrack(v)) is { } lang)
                 track.Language = LanguageTable.ToBcp47(lang);
             if (a.Value("enabled") is { } enabled)
                 track.Enabled = bool.Parse(enabled);
         }
     }
+
+    private static bool PerTrack(string value) => System.Text.RegularExpressions.Regex.IsMatch(value, @"^(\d+:)?\d+=");
 
     // ------------------------------------------------------------------ queue
 
