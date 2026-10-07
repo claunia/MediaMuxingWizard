@@ -51,6 +51,8 @@ internal abstract class TsStream
                 return new AudioStream(info, AudioKind.MpegAudio);
             case 0x0F:
                 return new AudioStream(info, AudioKind.Adts);
+            case 0x11:
+                return new AudioStream(info, AudioKind.Latm);
             case 0x1B:
                 return new NalVideoStream(info, CodecType.H264);
             case 0x24:
@@ -620,6 +622,9 @@ internal sealed class MpegVideoStream(TsStreamInfo info, CodecType codec) : TsSt
 internal enum AudioKind
 {
     Adts,
+
+    /// <summary>AAC / HE-AAC in LATM inside LOAS frames (stream type 0x11).</summary>
+    Latm,
     Ac3,
     Dts,
     MpegAudio,
@@ -642,6 +647,8 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
     private long? _next;
     private int _substreams;
     private CodecConfig? _config;
+    private readonly LatmParser _latm = new();
+    private List<byte[]> _latmUnits = [];
 
     private enum Status
     {
@@ -730,8 +737,11 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
             }
 
             _lastFrameOffset = offset;
-            var data = Payload(span[..length]);
+            var units = kind == AudioKind.Latm ? _latmUnits : [Payload(span[..length])];
             _start += length;
+            if (units.Count == 0)
+                continue;
+            samples /= units.Count; // LATM sub-frames: one access unit each
             var rate = Timescale;
             long time;
             if (pts is { } p)
@@ -749,8 +759,13 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
                 continue; // before the first timestamp
             }
 
-            _next = time + samples;
-            output.Enqueue(new MediaSample { Dts = time, Duration = samples, IsSync = sync, Data = data });
+            foreach (var data in units)
+            {
+                output.Enqueue(new MediaSample { Dts = time, Duration = samples, IsSync = sync, Data = data });
+                time += samples;
+            }
+
+            _next = time;
         }
     }
 
@@ -781,6 +796,36 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
                     DefaultSampleDuration = 1024 * h.RawBlocks,
                 };
                 return (Status.Frame, h.FrameLength, 1024 * h.RawBlocks, true, config);
+            }
+
+            case AudioKind.Latm:
+            {
+                var frameLength = LatmParser.FrameLength(s);
+                if (frameLength < 0 || frameLength > s.Length)
+                    return (atEnd && frameLength > 0 ? Status.Discard : Status.NeedMore, s.Length, 0, false, null);
+                if (frameLength == 0)
+                    return (Status.Invalid, 0, 0, false, null);
+                try
+                {
+                    _latmUnits = _latm.Parse(s[..frameLength]);
+                }
+                catch (InvalidDataException)
+                {
+                    return (Status.Discard, frameLength, 0, false, null);
+                }
+
+                if (_latm.Config is not { } aac || _latmUnits.Count == 0)
+                    return (Status.Discard, frameLength, 0, false, null);
+                var config = Base(TrackKind.Audio) with
+                {
+                    Codec = CodecType.Aac,
+                    SampleRate = aac.SampleRate,
+                    Channels = aac.Channels,
+                    Extradata = _latm.AudioSpecificConfig,
+                    Timescale = (uint)aac.SampleRate,
+                    DefaultSampleDuration = aac.FrameLength,
+                };
+                return (Status.Frame, frameLength, aac.FrameLength * _latmUnits.Count, true, config);
             }
 
             case AudioKind.Ac3:
