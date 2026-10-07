@@ -554,7 +554,8 @@ internal sealed class Mp4Muxer : IMuxer
 
         if (n == 0)
             earliest = end = 0;
-        var start = Math.Max(earliest, 0);
+        // Presentation starts at the first sample shown: samples before zero, or before the source's own edit, are hidden.
+        var start = Math.Max(earliest, (long)Math.Round(t.Settings.VisibleFrom.TotalSeconds * t.Timescale));
         var mediaTime = start - t0 + shift;
         var mediaDuration = n == 0 ? 0 : t.Dts[n - 1] - t0 + durations[n - 1];
         var scale = (double)t.Timescale;

@@ -243,6 +243,9 @@ public static class Remuxer
         /// <summary>Added to source DTS to place samples on the output timeline (source timescale).</summary>
         public long Offset { get; set; }
 
+        /// <summary>Output time (track timescale) before which the source's samples are not presented.</summary>
+        public long VisibleFrom { get; set; }
+
         public double Timescale { get; init; }
 
         public MediaSample? Head { get; set; }
@@ -355,6 +358,7 @@ public static class Remuxer
                 {
                     var startTicks = (long)Math.Round((o.Source.StartOffset + o.Model.StartOffset).TotalSeconds * o.Timescale);
                     o.Offset = startTicks - o.Source.MediaStart;
+                    o.VisibleFrom = startTicks;
                     o.Head = o.Source.ReadNext();
                 }
 
@@ -370,7 +374,11 @@ public static class Remuxer
                     {
                         AppLog.Info($"Video starts {shift:0.###} s before the presentation; shifting all tracks.");
                         foreach (var o in outputs)
-                            o.Offset += (long)Math.Round(shift * o.Timescale);
+                        {
+                            var ticks = (long)Math.Round(shift * o.Timescale);
+                            o.Offset += ticks;
+                            o.VisibleFrom += ticks;
+                        }
                     }
                 }
 
@@ -390,6 +398,8 @@ public static class Remuxer
                         EstimatedSampleCount = o.Source.SampleCountHint,
                         EstimatedDuration = o.Source.Duration,
                         PreRoll = preRoll,
+                        // Frames the source decodes before its edit starts stay hidden (not only those before zero).
+                        VisibleFrom = TimeSpan.FromSeconds(Math.Max(0, o.VisibleFrom) / (double)o.Timescale),
                     });
                     total = Math.Max(total, o.Source.Duration.TotalSeconds + o.Model.StartOffset.TotalSeconds);
                 }

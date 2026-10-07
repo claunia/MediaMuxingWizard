@@ -73,6 +73,12 @@ public sealed record MuxTrackSettings
 
     /// <summary>Decoder pre-roll at the start of the track (samples presented before time zero).</summary>
     public TimeSpan PreRoll { get; init; }
+
+    /// <summary>
+    /// Output time at which the track becomes visible: earlier samples are decoded but hidden (an MP4 source whose edit
+    /// list skips frames after an initial empty edit). Zero hides only what precedes the presentation.
+    /// </summary>
+    public TimeSpan VisibleFrom { get; init; }
 }
 
 /// <summary>Document-level settings of a muxer.</summary>
