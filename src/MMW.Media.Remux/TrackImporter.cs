@@ -476,6 +476,7 @@ public static class TrackImporter
                 CodecType.H264 => H264.ProfileLevel(record),
                 CodecType.Hevc => Hevc.ProfileLevel(record),
                 CodecType.Vvc => Vvc.ProfileLevel(record),
+                CodecType.Av1 when Av1.ProfileLevel(record) is { Length: > 0 } av1 => av1,
                 CodecType.Av2 when Av2.Describe(record).Sequence is { } sequence => Av2.ProfileLevel(sequence),
                 CodecType.Evc => Evc.ProfileLevel(record),
                 _ => config.VideoProfile,
