@@ -1,10 +1,12 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Mp4.Boxes;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Media;
 
@@ -41,7 +43,7 @@ internal sealed class Mp4Demuxer : IDemuxer
             using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 64 * 1024);
             layout = Mp4Layout.Read(fs);
             var moov = layout.Moov.Loaded!;
-            var mvhd = moov.Find("mvhd") ?? throw new InvalidDataException("The file has no 'mvhd' box.");
+            var mvhd = moov.Find("mvhd") ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoBox, "mvhd"));
             var movieTimescale = Math.Max(1u, HeaderBoxes.MvhdTimescale(mvhd));
             var traks = moov.FindAll("trak").ToList();
             var chapterIds = traks.SelectMany(t => Mp4Reader.References(t, "chap")).ToHashSet();
@@ -232,7 +234,7 @@ internal sealed class Mp4SampleSource : ISampleSource
             _reader.Read(Samples[0].Offset, data);
             if (Av1.ConfigurationFromSample(data) is { } av1)
             {
-                AppLog.Info($"AV1 track {TrackId} has no 'av1C'; its configuration was rebuilt from the first sample.");
+                AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_Av1ConfigRebuilt, TrackId));
                 Config = Config with { Extradata = av1.Av1C };
             }
 

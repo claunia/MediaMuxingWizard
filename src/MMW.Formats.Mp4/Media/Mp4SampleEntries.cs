@@ -5,6 +5,7 @@ using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Mp4.Boxes;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Media;
 
@@ -425,7 +426,7 @@ internal static class Mp4SampleEntries
         // HDR10+ kept next to the frames (Matroska BlockAdditions, VP9) has no place in MP4: the video is stored
         // with its static HDR10 metadata only.
         return config.Hdr10PlusInBlockAdditions && support.Level == TrackSupportLevel.Passthrough
-            ? support with { Reason = "its HDR10+ dynamic metadata is stored next to the frames (Matroska block additions) and cannot be kept in MP4; it will play as HDR10. Save as Matroska/WebM to keep it" }
+            ? support with { Reason = Strings.Reason_Hdr10PlusLost }
             : support;
     }
 
@@ -438,29 +439,29 @@ internal static class Mp4SampleEntries
             CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Av2 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or
                 CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 or CodecType.Avs3 =>
                 config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Av2
-                    ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the codec configuration is missing")
+                    ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, Strings.Reason_MissingCodecConfig)
                     : TrackSupport.Passthrough,
             CodecType.Aac or CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts or CodecType.Opus or CodecType.Flac or CodecType.Alac or
                 CodecType.Mp3 or CodecType.Mp2 or CodecType.Mp1 => TrackSupport.Passthrough,
             CodecType.Tx3g or CodecType.VobSub or CodecType.WebVtt => TrackSupport.Passthrough, // WebVTT as ISO/IEC 14496-30 'wvtt'
             CodecType.TextUtf8 or CodecType.Ass or CodecType.Ssa =>
-                new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToTx3g, "converted to 3GPP timed text (tx3g)"),
+                new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToTx3g, Strings.Reason_ConvertedToTx3g),
             // Dolby TrueHD (FBA syntax) is stored as mlpa + dmlp; DVD-Audio MLP (FBB) is not allowed in ISO files.
             CodecType.TrueHd => TrackSupport.Passthrough,
             CodecType.Pcm when PcmWritable(config) => TrackSupport.Passthrough,
             CodecType.Pcm => new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToPcm,
-                $"{config.BitsPerSample}-bit PCM cannot be stored in MP4 ('ipcm' holds 16, 24 and 32-bit integers and 32/64-bit floats); convert it to LPCM"),
+                string.Format(CultureInfo.CurrentCulture, Strings.Reason_PcmBitDepth, config.BitsPerSample)),
             CodecType.Vorbis or CodecType.Mlp or CodecType.Pcm =>
-                new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
+                new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, string.Format(CultureInfo.CurrentCulture, Strings.Reason_AudioNotSupported, config.FormatName)),
             CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
-                "AVS (AVS1-P2 / AVS+) video has no MP4 sample entry (none is registered), so it cannot be stored in MP4; save as Matroska instead"),
+                Strings.Reason_AvsNoSampleEntry),
             _ when QuickTime.IsEntryCodec(config.Codec) && config.Extradata is { Length: >= 8 } => TrackSupport.Passthrough,
             CodecType.VfwVideo when VfwNativeSource.CanConvert(config) => TrackSupport.Passthrough,
             CodecType.VfwVideo or CodecType.RealVideo => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
-                $"{config.FormatName} video has no MP4 sample entry, so it cannot be stored in MP4; save as Matroska instead"),
+                string.Format(CultureInfo.CurrentCulture, Strings.Reason_VideoNoSampleEntry, config.FormatName)),
             CodecType.Pgs or CodecType.DvbSub =>
-                new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.Skip, $"{config.FormatName} bitmap subtitles cannot be stored in MP4; they need OCR to text"),
-            _ => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, $"{config.FormatName} cannot be stored in MP4"),
+                new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.Skip, string.Format(CultureInfo.CurrentCulture, Strings.Reason_BitmapSubtitlesNeedOcr, config.FormatName)),
+            _ => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, string.Format(CultureInfo.CurrentCulture, Strings.Reason_CannotStoreInMp4, config.FormatName)),
         };
     }
 
@@ -578,7 +579,7 @@ internal static class Mp4SampleEntries
             TrackKind.Video => BuildVideo(config, ctx),
             TrackKind.Audio => BuildAudio(config, ctx),
             TrackKind.Subtitle => BuildSubtitle(config, ctx),
-            _ => throw new NotSupportedException($"{config.FormatName} tracks cannot be stored in MP4."),
+            _ => throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TracksCannotBeStored, config.FormatName)),
         };
     }
 
@@ -663,7 +664,7 @@ internal static class Mp4SampleEntries
             }
 
             default:
-                throw new NotSupportedException($"{c.FormatName} video cannot be stored in MP4.");
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_VideoCannotBeStored, c.FormatName));
         }
 
         // The container's colour and HDR10 metadata, or what the bitstream carries when the source container had none.
@@ -851,7 +852,7 @@ internal static class Mp4SampleEntries
             {
                 type = "ac-3";
                 var dac3 = c.Extradata is { Length: 3 } ? c.Extradata : ctx.FirstSample is { } s && Ac3.Parse(s) is { } h ? Ac3.BuildDac3(h) : null;
-                children.Add(new Box("dac3", dac3 ?? throw new InvalidDataException("AC-3 track without a decodable first frame.")));
+                children.Add(new Box("dac3", dac3 ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoDecodableFirstFrame, "AC-3"))));
                 break;
             }
 
@@ -859,7 +860,7 @@ internal static class Mp4SampleEntries
             {
                 type = "ec-3";
                 var dec3 = c.Extradata is { Length: >= 5 } ? c.Extradata : ctx.FirstSample is { } s ? Ac3.BuildDec3(Ac3.ParseAccessUnit(s)) : null;
-                children.Add(new Box("dec3", dec3 ?? throw new InvalidDataException("E-AC-3 track without a decodable first frame.")));
+                children.Add(new Box("dec3", dec3 ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoDecodableFirstFrame, "E-AC-3"))));
                 break;
             }
 
@@ -867,7 +868,7 @@ internal static class Mp4SampleEntries
             {
                 var header = ctx.FirstSample is { } s ? Dts.Parse(s) : null;
                 if (header is null && c.Extradata is null)
-                    throw new InvalidDataException("DTS track without a decodable first frame.");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoDecodableFirstFrame, "DTS"));
                 type = header is not null ? Dts.SampleEntryType(header) : c.SourceCodecId is "dtsc" or "dtsh" or "dtsl" or "dtse" ? c.SourceCodecId : "dtsc";
                 var ddts = c.Extradata is { Length: >= 20 } ? c.Extradata : Dts.BuildDdts(header!, channels, ctx.Statistics.MaxBitrate, ctx.Statistics.AvgBitrate);
                 children.Add(new Box("ddts", ddts));
@@ -887,7 +888,7 @@ internal static class Mp4SampleEntries
             case CodecType.Flac:
             {
                 type = "fLaC";
-                var blocks = Flac.FixLastFlags(c.Extradata ?? throw new InvalidDataException("FLAC track without STREAMINFO."));
+                var blocks = Flac.FixLastFlags(c.Extradata ?? throw new InvalidDataException(Strings.Error_FlacWithoutStreamInfo));
                 children.Add(new Box("dfLa", [0, 0, 0, 0, .. blocks]));
                 var (r, ch, bits) = Flac.Describe(blocks);
                 (rate, channels, sampleSize) = (r > 0 ? r : rate, ch > 0 ? ch : channels, bits > 0 ? bits : 16);
@@ -901,7 +902,7 @@ internal static class Mp4SampleEntries
                 var first = ctx.FirstSample is { } s ? TrueHd.Parse(s) : null;
                 var dmlp = c.Extradata is { Length: 10 } ? c.Extradata
                     : first is { IsMajorSync: true } ? TrueHd.BuildDmlp(first)
-                    : throw new InvalidDataException("Dolby TrueHD track without a major sync in its first access unit.");
+                    : throw new InvalidDataException(Strings.Error_TrueHdWithoutMajorSync);
                 children.Add(new Box("dmlp", dmlp));
                 if (first is { SampleRate: > 0 })
                     rate = first.SampleRate;
@@ -931,7 +932,7 @@ internal static class Mp4SampleEntries
             case CodecType.Alac:
             {
                 type = "alac";
-                var cookie = c.Extradata ?? throw new InvalidDataException("ALAC track without a magic cookie.");
+                var cookie = c.Extradata ?? throw new InvalidDataException(Strings.Error_AlacWithoutCookie);
                 children.Add(new Box("alac", [0, 0, 0, 0, .. cookie]));
                 if (cookie.Length >= 24)
                 {
@@ -944,7 +945,7 @@ internal static class Mp4SampleEntries
             }
 
             default:
-                throw new NotSupportedException($"{c.FormatName} audio cannot be stored in MP4.");
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_AudioCannotBeStored, c.FormatName));
         }
 
         if (ctx.Statistics.AvgBitrate > 0 && c.Codec is not (CodecType.Aac or CodecType.Mp3 or CodecType.Mp2 or CodecType.Mp1))
@@ -998,7 +999,7 @@ internal static class Mp4SampleEntries
             }
 
             default:
-                throw new NotSupportedException($"{c.FormatName} subtitles cannot be stored in MP4.");
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_SubtitlesCannotBeStored, c.FormatName));
         }
     }
 

@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Text;
+using MMW.Formats.Matroska.Resources;
 
 namespace MMW.Formats.Matroska.Ebml;
 
@@ -102,7 +103,7 @@ internal sealed class EbmlWriter
     public static byte[] VoidHeader(long totalLength)
     {
         if (totalLength < 2)
-            throw new ArgumentOutOfRangeException(nameof(totalLength), totalLength, "A Void element needs at least 2 bytes.");
+            throw new ArgumentOutOfRangeException(nameof(totalLength), totalLength, Strings.Error_VoidTooSmall);
 
         for (var sizeLen = 1; sizeLen <= EbmlVarInt.MaxSizeLength; sizeLen++)
         {
@@ -120,7 +121,7 @@ internal sealed class EbmlWriter
 
         // Only reachable for lengths where every size length leaves an unencodable remainder, which cannot happen
         // for totalLength >= 2 (a 1-byte size covers 0..126, and each extra byte extends the range contiguously).
-        throw new ArgumentOutOfRangeException(nameof(totalLength), totalLength, "Cannot encode a Void element of this length.");
+        throw new ArgumentOutOfRangeException(nameof(totalLength), totalLength, Strings.Error_VoidLength);
     }
 
     /// <summary>

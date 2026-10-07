@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.Win32.SafeHandles;
+using MMW.Formats.Matroska.Resources;
 
 namespace MMW.Formats.Matroska.Ebml;
 
@@ -51,7 +53,7 @@ internal sealed class EbmlReader
         {
             var n = RandomAccess.Read(_handle, buffer[total..], position + total);
             if (n == 0)
-                throw new EndOfStreamException($"Unexpected end of file at offset {position + total}.");
+                throw new EndOfStreamException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnexpectedEndAt, position + total));
             total += n;
         }
     }
@@ -60,7 +62,7 @@ internal sealed class EbmlReader
     public byte[] ReadBytes(long position, long count)
     {
         if (count < 0 || count > Array.MaxLength)
-            throw new InvalidDataException($"Element of {count} bytes at offset {position} is too large to load.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ElementTooLargeToLoad, count, position));
         var data = new byte[count];
         ReadExactly(position, data);
         return data;
@@ -70,9 +72,9 @@ internal sealed class EbmlReader
     public byte[] ReadData(in EbmlElementHeader header)
     {
         if (header.IsUnknownSize)
-            throw new InvalidDataException($"Element 0x{header.Id:X} at offset {header.Position} has an unknown size.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ElementUnknownSize, header.Id, header.Position));
         if (header.End > Length)
-            throw new InvalidDataException($"Element 0x{header.Id:X} at offset {header.Position} extends past the end of the file.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ElementPastEndOfFile, header.Id, header.Position));
         return ReadBytes(header.DataPosition, (long)header.Size);
     }
 

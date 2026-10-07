@@ -1,9 +1,11 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using MMW.Core.Languages;
 using MMW.Core.Model;
 using MMW.Formats.Mp4.Boxes;
 using MMW.Formats.Mp4.Metadata;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4;
 
@@ -18,7 +20,7 @@ internal static class Mp4Reader
         var state = new Mp4State { Layout = layout, Moov = moov };
         var doc = new MediaDocument(path, ContainerKind.Mp4) { ContainerState = state, FileSize = layout.FileLength };
 
-        var mvhd = moov.Find("mvhd") ?? throw new InvalidDataException("The file has no 'mvhd' box.");
+        var mvhd = moov.Find("mvhd") ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoBox, "mvhd"));
         var movieTimescale = HeaderBoxes.MvhdTimescale(mvhd);
         if (movieTimescale > 0)
             doc.Duration = TimeSpan.FromSeconds((double)HeaderBoxes.MvhdDuration(mvhd) / movieTimescale);
@@ -85,7 +87,7 @@ internal static class Mp4Reader
                 Name = "Chapters",
                 Language = "en",
                 Duration = doc.Duration,
-                FormatDetails = $"{chapters.Count} chapters",
+                FormatDetails = string.Format(CultureInfo.CurrentCulture, Strings.Details_ChapterCount, chapters.Count),
                 Enabled = false,
             });
         }

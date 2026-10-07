@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Globalization;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Boxes;
 
@@ -48,7 +50,7 @@ public static class Mp4Fragments
         foreach (var top in layout.Boxes.Where(b => b.Type == "moof"))
         {
             if (top.Size > 64L * 1024 * 1024)
-                throw new InvalidDataException($"'moof' box at offset {top.Offset} is too large ({top.Size} bytes).");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_MoofTooLarge, top.Offset, top.Size));
             var buffer = new byte[top.Size];
             stream.Position = top.Offset;
             stream.ReadExactly(buffer);
@@ -126,7 +128,7 @@ public static class Mp4Fragments
     private static uint Read32(byte[] p, ref int at)
     {
         if (at + 4 > p.Length)
-            throw new InvalidDataException("A track fragment box is truncated.");
+            throw new InvalidDataException(Strings.Error_TrackFragmentTruncated);
         var v = BinaryPrimitives.ReadUInt32BigEndian(p.AsSpan(at));
         at += 4;
         return v;

@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Numerics;
+using MMW.Formats.Matroska.Resources;
 
 namespace MMW.Formats.Matroska.Ebml;
 
@@ -76,7 +78,7 @@ internal static class EbmlVarInt
                 return len;
         }
 
-        throw new ArgumentOutOfRangeException(nameof(value), value, "Value too large for an EBML size.");
+        throw new ArgumentOutOfRangeException(nameof(value), value, Strings.Error_ValueTooLargeForSize);
     }
 
     /// <summary>Number of bytes of an encoded element ID.</summary>
@@ -86,7 +88,7 @@ internal static class EbmlVarInt
         <= 0xFFFF => 2,
         <= 0xFFFFFF => 3,
         <= 0xFFFFFFFF => 4,
-        _ => throw new ArgumentOutOfRangeException(nameof(id), id, "EBML IDs longer than 4 bytes are not supported."),
+        _ => throw new ArgumentOutOfRangeException(nameof(id), id, Strings.Error_IdTooLong),
     };
 
     /// <summary>Writes an element ID (with its marker bits) and returns the number of bytes written.</summary>
@@ -109,9 +111,9 @@ internal static class EbmlVarInt
         if (length == 0)
             length = SizeLength(value);
         if (length is < 1 or > MaxSizeLength)
-            throw new ArgumentOutOfRangeException(nameof(length), length, "EBML sizes are 1 to 8 bytes long.");
+            throw new ArgumentOutOfRangeException(nameof(length), length, Strings.Error_SizeLength);
         if (value > MaxSizeValue(length))
-            throw new ArgumentOutOfRangeException(nameof(value), value, $"Value does not fit in a {length}-byte EBML size.");
+            throw new ArgumentOutOfRangeException(nameof(value), value, string.Format(CultureInfo.CurrentCulture, Strings.Error_ValueDoesNotFitSize, length));
 
         var v = value;
         for (var i = length - 1; i >= 0; i--)
@@ -128,7 +130,7 @@ internal static class EbmlVarInt
     public static int WriteUnknownSize(Span<byte> destination, int length)
     {
         if (length is < 1 or > MaxSizeLength)
-            throw new ArgumentOutOfRangeException(nameof(length), length, "EBML sizes are 1 to 8 bytes long.");
+            throw new ArgumentOutOfRangeException(nameof(length), length, Strings.Error_SizeLength);
         destination[..length].Fill(0xFF);
         destination[0] = (byte)(0xFF >> (length - 1));
         return length;

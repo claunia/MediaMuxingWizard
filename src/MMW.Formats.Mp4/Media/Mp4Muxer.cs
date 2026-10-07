@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using MMW.Core.Chapters;
 using MMW.Core.Diagnostics;
@@ -8,6 +9,7 @@ using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Mp4.Boxes;
 using MMW.Formats.Mp4.Metadata;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Media;
 
@@ -58,7 +60,7 @@ internal sealed class Mp4Muxer : IMuxer
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(settings);
         if (!output.CanSeek || !output.CanWrite)
-            throw new ArgumentException("The output stream must be seekable and writable.", nameof(output));
+            throw new ArgumentException(Strings.Error_OutputNotSeekable, nameof(output));
         _out = output;
         _settings = settings;
     }
@@ -130,10 +132,10 @@ internal sealed class Mp4Muxer : IMuxer
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(settings);
         if (_headerWritten)
-            throw new InvalidOperationException("Tracks must be added before samples are written.");
+            throw new InvalidOperationException(Strings.Error_TracksBeforeSamples);
         var support = Mp4SampleEntries.CheckSupport(config);
         if (!support.CanMux)
-            throw new NotSupportedException($"{config.FormatName} cannot be written to MP4: {support.Reason}");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotWriteToMp4, config.FormatName, support.Reason));
 
         config = ApplyModel(config, settings.Model);
         // QuickTime PCM entries ('sowt', 'twos', 'in24', 'lpcm' …) are rewritten as the ISO 'ipcm' / 'fpcm'.
@@ -165,7 +167,7 @@ internal sealed class Mp4Muxer : IMuxer
             }
             catch (InvalidDataException ex)
             {
-                AppLog.Warn($"Invalid hvcC record: {ex.Message}");
+                AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_InvalidHvcC, ex.Message));
             }
         }
 
@@ -430,7 +432,7 @@ internal sealed class Mp4Muxer : IMuxer
     public void Finish(CancellationToken cancellationToken)
     {
         if (_finished)
-            throw new InvalidOperationException("The muxer was already finished.");
+            throw new InvalidOperationException(Strings.Error_MuxerFinished);
         _finished = true;
         EnsureHeader();
         if (_tracks.FirstOrDefault(t => t.TrimEnd > 0 && t.Config.Kind == TrackKind.Audio) is { Timescale: > 0 and <= 192000 } trimmed)
@@ -496,14 +498,14 @@ internal sealed class Mp4Muxer : IMuxer
             {
                 moovBytes = shifted;
                 if (shifted.Length + 8 > _reservedSize + delta)
-                    throw new InvalidOperationException("Could not lay out the movie header.");
+                    throw new InvalidOperationException(Strings.Error_MovieHeaderLayout);
                 break;
             }
 
             moovBytes = shifted;
         }
 
-        AppLog.Info($"Moving {mdatEnd - _mdatStart + 8} bytes of media data to put the movie header first.");
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_MovingMediaData, mdatEnd - _mdatStart + 8));
         ShiftForward(_reservedStart + _reservedSize, mdatEnd, delta, cancellationToken);
         _mdatStart += delta;
         PatchMdatHeader(mdatSize, largeMdat);
@@ -1051,7 +1053,7 @@ internal sealed class Mp4Muxer : IMuxer
         if (size == 0)
             return;
         if (size < 8)
-            throw new InvalidOperationException("A free box needs at least 8 bytes.");
+            throw new InvalidOperationException(Strings.Error_FreeBoxTooSmall);
         stream.Write(BoxWriter.Header("free", size));
         var zeros = new byte[(int)Math.Min(size - 8, 64 * 1024)];
         var left = size - 8;

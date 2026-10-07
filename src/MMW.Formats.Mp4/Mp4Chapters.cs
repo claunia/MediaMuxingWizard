@@ -1,7 +1,9 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using MMW.Core.Chapters;
 using MMW.Formats.Mp4.Boxes;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4;
 
@@ -11,9 +13,9 @@ internal static class Mp4Chapters
     /// <summary>Reads chapters from a text track's samples.</summary>
     public static List<Chapter> ReadTextTrack(Box trak, Stream file, uint movieTimescale)
     {
-        var mdhd = trak.FindPath("mdia/mdhd") ?? throw new InvalidDataException("Chapter track without mdhd.");
+        var mdhd = trak.FindPath("mdia/mdhd") ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ChapterTrackWithoutBox, "mdhd"));
         var timescale = HeaderBoxes.MdhdTimescale(mdhd);
-        var stbl = trak.FindPath("mdia/minf/stbl") ?? throw new InvalidDataException("Chapter track without stbl.");
+        var stbl = trak.FindPath("mdia/minf/stbl") ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ChapterTrackWithoutBox, "stbl"));
         var samples = SampleTable.Expand(stbl);
         var editOffset = EditListStart(trak, movieTimescale);
 
@@ -267,7 +269,7 @@ internal static class Mp4Chapters
     /// <summary>Reads chapter preview images (one JPEG sample per chapter) from an image track.</summary>
     public static List<byte[]> ReadImageTrack(Box trak, Stream file)
     {
-        var stbl = trak.FindPath("mdia/minf/stbl") ?? throw new InvalidDataException("Chapter image track without stbl.");
+        var stbl = trak.FindPath("mdia/minf/stbl") ?? throw new InvalidDataException(Strings.Error_ChapterImageTrackWithoutStbl);
         var result = new List<byte[]>();
         foreach (var s in SampleTable.Expand(stbl))
         {

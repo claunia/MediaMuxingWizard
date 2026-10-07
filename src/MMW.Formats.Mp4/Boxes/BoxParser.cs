@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Globalization;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Boxes;
 
@@ -32,7 +34,7 @@ public static class BoxParser
     {
         var list = ParseList(data, parentType: null);
         if (list.Count != 1)
-            throw new InvalidDataException($"Expected one box, found {list.Count}.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ExpectedOneBox, list.Count));
         return list[0];
     }
 
@@ -49,7 +51,7 @@ public static class BoxParser
             if (size == 1)
             {
                 if (data.Length - pos < 16)
-                    throw new InvalidDataException($"Truncated large-size header for '{type}'.");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TruncatedLargeSizeHeader, type));
                 size = (long)BinaryPrimitives.ReadUInt64BigEndian(data[(pos + 8)..]);
                 header = 16;
             }
@@ -63,7 +65,7 @@ public static class BoxParser
             {
                 if (size == 0 || BinaryPrimitives.ReadUInt32BigEndian(data[pos..]) == 0)
                     break;
-                throw new InvalidDataException($"Box '{type}' at {pos} has invalid size {size}.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_BoxInvalidSize, type, pos, size));
             }
 
             byte[]? userType = null;

@@ -2,6 +2,7 @@ using System.Globalization;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Resources;
 using static MMW.Formats.Matroska.MatroskaIds;
 
 namespace MMW.Formats.Matroska;
@@ -40,7 +41,7 @@ internal static class MatroskaReader
             }
 
             if (element.Size > MaxMetadataElementSize)
-                throw new InvalidDataException($"Element 0x{element.Id:X} at offset {element.Position} is implausibly large ({element.Size} bytes).");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ImplausiblyLargeElement, element.Id, element.Position, element.Size));
 
             var payload = reader.ReadData(element);
             var children = EbmlParser.Children(payload);
@@ -126,14 +127,14 @@ internal static class MatroskaReader
     private static EbmlElementHeader ReadSegmentHeader(EbmlReader reader)
     {
         if (!reader.TryReadHeader(0, reader.Length, out var ebml) || ebml.Id != EbmlHeader || ebml.IsUnknownSize)
-            throw new InvalidDataException("The file is not an EBML (Matroska/WebM) file.");
+            throw new InvalidDataException(Strings.Error_NotEbml);
 
         var header = EbmlParser.Children(reader.ReadData(ebml));
         var docType = header.GetString(DocType) ?? "matroska";
         if (docType is not ("matroska" or "webm"))
-            throw new InvalidDataException($"Unsupported EBML document type '{docType}'.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnsupportedDocType, docType));
         if (header.GetUInt(EbmlMaxIdLength, 4) > 4 || header.GetUInt(EbmlMaxSizeLength, 8) > 8)
-            throw new InvalidDataException("EBML IDs longer than 4 bytes or sizes longer than 8 bytes are not supported.");
+            throw new InvalidDataException(Strings.Error_LongIdsOrSizes);
 
         var pos = ebml.End;
         while (reader.TryReadHeader(pos, reader.Length, out var h))
@@ -145,7 +146,7 @@ internal static class MatroskaReader
             pos = h.End;
         }
 
-        throw new InvalidDataException("The file has no Matroska Segment.");
+        throw new InvalidDataException(Strings.Error_NoSegment);
     }
 
     /// <summary>Walks the direct children of the Segment, skipping Clusters by their size.</summary>
@@ -155,7 +156,7 @@ internal static class MatroskaReader
         var limit = segment.IsUnknownSize ? reader.Length : segment.End;
         if (limit > reader.Length)
         {
-            problem = "The file is truncated (the Segment extends past the end of the file).";
+            problem = Strings.ScanProblem_Truncated;
             limit = reader.Length;
         }
 
@@ -169,7 +170,7 @@ internal static class MatroskaReader
 
             if (!reader.TryReadHeader(pos, limit, out var h))
             {
-                problem ??= $"Invalid or truncated element at offset {pos}.";
+                problem ??= string.Format(CultureInfo.CurrentCulture, Strings.ScanProblem_InvalidElement, pos);
                 break;
             }
 
@@ -179,7 +180,7 @@ internal static class MatroskaReader
                 if (segment.IsUnknownSize)
                     limit = pos;
                 else
-                    problem ??= $"Unexpected {(h.Id == Segment ? "Segment" : "EBML header")} at offset {pos}.";
+                    problem ??= string.Format(CultureInfo.CurrentCulture, h.Id == Segment ? Strings.ScanProblem_UnexpectedSegment : Strings.ScanProblem_UnexpectedEbmlHeader, pos);
                 break;
             }
 
@@ -188,7 +189,7 @@ internal static class MatroskaReader
             {
                 if (h.Id != Cluster)
                 {
-                    problem ??= $"Element 0x{h.Id:X} at offset {pos} has an unknown size.";
+                    problem ??= string.Format(CultureInfo.CurrentCulture, Strings.Error_ElementUnknownSize, h.Id, pos);
                     break;
                 }
 
@@ -201,7 +202,7 @@ internal static class MatroskaReader
 
             if (end > limit)
             {
-                problem ??= $"Element 0x{h.Id:X} at offset {pos} extends past the end of the Segment.";
+                problem ??= string.Format(CultureInfo.CurrentCulture, Strings.Error_ElementPastEndOfSegment, h.Id, pos);
                 break;
             }
 

@@ -1,7 +1,9 @@
+using System.Globalization;
 using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
 using MMW.Formats.Matroska.Media;
+using MMW.Formats.Matroska.Resources;
 
 namespace MMW.Formats.Matroska;
 
@@ -46,7 +48,7 @@ public sealed class MatroskaHandler : IContainerHandler
             return;
         }
 
-        var source = document.Path ?? throw new InvalidOperationException("The document has no file to update.");
+        var source = document.Path ?? throw new InvalidOperationException(Strings.Error_NoFileToUpdate);
         var layout = state;
 
         var target = options.OutputPath is null || SamePath(options.OutputPath, source) ? source : Path.GetFullPath(options.OutputPath);
@@ -116,9 +118,9 @@ public sealed class MatroskaHandler : IContainerHandler
     {
         var info = new FileInfo(path);
         if (!info.Exists)
-            throw new FileNotFoundException("The file no longer exists.", path);
+            throw new FileNotFoundException(Strings.Error_FileGone, path);
         if (info.Length != layout.FileLength || info.LastWriteTimeUtc != layout.LastWriteTimeUtc)
-            throw new IOException($"'{info.Name}' was modified by another application since it was opened; reopen it before saving.");
+            throw new IOException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ModifiedExternally, info.Name));
     }
 
     private static void Copy(string source, string target, IProgress<double>? progress, CancellationToken ct)

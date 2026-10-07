@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Globalization;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Boxes;
 
@@ -26,7 +28,7 @@ public sealed class Mp4Layout
 
     public long FileLength { get; }
 
-    public TopLevelBox Moov => Boxes.FirstOrDefault(b => b.Type == "moov") ?? throw new InvalidDataException("The file has no 'moov' box.");
+    public TopLevelBox Moov => Boxes.FirstOrDefault(b => b.Type == "moov") ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NoBox, "moov"));
 
     public Box? Ftyp => Boxes.FirstOrDefault(b => b.Type == "ftyp")?.Loaded;
 
@@ -65,7 +67,7 @@ public sealed class Mp4Layout
             }
 
             if (size < headerSize)
-                throw new InvalidDataException($"Top-level box '{type}' at offset {pos} has invalid size {size}.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TopLevelBoxInvalidSize, type, pos, size));
 
             if (pos + size > length)
             {
@@ -77,7 +79,7 @@ public sealed class Mp4Layout
             if (s_loaded.Contains(type))
             {
                 if (size > 512L * 1024 * 1024)
-                    throw new InvalidDataException($"'{type}' box is too large ({size} bytes).");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_BoxTooLarge, type, size));
                 var buffer = new byte[size];
                 stream.Position = pos;
                 stream.ReadExactly(buffer);
@@ -89,7 +91,7 @@ public sealed class Mp4Layout
         }
 
         if (!boxes.Any(b => b.Type == "moov"))
-            throw new InvalidDataException("Not an MP4 file: no 'moov' box found.");
+            throw new InvalidDataException(Strings.Error_NotMp4);
 
         return new Mp4Layout(boxes, length);
     }

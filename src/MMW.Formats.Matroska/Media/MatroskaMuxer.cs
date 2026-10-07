@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using MMW.Core.Diagnostics;
@@ -8,6 +9,7 @@ using MMW.Core.Media.Codecs;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Resources;
 using static MMW.Formats.Matroska.MatroskaIds;
 using static MMW.Formats.Matroska.Media.MatroskaMediaIds;
 
@@ -55,7 +57,7 @@ internal sealed class MatroskaMuxer : IMuxer
         ArgumentNullException.ThrowIfNull(output);
         ArgumentNullException.ThrowIfNull(settings);
         if (!output.CanSeek || !output.CanWrite)
-            throw new ArgumentException("The output stream must be seekable and writable.", nameof(output));
+            throw new ArgumentException(Strings.Error_OutputNotSeekable, nameof(output));
         _out = output;
         _settings = settings;
     }
@@ -104,13 +106,13 @@ internal sealed class MatroskaMuxer : IMuxer
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(settings);
         if (_headerWritten)
-            throw new InvalidOperationException("Tracks must be added before samples are written.");
+            throw new InvalidOperationException(Strings.Error_TracksBeforeSamples);
         var support = MatroskaCodecMapping.CheckSupport(config);
         if (!support.CanMux)
-            throw new NotSupportedException($"{config.FormatName} cannot be written to Matroska: {support.Reason}");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotWriteToMatroska, config.FormatName, support.Reason));
 
         if (IsWebM && config.Codec is not (CodecType.Vp8 or CodecType.Vp9 or CodecType.Av1 or CodecType.Av2 or CodecType.Opus or CodecType.Vorbis or CodecType.WebVtt))
-            throw new NotSupportedException($"{config.FormatName} cannot be stored in WebM (only VP8, VP9, AV1, AV2, Opus, Vorbis and WebVTT); save as .mkv instead.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotWebM, config.FormatName));
 
         var shift = config.Kind == TrackKind.Audio ? (long)Math.Round(settings.PreRoll.TotalMilliseconds) : 0;
         _tracks.Add(new TrackState
@@ -720,7 +722,7 @@ internal sealed class MatroskaMuxer : IMuxer
     public void Finish(CancellationToken cancellationToken)
     {
         if (_finished)
-            throw new InvalidOperationException("The muxer was already finished.");
+            throw new InvalidOperationException(Strings.Error_MuxerFinished);
         _finished = true;
         EnsureHeader();
         CloseCluster();
@@ -793,13 +795,13 @@ internal sealed class MatroskaMuxer : IMuxer
 
         var seekHead = EbmlWriter.Element(SeekHead, seek.WrittenSpan);
         if (seekHead.Length + 2 > SeekHeadReserve)
-            throw new InvalidOperationException("The SeekHead does not fit in its reserved space.");
+            throw new InvalidOperationException(Strings.Error_SeekHeadNoFit);
         _out.Position = _seekHeadPosition;
         _out.Write(seekHead);
         WriteVoid(SeekHeadReserve - seekHead.Length);
         _out.Position = end;
         _out.SetLength(end);
-        AppLog.Debug($"Matroska muxer wrote {_tracks.Count} track(s), {_cues.Count} cue point(s).");
+        AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Log_MuxerSummary, _tracks.Count, _cues.Count));
     }
 
     private void WriteVoid(long total)

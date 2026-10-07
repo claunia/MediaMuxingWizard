@@ -1,3 +1,5 @@
+using MMW.Formats.Matroska.Resources;
+
 namespace MMW.Formats.Matroska.Ebml;
 
 /// <summary>Location of one EBML element inside a file.</summary>
@@ -13,5 +15,5 @@ internal readonly record struct EbmlElementHeader(ulong Id, long Position, int H
     public long DataPosition => Position + HeaderLength;
 
     /// <summary>Absolute end offset; only meaningful when the size is known.</summary>
-    public long End => IsUnknownSize ? throw new InvalidOperationException("Element has an unknown size.") : DataPosition + (long)Size;
+    public long End => IsUnknownSize ? throw new InvalidOperationException(Strings.Error_UnknownSize) : DataPosition + (long)Size;
 }

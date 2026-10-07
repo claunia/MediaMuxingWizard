@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
+using MMW.Formats.Matroska.Resources;
 
 namespace MMW.Formats.Matroska.Ebml;
 
@@ -57,7 +59,7 @@ internal static class EbmlParser
     public static ulong ReadUInt(ReadOnlySpan<byte> data)
     {
         if (data.Length > 8)
-            throw new InvalidDataException($"Unsigned integer element of {data.Length} bytes.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnsignedIntegerSize, data.Length));
         ulong v = 0;
         foreach (var b in data)
             v = (v << 8) | b;
@@ -69,7 +71,7 @@ internal static class EbmlParser
         if (data.Length == 0)
             return 0;
         if (data.Length > 8)
-            throw new InvalidDataException($"Signed integer element of {data.Length} bytes.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_SignedIntegerSize, data.Length));
         long v = (sbyte)data[0];
         for (var i = 1; i < data.Length; i++)
             v = (v << 8) | data[i];
@@ -81,7 +83,7 @@ internal static class EbmlParser
         0 => 0,
         4 => BinaryPrimitives.ReadSingleBigEndian(data),
         8 => BinaryPrimitives.ReadDoubleBigEndian(data),
-        _ => throw new InvalidDataException($"Float element of {data.Length} bytes."),
+        _ => throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_FloatSize, data.Length)),
     };
 
     /// <summary>Decodes a String or UTF-8 element (both are decoded as UTF-8, which is a superset of the ASCII strings).</summary>

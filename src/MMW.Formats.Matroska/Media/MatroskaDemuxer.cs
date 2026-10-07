@@ -1,10 +1,12 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.IO.Compression;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Resources;
 using static MMW.Formats.Matroska.MatroskaIds;
 using static MMW.Formats.Matroska.Media.MatroskaMediaIds;
 
@@ -370,13 +372,13 @@ internal sealed class ClusterScanner
             case 3: // EBML
             {
                 if (!EbmlVarInt.TryReadSize(data.AsSpan(pos), out var first, out var len))
-                    throw new InvalidDataException("Invalid EBML lacing.");
+                    throw new InvalidDataException(Strings.Error_InvalidEbmlLacing);
                 pos += len;
                 sizes[0] = (int)first;
                 for (var i = 1; i < count - 1; i++)
                 {
                     if (!EbmlVarInt.TryReadSize(data.AsSpan(pos), out var raw, out len))
-                        throw new InvalidDataException("Invalid EBML lacing.");
+                        throw new InvalidDataException(Strings.Error_InvalidEbmlLacing);
                     pos += len;
                     var bias = (1L << (7 * len - 1)) - 1;
                     sizes[i] = (int)(sizes[i - 1] + ((long)raw - bias));
@@ -399,7 +401,7 @@ internal sealed class ClusterScanner
             used += sizes[i];
         sizes[^1] = data.Length - pos - used;
         if (sizes.Any(s => s < 0))
-            throw new InvalidDataException("Invalid block lacing.");
+            throw new InvalidDataException(Strings.Error_InvalidBlockLacing);
 
         var result = new List<(int, int)>(count);
         foreach (var s in sizes)
@@ -430,7 +432,7 @@ internal sealed record ContentEncodingInfo(byte[]? StrippedHeader, bool Zlib)
             if ((e.GetUInt(ContentEncodingScope, 1) & 1) == 0)
                 continue;
             if (e.GetUInt(ContentEncodingType, 0) != 0 || e.Child(ContentEncryption) is not null)
-                throw new NotSupportedException("Encrypted Matroska tracks are not supported.");
+                throw new NotSupportedException(Strings.Error_EncryptedTracks);
             var comp = e.Child(ContentCompression) is { } c ? EbmlParser.Children(c.Data) : [];
             switch (comp.GetUInt(ContentCompAlgo, 0))
             {
@@ -441,7 +443,7 @@ internal sealed record ContentEncodingInfo(byte[]? StrippedHeader, bool Zlib)
                     stripped = comp.Child(ContentCompSettings)?.Data.ToArray() ?? [];
                     break;
                 default:
-                    throw new NotSupportedException("Matroska tracks compressed with bzlib or LZO are not supported.");
+                    throw new NotSupportedException(Strings.Error_CompressedTracks);
             }
         }
 
@@ -531,7 +533,7 @@ internal sealed class MatroskaTrackSource : ISampleSource
                          Av1.ConfigurationFromSample(first) is { } av1)
                 {
                     // CodecPrivate is mandatory for V_AV1, but some files lack it: the sequence header in the first frame gives it.
-                    AppLog.Info($"AV1 track {TrackId} has no CodecPrivate; its configuration was rebuilt from the first frame.");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_Av1ConfigRebuilt, TrackId));
                     Config = Config with { Extradata = av1.Av1C };
                 }
                 if (defaultTicks > 0)

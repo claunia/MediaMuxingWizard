@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Globalization;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Boxes;
 
@@ -9,7 +11,7 @@ public static class BoxWriter
     {
         var size = box.Size;
         if (size > int.MaxValue)
-            throw new InvalidOperationException($"Box '{box.Type}' is too large to build in memory.");
+            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_BoxTooLargeToBuild, box.Type));
         var buffer = new byte[size];
         var written = Write(box, buffer);
         System.Diagnostics.Debug.Assert(written == size);
@@ -56,7 +58,7 @@ public static class BoxWriter
     public static void WriteType(string type, Span<byte> dest)
     {
         if (Box.Latin1.GetBytes(type, dest) != 4)
-            throw new InvalidOperationException($"Invalid box type '{type}'.");
+            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_InvalidBoxType, type));
     }
 
     /// <summary>Builds an 8-byte header for a box of <paramref name="size"/> bytes (header included).</summary>
@@ -81,7 +83,7 @@ public static class BoxWriter
     public static Box Free(long size)
     {
         if (size < 8)
-            throw new ArgumentOutOfRangeException(nameof(size), "A free box needs at least 8 bytes.");
+            throw new ArgumentOutOfRangeException(nameof(size), Strings.Error_FreeBoxTooSmall);
         return new Box("free", new byte[size - 8]);
     }
 }

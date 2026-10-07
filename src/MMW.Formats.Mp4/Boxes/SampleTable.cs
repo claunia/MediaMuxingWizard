@@ -1,4 +1,6 @@
 using System.Buffers.Binary;
+using System.Globalization;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Boxes;
 
@@ -43,7 +45,7 @@ public static class SampleTable
         var result = new SampleInfo[count];
 
         // Offsets from stsc + chunk offsets.
-        var stsc = stbl.Find("stsc")?.Payload ?? throw new InvalidDataException("Missing stsc.");
+        var stsc = stbl.Find("stsc")?.Payload ?? throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_MissingBox, "stsc"));
         var entries = (int)BinaryPrimitives.ReadUInt32BigEndian(stsc.AsSpan(4));
         var sampleOffsets = new long[count];
         var sample = 0;
@@ -147,7 +149,7 @@ public static class SampleTable
                 4 => (p[12 + i / 2] >> (i % 2 == 0 ? 4 : 0)) & 0xF,
                 8 => p[12 + i],
                 16 => BinaryPrimitives.ReadUInt16BigEndian(p[(12 + i * 2)..]),
-                _ => throw new InvalidDataException($"Invalid stz2 field size {fieldSize}."),
+                _ => throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_InvalidStz2FieldSize, fieldSize)),
             };
         }
 

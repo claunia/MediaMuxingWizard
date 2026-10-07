@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Text;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4.Boxes;
 
@@ -12,7 +14,7 @@ public sealed class Box
     public Box(string type, byte[]? payload = null, List<Box>? children = null)
     {
         if (type.Length != 4)
-            throw new ArgumentException($"Box type must be 4 characters: '{type}'.", nameof(type));
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Strings.Error_BoxTypeLength, type), nameof(type));
         Type = type;
         Payload = payload ?? [];
         Children = children;

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Change_AddingTracks" xml:space="preserve">
+    <value>Añadir pistas a un archivo Matroska</value>
+  </data>
+  <data name="Change_RemovingTracks" xml:space="preserve">
+    <value>Quitar o sustituir pistas de un archivo Matroska</value>
+  </data>
+  <data name="Change_ReorderingTracks" xml:space="preserve">
+    <value>Reordenar las pistas de un archivo Matroska</value>
+  </data>
+  <data name="Error_CannotWriteToMatroska" xml:space="preserve">
+    <value>{0} no se puede escribir en Matroska: {1}</value>
+  </data>
+  <data name="Error_CompressedTracks" xml:space="preserve">
+    <value>No se admiten pistas Matroska comprimidas con bzlib o LZO.</value>
+  </data>
+  <data name="Error_ElementPastEndOfFile" xml:space="preserve">
+    <value>El elemento 0x{0:X} del desplazamiento {1} se extiende más allá del final del archivo.</value>
+  </data>
+  <data name="Error_ElementPastEndOfSegment" xml:space="preserve">
+    <value>El elemento 0x{0:X} del desplazamiento {1} se extiende más allá del final del Segment.</value>
+  </data>
+  <data name="Error_ElementTooLargeToLoad" xml:space="preserve">
+    <value>El elemento de {0} bytes del desplazamiento {1} es demasiado grande para cargarlo.</value>
+  </data>
+  <data name="Error_ElementUnknownSize" xml:space="preserve">
+    <value>El elemento 0x{0:X} del desplazamiento {1} tiene un tamaño desconocido.</value>
+  </data>
+  <data name="Error_EncryptedTracks" xml:space="preserve">
+    <value>No se admiten pistas Matroska cifradas.</value>
+  </data>
+  <data name="Error_FileGone" xml:space="preserve">
+    <value>El archivo ya no existe.</value>
+  </data>
+  <data name="Error_FloatSize" xml:space="preserve">
+    <value>Elemento de coma flotante de {0} bytes.</value>
+  </data>
+  <data name="Error_IdTooLong" xml:space="preserve">
+    <value>No se admiten ID de EBML de más de 4 bytes.</value>
+  </data>
+  <data name="Error_ImplausiblyLargeElement" xml:space="preserve">
+    <value>El elemento 0x{0:X} del desplazamiento {1} es inverosímilmente grande ({2} bytes).</value>
+  </data>
+  <data name="Error_InternalElementMove" xml:space="preserve">
+    <value>Error interno: el elemento 0x{0:X} se movería de {1} a {2}.</value>
+  </data>
+  <data name="Error_InvalidBlockLacing" xml:space="preserve">
+    <value>El lacing del bloque no es válido.</value>
+  </data>
+  <data name="Error_InvalidEbmlLacing" xml:space="preserve">
+    <value>El lacing EBML no es válido.</value>
+  </data>
+  <data name="Error_LongIdsOrSizes" xml:space="preserve">
+    <value>No se admiten ID de EBML de más de 4 bytes ni tamaños de más de 8 bytes.</value>
+  </data>
+  <data name="Error_ModifiedExternally" xml:space="preserve">
+    <value>Otra aplicación ha modificado «{0}» desde que se abrió; vuelve a abrirlo antes de guardar.</value>
+  </data>
+  <data name="Error_MuxerFinished" xml:space="preserve">
+    <value>El multiplexor ya se había finalizado.</value>
+  </data>
+  <data name="Error_NoFileToUpdate" xml:space="preserve">
+    <value>El documento no tiene ningún archivo que actualizar.</value>
+  </data>
+  <data name="Error_NoSeekHeadSpace" xml:space="preserve">
+    <value>El archivo no tiene SeekHead ni espacio libre para añadir uno, así que no se encontrarían los elementos movidos al final del archivo.</value>
+  </data>
+  <data name="Error_NoSegment" xml:space="preserve">
+    <value>El archivo no tiene ningún Segment de Matroska.</value>
+  </data>
+  <data name="Error_NotEbml" xml:space="preserve">
+    <value>El archivo no es un archivo EBML (Matroska/WebM).</value>
+  </data>
+  <data name="Error_NotEditableInPlace" xml:space="preserve">
+    <value>El archivo no se puede editar sobre el propio archivo: {0}</value>
+  </data>
+  <data name="Error_NotWebM" xml:space="preserve">
+    <value>{0} no se puede guardar en WebM (solo VP8, VP9, AV1, AV2, Opus, Vorbis y WebVTT); guárdalo como .mkv.</value>
+  </data>
+  <data name="Error_OutputNotSeekable" xml:space="preserve">
+    <value>El flujo de salida debe admitir desplazamiento y escritura.</value>
+  </data>
+  <data name="Error_RequiresRemux" xml:space="preserve">
+    <value>{0} requiere volver a multiplexar.</value>
+  </data>
+  <data name="Error_SeekHeadNoFit" xml:space="preserve">
+    <value>El SeekHead no cabe en su espacio reservado.</value>
+  </data>
+  <data name="Error_SeekHeadTooSmall" xml:space="preserve">
+    <value>El SeekHead del archivo es demasiado pequeño para actualizarlo sobre el propio archivo.</value>
+  </data>
+  <data name="Error_SegmentCannotGrow" xml:space="preserve">
+    <value>El archivo no se puede editar sobre el propio archivo: hay datos después del Segment de Matroska, así que no puede crecer.</value>
+  </data>
+  <data name="Error_SignedIntegerSize" xml:space="preserve">
+    <value>Elemento entero con signo de {0} bytes.</value>
+  </data>
+  <data name="Error_SizeLength" xml:space="preserve">
+    <value>Los tamaños EBML ocupan de 1 a 8 bytes.</value>
+  </data>
+  <data name="Error_TracksBeforeSamples" xml:space="preserve">
+    <value>Las pistas deben añadirse antes de escribir las muestras.</value>
+  </data>
+  <data name="Error_UnexpectedEndAt" xml:space="preserve">
+    <value>Final de archivo inesperado en el desplazamiento {0}.</value>
+  </data>
+  <data name="Error_UnknownSize" xml:space="preserve">
+    <value>El elemento tiene un tamaño desconocido.</value>
+  </data>
+  <data name="Error_UnsignedIntegerSize" xml:space="preserve">
+    <value>Elemento entero sin signo de {0} bytes.</value>
+  </data>
+  <data name="Error_UnsupportedDocType" xml:space="preserve">
+    <value>El tipo de documento EBML «{0}» no se admite.</value>
+  </data>
+  <data name="Error_ValueDoesNotFitSize" xml:space="preserve">
+    <value>El valor no cabe en un tamaño EBML de {0} bytes.</value>
+  </data>
+  <data name="Error_ValueTooLargeForSize" xml:space="preserve">
+    <value>El valor es demasiado grande para un tamaño EBML.</value>
+  </data>
+  <data name="Error_VoidLength" xml:space="preserve">
+    <value>No se puede codificar un elemento Void de esta longitud.</value>
+  </data>
+  <data name="Error_VoidTooSmall" xml:space="preserve">
+    <value>Un elemento Void necesita al menos 2 bytes.</value>
+  </data>
+  <data name="Log_Av1ConfigRebuilt" xml:space="preserve">
+    <value>La pista AV1 {0} no tiene CodecPrivate; se ha reconstruido su configuración a partir del primer fotograma.</value>
+  </data>
+  <data name="Log_MuxerSummary" xml:space="preserve">
+    <value>El multiplexor Matroska ha escrito {0} pista(s) y {1} punto(s) de referencia (cue).</value>
+  </data>
+  <data name="Reason_BigEndianFloatPcm" xml:space="preserve">
+    <value>el PCM de coma flotante big-endian no se puede guardar en Matroska</value>
+  </data>
+  <data name="Reason_CannotStoreInMatroska" xml:space="preserve">
+    <value>{0} no se puede guardar en Matroska</value>
+  </data>
+  <data name="Reason_ConvertedToAss" xml:space="preserve">
+    <value>se convierte a Advanced SubStation Alpha (S_TEXT/ASS), que conserva sus estilos, posiciones y karaoke</value>
+  </data>
+  <data name="Reason_EvcNoCodecId" xml:space="preserve">
+    <value>MPEG-5 EVC no tiene ID de códec de Matroska (ni la especificación de Matroska ni otras herramientas definen uno), así que no se puede guardar en Matroska; guárdalo como MP4</value>
+  </data>
+  <data name="ScanProblem_InvalidElement" xml:space="preserve">
+    <value>Elemento no válido o truncado en el desplazamiento {0}.</value>
+  </data>
+  <data name="ScanProblem_Truncated" xml:space="preserve">
+    <value>El archivo está truncado (el Segment se extiende más allá del final del archivo).</value>
+  </data>
+  <data name="ScanProblem_UnexpectedEbmlHeader" xml:space="preserve">
+    <value>Cabecera EBML inesperada en el desplazamiento {0}.</value>
+  </data>
+  <data name="ScanProblem_UnexpectedSegment" xml:space="preserve">
+    <value>Segment inesperado en el desplazamiento {0}.</value>
+  </data>
+</root>

@@ -1,10 +1,12 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using MMW.Core.Diagnostics;
 using MMW.Core.Languages;
 using MMW.Core.Model;
 using MMW.Formats.Mp4.Boxes;
 using MMW.Formats.Mp4.Metadata;
+using MMW.Formats.Mp4.Resources;
 
 namespace MMW.Formats.Mp4;
 
@@ -35,7 +37,7 @@ internal static class Mp4Writer
 
     public static void Save(MediaDocument doc, SaveOptions options, IProgress<double>? progress, CancellationToken ct)
     {
-        var source = doc.Path ?? throw new InvalidOperationException("The document has no source file.");
+        var source = doc.Path ?? throw new InvalidOperationException(Strings.Error_NoSourceFile);
         var dest = options.OutputPath ?? source;
         var inPlace = string.Equals(Path.GetFullPath(dest), Path.GetFullPath(source), StringComparison.Ordinal);
 
@@ -49,12 +51,12 @@ internal static class Mp4Writer
 
         if (inPlace && !options.Optimize && TryWriteInPlace(source, layout, plan, options))
         {
-            AppLog.Info($"Updated '{Path.GetFileName(source)}' in place.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_UpdatedInPlace, Path.GetFileName(source)));
         }
         else
         {
             Rewrite(source, dest, layout, plan, options, progress, ct);
-            AppLog.Info($"Wrote '{Path.GetFileName(dest)}'.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_Wrote, Path.GetFileName(dest)));
         }
 
         progress?.Report(1);
@@ -153,7 +155,7 @@ internal static class Mp4Writer
                 break;
             moovSize = moovBytes.Length;
             if (++attempts > 4)
-                throw new InvalidOperationException("Could not lay out the moov box.");
+                throw new InvalidOperationException(Strings.Error_MoovLayout);
         }
 
         var directory = Path.GetDirectoryName(Path.GetFullPath(dest))!;
@@ -179,7 +181,7 @@ internal static class Mp4Writer
                         ct.ThrowIfCancellationRequested();
                         var n = src.Read(buffer, 0, (int)Math.Min(buffer.Length, left));
                         if (n == 0)
-                            throw new EndOfStreamException($"Unexpected end of file while copying '{box.Type}'.");
+                            throw new EndOfStreamException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnexpectedEndCopying, box.Type));
                         dst.Write(buffer, 0, n);
                         left -= n;
                         done += n;
@@ -225,7 +227,7 @@ internal static class Mp4Writer
                     return offset + delta;
             }
 
-            throw new InvalidDataException($"Chunk offset {offset} does not point into any media data box.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ChunkOffsetOutsideMdat, offset));
         };
     }
 
@@ -239,7 +241,7 @@ internal static class Mp4Writer
 
         var tracks = doc.Tracks.Where(t => t is not ChapterTrack).ToList();
         if (tracks.FirstOrDefault(t => t.IsPending) is { } pending)
-            throw new NotSupportedException($"Adding tracks ('{pending.Format}') requires remuxing, which is not available yet.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_AddingTracksNeedsRemux, pending.Format));
 
         var trakById = traks.ToDictionary(t => HeaderBoxes.TkhdTrackId(t.Find("tkhd")!));
         var keepIds = tracks.Select(t => t.Id).ToHashSet();
@@ -250,7 +252,7 @@ internal static class Mp4Writer
         foreach (var track in tracks)
         {
             if (!trakById.TryGetValue(track.Id, out var trak))
-                throw new InvalidDataException($"Track {track.Id} is no longer in the file.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackGone, track.Id));
             ApplyTrack(trak, track, keepIds);
             newTraks.Add(trak);
         }

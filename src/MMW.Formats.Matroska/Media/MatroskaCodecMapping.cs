@@ -4,6 +4,7 @@ using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Resources;
 using static MMW.Formats.Matroska.MatroskaIds;
 
 namespace MMW.Formats.Matroska.Media;
@@ -278,17 +279,17 @@ internal static class MatroskaCodecMapping
         if (config.Native is MatroskaNativeTrack)
             return TrackSupport.Passthrough;
         if (config.Codec == CodecType.Tx3g)
-            return new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToAss, "converted to Advanced SubStation Alpha (S_TEXT/ASS), which keeps its styles, positions and karaoke");
+            return new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToAss, Strings.Reason_ConvertedToAss);
         if (config.Codec == CodecType.Evc)
         {
             return new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
-                "MPEG-5 EVC has no Matroska codec ID (neither the Matroska specification nor other tools define one), so it cannot be stored in Matroska; save as MP4 instead");
+                Strings.Reason_EvcNoCodecId);
         }
 
         if (config.Codec == CodecType.Pcm && config.PcmFloat && config.PcmBigEndian)
-            return new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, "big-endian floating-point PCM cannot be stored in Matroska");
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, Strings.Reason_BigEndianFloatPcm);
         return CodecIdFor(config) is null
-            ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, $"{config.FormatName} cannot be stored in Matroska")
+            ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, string.Format(CultureInfo.CurrentCulture, Strings.Reason_CannotStoreInMatroska, config.FormatName))
             : TrackSupport.Passthrough;
     }
 

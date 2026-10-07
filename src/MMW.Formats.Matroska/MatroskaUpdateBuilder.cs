@@ -1,6 +1,8 @@
+using System.Globalization;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Resources;
 using static MMW.Formats.Matroska.MatroskaIds;
 
 namespace MMW.Formats.Matroska;
@@ -31,7 +33,7 @@ internal static class MatroskaUpdateBuilder
     public static void ValidateTracks(MediaDocument document, MatroskaLayout layout)
     {
         if (TrackListChange(document, layout) is { } change)
-            throw new NotSupportedException(change + " requires remuxing.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_RequiresRemux, change));
     }
 
     /// <summary>
@@ -42,14 +44,14 @@ internal static class MatroskaUpdateBuilder
     {
         var tracks = document.Tracks.Where(t => t is not ChapterTrack).ToList();
         if (tracks.Any(t => t.IsPending))
-            return "Adding tracks to a Matroska file";
+            return Strings.Change_AddingTracks;
 
         var fileOrder = layout.Tracks.Select(t => t.TrackNumber).ToList();
         var docOrder = tracks.Select(t => (ulong)t.Id).ToList();
         if (docOrder.Count != fileOrder.Count || docOrder.Except(fileOrder).Any() || fileOrder.Except(docOrder).Any())
-            return "Removing or replacing tracks of a Matroska file";
+            return Strings.Change_RemovingTracks;
         if (!docOrder.SequenceEqual(fileOrder))
-            return "Reordering the tracks of a Matroska file";
+            return Strings.Change_ReorderingTracks;
         return null;
     }
 

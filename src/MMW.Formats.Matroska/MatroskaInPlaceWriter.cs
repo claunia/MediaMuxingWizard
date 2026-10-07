@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.Win32.SafeHandles;
 using MMW.Formats.Matroska.Ebml;
+using MMW.Formats.Matroska.Resources;
 using static MMW.Formats.Matroska.MatroskaIds;
 
 namespace MMW.Formats.Matroska;
@@ -68,7 +70,7 @@ internal sealed class MatroskaInPlaceWriter
     public static void Apply(SafeFileHandle handle, MatroskaLayout layout, IReadOnlyList<ElementUpdate> updates, CancellationToken cancellationToken)
     {
         if (layout.ScanProblem is not null)
-            throw new NotSupportedException("The file cannot be edited in place: " + layout.ScanProblem);
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotEditableInPlace, layout.ScanProblem));
         if (updates.Count == 0)
             return;
 
@@ -126,7 +128,7 @@ internal sealed class MatroskaInPlaceWriter
 
         var newEnd = _regions.Count > 0 ? _regions[^1].Position + _regions[^1].Size : _layout.SegmentDataPosition;
         if (newEnd > _layout.SegmentEnd && _layout.SegmentEnd < _layout.FileLength)
-            throw new NotSupportedException("The file cannot be edited in place: data follows the Matroska Segment, so it cannot grow.");
+            throw new NotSupportedException(Strings.Error_SegmentCannotGrow);
     }
 
     private static void MakeVoid(Region region)
@@ -214,7 +216,7 @@ internal sealed class MatroskaInPlaceWriter
         {
             r.Position = pos;
             if (r.Kind == RegionKind.Element && r.OriginalPosition != pos)
-                throw new InvalidOperationException($"Internal error: element 0x{r.Id:X} would move from {r.OriginalPosition} to {pos}.");
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_InternalElementMove, r.Id, r.OriginalPosition, pos));
             pos += r.Size;
         }
     }
@@ -296,7 +298,7 @@ internal sealed class MatroskaInPlaceWriter
             }
 
             throw new NotSupportedException(
-                "The file has no SeekHead and no free space to add one, so elements moved to the end of the file would not be found.");
+                Strings.Error_NoSeekHeadSpace);
         }
 
         if (entries.ToHashSet().SetEquals(primary.Entries))
@@ -313,7 +315,7 @@ internal sealed class MatroskaInPlaceWriter
         var moved = _regions.Last(r => r.Kind == RegionKind.New && r.Id == SeekHead);
         var pointer = EncodeSeekHead([new SeekEntry(SeekHead, moved.Position - _layout.SegmentDataPosition)], primary.HasCrc);
         if (!TryPlace(primaryRegion, SeekHead, pointer))
-            throw new NotSupportedException("The file's SeekHead is too small to be updated in place.");
+            throw new NotSupportedException(Strings.Error_SeekHeadTooSmall);
     }
 
     private static byte[] EncodeSeekHead(IEnumerable<SeekEntry> entries, bool withCrc)
