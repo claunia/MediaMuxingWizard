@@ -559,7 +559,9 @@ internal sealed class Mp4Muxer : IMuxer
         var mediaDuration = n == 0 ? 0 : t.Dts[n - 1] - t0 + durations[n - 1];
         var scale = (double)t.Timescale;
         var emptyEdit = (long)Math.Round(start / scale * MovieTimescale);
-        var editDuration = (long)Math.Round(Math.Max(0, end - start) / scale * MovieTimescale);
+        // Rounded up: an edit shorter than the media (by a fraction of the movie timescale) makes players drop the end of
+        // the last sample.
+        var editDuration = (long)Math.Ceiling(Math.Max(0, end - start) / scale * MovieTimescale - 1e-9);
         var trackDuration = emptyEdit + editDuration;
 
         // Sample entry.

@@ -4,6 +4,7 @@
     <Project Path="src/MMW.Formats.Mp4/MMW.Formats.Mp4.csproj" />
     <Project Path="src/MMW.Formats.Matroska/MMW.Formats.Matroska.csproj" />
     <Project Path="src/MMW.Formats.Elementary/MMW.Formats.Elementary.csproj" />
+    <Project Path="src/MMW.Formats.MpegTs/MMW.Formats.MpegTs.csproj" />
     <Project Path="src/MMW.Media.Remux/MMW.Media.Remux.csproj" />
     <Project Path="src/MMW.Media.Conversion/MMW.Media.Conversion.csproj" />
     <Project Path="src/MMW.Ocr/MMW.Ocr.csproj" />

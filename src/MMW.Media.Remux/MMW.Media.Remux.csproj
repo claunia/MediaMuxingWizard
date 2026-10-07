@@ -7,6 +7,7 @@
     <ProjectReference Include="..\MMW.Formats.Mp4\MMW.Formats.Mp4.csproj" />
     <ProjectReference Include="..\MMW.Formats.Matroska\MMW.Formats.Matroska.csproj" />
     <ProjectReference Include="..\MMW.Formats.Elementary\MMW.Formats.Elementary.csproj" />
+    <ProjectReference Include="..\MMW.Formats.MpegTs\MMW.Formats.MpegTs.csproj" />
     <ProjectReference Include="..\MMW.Media.Conversion\MMW.Media.Conversion.csproj" />
     <ProjectReference Include="..\MMW.Ocr\MMW.Ocr.csproj" />
   </ItemGroup>
