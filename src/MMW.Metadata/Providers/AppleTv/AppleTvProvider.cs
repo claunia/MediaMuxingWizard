@@ -2,6 +2,7 @@ using System.Globalization;
 using MMW.Metadata.Certifications;
 using MMW.Metadata.Http;
 using MMW.Metadata.Providers.ITunes;
+using MMW.Metadata.Resources;
 using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Providers.AppleTv;
@@ -59,7 +60,7 @@ public sealed class AppleTvProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<MetadataResult>> SearchMovieAsync(string title, int? year, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<MetadataResult>>("movie search", async () =>
+        _http.GuardAsync<IReadOnlyList<MetadataResult>>(Strings.Provider_OpMovieSearch, async () =>
         {
             if (string.IsNullOrWhiteSpace(title))
                 return [];
@@ -73,7 +74,7 @@ public sealed class AppleTvProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<string>> SearchSeriesNamesAsync(string partial, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<string>>("series name search", async () =>
+        _http.GuardAsync<IReadOnlyList<string>>(Strings.Provider_OpSeriesNameSearch, async () =>
         {
             if (string.IsNullOrWhiteSpace(partial))
                 return [];
@@ -83,7 +84,7 @@ public sealed class AppleTvProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<MetadataResult>> SearchTvAsync(string seriesName, int? season, int? episode, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<MetadataResult>>("TV search", async () =>
+        _http.GuardAsync<IReadOnlyList<MetadataResult>>(Strings.Provider_OpTvSearch, async () =>
         {
             if (string.IsNullOrWhiteSpace(seriesName))
                 return [];
@@ -109,7 +110,7 @@ public sealed class AppleTvProvider : IMetadataProvider
     public Task<MetadataResult> LoadDetailsAsync(MetadataResult result, string language, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(result);
-        return _http.GuardAsync("load details", async () =>
+        return _http.GuardAsync(Strings.Provider_OpLoadDetails, async () =>
         {
             if (result.ProviderId is null)
                 return result;

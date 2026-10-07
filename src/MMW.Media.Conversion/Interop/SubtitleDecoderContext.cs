@@ -1,5 +1,7 @@
+using System.Globalization;
 using FFmpeg.AutoGen;
 using MMW.Core.Media;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion.Interop;
 
@@ -26,7 +28,7 @@ internal sealed unsafe class SubtitleDecoderContext : IDisposable
             _decoder = AvUtil.OpenDecoder(config);
             _packet = ffmpeg.av_packet_alloc();
             if (_packet == null)
-                throw new InsufficientMemoryException("av_packet_alloc failed.");
+                throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "av_packet_alloc"));
         }
         catch
         {

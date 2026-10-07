@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using MMW.Core.Media;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion.Interop;
 
@@ -20,14 +22,14 @@ internal static unsafe class AvUtil
     {
         const int size = 256;
         var buffer = stackalloc byte[size];
-        return ffmpeg.av_strerror(error, buffer, size) == 0 ? Marshal.PtrToStringUTF8((IntPtr)buffer) ?? $"error {error}" : $"error {error}";
+        return ffmpeg.av_strerror(error, buffer, size) == 0 ? Marshal.PtrToStringUTF8((IntPtr)buffer) ?? string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_ErrorCode, error) : string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_ErrorCode, error);
     }
 
     /// <summary>Throws <see cref="InvalidDataException"/> when <paramref name="result"/> is an error code.</summary>
     public static int Check(int result, string operation)
     {
         if (result < 0)
-            throw new InvalidDataException($"{operation} failed: {ErrorText(result)}");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_OperationFailed, operation, ErrorText(result)));
         return result;
     }
 
@@ -38,7 +40,7 @@ internal static unsafe class AvUtil
             return;
         var buffer = (byte*)ffmpeg.av_mallocz((ulong)(data.Length + ffmpeg.AV_INPUT_BUFFER_PADDING_SIZE));
         if (buffer == null)
-            throw new InsufficientMemoryException("av_mallocz failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "av_mallocz"));
         data.CopyTo(new Span<byte>(buffer, data.Length));
         context->extradata = buffer;
         context->extradata_size = data.Length;
@@ -76,14 +78,14 @@ internal static unsafe class AvUtil
     {
         var id = CodecMapping.DecoderId(config);
         if (id == AVCodecID.AV_CODEC_ID_NONE)
-            throw new NotSupportedException($"{config.FormatName} cannot be decoded.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_CannotDecode, config.FormatName));
         var codec = ffmpeg.avcodec_find_decoder(id);
         if (codec == null)
-            throw new NotSupportedException($"This FFmpeg build has no {config.FormatName} decoder.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_NoDecoder, config.FormatName));
 
         var context = ffmpeg.avcodec_alloc_context3(codec);
         if (context == null)
-            throw new InsufficientMemoryException("avcodec_alloc_context3 failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "avcodec_alloc_context3"));
         AVDictionary* dict = null;
         try
         {
@@ -129,7 +131,7 @@ internal static unsafe class AvUtil
                     ffmpeg.av_dict_set(&dict, key, value, 0);
             }
 
-            Check(ffmpeg.avcodec_open2(context, codec, &dict), $"Opening the {config.FormatName} decoder");
+            Check(ffmpeg.avcodec_open2(context, codec, &dict), string.Format(CultureInfo.CurrentCulture, Strings.Op_OpeningDecoder, config.FormatName));
             return context;
         }
         catch

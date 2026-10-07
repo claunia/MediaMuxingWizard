@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using MMW.Core.Diagnostics;
+using MMW.Ocr.Resources;
 
 namespace MMW.Ocr.Interop;
 
@@ -48,7 +50,7 @@ public static class TesseractLoader
     public static void EnsureAvailable()
     {
         if (!IsAvailable)
-            throw new NotSupportedException($"Tesseract OCR is not available: {Error}");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_NotAvailable, Error));
     }
 
     /// <summary>Library file names for this platform, most specific first.</summary>
@@ -119,14 +121,14 @@ public static class TesseractLoader
         {
             var result = LoadCore();
             if (result.Error is null)
-                AppLog.Info($"Tesseract {result.Version} loaded from {result.Path}.");
+                AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_Loaded, result.Version, result.Path));
             else
-                AppLog.Warn($"Tesseract OCR is not available (bitmap subtitle OCR is disabled): {result.Error}");
+                AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_NotAvailableOcrDisabled, result.Error));
             return result;
         }
         catch (Exception ex) when (ex is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException or InvalidOperationException or IOException)
         {
-            AppLog.Warn($"Tesseract could not be loaded: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_CouldNotLoad, ex.Message));
             return new LoadResult(null, ex.Message, null, null);
         }
     }
@@ -148,7 +150,7 @@ public static class TesseractLoader
             var functions = TesseractFunctions.Resolve(handle, out var missing);
             if (functions is null)
             {
-                failures.Add($"{candidate} (missing {missing})");
+                failures.Add(string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_CandidateMissing, candidate, missing));
                 NativeLibrary.Free(handle);
                 continue;
             }
@@ -156,7 +158,7 @@ public static class TesseractLoader
             var version = functions.GetVersion();
             if (!IsSupportedVersion(version))
             {
-                failures.Add($"{candidate} (version {version})");
+                failures.Add(string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_CandidateVersion, candidate, version));
                 NativeLibrary.Free(handle);
                 continue;
             }
@@ -165,8 +167,8 @@ public static class TesseractLoader
         }
 
         return new LoadResult(null, failures.Count > 0
-            ? $"libtesseract could not be used: {string.Join(", ", failures)}"
-            : $"the Tesseract 5 library ({string.Join(" / ", names)}) was not found; install Tesseract 5 or set MMW_TESSERACT_PATH", null, null);
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_LibraryUnusable, string.Join(", ", failures))
+            : string.Format(CultureInfo.CurrentCulture, Strings.Tesseract_LibraryNotFound, string.Join(" / ", names)), null, null);
     }
 
     /// <summary>True for Tesseract 4.1 and later (the C API used exists since 4.0; 5.x is the tested version).</summary>

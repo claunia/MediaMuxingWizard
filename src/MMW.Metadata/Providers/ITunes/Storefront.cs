@@ -1,5 +1,6 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json;
+using MMW.Metadata.Resources;
 
 namespace MMW.Metadata.Providers.ITunes;
 
@@ -52,7 +53,7 @@ public static class Storefronts
     private static List<Storefront> Load()
     {
         using var stream = typeof(Storefronts).Assembly.GetManifestResourceStream("MMW.Metadata.Resources.storefronts.json")
-                           ?? throw new InvalidOperationException("storefronts.json resource missing.");
+                           ?? throw new InvalidOperationException(Strings.ITunes_StorefrontsMissing);
         return JsonSerializer.Deserialize(stream, StorefrontJsonContext.Default.ListStorefront) ?? [];
     }
 }

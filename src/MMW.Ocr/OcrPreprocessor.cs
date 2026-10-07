@@ -1,3 +1,5 @@
+using MMW.Ocr.Resources;
+
 namespace MMW.Ocr;
 
 /// <summary>How the "ink" (text) of a subtitle bitmap is derived from its colours.</summary>
@@ -45,7 +47,7 @@ public static class OcrPreprocessor
         ArgumentOutOfRangeException.ThrowIfNegative(width);
         ArgumentOutOfRangeException.ThrowIfNegative(height);
         if (rgba.Length < (long)width * height * 4)
-            throw new ArgumentException("The RGBA buffer is smaller than the bitmap dimensions.", nameof(rgba));
+            throw new ArgumentException(Strings.Ocr_RgbaBufferTooSmall, nameof(rgba));
         if (width == 0 || height == 0)
             return Blank();
 

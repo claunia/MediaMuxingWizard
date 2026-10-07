@@ -1,5 +1,7 @@
-using System.Text.Json;
+using System.Globalization;
 using System.Text.Json.Serialization;
+using System.Text.Json;
+using MMW.Metadata.Resources;
 using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Caching;
@@ -28,7 +30,7 @@ public sealed class RecentSearches
             }
             catch (JsonException ex)
             {
-                MMW.Core.Diagnostics.AppLog.Warn($"Ignoring unreadable recent searches file: {ex.Message}");
+                MMW.Core.Diagnostics.AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Search_IgnoringRecentSearches, ex.Message));
             }
         }
     }

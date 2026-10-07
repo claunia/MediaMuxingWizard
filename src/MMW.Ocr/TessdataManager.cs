@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using MMW.Core.Diagnostics;
+using MMW.Ocr.Resources;
 
 namespace MMW.Ocr;
 
@@ -120,7 +122,7 @@ public sealed class TessdataManager
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                AppLog.Debug($"Cannot inspect '{path}': {ex.Message}");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_CannotInspect, path, ex.Message));
             }
         }
 
@@ -194,7 +196,7 @@ public sealed class TessdataManager
         var target = Path.Combine(Directory, language + Extension);
         var temp = Path.Combine(Directory, "." + language + Extension + "." + Guid.NewGuid().ToString("N")[..8] + ".part");
         var uri = new Uri(_baseUri, Uri.EscapeDataString(language) + Extension);
-        AppLog.Info($"Downloading the {TesseractLanguages.DisplayName(language)} OCR model from {uri}.");
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_Downloading, TesseractLanguages.DisplayName(language), uri));
         try
         {
             using (var response = await _http.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
@@ -202,7 +204,7 @@ public sealed class TessdataManager
                 response.EnsureSuccessStatusCode();
                 var total = response.Content.Headers.ContentLength;
                 if (total is > MaximumSize)
-                    throw new InvalidDataException($"The {language} model is too large ({total} bytes).");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_TooLarge, language, total));
 
                 await using var input = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
                 await using var output = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1 << 16, useAsync: true);
@@ -214,7 +216,7 @@ public sealed class TessdataManager
                 {
                     written += read;
                     if (written > MaximumSize)
-                        throw new InvalidDataException($"The {language} model is larger than {MaximumSize} bytes.");
+                        throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_LargerThan, language, MaximumSize));
                     await output.WriteAsync(buffer.AsMemory(0, read), cancellationToken).ConfigureAwait(false);
                     if (progress is not null && total is > 0)
                     {
@@ -229,13 +231,13 @@ public sealed class TessdataManager
 
                 await output.FlushAsync(cancellationToken).ConfigureAwait(false);
                 if (total is { } expected && written != expected)
-                    throw new InvalidDataException($"The {language} model download is incomplete ({written} of {expected} bytes).");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_Incomplete, language, written, expected));
             }
 
             Validate(temp, language);
             File.Move(temp, target, overwrite: true);
             progress?.Report(1.0);
-            AppLog.Info($"Installed the {TesseractLanguages.DisplayName(language)} OCR model ({new FileInfo(target).Length / 1024} KB).");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_Installed, TesseractLanguages.DisplayName(language), new FileInfo(target).Length / 1024));
             return target;
         }
         catch
@@ -265,13 +267,13 @@ public sealed class TessdataManager
     {
         var info = new FileInfo(path);
         if (info.Length < MinimumSize)
-            throw new InvalidDataException($"The {language} model is too small ({info.Length} bytes); the server did not return a traineddata file.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_TooSmall, language, info.Length));
         Span<byte> header = stackalloc byte[4];
         using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             fs.ReadExactly(header);
         var entries = BinaryPrimitives.ReadInt32LittleEndian(header);
         if (entries is < 1 or > 64)
-            throw new InvalidDataException($"The {language} model is not a traineddata file.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_NotTraineddata, language));
     }
 
     /// <summary>True for a syntactically valid language code (letters, digits and '_' only: no paths).</summary>
@@ -281,7 +283,7 @@ public sealed class TessdataManager
     private static void ValidateCode(string language)
     {
         if (!IsValidCode(language))
-            throw new ArgumentException($"'{language}' is not a Tesseract language code.", nameof(language));
+            throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_InvalidCode, language), nameof(language));
     }
 
     private static void TryDelete(string path)
@@ -292,7 +294,7 @@ public sealed class TessdataManager
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            AppLog.Warn($"Could not delete '{path}': {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Tessdata_CouldNotDelete, path, ex.Message));
         }
     }
 }

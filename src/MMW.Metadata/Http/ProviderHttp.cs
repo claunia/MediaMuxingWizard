@@ -1,8 +1,10 @@
+using System.Globalization;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.Json;
 using MMW.Core.Diagnostics;
 using MMW.Metadata.Caching;
+using MMW.Metadata.Resources;
 
 namespace MMW.Metadata.Http;
 
@@ -66,7 +68,7 @@ internal sealed class ProviderHttp
         if (!response.IsSuccessStatusCode)
         {
             throw new ProviderHttpException(
-                $"{ProviderName}: {(int)response.StatusCode} {response.ReasonPhrase} for {Redact(request.RequestUri)}",
+                string.Format(CultureInfo.CurrentCulture, Strings.Provider_HttpError, ProviderName, (int)response.StatusCode, response.ReasonPhrase, Redact(request.RequestUri)),
                 response.StatusCode);
         }
 
@@ -90,7 +92,7 @@ internal sealed class ProviderHttp
         }
         catch (Exception ex)
         {
-            AppLog.Warn($"{ProviderName}: {operation} failed: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Provider_OperationFailed, ProviderName, operation, ex.Message));
             return fallback;
         }
     }

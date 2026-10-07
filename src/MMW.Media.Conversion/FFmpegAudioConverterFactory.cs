@@ -1,8 +1,10 @@
 using System.Collections.Concurrent;
+using System.Globalization;
 using FFmpeg.AutoGen;
 using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Media.Conversion.Interop;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion;
 
@@ -23,7 +25,7 @@ public sealed class FFmpegAudioConverterFactory : IAudioConverterFactory
 
     public string? UnavailableReason => !FFmpegLoader.IsAvailable ? FFmpegLoader.Error
         : HasEncoders.Value ? null
-        : "this FFmpeg build has no native AAC/AC-3 encoder";
+        : Strings.Conversion_NoNativeEncoders;
 
     private static readonly Lazy<bool> HasEncoders = new(() => FFmpegLoader.IsAvailable && AvUtil.HasEncoder("aac") && AvUtil.HasEncoder("ac3"));
 
@@ -41,9 +43,9 @@ public sealed class FFmpegAudioConverterFactory : IAudioConverterFactory
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(settings);
         if (!IsAvailable)
-            throw new NotSupportedException($"Audio conversion is not available: {UnavailableReason}");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_AudioUnavailable, UnavailableReason));
         if (!CanDecode(source.Config))
-            throw new NotSupportedException($"{source.Config.FormatName} audio cannot be decoded by {Name}.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_AudioCannotDecode, source.Config.FormatName, Name));
         return new AudioConverterSource(source, target, settings);
     }
 }

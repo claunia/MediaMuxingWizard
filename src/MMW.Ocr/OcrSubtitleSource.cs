@@ -1,8 +1,10 @@
+using System.Globalization;
 using System.Text;
 using MMW.Core.Diagnostics;
-using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
+using MMW.Core.Media;
 using MMW.Media.Conversion;
+using MMW.Ocr.Resources;
 
 namespace MMW.Ocr;
 
@@ -263,6 +265,5 @@ public sealed class OcrSubtitleSource : ISampleSource, IDisposable
     }
 
     private void Log() =>
-        AppLog.Info(FormattableString.Invariant(
-            $"OCR of track {TrackId}: {EventCount} subtitle(s), {EventCount - EmptyCount} recognised (mean confidence {MeanConfidence:0}), {EmptyCount} without text, {ForcedCount} forced."));
+        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_TrackSummary, TrackId, EventCount, EventCount - EmptyCount, MeanConfidence, EmptyCount, ForcedCount));
 }

@@ -1,6 +1,8 @@
+using System.Globalization;
 using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Media.Conversion.Interop;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion;
 
@@ -44,7 +46,7 @@ public sealed class AudioConverterSource : ISampleSource, IDisposable
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(settings);
         if (source.Config.Kind != TrackKind.Audio)
-            throw new NotSupportedException($"{source.Config.FormatName} is not an audio track.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_NotAudioTrack, source.Config.FormatName));
         FFmpegLoader.EnsureAvailable();
         _source = source;
         _target = target;
@@ -166,7 +168,7 @@ public sealed class AudioConverterSource : ISampleSource, IDisposable
             }
 
             if (!t.IsConfigured)
-                throw new InvalidDataException($"No {_source.Config.FormatName} audio could be decoded from track {_source.TrackId}.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_NoAudioDecoded, _source.Config.FormatName, _source.TrackId));
         }
         catch
         {

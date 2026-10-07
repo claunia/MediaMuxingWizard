@@ -1,7 +1,9 @@
+using System.Globalization;
 using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Media.Conversion;
 using MMW.Ocr.Interop;
+using MMW.Ocr.Resources;
 
 namespace MMW.Ocr;
 
@@ -36,7 +38,7 @@ public sealed class OcrSubtitleConverterFactory : ISubtitleConverterFactory
     public bool IsAvailable => TesseractLoader.IsAvailable && MediaConversion.IsAvailable;
 
     public string? UnavailableReason => !TesseractLoader.IsAvailable ? TesseractLoader.Error
-        : !MediaConversion.IsAvailable ? $"FFmpeg is needed to decode bitmap subtitles: {MediaConversion.Error}"
+        : !MediaConversion.IsAvailable ? string.Format(CultureInfo.CurrentCulture, Strings.Ocr_FFmpegNeeded, MediaConversion.Error)
         : null;
 
     public bool CanDecode(CodecConfig config)
@@ -62,11 +64,12 @@ public sealed class OcrSubtitleConverterFactory : ISubtitleConverterFactory
         ArgumentNullException.ThrowIfNull(language);
         var codes = TesseractLanguages.Split(language);
         if (codes.Count == 0 || codes.Any(c => !TessdataManager.IsValidCode(c)))
-            return $"'{language}' is not a Tesseract language";
+            return string.Format(CultureInfo.CurrentCulture, Strings.Ocr_NotTesseractLanguage, language);
         var missing = codes.Where(c => Tessdata.FindFile(c) is null).ToList();
         return missing.Count == 0
             ? null
-            : $"the {TesseractLanguages.DisplayName(string.Join('+', missing))} OCR language data ({string.Join(", ", missing.Select(m => m + TessdataManager.Extension))}) is not installed";
+            : string.Format(CultureInfo.CurrentCulture, Strings.Ocr_LanguageDataMissingFiles, TesseractLanguages.DisplayName(string.Join('+', missing)),
+                string.Join(", ", missing.Select(m => m + TessdataManager.Extension)));
     }
 
     public ForcedSubtitleMode DetectForcedMode(ISampleSource source, CancellationToken cancellationToken)
@@ -95,14 +98,14 @@ public sealed class OcrSubtitleConverterFactory : ISubtitleConverterFactory
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(options);
         if (!IsAvailable)
-            throw new NotSupportedException($"Subtitle OCR is not available: {UnavailableReason}");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_NotAvailable, UnavailableReason));
         if (!CanDecode(source.Config))
-            throw new NotSupportedException($"{source.Config.FormatName} subtitles cannot be decoded for OCR.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_CannotDecodeForOcr, source.Config.FormatName));
         var language = ResolveLanguage(source.Config.Language, options);
         if (CheckLanguage(language) is { } missing)
-            throw new NotSupportedException($"Subtitle OCR is not available: {missing}.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_NotAvailableSentence, missing));
         var directory = Tessdata.ResolveDataDirectory(language) ??
-                        throw new NotSupportedException($"The {TesseractLanguages.DisplayName(language)} OCR language data is not installed.");
+                        throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_LanguageDataMissing, TesseractLanguages.DisplayName(language)));
         return new OcrSubtitleSource(source, target, () => _engineFactory(directory, language), null, cancellationToken);
     }
 }

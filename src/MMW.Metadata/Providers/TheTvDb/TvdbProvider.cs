@@ -1,13 +1,14 @@
 using System.Globalization;
-using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
+using System.Net;
 using System.Text.Json.Serialization.Metadata;
+using System.Text.Json;
+using System.Text;
 using MMW.Core.Diagnostics;
 using MMW.Core.Languages;
 using MMW.Metadata.Certifications;
 using MMW.Metadata.Http;
+using MMW.Metadata.Resources;
 using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Providers.TheTvDb;
@@ -75,7 +76,7 @@ public sealed class TvdbProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<string>> SearchSeriesNamesAsync(string partial, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<string>>("series name search", async () =>
+        _http.GuardAsync<IReadOnlyList<string>>(Strings.Provider_OpSeriesNameSearch, async () =>
         {
             if (!EnsureConfigured() || string.IsNullOrWhiteSpace(partial))
                 return [];
@@ -86,7 +87,7 @@ public sealed class TvdbProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<MetadataResult>> SearchTvAsync(string seriesName, int? season, int? episode, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<MetadataResult>>("TV search", async () =>
+        _http.GuardAsync<IReadOnlyList<MetadataResult>>(Strings.Provider_OpTvSearch, async () =>
         {
             if (!EnsureConfigured() || string.IsNullOrWhiteSpace(seriesName))
                 return [];
@@ -127,7 +128,7 @@ public sealed class TvdbProvider : IMetadataProvider
     public Task<MetadataResult> LoadDetailsAsync(MetadataResult result, string language, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(result);
-        return _http.GuardAsync("load details", async () =>
+        return _http.GuardAsync(Strings.Provider_OpLoadDetails, async () =>
         {
             if (!EnsureConfigured() || result.ProviderId is null || result.Kind != MediaSearchKind.TvEpisode)
                 return result;
@@ -383,7 +384,7 @@ public sealed class TvdbProvider : IMetadataProvider
     {
         if (IsConfigured)
             return true;
-        AppLog.Warn($"{ProviderName}: no API key configured (set it in appsettings.json, {ApiKeys.TvdbEnvironmentVariable} or Preferences).");
+        AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Provider_NoApiKey, ProviderName, ApiKeys.TvdbEnvironmentVariable));
         return false;
     }
 
@@ -407,7 +408,7 @@ public sealed class TvdbProvider : IMetadataProvider
         var text = await _http.SendAsync(request, ct).ConfigureAwait(false);
         var token = JsonSerializer.Deserialize(text, TvdbJsonContext.Default.TvdbEnvelopeTvdbLogin)?.Data?.Token;
         if (string.IsNullOrEmpty(token))
-            throw new InvalidOperationException("TheTVDB login returned no token.");
+            throw new InvalidOperationException(Strings.Tvdb_NoToken);
         TvdbTokenCache.Set(key, token, _time.GetUtcNow());
         return token;
     }

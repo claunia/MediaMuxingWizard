@@ -1,12 +1,14 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 using FFmpeg.AutoGen;
 using MMW.Core.Diagnostics;
 using MMW.Core.Languages;
-using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
+using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Media.Conversion.Interop;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion;
 
@@ -91,10 +93,10 @@ internal sealed unsafe class FFmpegDemuxer : IDemuxer
     public static FFmpegDemuxer Open(string path)
     {
         AVFormatContext* format = null;
-        AvUtil.Check(ffmpeg.avformat_open_input(&format, path, null, null), $"Opening '{System.IO.Path.GetFileName(path)}'");
+        AvUtil.Check(ffmpeg.avformat_open_input(&format, path, null, null), string.Format(CultureInfo.CurrentCulture, Strings.Op_Opening, System.IO.Path.GetFileName(path)));
         try
         {
-            AvUtil.Check(ffmpeg.avformat_find_stream_info(format, null), "Reading the stream information");
+            AvUtil.Check(ffmpeg.avformat_find_stream_info(format, null), Strings.Op_ReadingStreamInfo);
             var name = format->iformat->long_name is null ? "FFmpeg" : new string((sbyte*)format->iformat->long_name);
             var start = format->start_time == ffmpeg.AV_NOPTS_VALUE ? 0 : format->start_time / (double)ffmpeg.AV_TIME_BASE;
             var duration = format->duration > 0 ? TimeSpan.FromSeconds(format->duration / (double)ffmpeg.AV_TIME_BASE) : TimeSpan.Zero;
@@ -108,7 +110,7 @@ internal sealed unsafe class FFmpegDemuxer : IDemuxer
                 if (info is null)
                 {
                     var codec = ffmpeg.avcodec_get_name(st->codecpar->codec_id);
-                    AppLog.Info($"{System.IO.Path.GetFileName(path)}: stream {i} ({codec}) is not supported.");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Demux_StreamNotSupported, System.IO.Path.GetFileName(path), i, codec));
                     continue;
                 }
 
@@ -120,12 +122,12 @@ internal sealed unsafe class FFmpegDemuxer : IDemuxer
                 }
                 catch (Exception ex) when (ex is InvalidDataException or NotSupportedException)
                 {
-                    AppLog.Warn($"{System.IO.Path.GetFileName(path)}: stream {i} skipped: {ex.Message}");
+                    AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Demux_StreamSkipped, System.IO.Path.GetFileName(path), i, ex.Message));
                 }
             }
 
             if (tracks.Count == 0)
-                throw new InvalidDataException($"'{System.IO.Path.GetFileName(path)}' has no stream that can be read.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Demux_NoReadableStream, System.IO.Path.GetFileName(path)));
             return new FFmpegDemuxer(path, name, tracks, duration);
         }
         finally
@@ -419,11 +421,11 @@ internal sealed unsafe class FFmpegPacketReader : IDisposable
     {
         _stream = stream;
         AVFormatContext* format = null;
-        AvUtil.Check(ffmpeg.avformat_open_input(&format, path, null, null), $"Opening '{System.IO.Path.GetFileName(path)}'");
+        AvUtil.Check(ffmpeg.avformat_open_input(&format, path, null, null), string.Format(CultureInfo.CurrentCulture, Strings.Op_Opening, System.IO.Path.GetFileName(path)));
         _format = format;
         try
         {
-            AvUtil.Check(ffmpeg.avformat_find_stream_info(format, null), "Reading the stream information");
+            AvUtil.Check(ffmpeg.avformat_find_stream_info(format, null), Strings.Op_ReadingStreamInfo);
             for (var i = 0; i < (int)format->nb_streams; i++)
                 format->streams[i]->discard = i == stream ? AVDiscard.AVDISCARD_DEFAULT : AVDiscard.AVDISCARD_ALL;
             _packet = ffmpeg.av_packet_alloc();
@@ -434,7 +436,7 @@ internal sealed unsafe class FFmpegPacketReader : IDisposable
                 _filter = context;
                 AvUtil.Check(ffmpeg.avcodec_parameters_copy(context->par_in, format->streams[stream]->codecpar), "avcodec_parameters_copy");
                 context->time_base_in = format->streams[stream]->time_base;
-                AvUtil.Check(ffmpeg.av_bsf_init(context), $"Initialising {filter}");
+                AvUtil.Check(ffmpeg.av_bsf_init(context), string.Format(CultureInfo.CurrentCulture, Strings.Op_Initialising, filter));
             }
         }
         catch
@@ -458,7 +460,7 @@ internal sealed unsafe class FFmpegPacketReader : IDisposable
                 if (ret >= 0)
                     return Take();
                 if (ret != AvUtil.EAgain && ret != ffmpeg.AVERROR_EOF)
-                    AvUtil.Check(ret, "Filtering packets");
+                    AvUtil.Check(ret, Strings.Op_FilteringPackets);
                 if (ret == ffmpeg.AVERROR_EOF)
                     return null;
             }
@@ -483,7 +485,7 @@ internal sealed unsafe class FFmpegPacketReader : IDisposable
 
             if (_filter == null)
                 return Take();
-            AvUtil.Check(ffmpeg.av_bsf_send_packet(_filter, _packet), "Filtering packets");
+            AvUtil.Check(ffmpeg.av_bsf_send_packet(_filter, _packet), Strings.Op_FilteringPackets);
         }
     }
 
@@ -561,7 +563,7 @@ internal sealed class FFmpegTrackSource : ISampleSource, IDisposable
         }
 
         if (config.Codec is CodecType.H264 or CodecType.Hevc && config.Extradata is not { Length: > 0 } || config.Codec == CodecType.Mpeg4Visual && config.Extradata is null)
-            throw new InvalidDataException($"No {config.FormatName} configuration was found in the first packet.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Demux_NoConfigInFirstPacket, config.FormatName));
 
         // Audio is timed in samples; other tracks in the stream's time base.
         _timescale = config.Kind == TrackKind.Audio && config.SampleRate > 0 ? config.SampleRate : info.TimeBase.den;

@@ -1,9 +1,11 @@
+using System.Globalization;
 using System.Net.Http.Headers;
-using MMW.Core.Diagnostics;
-using MMW.Metadata.Http;
-using MMW.Metadata.Search;
 using CoreArtwork = MMW.Core.Metadata.Artwork;
+using MMW.Core.Diagnostics;
 using MMW.Core.Metadata;
+using MMW.Metadata.Http;
+using MMW.Metadata.Resources;
+using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Artwork;
 
@@ -43,9 +45,9 @@ public sealed class ArtworkDownloader
 
         using var response = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
-            throw new ProviderHttpException($"Artwork download failed: {(int)response.StatusCode} {response.ReasonPhrase} for {ProviderHttp.Redact(url)}", response.StatusCode);
+            throw new ProviderHttpException(string.Format(CultureInfo.CurrentCulture, Strings.Artwork_DownloadFailedStatus, (int)response.StatusCode, response.ReasonPhrase, ProviderHttp.Redact(url)), response.StatusCode);
         if (response.Content.Headers.ContentLength is { } length && length > MaxBytes)
-            throw new InvalidDataException($"Artwork is too large ({length} bytes, limit {MaxBytes}).");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Artwork_TooLarge, length, MaxBytes));
 
         var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         await using (stream.ConfigureAwait(false))
@@ -56,14 +58,14 @@ public sealed class ArtworkDownloader
             while ((read = await stream.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) > 0)
             {
                 if (buffer.Length + read > MaxBytes)
-                    throw new InvalidDataException($"Artwork is larger than the {MaxBytes} byte limit.");
+                    throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Artwork_LargerThanLimit, MaxBytes));
                 buffer.Write(chunk, 0, read);
             }
 
             var data = buffer.ToArray();
             var format = ImageSniffer.Detect(data);
             if (format == ArtworkFormat.Unknown)
-                throw new InvalidDataException($"Unsupported image format from {ProviderHttp.Redact(url)} ({response.Content.Headers.ContentType?.MediaType ?? "unknown type"}).");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Artwork_UnsupportedFormat, ProviderHttp.Redact(url), response.Content.Headers.ContentType?.MediaType ?? Strings.Artwork_UnknownType));
             return new CoreArtwork(data, format);
         }
     }
@@ -88,7 +90,7 @@ public sealed class ArtworkDownloader
         }
         catch (Exception ex) when (ex is HttpRequestException or InvalidDataException or OperationCanceledException or IOException)
         {
-            AppLog.Warn($"Artwork download failed: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Artwork_DownloadFailed, ex.Message));
             return null;
         }
     }

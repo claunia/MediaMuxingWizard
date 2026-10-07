@@ -1,4 +1,6 @@
+using System.Globalization;
 using FFmpeg.AutoGen;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion.Interop;
 
@@ -24,9 +26,9 @@ internal sealed unsafe class FrameGrabber : IDisposable
         try
         {
             AVFormatContext* format = null;
-            AvUtil.Check(ffmpeg.avformat_open_input(&format, path, null, null), $"Opening '{Path.GetFileName(path)}'");
+            AvUtil.Check(ffmpeg.avformat_open_input(&format, path, null, null), string.Format(CultureInfo.CurrentCulture, Strings.Op_Opening, Path.GetFileName(path)));
             _format = format;
-            AvUtil.Check(ffmpeg.avformat_find_stream_info(format, null), "Reading the stream information");
+            AvUtil.Check(ffmpeg.avformat_find_stream_info(format, null), Strings.Op_ReadingStreamInfo);
 
             _stream = -1;
             var hasIds = false;
@@ -56,25 +58,25 @@ internal sealed unsafe class FrameGrabber : IDisposable
             }
 
             if (_stream < 0)
-                throw new InvalidDataException(trackId is null ? "The file has no video track." : $"Video track {trackId} was not found.");
+                throw new InvalidDataException(trackId is null ? Strings.Conversion_NoVideoTrack : string.Format(CultureInfo.CurrentCulture, Strings.Conversion_VideoTrackNotFound, trackId));
 
             var stream = format->streams[_stream];
             var codec = ffmpeg.avcodec_find_decoder(stream->codecpar->codec_id);
             if (codec == null)
-                throw new InvalidDataException($"No decoder for {ffmpeg.avcodec_get_name(stream->codecpar->codec_id)}.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_NoDecoderFor, ffmpeg.avcodec_get_name(stream->codecpar->codec_id)));
             _decoder = ffmpeg.avcodec_alloc_context3(codec);
             if (_decoder == null)
-                throw new InsufficientMemoryException("avcodec_alloc_context3 failed.");
+                throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "avcodec_alloc_context3"));
             AvUtil.Check(ffmpeg.avcodec_parameters_to_context(_decoder, stream->codecpar), "avcodec_parameters_to_context");
             _decoder->pkt_timebase = stream->time_base;
             _decoder->thread_count = 0;
-            AvUtil.Check(ffmpeg.avcodec_open2(_decoder, codec, null), "Opening the video decoder");
+            AvUtil.Check(ffmpeg.avcodec_open2(_decoder, codec, null), Strings.Op_OpeningVideoDecoder);
 
             _frame = ffmpeg.av_frame_alloc();
             _best = ffmpeg.av_frame_alloc();
             _packet = ffmpeg.av_packet_alloc();
             if (_frame == null || _best == null || _packet == null)
-                throw new InsufficientMemoryException("Could not allocate FFmpeg frames.");
+                throw new InsufficientMemoryException(Strings.FFmpeg_FramesAllocFailed);
         }
         catch
         {
@@ -190,7 +192,7 @@ internal sealed unsafe class FrameGrabber : IDisposable
             sws = ffmpeg.sws_getContext(frame->width, frame->height, (AVPixelFormat)frame->format, width, height, AVPixelFormat.AV_PIX_FMT_YUVJ420P,
                 (int)SwsFlags.SWS_BICUBIC, null, null, null);
             if (sws == null)
-                throw new InvalidDataException($"Cannot scale {ffmpeg.av_get_pix_fmt_name((AVPixelFormat)frame->format)} frames.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_CannotScale, ffmpeg.av_get_pix_fmt_name((AVPixelFormat)frame->format)));
 
             // Limited-range sources are expanded to the full range JPEG uses.
             var srcFull = frame->color_range == AVColorRange.AVCOL_RANGE_JPEG ? 1 : 0;
@@ -200,7 +202,7 @@ internal sealed unsafe class FrameGrabber : IDisposable
 
             scaled = ffmpeg.av_frame_alloc();
             if (scaled == null)
-                throw new InsufficientMemoryException("av_frame_alloc failed.");
+                throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "av_frame_alloc"));
             scaled->format = (int)AVPixelFormat.AV_PIX_FMT_YUVJ420P;
             scaled->width = width;
             scaled->height = height;
@@ -210,14 +212,14 @@ internal sealed unsafe class FrameGrabber : IDisposable
             int[] srcStride = [frame->linesize[0], frame->linesize[1], frame->linesize[2], frame->linesize[3]];
             byte*[] dstData = [scaled->data[0], scaled->data[1], scaled->data[2], scaled->data[3]];
             int[] dstStride = [scaled->linesize[0], scaled->linesize[1], scaled->linesize[2], scaled->linesize[3]];
-            AvUtil.Check(ffmpeg.sws_scale(sws, srcData, srcStride, 0, frame->height, dstData, dstStride), "Scaling");
+            AvUtil.Check(ffmpeg.sws_scale(sws, srcData, srcStride, 0, frame->height, dstData, dstStride), Strings.Op_Scaling);
 
             var codec = ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_MJPEG);
             if (codec == null)
-                throw new NotSupportedException("This FFmpeg build has no JPEG encoder.");
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_NoEncoder, "JPEG"));
             encoder = ffmpeg.avcodec_alloc_context3(codec);
             if (encoder == null)
-                throw new InsufficientMemoryException("avcodec_alloc_context3 failed.");
+                throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "avcodec_alloc_context3"));
             encoder->width = width;
             encoder->height = height;
             encoder->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUVJ420P;
@@ -225,14 +227,14 @@ internal sealed unsafe class FrameGrabber : IDisposable
             encoder->time_base = new AVRational { num = 1, den = 25 };
             encoder->flags |= ffmpeg.AV_CODEC_FLAG_QSCALE;
             encoder->global_quality = ffmpeg.FF_QP2LAMBDA * quality;
-            AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), "Opening the JPEG encoder");
+            AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), string.Format(CultureInfo.CurrentCulture, Strings.Op_OpeningEncoder, "JPEG"));
 
             scaled->quality = encoder->global_quality;
             scaled->pts = 0;
-            AvUtil.Check(ffmpeg.avcodec_send_frame(encoder, scaled), "Encoding the JPEG");
-            AvUtil.Check(ffmpeg.avcodec_send_frame(encoder, null), "Encoding the JPEG");
+            AvUtil.Check(ffmpeg.avcodec_send_frame(encoder, scaled), Strings.Op_EncodingJpeg);
+            AvUtil.Check(ffmpeg.avcodec_send_frame(encoder, null), Strings.Op_EncodingJpeg);
             packet = ffmpeg.av_packet_alloc();
-            AvUtil.Check(ffmpeg.avcodec_receive_packet(encoder, packet), "Encoding the JPEG");
+            AvUtil.Check(ffmpeg.avcodec_receive_packet(encoder, packet), Strings.Op_EncodingJpeg);
             return AvUtil.PacketData(packet);
         }
         finally

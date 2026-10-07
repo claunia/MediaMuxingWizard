@@ -1,8 +1,10 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
 using MMW.Core.Model;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion.Interop;
 
@@ -81,7 +83,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             _encodeFrame = ffmpeg.av_frame_alloc();
             _packet = ffmpeg.av_packet_alloc();
             if (_decoded == null || _converted == null || _encodeFrame == null || _packet == null)
-                throw new InsufficientMemoryException("Could not allocate FFmpeg frames.");
+                throw new InsufficientMemoryException(Strings.FFmpeg_FramesAllocFailed);
         }
         catch
         {
@@ -173,7 +175,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         if (_swr != null)
             Resample(null, 0);
         EncodeFromFifo(final: true);
-        AvUtil.Check(ffmpeg.avcodec_send_frame(_encoder, null), "Flushing the encoder");
+        AvUtil.Check(ffmpeg.avcodec_send_frame(_encoder, null), Strings.Op_FlushingEncoder);
         ReceivePackets();
     }
 
@@ -210,9 +212,9 @@ internal sealed unsafe class AudioTranscoder : IDisposable
     {
         DecodeErrors++;
         if (DecodeErrors <= 10)
-            AppLog.Debug($"{_input.FormatName} decoding error (packet skipped): {AvUtil.ErrorText(error)}");
+            AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_DecodingErrorSkipped, _input.FormatName, AvUtil.ErrorText(error)));
         if (++_consecutiveErrors > MaxConsecutiveErrors)
-            throw new InvalidDataException($"The {_input.FormatName} track could not be decoded: {AvUtil.ErrorText(error)}");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_TrackNotDecodable, _input.FormatName, AvUtil.ErrorText(error)));
     }
 
     private void ProcessFrame(AVFrame* frame)
@@ -232,7 +234,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             else if (frame->sample_rate != _inRate || (AVSampleFormat)frame->format != _inFormat || !SameLayout(&layout))
             {
                 // Mid-stream format change (e.g. broadcast AC-3 switching between 2.0 and 5.1): drain and rebuild.
-                AppLog.Debug($"{_input.FormatName} decoder output changed; reconfiguring the resampler.");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_DecoderOutputChanged, _input.FormatName));
                 Resample(null, 0);
                 OpenResampler(&layout, (AVSampleFormat)frame->format, frame->sample_rate);
             }
@@ -268,17 +270,17 @@ internal sealed unsafe class AudioTranscoder : IDisposable
                 var samples = (int)Math.Min(int.MaxValue, Math.Round(Math.Abs(delta) * OutputSampleRate));
                 if (delta > 0)
                 {
-                    AvUtil.Check(ffmpeg.swr_inject_silence(_swr, samples), "Inserting silence");
+                    AvUtil.Check(ffmpeg.swr_inject_silence(_swr, samples), Strings.Op_InsertingSilence);
                     InsertedSamples += samples;
                 }
                 else
                 {
-                    AvUtil.Check(ffmpeg.swr_drop_output(_swr, samples), "Dropping overlapping audio");
+                    AvUtil.Check(ffmpeg.swr_drop_output(_swr, samples), Strings.Op_DroppingOverlap);
                     DroppedSamples += samples;
                 }
 
-                AppLog.Debug($"{_input.FormatName} timestamps jump by {delta * 1000:0.#} ms at {time:0.###} s: " +
-                             $"{(delta > 0 ? "inserting" : "dropping")} {samples} samples.");
+                AppLog.Debug(string.Format(CultureInfo.CurrentCulture, delta > 0 ? Strings.Conversion_TimestampJumpInserting : Strings.Conversion_TimestampJumpDropping,
+                             _input.FormatName, delta * 1000, time, samples));
             }
             else
             {
@@ -306,7 +308,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         var aac = _target == AudioConversionTarget.Aac;
         var codec = ffmpeg.avcodec_find_encoder_by_name(aac ? "aac" : "ac3");
         if (codec == null)
-            throw new NotSupportedException($"This FFmpeg build has no {(aac ? "AAC" : "AC-3")} encoder.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_NoEncoder, aac ? "AAC" : "AC-3"));
         _smallLastFrame = (codec->capabilities & ffmpeg.AV_CODEC_CAP_SMALL_LAST_FRAME) != 0;
 
         // Output layout.
@@ -350,7 +352,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
 
         var encoder = ffmpeg.avcodec_alloc_context3(codec);
         if (encoder == null)
-            throw new InsufficientMemoryException("avcodec_alloc_context3 failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "avcodec_alloc_context3"));
         _encoder = encoder;
         encoder->sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_FLTP;
         encoder->sample_rate = wanted;
@@ -358,7 +360,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         encoder->bit_rate = bitrate;
         encoder->time_base = new AVRational { num = 1, den = wanted };
         encoder->flags |= ffmpeg.AV_CODEC_FLAG_GLOBAL_HEADER;
-        AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), $"Opening the {(aac ? "AAC" : "AC-3")} encoder");
+        AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), string.Format(CultureInfo.CurrentCulture, Strings.Op_OpeningEncoder, aac ? "AAC" : "AC-3"));
 
         fixed (AVChannelLayout* target = &_outLayout)
             AvUtil.Check(ffmpeg.av_channel_layout_copy(target, &outLayout), "av_channel_layout_copy");
@@ -377,10 +379,10 @@ internal sealed unsafe class AudioTranscoder : IDisposable
 
         _fifo = ffmpeg.av_audio_fifo_alloc(AVSampleFormat.AV_SAMPLE_FMT_FLTP, channels, FrameSize * 4);
         if (_fifo == null)
-            throw new InsufficientMemoryException("av_audio_fifo_alloc failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "av_audio_fifo_alloc"));
         OpenResampler(inLayout, inFormat, inRate);
-        AppLog.Debug($"Converting {_input.FormatName} {InputLayout} {inRate} Hz → {(aac ? "AAC" : "AC-3")} {OutputLayout} {wanted} Hz, " +
-                     $"{Bitrate / 1000} kbit/s{(matrix != AVMatrixEncoding.AV_MATRIX_ENCODING_NONE ? $", {mixdown}" : string.Empty)}.");
+        AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_ConvertingLossy, _input.FormatName, InputLayout, inRate, aac ? "AAC" : "AC-3", OutputLayout, wanted,
+                     Bitrate / 1000, matrix != AVMatrixEncoding.AV_MATRIX_ENCODING_NONE ? $", {mixdown}" : string.Empty));
     }
 
     /// <summary>
@@ -397,11 +399,11 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         var floating = pcm && _input.Codec == CodecType.Pcm && _input.PcmFloat;
         var bits = floating ? (_input.BitsPerSample > 32 ? 64 : 32) : AudioConversionSettings.LosslessBits(sourceBits);
         if (!pcm && bits > 24)
-            throw new NotSupportedException($"ALAC cannot hold {sourceBits}-bit audio without loss.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_AlacBitDepth, sourceBits));
         var name = floating ? $"pcm_f{bits}le" : pcm ? $"pcm_s{bits}le" : "alac";
         var codec = ffmpeg.avcodec_find_encoder_by_name(name);
         if (codec == null)
-            throw new NotSupportedException($"This FFmpeg build has no {name} encoder.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_NoEncoder, name));
         _smallLastFrame = (codec->capabilities & (ffmpeg.AV_CODEC_CAP_SMALL_LAST_FRAME | ffmpeg.AV_CODEC_CAP_VARIABLE_FRAME_SIZE)) != 0;
 
         // The encoder's layout with the source's channel count: the same channels, or a relabelling of the same
@@ -425,7 +427,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             }
 
             if (match == null)
-                throw new NotSupportedException($"{name} cannot store {inLayout->nb_channels} channels.");
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_TooManyChannels, name, inLayout->nb_channels));
             AvUtil.Check(ffmpeg.av_channel_layout_copy(&outLayout, match), "av_channel_layout_copy");
         }
         else
@@ -440,7 +442,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             : bits == 16 ? AVSampleFormat.AV_SAMPLE_FMT_S16P : AVSampleFormat.AV_SAMPLE_FMT_S32P;
         var encoder = ffmpeg.avcodec_alloc_context3(codec);
         if (encoder == null)
-            throw new InsufficientMemoryException("avcodec_alloc_context3 failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "avcodec_alloc_context3"));
         _encoder = encoder;
         encoder->sample_fmt = format;
         encoder->sample_rate = inRate;
@@ -448,7 +450,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         AvUtil.Check(ffmpeg.av_channel_layout_copy(&encoder->ch_layout, &outLayout), "av_channel_layout_copy");
         encoder->time_base = new AVRational { num = 1, den = inRate };
         encoder->flags |= ffmpeg.AV_CODEC_FLAG_GLOBAL_HEADER;
-        AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), $"Opening the {name} encoder");
+        AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), string.Format(CultureInfo.CurrentCulture, Strings.Op_OpeningEncoder, name));
 
         fixed (AVChannelLayout* target = &_outLayout)
             AvUtil.Check(ffmpeg.av_channel_layout_copy(target, &outLayout), "av_channel_layout_copy");
@@ -467,7 +469,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         Bitrate = encoder->bit_rate > 0 ? encoder->bit_rate : (long)inRate * OutputChannels * bits;
         _fifo = ffmpeg.av_audio_fifo_alloc(format, OutputChannels, FrameSize * 4);
         if (_fifo == null)
-            throw new InsufficientMemoryException("av_audio_fifo_alloc failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "av_audio_fifo_alloc"));
 
         // The resampler sees the output layout on both sides: a relabelling, not a remix.
         fixed (AVChannelLayout* l = &_outLayout)
@@ -478,7 +480,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             AvUtil.Check(ffmpeg.av_channel_layout_copy(l, inLayout), "av_channel_layout_copy");
         }
 
-        AppLog.Debug($"Converting {_input.FormatName} {InputLayout} {inRate} Hz {sourceBits}-bit → {(pcm ? "PCM" : "ALAC")} {OutputLayout} {bits}-bit.");
+        AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_ConvertingLossless, _input.FormatName, InputLayout, inRate, sourceBits, pcm ? "PCM" : "ALAC", OutputLayout, bits));
     }
 
     /// <summary>Picks the encoder layout closest to the input (same layout, else most shared channels).</summary>
@@ -548,14 +550,14 @@ internal sealed unsafe class AudioTranscoder : IDisposable
 
         _swr = swr;
         if (_matrix != AVMatrixEncoding.AV_MATRIX_ENCODING_NONE)
-            AvUtil.Check(ffmpeg.av_opt_set_int(swr, "matrix_encoding", (long)_matrix, 0), "Setting the matrix encoding");
+            AvUtil.Check(ffmpeg.av_opt_set_int(swr, "matrix_encoding", (long)_matrix, 0), Strings.Op_SettingMatrixEncoding);
         if (inLayout->nb_channels > OutputChannels)
         {
             // Downmixes are normalised so the mix cannot clip.
-            AvUtil.Check(ffmpeg.av_opt_set_double(swr, "rematrix_maxval", 1.0, 0), "Setting the downmix normalisation");
+            AvUtil.Check(ffmpeg.av_opt_set_double(swr, "rematrix_maxval", 1.0, 0), Strings.Op_SettingDownmixNormalisation);
         }
 
-        AvUtil.Check(ffmpeg.swr_init(swr), "Initialising the resampler");
+        AvUtil.Check(ffmpeg.swr_init(swr), Strings.Op_InitialisingResampler);
     }
 
     /// <summary>Resamples <paramref name="count"/> input samples (null = flush) into the FIFO.</summary>
@@ -575,9 +577,9 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             AvUtil.Check(ffmpeg.av_frame_get_buffer(_converted, 0), "av_frame_get_buffer");
         }
 
-        var produced = AvUtil.Check(ffmpeg.swr_convert(_swr, _converted->extended_data, _converted->nb_samples, input, count), "Resampling");
+        var produced = AvUtil.Check(ffmpeg.swr_convert(_swr, _converted->extended_data, _converted->nb_samples, input, count), Strings.Op_Resampling);
         if (produced > 0 && ffmpeg.av_audio_fifo_write(_fifo, (void**)_converted->extended_data, produced) < produced)
-            throw new InsufficientMemoryException("av_audio_fifo_write failed.");
+            throw new InsufficientMemoryException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CallFailed, "av_audio_fifo_write"));
     }
 
     private void EncodeFromFifo(bool final)
@@ -603,7 +605,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             frame->nb_samples = FrameSize;
             AvUtil.Check(ffmpeg.av_frame_make_writable(frame), "av_frame_make_writable");
             if (ffmpeg.av_audio_fifo_read(_fifo, (void**)frame->extended_data, count) < count)
-                throw new InvalidOperationException("av_audio_fifo_read returned fewer samples than available.");
+                throw new InvalidOperationException(Strings.FFmpeg_FifoShortRead);
             if (count < FrameSize)
             {
                 if (_smallLastFrame)
@@ -614,7 +616,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
 
             frame->pts = _nextPts;
             _nextPts += count;
-            AvUtil.Check(ffmpeg.avcodec_send_frame(_encoder, frame), "Encoding");
+            AvUtil.Check(ffmpeg.avcodec_send_frame(_encoder, frame), Strings.Op_Encoding);
             ReceivePackets();
         }
     }
@@ -626,7 +628,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             var ret = ffmpeg.avcodec_receive_packet(_encoder, _packet);
             if (ret == AvUtil.EAgain || ret == ffmpeg.AVERROR_EOF)
                 return;
-            AvUtil.Check(ret, "Encoding");
+            AvUtil.Check(ret, Strings.Op_Encoding);
             try
             {
                 var pts = _packet->pts == ffmpeg.AV_NOPTS_VALUE ? 0 : _packet->pts + InitialPadding;

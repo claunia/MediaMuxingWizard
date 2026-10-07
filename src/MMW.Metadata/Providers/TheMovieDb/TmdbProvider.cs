@@ -3,6 +3,7 @@ using MMW.Core.Diagnostics;
 using MMW.Core.Languages;
 using MMW.Metadata.Certifications;
 using MMW.Metadata.Http;
+using MMW.Metadata.Resources;
 using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Providers.TheMovieDb;
@@ -61,7 +62,7 @@ public sealed class TmdbProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<MetadataResult>> SearchMovieAsync(string title, int? year, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<MetadataResult>>("movie search", async () =>
+        _http.GuardAsync<IReadOnlyList<MetadataResult>>(Strings.Provider_OpMovieSearch, async () =>
         {
             if (!EnsureConfigured() || string.IsNullOrWhiteSpace(title))
                 return [];
@@ -82,7 +83,7 @@ public sealed class TmdbProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<string>> SearchSeriesNamesAsync(string partial, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<string>>("series name search", async () =>
+        _http.GuardAsync<IReadOnlyList<string>>(Strings.Provider_OpSeriesNameSearch, async () =>
         {
             if (!EnsureConfigured() || string.IsNullOrWhiteSpace(partial))
                 return [];
@@ -93,7 +94,7 @@ public sealed class TmdbProvider : IMetadataProvider
 
     /// <inheritdoc />
     public Task<IReadOnlyList<MetadataResult>> SearchTvAsync(string seriesName, int? season, int? episode, string language, CancellationToken cancellationToken = default) =>
-        _http.GuardAsync<IReadOnlyList<MetadataResult>>("TV search", async () =>
+        _http.GuardAsync<IReadOnlyList<MetadataResult>>(Strings.Provider_OpTvSearch, async () =>
         {
             if (!EnsureConfigured() || string.IsNullOrWhiteSpace(seriesName))
                 return [];
@@ -125,7 +126,7 @@ public sealed class TmdbProvider : IMetadataProvider
                     }
                     catch (ProviderHttpException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
-                        AppLog.Debug($"{ProviderName}: season {seasonNumber} of {show.Name} not found.");
+                        AppLog.Debug(string.Format(CultureInfo.CurrentCulture, Strings.Provider_SeasonNotFound, ProviderName, seasonNumber, show.Name));
                         continue;
                     }
 
@@ -148,7 +149,7 @@ public sealed class TmdbProvider : IMetadataProvider
     public Task<MetadataResult> LoadDetailsAsync(MetadataResult result, string language, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(result);
-        return _http.GuardAsync("load details", async () =>
+        return _http.GuardAsync(Strings.Provider_OpLoadDetails, async () =>
         {
             if (!EnsureConfigured() || result.ProviderId is null)
                 return result;
@@ -349,7 +350,7 @@ public sealed class TmdbProvider : IMetadataProvider
     {
         if (IsConfigured)
             return true;
-        AppLog.Warn($"{ProviderName}: no API key configured (set it in appsettings.json, {ApiKeys.TmdbEnvironmentVariable} or Preferences).");
+        AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Provider_NoApiKey, ProviderName, ApiKeys.TmdbEnvironmentVariable));
         return false;
     }
 

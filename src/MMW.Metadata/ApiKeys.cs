@@ -20,8 +20,10 @@
 //  is optional (ProviderSettings.TvdbPin) and never required.
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
+using System.Globalization;
 using System.Text.Json;
 using MMW.Core.Diagnostics;
+using MMW.Metadata.Resources;
 
 namespace MMW.Metadata;
 
@@ -72,7 +74,7 @@ public sealed record ApiKeys(string TheMovieDb = "", string TheTvDb = "", string
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            AppLog.Warn($"Could not read API keys from {path}: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.ApiKeys_CouldNotRead, path, ex.Message));
             return Empty;
         }
 
@@ -90,7 +92,7 @@ public sealed record ApiKeys(string TheMovieDb = "", string TheTvDb = "", string
         }
         catch (JsonException ex)
         {
-            AppLog.Warn($"Ignoring malformed API key file {path}: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.ApiKeys_Malformed, path, ex.Message));
             return Empty;
         }
     }

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Conversion_AlacBitDepth" xml:space="preserve">
+    <value>ALAC no puede almacenar audio de {0} bits sin pérdida.</value>
+  </data>
+  <data name="Conversion_AudioCannotDecode" xml:space="preserve">
+    <value>{1} no puede descodificar el audio {0}.</value>
+  </data>
+  <data name="Conversion_AudioUnavailable" xml:space="preserve">
+    <value>La conversión de audio no está disponible: {0}</value>
+  </data>
+  <data name="Conversion_CannotDecode" xml:space="preserve">
+    <value>{0} no se puede descodificar.</value>
+  </data>
+  <data name="Conversion_CannotScale" xml:space="preserve">
+    <value>No se pueden escalar fotogramas {0}.</value>
+  </data>
+  <data name="Conversion_ConvertingLossless" xml:space="preserve">
+    <value>Conversión de {0} {1} {2} Hz {3} bits → {4} {5} {6} bits.</value>
+  </data>
+  <data name="Conversion_ConvertingLossy" xml:space="preserve">
+    <value>Conversión de {0} {1} {2} Hz → {3} {4} {5} Hz, {6} kbit/s{7}.</value>
+  </data>
+  <data name="Conversion_DecoderOutputChanged" xml:space="preserve">
+    <value>La salida del descodificador {0} ha cambiado; se reconfigura el remuestreador.</value>
+  </data>
+  <data name="Conversion_DecodingErrorSkipped" xml:space="preserve">
+    <value>Error al descodificar {0} (se ha omitido el paquete): {1}</value>
+  </data>
+  <data name="Conversion_FileNotFound" xml:space="preserve">
+    <value>El archivo no existe.</value>
+  </data>
+  <data name="Conversion_NoAudioDecoded" xml:space="preserve">
+    <value>No se ha podido descodificar audio {0} de la pista {1}.</value>
+  </data>
+  <data name="Conversion_NoDecoderFor" xml:space="preserve">
+    <value>No hay ningún descodificador para {0}.</value>
+  </data>
+  <data name="Conversion_NoNativeEncoders" xml:space="preserve">
+    <value>esta compilación de FFmpeg no tiene codificador nativo de AAC/AC-3</value>
+  </data>
+  <data name="Conversion_NoVideoTrack" xml:space="preserve">
+    <value>El archivo no tiene ninguna pista de vídeo.</value>
+  </data>
+  <data name="Conversion_NotAudioTrack" xml:space="preserve">
+    <value>{0} no es una pista de audio.</value>
+  </data>
+  <data name="Conversion_NotBitmapSubtitle" xml:space="preserve">
+    <value>{0} no es un formato de subtítulos de mapa de bits.</value>
+  </data>
+  <data name="Conversion_TimestampJumpDropping" xml:space="preserve">
+    <value>Las marcas de tiempo de {0} saltan {1:0.#} ms en {2:0.###} s: se eliminan {3} muestras.</value>
+  </data>
+  <data name="Conversion_TimestampJumpInserting" xml:space="preserve">
+    <value>Las marcas de tiempo de {0} saltan {1:0.#} ms en {2:0.###} s: se insertan {3} muestras.</value>
+  </data>
+  <data name="Conversion_TooManyChannels" xml:space="preserve">
+    <value>{0} no puede almacenar {1} canales.</value>
+  </data>
+  <data name="Conversion_TrackNotDecodable" xml:space="preserve">
+    <value>No se ha podido descodificar la pista {0}: {1}</value>
+  </data>
+  <data name="Conversion_TrackNotFoundInFile" xml:space="preserve">
+    <value>No se ha encontrado la pista {0} en «{1}».</value>
+  </data>
+  <data name="Conversion_VideoTrackNotFound" xml:space="preserve">
+    <value>No se ha encontrado la pista de vídeo {0}.</value>
+  </data>
+  <data name="Demux_NoConfigInFirstPacket" xml:space="preserve">
+    <value>No se ha encontrado ninguna configuración de {0} en el primer paquete.</value>
+  </data>
+  <data name="Demux_NoReadableStream" xml:space="preserve">
+    <value>«{0}» no tiene ningún flujo que se pueda leer.</value>
+  </data>
+  <data name="Demux_StreamNotSupported" xml:space="preserve">
+    <value>{0}: el flujo {1} ({2}) no es compatible.</value>
+  </data>
+  <data name="Demux_StreamSkipped" xml:space="preserve">
+    <value>{0}: se ha omitido el flujo {1}: {2}</value>
+  </data>
+  <data name="FFmpeg_CallFailed" xml:space="preserve">
+    <value>Ha fallado {0}.</value>
+  </data>
+  <data name="FFmpeg_CouldNotLoad" xml:space="preserve">
+    <value>No se ha podido cargar FFmpeg: {0}</value>
+  </data>
+  <data name="FFmpeg_ErrorCode" xml:space="preserve">
+    <value>error {0}</value>
+  </data>
+  <data name="FFmpeg_FifoShortRead" xml:space="preserve">
+    <value>av_audio_fifo_read ha devuelto menos muestras de las disponibles.</value>
+  </data>
+  <data name="FFmpeg_FramesAllocFailed" xml:space="preserve">
+    <value>No se han podido reservar los fotogramas de FFmpeg.</value>
+  </data>
+  <data name="FFmpeg_FunctionNotFound" xml:space="preserve">
+    <value>No se ha encontrado la función de FFmpeg {0} en lib{1}.</value>
+  </data>
+  <data name="FFmpeg_IncompatibleLibraries" xml:space="preserve">
+    <value>bibliotecas de FFmpeg incompatibles: {0}</value>
+  </data>
+  <data name="FFmpeg_LibrariesNotFound" xml:space="preserve">
+    <value>no se han encontrado las bibliotecas compartidas de FFmpeg {0}.x ({1}); instala FFmpeg {0} o define MMW_FFMPEG_PATH</value>
+  </data>
+  <data name="FFmpeg_LibrariesNotLoaded" xml:space="preserve">
+    <value>no se han podido cargar las bibliotecas de FFmpeg de {0}</value>
+  </data>
+  <data name="FFmpeg_LibraryVersionMismatch" xml:space="preserve">
+    <value>lib{0} {1} (se esperaba {2})</value>
+  </data>
+  <data name="FFmpeg_Loaded" xml:space="preserve">
+    <value>Se ha cargado FFmpeg {0} desde {1}.</value>
+  </data>
+  <data name="FFmpeg_NoDecoder" xml:space="preserve">
+    <value>Esta compilación de FFmpeg no tiene descodificador {0}.</value>
+  </data>
+  <data name="FFmpeg_NoEncoder" xml:space="preserve">
+    <value>Esta compilación de FFmpeg no tiene codificador {0}.</value>
+  </data>
+  <data name="FFmpeg_NotAvailable" xml:space="preserve">
+    <value>FFmpeg no está disponible: {0}</value>
+  </data>
+  <data name="FFmpeg_NotAvailableFeaturesDisabled" xml:space="preserve">
+    <value>FFmpeg no está disponible (se han desactivado la conversión de audio, las miniaturas y los subtítulos de mapa de bits): {0}</value>
+  </data>
+  <data name="FFmpeg_OperationFailed" xml:space="preserve">
+    <value>Ha fallado {0}: {1}</value>
+  </data>
+  <data name="FFmpeg_SystemLibraryPath" xml:space="preserve">
+    <value>la ruta de bibliotecas del sistema</value>
+  </data>
+  <data name="Op_DroppingOverlap" xml:space="preserve">
+    <value>la eliminación del audio solapado</value>
+  </data>
+  <data name="Op_Encoding" xml:space="preserve">
+    <value>la codificación</value>
+  </data>
+  <data name="Op_EncodingJpeg" xml:space="preserve">
+    <value>la codificación del JPEG</value>
+  </data>
+  <data name="Op_FilteringPackets" xml:space="preserve">
+    <value>el filtrado de paquetes</value>
+  </data>
+  <data name="Op_FlushingEncoder" xml:space="preserve">
+    <value>el vaciado del codificador</value>
+  </data>
+  <data name="Op_Initialising" xml:space="preserve">
+    <value>la inicialización de {0}</value>
+  </data>
+  <data name="Op_InitialisingResampler" xml:space="preserve">
+    <value>la inicialización del remuestreador</value>
+  </data>
+  <data name="Op_InsertingSilence" xml:space="preserve">
+    <value>la inserción de silencio</value>
+  </data>
+  <data name="Op_Opening" xml:space="preserve">
+    <value>la apertura de «{0}»</value>
+  </data>
+  <data name="Op_OpeningDecoder" xml:space="preserve">
+    <value>la apertura del descodificador {0}</value>
+  </data>
+  <data name="Op_OpeningEncoder" xml:space="preserve">
+    <value>la apertura del codificador {0}</value>
+  </data>
+  <data name="Op_OpeningVideoDecoder" xml:space="preserve">
+    <value>la apertura del descodificador de vídeo</value>
+  </data>
+  <data name="Op_ReadingStreamInfo" xml:space="preserve">
+    <value>la lectura de la información de los flujos</value>
+  </data>
+  <data name="Op_Resampling" xml:space="preserve">
+    <value>el remuestreo</value>
+  </data>
+  <data name="Op_Scaling" xml:space="preserve">
+    <value>el escalado</value>
+  </data>
+  <data name="Op_SettingDownmixNormalisation" xml:space="preserve">
+    <value>el ajuste de la normalización de la mezcla</value>
+  </data>
+  <data name="Op_SettingMatrixEncoding" xml:space="preserve">
+    <value>el ajuste de la codificación matricial</value>
+  </data>
+</root>

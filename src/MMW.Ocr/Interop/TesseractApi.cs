@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
+using MMW.Ocr.Resources;
 
 namespace MMW.Ocr.Interop;
 
@@ -113,7 +115,7 @@ internal sealed unsafe class TesseractFunctions
     public void SetImage(IntPtr api, ReadOnlySpan<byte> gray, int width, int height, int stride)
     {
         if (gray.Length < (long)stride * height)
-            throw new ArgumentException("The image buffer is smaller than its dimensions.", nameof(gray));
+            throw new ArgumentException(Strings.Ocr_ImageBufferTooSmall, nameof(gray));
         fixed (byte* p = gray)
             _setImage(api, p, width, height, 1, stride); // Tesseract copies the pixels into its own Pix
     }
@@ -187,14 +189,14 @@ internal sealed class TesseractApi : IDisposable
         var f = TesseractLoader.Functions!;
         var handle = f.Create();
         if (handle == IntPtr.Zero)
-            throw new InvalidOperationException("TessBaseAPICreate failed.");
+            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_CallFailed, "TessBaseAPICreate"));
         var api = new TesseractApi(f, handle);
         try
         {
             // Tesseract wants the directory with a trailing separator in some versions.
             var path = dataPath.EndsWith(Path.DirectorySeparatorChar) ? dataPath : dataPath + Path.DirectorySeparatorChar;
             if (f.Init(handle, path, language) != 0)
-                throw new InvalidOperationException($"Tesseract could not load the '{language}' language data from '{dataPath}'.");
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Ocr_CouldNotLoadLanguageData, language, dataPath));
 
             // Silence diagnostics on stderr and keep the engine deterministic for subtitle crops.
             f.SetVariable(handle, "debug_file", OperatingSystem.IsWindows() ? "NUL" : "/dev/null");

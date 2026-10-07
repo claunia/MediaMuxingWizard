@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using MMW.Core.Media;
 using MMW.Core.Model;
 using MMW.Media.Conversion.Interop;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion;
 
@@ -55,7 +57,7 @@ public static class BitmapSubtitleDecoder
         ArgumentException.ThrowIfNullOrEmpty(path);
         using var demuxer = await Task.Run(() => MediaFormatRegistry.OpenDemuxer(path), cancellationToken);
         var source = demuxer.Tracks.FirstOrDefault(t => t.TrackId == trackId) ??
-                     throw new InvalidDataException($"Track {trackId} was not found in '{Path.GetFileName(path)}'.");
+                     throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_TrackNotFoundInFile, trackId, Path.GetFileName(path)));
         await foreach (var bitmap in DecodeAsync(source, cancellationToken))
             yield return bitmap;
     }
@@ -66,7 +68,7 @@ public static class BitmapSubtitleDecoder
     {
         ArgumentNullException.ThrowIfNull(source);
         if (source.Config.Kind != TrackKind.Subtitle || source.Config.Codec is not (CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub))
-            throw new NotSupportedException($"{source.Config.FormatName} is not a bitmap subtitle format.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_NotBitmapSubtitle, source.Config.FormatName));
         FFmpegLoader.EnsureAvailable();
 
         using var session = new Session(source);
@@ -92,7 +94,7 @@ public static class BitmapSubtitleDecoder
     {
         ArgumentNullException.ThrowIfNull(source);
         if (source.Config.Kind != TrackKind.Subtitle || source.Config.Codec is not (CodecType.Pgs or CodecType.VobSub or CodecType.DvbSub))
-            throw new NotSupportedException($"{source.Config.FormatName} is not a bitmap subtitle format.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Conversion_NotBitmapSubtitle, source.Config.FormatName));
         FFmpegLoader.EnsureAvailable();
         return DecodeIterator(source, cancellationToken);
     }

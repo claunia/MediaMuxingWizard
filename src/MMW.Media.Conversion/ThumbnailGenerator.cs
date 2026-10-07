@@ -1,4 +1,5 @@
 using MMW.Media.Conversion.Interop;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion;
 
@@ -55,7 +56,7 @@ public static class ThumbnailGenerator
         ArgumentNullException.ThrowIfNull(times);
         ArgumentOutOfRangeException.ThrowIfLessThan(maxWidth, 16);
         if (!File.Exists(path))
-            throw new FileNotFoundException("The file does not exist.", path);
+            throw new FileNotFoundException(Strings.Conversion_FileNotFound, path);
         if (!FFmpegLoader.IsAvailable)
             return Task.FromResult<IReadOnlyList<byte[]?>>([]);
 

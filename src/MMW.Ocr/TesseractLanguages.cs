@@ -1,12 +1,16 @@
+using System.Globalization;
 using MMW.Core.Languages;
+using MMW.Ocr.Resources;
 
 namespace MMW.Ocr;
 
 /// <summary>A Tesseract recognition language.</summary>
 /// <param name="Code">Tesseract name, the traineddata file name without extension ("eng", "chi_sim", "srp_latn").</param>
-/// <param name="Name">English display name.</param>
-public sealed record TesseractLanguage(string Code, string Name)
+public sealed record TesseractLanguage(string Code)
 {
+    /// <summary>Display name in the current UI language (the code when the language has no name).</summary>
+    public string Name => Strings.ResourceManager.GetString("Language_" + Code, CultureInfo.CurrentUICulture) ?? Code;
+
     public override string ToString() => Name;
 }
 
@@ -18,35 +22,20 @@ public static class TesseractLanguages
 
     /// <summary>
     /// The horizontal-text models of <c>tesseract-ocr/tessdata_fast</c> (vertical CJK, orientation detection,
-    /// equations and the historic Fraktur models are omitted: they are not useful for subtitles), sorted by name.
+    /// equations and the historic Fraktur models are omitted: they are not useful for subtitles), sorted by display name
+    /// (in the UI language of the first use). The English and translated names are in the Language_* resources.
     /// </summary>
-    public static IReadOnlyList<TesseractLanguage> All { get; } = new TesseractLanguage[]
+    public static IReadOnlyList<TesseractLanguage> All { get; } = new[]
     {
-        new("afr", "Afrikaans"), new("amh", "Amharic"), new("ara", "Arabic"), new("asm", "Assamese"), new("aze", "Azerbaijani"),
-        new("aze_cyrl", "Azerbaijani (Cyrillic)"), new("bel", "Belarusian"), new("ben", "Bengali"), new("bod", "Tibetan"),
-        new("bos", "Bosnian"), new("bre", "Breton"), new("bul", "Bulgarian"), new("cat", "Catalan"), new("ceb", "Cebuano"),
-        new("ces", "Czech"), new("chi_sim", "Chinese (Simplified)"), new("chi_tra", "Chinese (Traditional)"), new("chr", "Cherokee"),
-        new("cos", "Corsican"), new("cym", "Welsh"), new("dan", "Danish"), new("deu", "German"), new("div", "Dhivehi"),
-        new("dzo", "Dzongkha"), new("ell", "Greek"), new("eng", "English"), new("enm", "English, Middle"), new("epo", "Esperanto"),
-        new("est", "Estonian"), new("eus", "Basque"), new("fao", "Faroese"), new("fas", "Persian"), new("fil", "Filipino"),
-        new("fin", "Finnish"), new("fra", "French"), new("frm", "French, Middle"), new("fry", "Western Frisian"),
-        new("gla", "Scottish Gaelic"), new("gle", "Irish"), new("glg", "Galician"), new("grc", "Greek, Ancient"),
-        new("guj", "Gujarati"), new("hat", "Haitian Creole"), new("heb", "Hebrew"), new("hin", "Hindi"), new("hrv", "Croatian"),
-        new("hun", "Hungarian"), new("hye", "Armenian"), new("iku", "Inuktitut"), new("ind", "Indonesian"), new("isl", "Icelandic"),
-        new("ita", "Italian"), new("ita_old", "Italian (Old)"), new("jav", "Javanese"), new("jpn", "Japanese"), new("kan", "Kannada"),
-        new("kat", "Georgian"), new("kaz", "Kazakh"), new("khm", "Khmer"), new("kir", "Kyrgyz"), new("kmr", "Kurdish (Kurmanji)"),
-        new("kor", "Korean"), new("lao", "Lao"), new("lat", "Latin"), new("lav", "Latvian"), new("lit", "Lithuanian"),
-        new("ltz", "Luxembourgish"), new("mal", "Malayalam"), new("mar", "Marathi"), new("mkd", "Macedonian"), new("mlt", "Maltese"),
-        new("mon", "Mongolian"), new("mri", "Maori"), new("msa", "Malay"), new("mya", "Burmese"), new("nep", "Nepali"),
-        new("nld", "Dutch"), new("nor", "Norwegian"), new("oci", "Occitan"), new("ori", "Odia"), new("pan", "Punjabi"),
-        new("pol", "Polish"), new("por", "Portuguese"), new("pus", "Pashto"), new("que", "Quechua"), new("ron", "Romanian"),
-        new("rus", "Russian"), new("san", "Sanskrit"), new("sin", "Sinhala"), new("slk", "Slovak"), new("slv", "Slovenian"),
-        new("snd", "Sindhi"), new("spa", "Spanish"), new("spa_old", "Spanish (Old)"), new("sqi", "Albanian"), new("srp", "Serbian"),
-        new("srp_latn", "Serbian (Latin)"), new("sun", "Sundanese"), new("swa", "Swahili"), new("swe", "Swedish"), new("syr", "Syriac"),
-        new("tam", "Tamil"), new("tat", "Tatar"), new("tel", "Telugu"), new("tgk", "Tajik"), new("tha", "Thai"), new("tir", "Tigrinya"),
-        new("ton", "Tongan"), new("tur", "Turkish"), new("uig", "Uyghur"), new("ukr", "Ukrainian"), new("urd", "Urdu"),
-        new("uzb", "Uzbek"), new("uzb_cyrl", "Uzbek (Cyrillic)"), new("vie", "Vietnamese"), new("yid", "Yiddish"), new("yor", "Yoruba"),
-    }.OrderBy(l => l.Name, StringComparer.Ordinal).ToArray();
+        "afr", "amh", "ara", "asm", "aze", "aze_cyrl", "bel", "ben", "bod", "bos", "bre", "bul", "cat", "ceb", "ces",
+        "chi_sim", "chi_tra", "chr", "cos", "cym", "dan", "deu", "div", "dzo", "ell", "eng", "enm", "epo", "est", "eus",
+        "fao", "fas", "fil", "fin", "fra", "frm", "fry", "gla", "gle", "glg", "grc", "guj", "hat", "heb", "hin", "hrv",
+        "hun", "hye", "iku", "ind", "isl", "ita", "ita_old", "jav", "jpn", "kan", "kat", "kaz", "khm", "kir", "kmr",
+        "kor", "lao", "lat", "lav", "lit", "ltz", "mal", "mar", "mkd", "mlt", "mon", "mri", "msa", "mya", "nep", "nld",
+        "nor", "oci", "ori", "pan", "pol", "por", "pus", "que", "ron", "rus", "san", "sin", "slk", "slv", "snd", "spa",
+        "spa_old", "sqi", "srp", "srp_latn", "sun", "swa", "swe", "syr", "tam", "tat", "tel", "tgk", "tha", "tir",
+        "ton", "tur", "uig", "ukr", "urd", "uzb", "uzb_cyrl", "vie", "yid", "yor",
+    }.Select(c => new TesseractLanguage(c)).OrderBy(l => l.Name, StringComparer.CurrentCulture).ToArray();
 
     private static readonly Dictionary<string, TesseractLanguage> s_byCode = All.ToDictionary(l => l.Code, StringComparer.OrdinalIgnoreCase);
 

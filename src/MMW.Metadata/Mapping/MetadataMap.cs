@@ -1,10 +1,11 @@
 using System.Globalization;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Text;
 using MMW.Core.Diagnostics;
 using MMW.Core.Metadata;
+using MMW.Metadata.Resources;
 using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Mapping;
@@ -119,7 +120,7 @@ public sealed partial class MetadataMap
             }
             catch (Exception ex) when (ex is FormatException or InvalidCastException or OverflowException)
             {
-                AppLog.Warn($"Metadata map: cannot store '{value}' in {TagCatalog.Get(entry.Tag).Name}: {ex.Message}");
+                AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Map_CannotStore, value, TagCatalog.Get(entry.Tag).Name, ex.Message));
             }
         }
 
@@ -176,7 +177,7 @@ public sealed partial class MetadataMap
 
     /// <summary>Reads a map from JSON (unknown tags make the read fail with <see cref="JsonException"/>).</summary>
     public static MetadataMap FromJson(string json) =>
-        JsonSerializer.Deserialize(json, MetadataMapJsonContext.Default.MetadataMap) ?? throw new JsonException("Empty metadata map.");
+        JsonSerializer.Deserialize(json, MetadataMapJsonContext.Default.MetadataMap) ?? throw new JsonException(Strings.Map_Empty);
 
     [GeneratedRegex(@"\{([^{}]+)\}")]
     private static partial Regex TokenPattern();
@@ -217,7 +218,7 @@ public sealed class MetadataMaps
         }
         catch (JsonException ex)
         {
-            AppLog.Warn($"Metadata maps file {path} is invalid, using defaults: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Map_InvalidFile, path, ex.Message));
             return new MetadataMaps();
         }
     }

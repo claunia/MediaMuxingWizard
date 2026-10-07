@@ -1,10 +1,11 @@
 using System.Globalization;
 using System.Text;
-using System.Xml;
 using System.Xml.Linq;
+using System.Xml;
 using MMW.Core.Metadata;
 using MMW.Metadata.Certifications;
 using MMW.Metadata.Mapping;
+using MMW.Metadata.Resources;
 using MMW.Metadata.Search;
 
 namespace MMW.Metadata.Nfo;
@@ -31,7 +32,7 @@ public static class NfoMetadata
         {
             "movie" => MediaSearchKind.Movie,
             "episodedetails" or "tvshow" => MediaSearchKind.TvEpisode,
-            _ => throw new FormatException($"Unsupported NFO root element <{root.Name.LocalName}>."),
+            _ => throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Nfo_UnsupportedRoot, root.Name.LocalName)),
         };
 
         var result = new MetadataResult(ProviderName, kind);
@@ -142,7 +143,7 @@ public static class NfoMetadata
             }
             catch (Exception ex) when (ex is FormatException or XmlException or IOException)
             {
-                MMW.Core.Diagnostics.AppLog.Warn($"Ignoring NFO file {file}: {ex.Message}");
+                MMW.Core.Diagnostics.AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Nfo_Ignoring, file, ex.Message));
                 continue;
             }
 
@@ -245,7 +246,7 @@ public static class NfoMetadata
         var text = xml.TrimStart('﻿', ' ', '\r', '\n', '\t');
         var start = text.IndexOf('<', StringComparison.Ordinal);
         if (start < 0)
-            throw new FormatException("The NFO file contains no XML.");
+            throw new FormatException(Strings.Nfo_NoXml);
         foreach (var name in new[] { "movie", "episodedetails", "tvshow" })
         {
             var close = $"</{name}>";
@@ -260,11 +261,11 @@ public static class NfoMetadata
         try
         {
             var doc = XDocument.Parse(text, LoadOptions.None);
-            return doc.Root ?? throw new FormatException("The NFO file has no root element.");
+            return doc.Root ?? throw new FormatException(Strings.Nfo_NoRoot);
         }
         catch (XmlException ex)
         {
-            throw new FormatException($"The NFO file is not valid XML: {ex.Message}", ex);
+            throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Nfo_InvalidXml, ex.Message), ex);
         }
     }
 

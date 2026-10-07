@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using MMW.Core.Diagnostics;
+using MMW.Media.Conversion.Resources;
 
 namespace MMW.Media.Conversion.Interop;
 
@@ -52,7 +54,7 @@ public static class FFmpegLoader
     public static void EnsureAvailable()
     {
         if (!IsAvailable)
-            throw new NotSupportedException($"FFmpeg is not available: {Error}");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_NotAvailable, Error));
     }
 
     /// <summary>The directories searched, in order (see the remarks of <see cref="FFmpegLoader"/>).</summary>
@@ -117,14 +119,14 @@ public static class FFmpegLoader
         {
             var result = LoadCore();
             if (result.Error is null)
-                AppLog.Info($"FFmpeg {result.Version} loaded from {(result.Directory is { Length: > 0 } d ? d : "the system library path")}.");
+                AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_Loaded, result.Version, result.Directory is { Length: > 0 } d ? d : Strings.FFmpeg_SystemLibraryPath));
             else
-                AppLog.Warn($"FFmpeg is not available (audio conversion, thumbnails and bitmap subtitles are disabled): {result.Error}");
+                AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_NotAvailableFeaturesDisabled, result.Error));
             return result;
         }
         catch (Exception ex) when (ex is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException or InvalidOperationException or IOException)
         {
-            AppLog.Warn($"FFmpeg could not be loaded: {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_CouldNotLoad, ex.Message));
             return new LoadResult(null, ex.Message, null);
         }
     }
@@ -155,8 +157,8 @@ public static class FFmpegLoader
         {
             var expected = string.Join(", ", names.Values);
             return new LoadResult(null, tried.Count > 0
-                ? $"the FFmpeg libraries in {string.Join(", ", tried)} could not be loaded"
-                : $"FFmpeg {BindingsMajor}.x shared libraries ({expected}) were not found; install FFmpeg {BindingsMajor} or set MMW_FFMPEG_PATH", null);
+                ? string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_LibrariesNotLoaded, string.Join(", ", tried))
+                : string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_LibrariesNotFound, BindingsMajor, expected), null);
         }
 
         ffmpeg.RootPath = directory;
@@ -172,10 +174,10 @@ public static class FFmpegLoader
             ["avformat"] = ffmpeg.avformat_version(),
         };
         var mismatch = actual.Where(kv => (int)(kv.Value >> 16) != ffmpeg.LibraryVersionMap[kv.Key])
-            .Select(kv => $"lib{kv.Key} {kv.Value >> 16} (expected {ffmpeg.LibraryVersionMap[kv.Key]})")
+            .Select(kv => string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_LibraryVersionMismatch, kv.Key, kv.Value >> 16, ffmpeg.LibraryVersionMap[kv.Key]))
             .ToList();
         if (mismatch.Count > 0)
-            return new LoadResult(null, "incompatible FFmpeg libraries: " + string.Join(", ", mismatch), directory);
+            return new LoadResult(null, string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_IncompatibleLibraries, string.Join(", ", mismatch)), directory);
 
         FFmpegLog.Install();
         // Release builds report their tag ("n9.0.1"): shown without the "n".
@@ -213,7 +215,7 @@ public static class FFmpegLoader
             if (handles.TryGetValue(libraryName, out var handle) && NativeLibrary.TryGetExport(handle, functionName, out var address))
                 return Marshal.GetDelegateForFunctionPointer<T>(address);
             if (throwOnError)
-                throw new EntryPointNotFoundException($"FFmpeg function {functionName} was not found in lib{libraryName}.");
+                throw new EntryPointNotFoundException(string.Format(CultureInfo.CurrentCulture, Strings.FFmpeg_FunctionNotFound, functionName, libraryName));
             return default!;
         }
     }
