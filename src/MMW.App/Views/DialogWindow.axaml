@@ -2,6 +2,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MMW.App.Views.DialogWindow"
         SizeToContent="WidthAndHeight" CanResize="False" ShowInTaskbar="False"
-        WindowStartupLocation="CenterOwner" MinWidth="360" MaxWidth="640">
+        WindowStartupLocation="CenterOwner" MinWidth="360">
   <ContentControl Content="{Binding}" Margin="20" x:DataType="x:Object" />
 </Window>

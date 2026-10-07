@@ -176,6 +176,43 @@ public class DocumentActionTests
 
 public class PreferencesTests
 {
+    /// <summary>
+    /// The dialog window used to cap its width below the view's, cutting every control off at the right edge; with long
+    /// translations the options must wrap rather than run past the window either.
+    /// </summary>
+    [AvaloniaTheory]
+    [InlineData("en")]
+    [InlineData("de")]
+    [InlineData("fr")]
+    public void Preferences_fit_their_dialog_window(string language)
+    {
+        var culture = MMW.App.Resources.Strings.Culture;
+        MMW.App.Resources.Strings.Culture = new System.Globalization.CultureInfo(language);
+        try
+        {
+            var window = new DialogWindow { DataContext = new PreferencesViewModel(new AppSettings()) };
+            window.Show();
+            var tabs = window.GetVisualDescendants().OfType<TabControl>().Single();
+            for (var i = 0; i < tabs.ItemCount; i++)
+            {
+                tabs.SelectedIndex = i;
+                Dispatcher.UIThread.RunJobs();
+                foreach (var control in tabs.GetVisualDescendants().OfType<Control>().Where(c => c.IsEffectivelyVisible && c is TextBlock or CheckBox or ComboBox or TextBox or Button))
+                {
+                    var right = Avalonia.VisualExtensions.TranslatePoint(control, new Avalonia.Point(control.Bounds.Width, 0), window)?.X;
+                    Assert.True(right <= window.ClientSize.Width + 0.5,
+                        $"{language}, tab {i}: {control.GetType().Name} '{(control as TextBlock)?.Text ?? (control as ContentControl)?.Content}' ends at {right:0}, past the window ({window.ClientSize.Width:0})");
+                }
+            }
+
+            window.Close();
+        }
+        finally
+        {
+            MMW.App.Resources.Strings.Culture = culture;
+        }
+    }
+
     [AvaloniaFact]
     public void Preferences_render_and_apply_changes()
     {

@@ -35,6 +35,8 @@
   <Style Selector="TextBlock.label">
     <Setter Property="VerticalAlignment" Value="Center" />
     <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="TextAlignment" Value="Right" />
+    <Setter Property="TextWrapping" Value="Wrap" />
     <Setter Property="Margin" Value="0,0,10,0" />
     <Setter Property="Opacity" Value="0.8" />
   </Style>
