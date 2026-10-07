@@ -307,6 +307,14 @@ Suas alterações serão perdidas se você não as salvar.</value>
   <data name="Dialog_SaveChanges_Title" xml:space="preserve">
     <value>Alterações não salvas</value>
   </data>
+  <data name="Drop_LeftOut_MessageFormat" xml:space="preserve">
+    <value>Estes arquivos foram deixados de fora: nada neles pode ser usado aqui, nem mesmo convertido:
+
+{0}</value>
+  </data>
+  <data name="Drop_LeftOut_Title" xml:space="preserve">
+    <value>Alguns Arquivos Deixados de Fora</value>
+  </data>
   <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
     <value>• {0}: precisa de um documento aberto</value>
   </data>

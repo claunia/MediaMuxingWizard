@@ -307,6 +307,14 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   <data name="Dialog_SaveChanges_Title" xml:space="preserve">
     <value>Modifications non enregistrées</value>
   </data>
+  <data name="Drop_LeftOut_MessageFormat" xml:space="preserve">
+    <value>Ces fichiers ont été écartés : rien de leur contenu ne peut être utilisé ici, même converti :
+
+{0}</value>
+  </data>
+  <data name="Drop_LeftOut_Title" xml:space="preserve">
+    <value>Certains fichiers ont été écartés</value>
+  </data>
   <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
     <value>• {0} : nécessite un document ouvert</value>
   </data>

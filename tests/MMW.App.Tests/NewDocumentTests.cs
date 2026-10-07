@@ -207,27 +207,36 @@ public class DropRejectionTests
     }
 
     [AvaloniaFact]
-    public async Task A_file_that_cannot_be_imported_rejects_the_whole_drop()
+    public async Task Unusable_files_are_left_out_and_a_drop_of_nothing_usable_is_rejected()
     {
         var fixture = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
         if (!File.Exists(fixture))
             Assert.Skip("Run the MP4 format tests first to generate fixtures.");
         var (window, dialogs, dir) = CreateWindow();
         await window.OpenPathsAsync([Fixtures.CopyToTemp(fixture)]);
-        var before = window.Document!.Document.Tracks.Count;
         var srt = Path.Combine(dir, "subs.srt");
         await File.WriteAllTextAsync(srt, "1\n00:00:00,200 --> 00:00:01,000\nHello\n", TestContext.Current.CancellationToken);
         var pdf = Path.Combine(dir, "notes.pdf");
         await File.WriteAllTextAsync(pdf, "%PDF-1.4", TestContext.Current.CancellationToken);
-        var importShown = false;
-        dialogs.OnShowDialog = d => Task.FromResult(importShown |= d is ImportDialogViewModel);
+        var imported = new List<string>();
+        dialogs.OnShowDialog = d =>
+        {
+            if (d is ImportDialogViewModel)
+                imported.Add("import");
+            return Task.FromResult(d is ImportDialogViewModel);
+        };
 
+        // The subtitles are usable: they go to the import dialog, and the PDF is named as left out.
         await window.OpenPathsAsync([srt, pdf]);
         var message = Assert.Single(dialogs.Messages);
-        Assert.StartsWith(Strings.Drop_Rejected_Title, message, StringComparison.Ordinal);
+        Assert.StartsWith(Strings.Drop_LeftOut_Title, message, StringComparison.Ordinal);
         Assert.Contains("notes.pdf", message, StringComparison.Ordinal);
-        Assert.False(importShown);
-        Assert.Equal(before, window.Document.Document.Tracks.Count);
+        Assert.Single(imported);
+
+        // Nothing usable: the drop is rejected.
+        await window.OpenPathsAsync([pdf]);
+        Assert.StartsWith(Strings.Drop_Rejected_Title, dialogs.Messages[1], StringComparison.Ordinal);
+        Assert.Single(imported);
     }
 
     [AvaloniaFact]
@@ -242,16 +251,37 @@ public class DropRejectionTests
     }
 
     [AvaloniaFact]
-    public async Task A_track_the_container_cannot_store_even_converted_is_rejected()
+    public async Task A_file_is_rejected_only_when_none_of_its_tracks_can_be_stored()
     {
-        var evc = Path.Combine(Corpus.Directory ?? string.Empty, "Video codecs", "MPEG-5 EVC.mp4");
-        Corpus.Require(evc);
-        var (window, dialogs, _) = CreateWindow();
+        var corpusFile = Path.Combine(Corpus.Directory ?? string.Empty, "Video codecs", "MPEG-5 EVC.mp4");
+        Corpus.Require(corpusFile);
+        MediaProbe.RequireFfmpeg();
+        var (window, dialogs, dir) = CreateWindow();
         window.NewDocumentCommand.Execute("mkv");
+        ImportDialogViewModel? shown = null;
+        dialogs.OnShowDialog = async d =>
+        {
+            if (d is not ImportDialogViewModel import)
+                return false;
+            for (var i = 0; i < 600 && import.IsLoading; i++)
+                await Task.Delay(50, TestContext.Current.CancellationToken);
+            shown = import;
+            return true;
+        };
 
-        // Matroska has no codec ID for MPEG-5 EVC, and video is never converted.
+        // EVC + AAC: Matroska has no codec ID for MPEG-5 EVC, but the AAC can be used, so the file is accepted.
+        Assert.True(await window.ImportFilesAsync([corpusFile]));
+        Assert.Empty(dialogs.Messages);
+        Assert.NotNull(shown);
+        Assert.Contains(shown.AllTracks, t => t.CanImport && t.Track.Kind == TrackKind.Audio);
+        Assert.DoesNotContain(shown.AllTracks, t => t.CanImport && t.Track.Kind == TrackKind.Video);
+
+        // The EVC stream alone: nothing in it can be used, so it is rejected.
+        var evc = Path.Combine(dir, "video.evc");
+        Fixtures.Run("ffmpeg", $"-y -v error -i {Fixtures.Quote(corpusFile)} -map 0:v -c copy -f evc {Fixtures.Quote(evc)}");
+        shown = null;
         Assert.False(await window.ImportFilesAsync([evc]));
-        Assert.Contains("EVC", Assert.Single(dialogs.Messages), StringComparison.Ordinal);
-        Assert.Empty(window.Document!.Document.Tracks);
+        Assert.StartsWith(Strings.Drop_Rejected_Title, Assert.Single(dialogs.Messages), StringComparison.Ordinal);
+        Assert.Null(shown);
     }
 }

@@ -144,7 +144,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             {
                 target = ContainerKinds.FromPath(documents[0]);
             }
-            else if (problems.Count == 0)
+            else
             {
                 newDocument = await AskNewDocumentKindAsync(tracks);
                 if (newDocument is null)
@@ -154,12 +154,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
 
         if (tracks.Count > 0 && target is { } kind)
-            problems.AddRange(await IncompatibleTracksAsync(tracks, kind));
+        {
+            var (usable, unusable) = await SortTrackFilesAsync(tracks, kind);
+            tracks = usable;
+            problems.AddRange(unusable);
+        }
+
+        // Only a drop of which nothing can be used is rejected; otherwise the unusable files are left out and named.
         if (problems.Count > 0)
         {
-            await Dialogs.ShowMessageAsync(Strings.Drop_Rejected_Title,
-                string.Format(CultureInfo.CurrentCulture, Strings.Drop_Rejected_MessageFormat, string.Join("\n", problems)));
-            return;
+            var nothingUsable = documents.Count == 0 && attachments.Count == 0 && tracks.Count == 0;
+            await Dialogs.ShowMessageAsync(nothingUsable ? Strings.Drop_Rejected_Title : Strings.Drop_LeftOut_Title,
+                string.Format(CultureInfo.CurrentCulture, nothingUsable ? Strings.Drop_Rejected_MessageFormat : Strings.Drop_LeftOut_MessageFormat,
+                    string.Join("\n", problems)));
+            if (nothingUsable)
+                return;
         }
 
         foreach (var path in documents)
@@ -175,7 +184,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         foreach (var path in attachments)
             await AttachAsync(path);
 
-        if (newDocument is { } kindForNew)
+        if (newDocument is { } kindForNew && tracks.Count > 0)
             await NewDocumentForTracksAsync(tracks, kindForNew);
         else if (tracks.Count > 0)
             await ImportIntoSelectedAsync(tracks);
@@ -210,12 +219,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// The files that cannot be read, and the tracks <paramref name="target"/> cannot store even converted (nothing
-    /// but "Not available" to choose from), one line each.
+    /// Splits track files into those with at least one track <paramref name="target"/> can store (as it is or converted;
+    /// the import dialog shows the others as not available) and those of which nothing can be used, described one
+    /// line each: unreadable, without tracks, or with only tracks the container cannot store even converted.
     /// </summary>
-    private static async Task<List<string>> IncompatibleTracksAsync(IReadOnlyList<string> files, ContainerKind target)
+    private static async Task<(List<string> Usable, List<string> Unusable)> SortTrackFilesAsync(IReadOnlyList<string> files, ContainerKind target)
     {
-        var problems = new List<string>();
+        var usable = new List<string>();
+        var unusable = new List<string>();
         foreach (var file in files)
         {
             var name = Path.GetFileName(file);
@@ -223,21 +234,30 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             {
                 var inspected = await MMW.Media.Remux.TrackImporter.InspectAsync(file, target);
                 if (inspected.Count == 0)
-                    problems.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_NoTracksFormat, name));
-                foreach (var track in inspected.Where(t => t.Choices.All(c => c.Action == ImportAction.Skip)))
                 {
-                    problems.Add(track.Support.Reason is { } reason
-                        ? string.Format(CultureInfo.CurrentCulture, Strings.Drop_TrackReasonFormat, name, track.TrackId, track.Format, reason)
-                        : string.Format(CultureInfo.CurrentCulture, Strings.Drop_TrackFormat, name, track.TrackId, track.Format));
+                    unusable.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_NoTracksFormat, name));
+                }
+                else if (inspected.Any(t => t.Choices.Any(c => c.Action != ImportAction.Skip)))
+                {
+                    usable.Add(file);
+                }
+                else
+                {
+                    foreach (var track in inspected)
+                    {
+                        unusable.Add(track.Support.Reason is { } reason
+                            ? string.Format(CultureInfo.CurrentCulture, Strings.Drop_TrackReasonFormat, name, track.TrackId, track.Format, reason)
+                            : string.Format(CultureInfo.CurrentCulture, Strings.Drop_TrackFormat, name, track.TrackId, track.Format));
+                    }
                 }
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException or EndOfStreamException)
             {
-                problems.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_UnreadableFormat, name, ex.Message));
+                unusable.Add(string.Format(CultureInfo.CurrentCulture, Strings.Drop_UnreadableFormat, name, ex.Message));
             }
         }
 
-        return problems;
+        return (usable, unusable);
     }
 
     private static bool IsTrackFile(string extension) =>
@@ -342,15 +362,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (Document is not { } doc)
             return false;
-        var problems = await IncompatibleTracksAsync(files, doc.Document.Container);
-        if (problems.Count > 0)
+        var (usable, unusable) = await SortTrackFilesAsync(files, doc.Document.Container);
+        if (unusable.Count > 0)
         {
-            await Dialogs.ShowMessageAsync(Strings.Drop_Rejected_Title,
-                string.Format(CultureInfo.CurrentCulture, Strings.Drop_Rejected_MessageFormat, string.Join("\n", problems)));
-            return false;
+            await Dialogs.ShowMessageAsync(usable.Count == 0 ? Strings.Drop_Rejected_Title : Strings.Drop_LeftOut_Title,
+                string.Format(CultureInfo.CurrentCulture, usable.Count == 0 ? Strings.Drop_Rejected_MessageFormat : Strings.Drop_LeftOut_MessageFormat,
+                    string.Join("\n", unusable)));
+            if (usable.Count == 0)
+                return false;
         }
 
-        await ImportIntoSelectedAsync(files);
+        await ImportIntoSelectedAsync(usable);
         return true;
     }
 

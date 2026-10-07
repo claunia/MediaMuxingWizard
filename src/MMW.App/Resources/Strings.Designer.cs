@@ -5152,5 +5152,23 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Some Files Left Out.
+        /// </summary>
+        public static string Drop_LeftOut_Title {
+            get {
+                return ResourceManager.GetString("Drop_LeftOut_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to These files were left out: nothing in them can be used here, not even converted:.
+        /// </summary>
+        public static string Drop_LeftOut_MessageFormat {
+            get {
+                return ResourceManager.GetString("Drop_LeftOut_MessageFormat", resourceCulture);
+            }
+        }
+        
     }
 }

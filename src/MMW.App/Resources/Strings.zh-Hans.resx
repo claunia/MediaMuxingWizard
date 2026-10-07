@@ -307,6 +307,14 @@
   <data name="Dialog_SaveChanges_Title" xml:space="preserve">
     <value>未保存的更改</value>
   </data>
+  <data name="Drop_LeftOut_MessageFormat" xml:space="preserve">
+    <value>以下文件未添加：其中的内容都无法在此使用，即使转换也不行：
+
+{0}</value>
+  </data>
+  <data name="Drop_LeftOut_Title" xml:space="preserve">
+    <value>部分文件未添加</value>
+  </data>
   <data name="Drop_NeedsDocumentFormat" xml:space="preserve">
     <value>• {0}：需要一个已打开的文档</value>
   </data>

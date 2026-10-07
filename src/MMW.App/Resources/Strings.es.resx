@@ -1774,4 +1774,12 @@ El archivo solo cambia al guardar.</value>
   <data name="Drop_TrackReasonFormat" xml:space="preserve">
     <value>• {0}, pista {1} ({2}): {3}</value>
   </data>
+  <data name="Drop_LeftOut_Title" xml:space="preserve">
+    <value>Algunos archivos se omitieron</value>
+  </data>
+  <data name="Drop_LeftOut_MessageFormat" xml:space="preserve">
+    <value>Estos archivos se omitieron: nada de su contenido se puede usar aquí, ni siquiera convertido:
+
+{0}</value>
+  </data>
 </root>

@@ -1775,4 +1775,12 @@ The file itself only changes when you save.</value>
   <data name="Drop_TrackReasonFormat" xml:space="preserve">
     <value>• {0}, track {1} ({2}): {3}</value>
   </data>
+  <data name="Drop_LeftOut_Title" xml:space="preserve">
+    <value>Some Files Left Out</value>
+  </data>
+  <data name="Drop_LeftOut_MessageFormat" xml:space="preserve">
+    <value>These files were left out: nothing in them can be used here, not even converted:
+
+{0}</value>
+  </data>
 </root>
