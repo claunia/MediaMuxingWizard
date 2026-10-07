@@ -258,6 +258,9 @@ internal sealed class MatroskaMuxer : IMuxer
             payload = MatroskaTrackWriter.Rewrite(state, model) ?? payload;
         }
 
+        if (t.Config.Kind == TrackKind.Video && (t.Config.StreamColor.IsSpecified || t.Config.StreamHdr is not null))
+            payload = MatroskaTrackWriter.AddMissingColour(payload, t.Config.StreamColor, t.Config.StreamHdr);
+
         var replacements = new Dictionary<ulong, byte[]?>
         {
             [TrackNumber] = Encode(x => x.UInt(TrackNumber, t.Number)),
@@ -384,8 +387,9 @@ internal sealed class MatroskaMuxer : IMuxer
             v.UInt(DisplayHeight, (ulong)c.Height);
         }
 
-        var color = model?.Color ?? c.Color;
-        var hdr = model?.Hdr ?? c.Hdr;
+        // The edited (or container) colour; "implicit" and missing values fall back to what the bitstream carries.
+        var color = model is not null ? (model.Color.IsSpecified ? model.Color : c.StreamColor) : c.EffectiveColor;
+        var hdr = HdrInfo.Merge(model?.Hdr ?? c.Hdr, c.StreamHdr);
         if (!color.IsSpecified && hdr is null)
             return;
         v.Master(Colour, col =>

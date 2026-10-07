@@ -117,6 +117,26 @@ internal static class MatroskaTrackWriter
         return hadCrc ? EbmlWriter.WithCrc32(w.WrittenSpan) : w.ToArray();
     }
 
+    /// <summary>
+    /// Adds to a video TrackEntry the Colour elements it lacks (colour description, MasteringMetadata, MaxCLL/MaxFALL)
+    /// from what the bitstream carries; elements already present are kept.
+    /// </summary>
+    public static byte[] AddMissingColour(byte[] entryPayload, ColorInfo streamColor, HdrInfo? streamHdr)
+    {
+        ArgumentNullException.ThrowIfNull(entryPayload);
+        if (MatroskaTrackParser.Parse(entryPayload, string.Empty) is not VideoTrack current)
+            return entryPayload;
+        var colorMissing = !current.Color.IsSpecified && streamColor.IsSpecified;
+        var merged = HdrInfo.Merge(current.Hdr, streamHdr);
+        var hdrMissing = !ReferenceEquals(merged, current.Hdr);
+        var children = EbmlParser.Children(entryPayload);
+        if (!colorMissing && !hdrMissing || children.Child(Video) is not { } video)
+            return entryPayload;
+
+        var filled = new VideoTrack { Color = colorMissing ? streamColor : current.Color, Hdr = merged };
+        return ApplyReplacements(children, new Dictionary<ulong, byte[]?> { [Video] = RewriteVideo(video.Data, filled, colorMissing, hdrMissing) });
+    }
+
     private static byte[]? RewriteVideo(ReadOnlyMemory<byte> videoPayload, VideoTrack track, bool colorChanged, bool hdrChanged)
     {
         var children = EbmlParser.Children(videoPayload);

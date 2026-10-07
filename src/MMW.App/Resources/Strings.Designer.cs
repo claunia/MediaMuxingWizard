@@ -4540,5 +4540,23 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Colour (video stream): {0}.
+        /// </summary>
+        public static string TrackInspector_StreamColorFormat {
+            get {
+                return ResourceManager.GetString("TrackInspector_StreamColorFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (video stream).
+        /// </summary>
+        public static string TrackInspector_FromStreamSuffix {
+            get {
+                return ResourceManager.GetString("TrackInspector_FromStreamSuffix", resourceCulture);
+            }
+        }
+        
     }
 }

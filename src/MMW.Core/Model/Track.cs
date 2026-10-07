@@ -120,6 +120,12 @@ public sealed partial class VideoTrack : Track
     public bool Hdr10Plus { get; set; }
 
     /// <summary>
+    /// Colour description and static HDR10 metadata carried by the bitstream itself (VUI, SEI, AV1 sequence header and
+    /// metadata OBUs), found by scanning; shown when the container signals none. Not edited, not tracked for undo.
+    /// </summary>
+    public Media.VideoStreamInfo? StreamInfo { get; set; }
+
+    /// <summary>
     /// Raw Dolby Vision decoder configuration record as stored in (or to be written to) the container
     /// (dvcC/dvvC/dvwC in MP4, BlockAdditionMapping in Matroska); null when the container has none.
     /// </summary>

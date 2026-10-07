@@ -128,6 +128,21 @@ public sealed record CodecConfig
     /// <summary>Raw Dolby Vision decoder configuration record (dvcC/dvvC payload).</summary>
     public byte[]? DolbyVisionConfig { get; init; }
 
+    /// <summary>
+    /// Colour description found in the bitstream (VUI, AV1 sequence header). Writers use it when the container has
+    /// none (<see cref="Color"/> unspecified), so remuxed files are signalled at container level too.
+    /// </summary>
+    public ColorInfo StreamColor { get; init; } = ColorInfo.Unspecified;
+
+    /// <summary>Static HDR10 metadata found in the bitstream (SEI, AV1 metadata OBUs); fills what <see cref="Hdr"/> lacks.</summary>
+    public HdrInfo? StreamHdr { get; init; }
+
+    /// <summary>Container colour, or the bitstream's when the container has none.</summary>
+    public ColorInfo EffectiveColor => Color.IsSpecified ? Color : StreamColor;
+
+    /// <summary>Container static HDR metadata completed with the bitstream's.</summary>
+    public HdrInfo? EffectiveHdr => HdrInfo.Merge(Hdr, StreamHdr);
+
     /// <summary>The frames carry HDR10+ (SMPTE ST 2094-40) dynamic metadata, in the bitstream or next to it.</summary>
     public bool Hdr10Plus { get; init; }
 

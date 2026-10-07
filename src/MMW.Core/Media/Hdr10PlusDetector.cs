@@ -52,12 +52,17 @@ public static class Hdr10PlusDetector
 }
 
 /// <summary>What a scan of a video track's first frames found (see <see cref="VideoBitstreamScan"/>).</summary>
-public sealed record VideoScanResult(DolbyVisionDetection? MissingDolbyVision, bool Hdr10Plus);
+public sealed record VideoScanResult(DolbyVisionDetection? MissingDolbyVision, bool Hdr10Plus, VideoStreamInfo? StreamInfo = null);
 
 /// <summary>Scans a document's video track once for Dolby Vision RPUs the container does not signal and for HDR10+.</summary>
 public static class VideoBitstreamScan
 {
-    public static bool NeedsScan(VideoTrack video) => DolbyVisionDetector.NeedsCheck(video) || Hdr10PlusDetector.NeedsCheck(video);
+    public static bool NeedsScan(VideoTrack video)
+    {
+        ArgumentNullException.ThrowIfNull(video);
+        return DolbyVisionDetector.NeedsCheck(video) || Hdr10PlusDetector.NeedsCheck(video) ||
+               video.StreamInfo is null && video.Source is not null && !video.IsPending;
+    }
 
     public static Task<VideoScanResult> ScanAsync(VideoTrack video, CancellationToken cancellationToken = default)
     {
@@ -65,6 +70,7 @@ public static class VideoBitstreamScan
         var source = video.Source ?? throw new InvalidOperationException("The track has no source file.");
         var checkDolbyVision = DolbyVisionDetector.NeedsCheck(video);
         var checkHdr10Plus = Hdr10PlusDetector.NeedsCheck(video);
+        var checkStream = video.StreamInfo is null;
         var color = video.Color;
         return Task.Run(() =>
         {
@@ -73,7 +79,8 @@ public static class VideoBitstreamScan
                 return new VideoScanResult(null, false);
             var dv = checkDolbyVision ? DolbyVisionDetector.Detect(track, color, cancellationToken) : null;
             var plus = checkHdr10Plus && Hdr10PlusDetector.Detect(track, cancellationToken);
-            return new VideoScanResult(dv, plus);
+            var stream = checkStream ? VideoStreamInfoScanner.Scan(track, cancellationToken) : null;
+            return new VideoScanResult(dv, plus, stream);
         }, cancellationToken);
     }
 }

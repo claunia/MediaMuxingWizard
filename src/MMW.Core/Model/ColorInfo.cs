@@ -50,6 +50,37 @@ public sealed record HdrInfo
 
     /// <summary>Ambient viewing environment illuminance in lux, if present.</summary>
     public double? AmbientIlluminance { get; init; }
+
+    /// <summary>True when the mastering display is described (primaries, white point and maximum luminance).</summary>
+    public bool HasMasteringDisplay => DisplayPrimaries is { Length: 3 } && WhitePoint is not null && MaxLuminance is not null;
+
+    /// <summary>True when MaxCLL or MaxFALL is known.</summary>
+    public bool HasLightLevel => MaxCll is not null || MaxFall is not null;
+
+    /// <summary>
+    /// <paramref name="primary"/> completed with <paramref name="fallback"/>: the mastering display and the light levels
+    /// are each taken as a whole from the first that has them.
+    /// </summary>
+    public static HdrInfo? Merge(HdrInfo? primary, HdrInfo? fallback)
+    {
+        if (primary is null || fallback is null)
+            return primary ?? fallback;
+        var merged = primary;
+        if (!primary.HasMasteringDisplay && fallback.HasMasteringDisplay)
+        {
+            merged = merged with
+            {
+                DisplayPrimaries = fallback.DisplayPrimaries,
+                WhitePoint = fallback.WhitePoint,
+                MaxLuminance = fallback.MaxLuminance,
+                MinLuminance = fallback.MinLuminance,
+            };
+        }
+
+        if (!primary.HasLightLevel && fallback.HasLightLevel)
+            merged = merged with { MaxCll = fallback.MaxCll, MaxFall = fallback.MaxFall };
+        return merged;
+    }
 }
 
 /// <summary>Dolby Vision decoder configuration record.</summary>

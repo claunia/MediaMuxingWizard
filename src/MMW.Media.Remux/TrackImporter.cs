@@ -155,6 +155,7 @@ public static class TrackImporter
                 continue;
             config = WithDetectedDolbyVision(source, config);
             config = WithDetectedHdr10Plus(source, config);
+            config = WithStreamInfo(source, config);
             var support = muxer.CheckSupport(config);
             var canConvert = ConversionDefaults.CanConvert(config);
             var canOcr = ConversionDefaults.CanOcr(config);
@@ -202,6 +203,23 @@ public static class TrackImporter
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
             AppLog.Debug($"Dolby Vision check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
+    }
+
+    /// <summary>Colour and static HDR10 metadata of the bitstream (used when the source container lacks them).</summary>
+    private static CodecConfig WithStreamInfo(ISampleSource source, CodecConfig config)
+    {
+        if (!VideoStreamInfoScanner.CanScan(config))
+            return config;
+        try
+        {
+            var info = VideoStreamInfoScanner.Scan(source);
+            return info.IsEmpty ? config : config with { StreamColor = info.Color, StreamHdr = info.Hdr };
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"Colour scan of track {source.TrackId} failed: {ex.Message}");
             return config;
         }
     }
@@ -296,6 +314,7 @@ public static class TrackImporter
                     FrameRate = item.FrameRate ?? c.FrameRate,
                     DolbyVisionRecord = DolbyVisionRecordFor(item), // also carries detected records to the muxer
                     Hdr10Plus = c.Hdr10Plus,
+                    StreamInfo = new VideoStreamInfo(c.StreamColor, c.StreamHdr),
                 };
                 break;
             }
@@ -376,10 +395,11 @@ public static class TrackImporter
                     parts.Add(string.Create(CultureInfo.InvariantCulture, $"{config.FrameRate:0.###} fps"));
                 if (config.DolbyVisionConfig is not null)
                     parts.Add("Dolby Vision");
+                var color = config.EffectiveColor;
                 if (config.Hdr10Plus)
                     parts.Add("HDR10+");
-                else if (config.DolbyVisionConfig is null && (config.Hdr is not null || config.Color.Transfer is 16 or 18))
-                    parts.Add(config.Color.Transfer == 18 ? "HLG" : "HDR10");
+                else if (config.DolbyVisionConfig is null && (config.EffectiveHdr is not null || color.Transfer is 16 or 18))
+                    parts.Add(color.Transfer == 18 ? "HLG" : "HDR10");
                 break;
             case TrackKind.Audio:
                 if (config.Channels > 0)

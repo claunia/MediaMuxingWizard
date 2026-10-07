@@ -1558,4 +1558,10 @@ Save anyway?</value>
   <data name="Fallback_Hdr10Plus" xml:space="preserve">
     <value>HDR10+</value>
   </data>
+  <data name="TrackInspector_StreamColorFormat" xml:space="preserve">
+    <value>Colour (video stream): {0}</value>
+  </data>
+  <data name="TrackInspector_FromStreamSuffix" xml:space="preserve">
+    <value> (video stream)</value>
+  </data>
 </root>

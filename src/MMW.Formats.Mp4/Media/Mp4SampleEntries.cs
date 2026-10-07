@@ -549,25 +549,16 @@ internal static class Mp4SampleEntries
                 throw new NotSupportedException($"{c.FormatName} video cannot be stored in MP4.");
         }
 
-        if (c.Color.IsSpecified)
-        {
-            children.Add(new Box("colr", new PayloadBuilder().Type("nclx").U16(c.Color.Primaries).U16(c.Color.Transfer).U16(c.Color.Matrix)
-                .U8(c.Color.FullRange == true ? 0x80 : 0).ToArray()));
-        }
+        // The container's colour and HDR10 metadata, or what the bitstream carries when the source container had none.
+        if (c.EffectiveColor is { IsSpecified: true } color)
+            children.Add(BuildColr(color));
 
-        if (c.Hdr is { } hdr)
+        if (c.EffectiveHdr is { } hdr)
         {
-            if (hdr.DisplayPrimaries is { Length: 3 } p && hdr.WhitePoint is { } w && hdr.MaxLuminance is { } max)
-            {
-                var b = new PayloadBuilder();
-                foreach (var (x, y) in p)
-                    b.U16(Chroma(x)).U16(Chroma(y));
-                b.U16(Chroma(w.X)).U16(Chroma(w.Y)).U32((uint)Math.Round(max * 10000)).U32((uint)Math.Round((hdr.MinLuminance ?? 0) * 10000));
-                children.Add(new Box("mdcv", b.ToArray()));
-            }
-
-            if (hdr.MaxCll is not null || hdr.MaxFall is not null)
-                children.Add(new Box("clli", new PayloadBuilder().U16(hdr.MaxCll ?? 0).U16(hdr.MaxFall ?? 0).ToArray()));
+            if (BuildMdcv(hdr) is { } mdcv)
+                children.Add(mdcv);
+            if (BuildClli(hdr) is { } clli)
+                children.Add(clli);
         }
 
         if (c.ParNumerator > 0 && c.ParDenominator > 0 && c.ParNumerator != c.ParDenominator)
@@ -587,7 +578,73 @@ internal static class Mp4SampleEntries
         DolbyVisionEntry.Apply(entry, c.DolbyVisionConfig);
         return entry;
 
-        static int Chroma(double v) => (int)Math.Clamp(Math.Round(v / 0.00002), 0, ushort.MaxValue);
+    }
+
+    /// <summary>
+    /// 'mdcv' from the model's R, G, B primaries: stored in G, B, R order like the HEVC SEI it mirrors (ISO/IEC 23001-8;
+    /// FFmpeg and Apple write it so); null without primaries, white point and maximum luminance.
+    /// </summary>
+    public static Box? BuildMdcv(HdrInfo hdr)
+    {
+        ArgumentNullException.ThrowIfNull(hdr);
+        if (hdr.DisplayPrimaries is not { Length: 3 } p || hdr.WhitePoint is not { } w || hdr.MaxLuminance is not { } max)
+            return null;
+        var b = new PayloadBuilder();
+        foreach (var (x, y) in new[] { p[1], p[2], p[0] })
+            b.U16(Chroma(x)).U16(Chroma(y));
+        b.U16(Chroma(w.X)).U16(Chroma(w.Y)).U32((uint)Math.Round(max * 10000)).U32((uint)Math.Round((hdr.MinLuminance ?? 0) * 10000));
+        return new Box("mdcv", b.ToArray());
+    }
+
+    /// <summary>'colr' of type 'nclx'.</summary>
+    public static Box BuildColr(ColorInfo color) =>
+        new("colr", new PayloadBuilder().Type("nclx").U16(color.Primaries).U16(color.Transfer).U16(color.Matrix)
+            .U8(color.FullRange == true ? 0x80 : 0).ToArray());
+
+    /// <summary>
+    /// Adds to a copied sample entry the colour and HDR10 boxes it lacks, from what the bitstream carries
+    /// (<see cref="CodecConfig.StreamColor"/>, <see cref="CodecConfig.StreamHdr"/>).
+    /// </summary>
+    public static void AddMissingColorBoxes(Box entry, CodecConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(config);
+        if (entry.Children is not { } children)
+            return;
+        var at = children.FindIndex(c => c.Type is "pasp" or "btrt");
+        void Insert(Box box)
+        {
+            if (at < 0)
+            {
+                children.Add(box);
+            }
+            else
+            {
+                children.Insert(at, box);
+                at++;
+            }
+        }
+
+        if (config.StreamColor.IsSpecified && !children.Any(c => c.Type == "colr"))
+            Insert(BuildColr(config.StreamColor));
+        if (config.StreamHdr is { } hdr)
+        {
+            if (!children.Any(c => c.Type is "mdcv" or "SmDm") && BuildMdcv(hdr) is { } mdcv)
+                Insert(mdcv);
+            if (!children.Any(c => c.Type is "clli" or "CoLL") && BuildClli(hdr) is { } clli)
+                Insert(clli);
+        }
+    }
+
+    private static int Chroma(double v) => (int)Math.Clamp(Math.Round(v / 0.00002), 0, ushort.MaxValue);
+
+    /// <summary>'clli' (MaxCLL, MaxFALL); null when neither is known.</summary>
+    public static Box? BuildClli(HdrInfo hdr)
+    {
+        ArgumentNullException.ThrowIfNull(hdr);
+        return hdr.MaxCll is null && hdr.MaxFall is null
+            ? null
+            : new Box("clli", new PayloadBuilder().U16(hdr.MaxCll ?? 0).U16(hdr.MaxFall ?? 0).ToArray());
     }
 
     private static byte[] BuildVpcC(CodecConfig c)

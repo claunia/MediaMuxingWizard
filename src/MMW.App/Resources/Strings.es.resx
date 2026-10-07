@@ -1558,4 +1558,10 @@ Si no los guardas, se perderán.</value>
   <data name="Fallback_Hdr10Plus" xml:space="preserve">
     <value>HDR10+</value>
   </data>
+  <data name="TrackInspector_StreamColorFormat" xml:space="preserve">
+    <value>Color (flujo de vídeo): {0}</value>
+  </data>
+  <data name="TrackInspector_FromStreamSuffix" xml:space="preserve">
+    <value> (flujo de vídeo)</value>
+  </data>
 </root>

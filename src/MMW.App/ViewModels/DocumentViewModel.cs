@@ -173,9 +173,21 @@ public sealed partial class DocumentViewModel : ViewModelBase
             try
             {
                 var result = await VideoBitstreamScan.ScanAsync(video);
+                var changed = false;
                 if (result.Hdr10Plus && !video.Hdr10Plus)
                 {
                     video.Hdr10Plus = true; // detected, not an edit: not tracked for undo
+                    changed = true;
+                }
+
+                if (result.StreamInfo is { } stream && video.StreamInfo is null)
+                {
+                    video.StreamInfo = stream;
+                    changed = true;
+                }
+
+                if (changed)
+                {
                     if (_trackInspectors.TryGetValue(video, out var inspector))
                         inspector.RefreshHdr();
                     foreach (var row in Rows.Where(r => r.Track == video))

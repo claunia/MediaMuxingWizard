@@ -301,6 +301,25 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         }
     }
 
+    private static void AddMastering(List<string> lines, HdrInfo? h, bool fromStream)
+    {
+        if (h?.MaxLuminance is not { } max)
+            return;
+        var line = string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_MasteringDisplayFormat, h.MinLuminance, max);
+        if (h.DisplayPrimaries is { Length: 3 } p && h.WhitePoint is { } w)
+            line += string.Format(CultureInfo.InvariantCulture, " — R {0:0.####},{1:0.####} G {2:0.####},{3:0.####} B {4:0.####},{5:0.####} W {6:0.####},{7:0.####}",
+                p[0].X, p[0].Y, p[1].X, p[1].Y, p[2].X, p[2].Y, w.X, w.Y);
+        lines.Add(fromStream ? line + Strings.TrackInspector_FromStreamSuffix : line);
+    }
+
+    private static void AddLightLevel(List<string> lines, HdrInfo? h, bool fromStream)
+    {
+        if (h?.MaxCll is not { } cll)
+            return;
+        var line = string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_LightLevelFormat, cll, h.MaxFall);
+        lines.Add(fromStream ? line + Strings.TrackInspector_FromStreamSuffix : line);
+    }
+
     /// <summary>Updates the HDR details after a background scan found more (e.g. HDR10+).</summary>
     public void RefreshHdr() => OnPropertyChanged(nameof(HdrText));
 
@@ -315,15 +334,21 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_DolbyVisionFormat, dv));
             if (Video.Hdr10Plus)
                 lines.Add(Strings.TrackInspector_Hdr10Plus);
-            if (Video.Hdr is { } h)
+
+            // Container values first; what only the video stream carries is shown (and written on remux) as well.
+            var stream = Video.StreamInfo;
+            if (!Video.Color.IsSpecified && stream?.Color is { IsSpecified: true } streamColor)
             {
-                if (h.MaxLuminance is { } max)
-                    lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_MasteringDisplayFormat, h.MinLuminance, max));
-                if (h.MaxCll is { } cll)
-                    lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_LightLevelFormat, cll, h.MaxFall));
-                if (h.AmbientIlluminance is { } lux)
-                    lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_AmbientFormat, lux));
+                var name = ColorPreset.All.FirstOrDefault(p => p.Color with { FullRange = null } == streamColor with { FullRange = null })?.Name ?? streamColor.ToString();
+                lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_StreamColorFormat, name));
             }
+
+            var h = Video.Hdr;
+            var s = stream?.Hdr;
+            AddMastering(lines, h is { HasMasteringDisplay: true } || s is not { HasMasteringDisplay: true } ? h : s, h is not { HasMasteringDisplay: true } && s is { HasMasteringDisplay: true });
+            AddLightLevel(lines, h is { HasLightLevel: true } || s is not { HasLightLevel: true } ? h : s, h is not { HasLightLevel: true } && s is { HasLightLevel: true });
+            if (h?.AmbientIlluminance is { } lux)
+                lines.Add(string.Format(CultureInfo.InvariantCulture, Strings.TrackInspector_AmbientFormat, lux));
 
             return lines.Count == 0 ? Strings.TrackInspector_HdrNone : string.Join("\n", lines);
         }

@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Globalization;
+using MMW.Core.Media;
 using MMW.Core.Model;
 
 namespace MMW.Formats.Mp4.Boxes;
@@ -232,54 +233,42 @@ public static class CodecInfo
         return string.Empty;
     }
 
+    /// <summary>
+    /// Static HDR metadata of a visual sample entry: 'mdcv' (primaries in G, B, R order like the HEVC SEI, 0.00002 and
+    /// 0.0001 cd/m² units) or the VP9 binding's 'SmDm' (FullBox; R, G, B order, 0.16 fixed point chromaticity, 24.8
+    /// and 18.14 fixed point luminance), 'clli' or 'CoLL' (FullBox), and 'amve'. Read the way FFmpeg reads them.
+    /// </summary>
     private static HdrInfo? ParseHdr(Box entry)
     {
-        var mdcv = entry.Find("mdcv")?.Payload ?? entry.Find("SmDm")?.Payload;
-        var clli = entry.Find("clli")?.Payload ?? entry.Find("CoLL")?.Payload;
+        var mdcv = entry.Find("mdcv")?.Payload;
+        var smdm = mdcv is null ? entry.Find("SmDm")?.Payload : null;
+        var clli = entry.Find("clli")?.Payload;
+        var coll = clli is null ? entry.Find("CoLL")?.Payload : null;
         var amve = entry.Find("amve")?.Payload;
-        if (mdcv is null && clli is null && amve is null)
+        if (mdcv is null && smdm is null && clli is null && coll is null && amve is null)
             return null;
 
-        (double, double)[]? primaries = null;
-        (double, double)? white = null;
-        double? maxL = null, minL = null;
-        if (mdcv is not null)
-        {
-            // SmDm (QuickTime) has a 4-byte version/flags prefix and a different order; handle mdcv only.
-            var p = entry.Find("mdcv") is not null ? mdcv.AsSpan() : mdcv.AsSpan(4);
-            if (p.Length >= 24)
-            {
-                primaries = new (double, double)[3];
-                for (var i = 0; i < 3; i++)
-                {
-                    primaries[i] = (BinaryPrimitives.ReadUInt16BigEndian(p[(i * 4)..]) * 0.00002,
-                        BinaryPrimitives.ReadUInt16BigEndian(p[(i * 4 + 2)..]) * 0.00002);
-                }
-
-                white = (BinaryPrimitives.ReadUInt16BigEndian(p[12..]) * 0.00002, BinaryPrimitives.ReadUInt16BigEndian(p[14..]) * 0.00002);
-                maxL = BinaryPrimitives.ReadUInt32BigEndian(p[16..]) * 0.0001;
-                minL = BinaryPrimitives.ReadUInt32BigEndian(p[20..]) * 0.0001;
-            }
-        }
+        HdrInfo? mastering = null;
+        if (mdcv is { Length: >= 24 })
+            mastering = VideoStreamInfoScanner.ParseMasteringDisplaySei(mdcv); // same layout as the SEI message
+        else if (smdm is { Length: >= 28 })
+            mastering = VideoStreamInfoScanner.ParseAv1Mdcv(smdm.AsSpan(4)); // same layout as AV1 metadata_hdr_mdcv
 
         int? maxCll = null, maxFall = null;
-        if (clli is not null)
+        var light = clli ?? (coll is { Length: >= 8 } ? coll[4..] : null);
+        if (light is { Length: >= 4 })
         {
-            var p = entry.Find("clli") is not null ? clli.AsSpan() : clli.AsSpan(4);
-            if (p.Length >= 4)
-            {
-                maxCll = BinaryPrimitives.ReadUInt16BigEndian(p);
-                maxFall = BinaryPrimitives.ReadUInt16BigEndian(p[2..]);
-            }
+            maxCll = BinaryPrimitives.ReadUInt16BigEndian(light);
+            maxFall = BinaryPrimitives.ReadUInt16BigEndian(light.AsSpan(2));
         }
 
         double? ambient = amve is { Length: >= 4 } ? BinaryPrimitives.ReadUInt32BigEndian(amve) * 0.0001 : null;
         return new HdrInfo
         {
-            DisplayPrimaries = primaries,
-            WhitePoint = white,
-            MaxLuminance = maxL,
-            MinLuminance = minL,
+            DisplayPrimaries = mastering?.DisplayPrimaries,
+            WhitePoint = mastering?.WhitePoint,
+            MaxLuminance = mastering?.MaxLuminance,
+            MinLuminance = mastering?.MinLuminance,
             MaxCll = maxCll,
             MaxFall = maxFall,
             AmbientIlluminance = ambient,

@@ -583,6 +583,7 @@ internal sealed class Mp4Muxer : IMuxer
         {
             ApplyModelToNativeEntry(entry, model);
             DolbyVisionEntry.Apply(entry, config.DolbyVisionConfig); // copied entries follow the specification too
+            Mp4SampleEntries.AddMissingColorBoxes(entry, config);
         }
         var handler = Mp4SampleEntries.HandlerFor(config);
 

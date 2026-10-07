@@ -212,6 +212,26 @@ public static class Remuxer
         _ => null,
     };
 
+    /// <summary>
+    /// The bitstream's colour and static HDR10 metadata when the container lacks some of it (the document scan's
+    /// result when available, otherwise a scan of the first frames); null when nothing is missing.
+    /// </summary>
+    private static VideoStreamInfo? StreamInfoFor(Track track, ISampleSource source, CancellationToken ct)
+    {
+        var config = source.Config;
+        if (!VideoStreamInfoScanner.CanScan(config))
+            return null;
+        var hdr = config.Hdr;
+        if (config.Color.IsSpecified && hdr is { HasMasteringDisplay: true, HasLightLevel: true })
+            return null;
+        var info = (track as VideoTrack)?.StreamInfo ?? VideoStreamInfoScanner.Scan(source, ct);
+        if (info.IsEmpty)
+            return null;
+        if (!config.Color.IsSpecified && info.Color.IsSpecified || !ReferenceEquals(HdrInfo.Merge(hdr, info.Hdr), hdr))
+            AppLog.Info($"Track '{track.Name}': the container lacks colour or HDR10 metadata that the video stream carries; it is added to the output.");
+        return info;
+    }
+
     private sealed class Output
     {
         public required Track Model { get; init; }
@@ -229,6 +249,9 @@ public static class Remuxer
 
         /// <summary>The track carries HDR10+ (known from the model or found in the bitstream).</summary>
         public bool Hdr10Plus { get; init; }
+
+        /// <summary>Colour and static HDR10 metadata of the bitstream, written when the container has none.</summary>
+        public VideoStreamInfo? StreamInfo { get; init; }
 
         public double HeadTime => Head is null ? double.MaxValue : (Head.Dts + Offset) / Timescale;
     }
@@ -288,6 +311,8 @@ public static class Remuxer
                 var hdr10Plus = track is VideoTrack { Hdr10Plus: true } || sampleSource.Config.Hdr10Plus ||
                                 (factory.Kind == ContainerKind.Mp4 && sampleSource.Config.Codec == CodecType.Av1 && Hdr10PlusDetector.Detect(sampleSource, ct));
 
+                var streamInfo = StreamInfoFor(track, sampleSource, ct);
+
                 sampleSource.Reset();
                 if (SubtitleConversions.IsOcr(source.Import, sampleSource.Config.Codec))
                 {
@@ -315,7 +340,11 @@ public static class Remuxer
                     sampleSource = new TrueHdAccessUnitSource(sampleSource);
                 }
 
-                outputs.Add(new Output { Model = track, Source = sampleSource, Timescale = Math.Max(1u, sampleSource.Config.Timescale), Hdr10Plus = hdr10Plus });
+                outputs.Add(new Output
+                {
+                    Model = track, Source = sampleSource, Timescale = Math.Max(1u, sampleSource.Config.Timescale), Hdr10Plus = hdr10Plus,
+                    StreamInfo = streamInfo,
+                });
             }
 
             using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 1 << 20))
@@ -352,6 +381,8 @@ public static class Remuxer
                         cfg = cfg with { DolbyVisionConfig = dvRecord }; // repaired or edited Dolby Vision configuration
                     if (o.Hdr10Plus)
                         cfg = cfg with { Hdr10Plus = true };
+                    if (o.StreamInfo is { IsEmpty: false } bitstream)
+                        cfg = cfg with { StreamColor = bitstream.Color, StreamHdr = bitstream.Hdr };
                     var preRoll = o.Head is { } first && first.Pts + o.Offset < 0 ? TimeSpan.FromSeconds(-(first.Pts + o.Offset) / o.Timescale) : TimeSpan.Zero;
                     o.MuxIndex = muxer.AddTrack(cfg, new MuxTrackSettings
                     {

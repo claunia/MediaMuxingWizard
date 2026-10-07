@@ -8,8 +8,6 @@ namespace MMW.Core.Media.Codecs;
 /// </summary>
 public static class Hdr10Plus
 {
-    private const int SeiPayloadUserDataRegisteredItuTT35 = 4;
-    private const int Av1ObuMetadata = 5;
     private const long Av1MetadataItuTT35 = 4;
 
     /// <summary>
@@ -43,87 +41,22 @@ public static class Hdr10Plus
 
     private static bool InNalUnits(ReadOnlySpan<byte> data, int nalLengthSize, bool hevc)
     {
-        foreach (var range in NalUnits.SplitLengthPrefixed(data, nalLengthSize))
-        {
-            var nal = data[range];
-            var isSei = hevc ? NalUnits.HevcType(nal) is 39 or 40 : NalUnits.H264Type(nal) == 6;
-            if (!isSei)
-                continue;
-            var headerLength = hevc ? 2 : 1;
-            if (nal.Length > headerLength && InSeiMessages(NalUnits.ToRbsp(nal[headerLength..])))
-                return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Walks sei_message()s: payloadType and payloadSize are coded as runs of 0xFF plus a final byte.</summary>
-    private static bool InSeiMessages(ReadOnlySpan<byte> rbsp)
-    {
-        var pos = 0;
-        while (pos < rbsp.Length && rbsp[pos] != 0x80) // rbsp_trailing_bits
-        {
-            int type = 0, size = 0;
-            while (pos < rbsp.Length && rbsp[pos] == 0xFF)
-            {
-                type += 255;
-                pos++;
-            }
-
-            if (pos >= rbsp.Length)
-                return false;
-            type += rbsp[pos++];
-            while (pos < rbsp.Length && rbsp[pos] == 0xFF)
-            {
-                size += 255;
-                pos++;
-            }
-
-            if (pos >= rbsp.Length)
-                return false;
-            size += rbsp[pos++];
-            if (size > rbsp.Length - pos)
-                return false;
-            if (type == SeiPayloadUserDataRegisteredItuTT35 && IsHdr10PlusT35(rbsp.Slice(pos, size)))
-                return true;
-            pos += size;
-        }
-
-        return false;
+        var found = false;
+        Sei.ForEachMessageInSample(data, nalLengthSize, hevc, (type, payload) =>
+            found = type == Sei.UserDataRegisteredItuTT35 && IsHdr10PlusT35(payload));
+        return found;
     }
 
     private static bool InAv1(ReadOnlySpan<byte> data)
     {
-        var pos = 0;
-        while (pos < data.Length)
+        var found = false;
+        Av1.ForEachObu(data, (type, payload) =>
         {
-            var header = data[pos];
-            var type = (header >> 3) & 0x0F;
-            var p = pos + 1 + ((header & 0x04) != 0 ? 1 : 0);
-            long size;
-            if ((header & 0x02) != 0)
-            {
-                if (!DolbyVision.Leb128(data, ref p, out size))
-                    return false;
-            }
-            else
-            {
-                size = data.Length - p;
-            }
-
-            if (size < 0 || p + size > data.Length)
-                return false;
-            if (type == Av1ObuMetadata)
-            {
-                var payload = data.Slice(p, (int)size);
-                var q = 0;
-                if (DolbyVision.Leb128(payload, ref q, out var metadataType) && metadataType == Av1MetadataItuTT35 && IsHdr10PlusT35(payload[q..]))
-                    return true;
-            }
-
-            pos = p + (int)size;
-        }
-
-        return false;
+            var q = 0;
+            found = type == Av1.ObuMetadata && DolbyVision.Leb128(payload, ref q, out var metadataType) &&
+                    metadataType == Av1MetadataItuTT35 && IsHdr10PlusT35(payload[q..]);
+            return found;
+        });
+        return found;
     }
 }
