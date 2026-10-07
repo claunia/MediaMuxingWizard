@@ -92,6 +92,7 @@ public sealed class WebVttTests
         var tracks = await TrackImporter.InspectAsync(source, target, Ct);
         var track = Assert.Single(tracks);
         Assert.Equal(TrackSupportLevel.Passthrough, track.Support.Level);
+        track.Choice = track.Choices.First(c => c.Action == ImportAction.Passthrough); // MP4 recommends tx3g; these tests keep WebVTT
         var doc = new MediaDocument(null, target);
         TrackImporter.AddToDocument(doc, tracks);
         var output = MediaProbe.TempPath(target == ContainerKind.Mp4 ? ".mp4" : ".mkv");
