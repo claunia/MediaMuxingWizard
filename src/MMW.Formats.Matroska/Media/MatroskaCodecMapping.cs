@@ -278,7 +278,7 @@ internal static class MatroskaCodecMapping
         if (config.Native is MatroskaNativeTrack)
             return TrackSupport.Passthrough;
         if (config.Codec == CodecType.Tx3g)
-            return new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToSrt, "converted to SubRip text (S_TEXT/UTF8)");
+            return new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToAss, "converted to Advanced SubStation Alpha (S_TEXT/ASS), which keeps its styles, positions and karaoke");
         if (config.Codec == CodecType.Evc)
         {
             return new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,

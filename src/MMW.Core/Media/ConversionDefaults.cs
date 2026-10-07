@@ -117,6 +117,9 @@ public static class ConversionDefaults
         ImportAction.Passthrough => PassthroughName,
         ImportAction.ConvertToTx3g => "Tx3g",
         ImportAction.ConvertToSrt => "SRT",
+        ImportAction.ConvertToAss => "ASS",
+        ImportAction.ConvertToSsa => "SSA",
+        ImportAction.ConvertToWebVtt => "WebVTT",
         ImportAction.ConvertToAac => MixdownName(mixdown ?? Settings.Mixdown),
         ImportAction.ConvertToAc3 => Ac3Name,
         ImportAction.AacPlusPassthrough => AacPlusPassthroughName,
@@ -155,6 +158,14 @@ public static class ConversionDefaults
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(support);
         var list = new List<ImportChoice>();
+        if (config.Kind == TrackKind.Subtitle && CodecNames.IsText(config.Codec))
+        {
+            foreach (var action in TextActions(config.Codec, target))
+                list.Add(new ImportChoice(action, DisplayName(action)));
+            list.Add(new ImportChoice(ImportAction.Skip, SkipName));
+            return list;
+        }
+
         switch (support.Level)
         {
             case TrackSupportLevel.Passthrough:
@@ -207,6 +218,30 @@ public static class ConversionDefaults
 
     private static ImportChoice Aac(AudioMixdown mixdown) => new(ImportAction.ConvertToAac, MixdownName(mixdown), mixdown);
 
+    /// <summary>
+    /// What a text subtitle track can become in a container, the recommended action first. Matroska keeps SubRip,
+    /// ASS, SSA and WebVTT as they are and offers the others; tx3g has no Matroska form and becomes ASS, the format
+    /// that keeps most of its features (fonts, colours, positions, vertical text, karaoke). MP4 recommends tx3g (what
+    /// Apple players show) for everything, offering WebVTT ('wvtt') too.
+    /// </summary>
+    public static IReadOnlyList<ImportAction> TextActions(CodecType codec, ContainerKind target)
+    {
+        var matroska = target == ContainerKind.Matroska;
+        return (codec, matroska) switch
+        {
+            (CodecType.TextUtf8, true) => [ImportAction.Passthrough, ImportAction.ConvertToAss, ImportAction.ConvertToSsa, ImportAction.ConvertToWebVtt],
+            (CodecType.Ass, true) => [ImportAction.Passthrough, ImportAction.ConvertToSsa, ImportAction.ConvertToSrt, ImportAction.ConvertToWebVtt],
+            (CodecType.Ssa, true) => [ImportAction.Passthrough, ImportAction.ConvertToAss, ImportAction.ConvertToSrt, ImportAction.ConvertToWebVtt],
+            (CodecType.WebVtt, true) => [ImportAction.Passthrough, ImportAction.ConvertToSrt, ImportAction.ConvertToAss, ImportAction.ConvertToSsa],
+            (CodecType.Tx3g, true) => [ImportAction.ConvertToAss, ImportAction.ConvertToSsa, ImportAction.ConvertToSrt, ImportAction.ConvertToWebVtt],
+            // tx3g is what Apple players show in MP4; 'wvtt' (ISO/IEC 14496-30) is kept as an option.
+            (CodecType.WebVtt, false) => [ImportAction.ConvertToTx3g, ImportAction.Passthrough],
+            (CodecType.Tx3g, false) => [ImportAction.Passthrough, ImportAction.ConvertToWebVtt],
+            (_, false) => [ImportAction.ConvertToTx3g, ImportAction.ConvertToWebVtt],
+            _ => [ImportAction.Passthrough],
+        };
+    }
+
     /// <summary>The preselected entry of <paramref name="choices"/> (see the remarks of <see cref="ConversionDefaults"/>).</summary>
     public static ImportChoice Suggest(CodecConfig config, TrackSupport support, ContainerKind target, IReadOnlyList<ImportChoice> choices)
     {
@@ -246,6 +281,10 @@ public static class ConversionDefaults
             if (suggested is not null)
                 return suggested;
         }
+
+        // Text subtitles: the recommended conversion of TextActions (listed first).
+        if (config.Kind == TrackKind.Subtitle && CodecNames.IsText(config.Codec))
+            return choices[0];
 
         // Bitmap subtitles the container cannot store (PGS/DVB into MP4): OCR when available.
         if (!support.CanMux && choices.FirstOrDefault(c => c.Ocr) is { } ocr)

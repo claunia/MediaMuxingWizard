@@ -77,14 +77,16 @@ public sealed class DuplicateTrackTests
             var copy = await TrackImporter.DuplicateAsync(doc, pending, Ct);
             Assert.Equal(pending.Source, copy.Source);
 
-            TrackConversions.SetAction(doc, copy, ImportAction.ConvertToTx3g);
+            TrackConversions.SetAction(doc, copy, ImportAction.ConvertToAss);
             Assert.Equal(ImportAction.Passthrough, pending.Source!.Import!.Action);
             await Remuxer.SaveAsync(doc, new SaveOptions { OutputPath = output }, ContainerKind.Matroska, cancellationToken: Ct);
 
             var subtitles = MediaProbe.Streams(output).Where(s => s.Type == "subtitle").Select(s => s.Codec).ToList();
-            // Matroska keeps timed text as SubRip: the three tracks (in-file, pending, its copy) are all SRT.
-            Assert.Equal(["subrip", "subrip", "subrip"], subtitles);
-            Assert.Equal(Cues(output, 1), Cues(output, 2));
+            // The in-file track and the pending one stay SubRip; the copy is converted to ASS, with the same cues.
+            Assert.Equal(["subrip", "subrip", "ass"], subtitles);
+            // FFmpeg's ASS → SubRip adds the style's font size: compare the cues without markup.
+            static string Plain(string srt) => System.Text.RegularExpressions.Regex.Replace(srt, "<[^>]*>", string.Empty);
+            Assert.Equal(Plain(Cues(output, 1)), Plain(Cues(output, 2)));
         }
         finally
         {

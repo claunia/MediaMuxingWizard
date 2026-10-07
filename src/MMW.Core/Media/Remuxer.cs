@@ -1,4 +1,5 @@
 using MMW.Core.Diagnostics;
+using MMW.Core.Media.Subtitles;
 using MMW.Core.Model;
 
 namespace MMW.Core.Media;
@@ -164,6 +165,11 @@ public static class Remuxer
         var action = import?.Action ?? ImportAction.Passthrough;
         if (SubtitleConversions.IsOcr(import, config.Codec))
             return CheckOcr(factory, config, import!);
+        if (TextSubtitleConverter.Converts(config, action))
+        {
+            var converted = factory.CheckSupport(TextSubtitleConverter.PredictOutput(config, TextSubtitleConverter.Target(action)!.Value));
+            return converted.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, $"converted to {ConversionDefaults.DisplayName(action)}") : converted;
+        }
 
         if (ConversionTarget(action) is not { } target)
             return factory.CheckSupport(config);
@@ -205,6 +211,27 @@ public static class Remuxer
     }
 
     private static AudioConversionTarget? ConversionTarget(ImportAction action) => ConversionDefaults.Target(action);
+
+    /// <summary>
+    /// The text conversion to apply: the chosen one, or the container's own when it cannot store the track as it is
+    /// (tx3g into Matroska); null when the track is copied.
+    /// </summary>
+    private static ImportAction? TextAction(CodecConfig config, ImportAction action, TrackSupport support)
+    {
+        if (TextSubtitleConverter.Converts(config, action))
+            return action;
+        return action == ImportAction.Passthrough && support.Level == TrackSupportLevel.Converted && TextSubtitleConverter.Converts(config, support.SuggestedAction)
+            ? support.SuggestedAction
+            : null;
+    }
+
+    /// <summary>The picture subtitles are laid out on: the first video track's display size (0 × 0 without video).</summary>
+    private static (int Width, int Height) Canvas(IEnumerable<Track> tracks)
+    {
+        if (tracks.OfType<VideoTrack>().FirstOrDefault() is not { } video)
+            return (0, 0);
+        return video.DisplayWidth > 0 && video.DisplayHeight > 0 ? ((int)video.DisplayWidth, (int)video.DisplayHeight) : (video.PixelWidth, video.PixelHeight);
+    }
 
     /// <summary>
     /// The bitstream's colour and static HDR10 metadata when the container lacks some of it (the document scan's
@@ -331,6 +358,14 @@ public static class Remuxer
                     sampleSource = converter;
                 }
 
+                else if (TextAction(sampleSource.Config, action, support) is { } textAction)
+                {
+                    // Text subtitles in another text format: styles, positions and karaoke kept as the target allows.
+                    var (width, height) = Canvas(tracks);
+                    var converter = new TextSubtitleConverter(sampleSource, TextSubtitleConverter.Target(textAction)!.Value, width, height);
+                    AppLog.Info($"Converting {sampleSource.Config.FormatName} track '{track.Name}' to {converter.Config.FormatName}.");
+                    sampleSource = converter;
+                }
                 else if (factory.Kind == ContainerKind.Mp4 && VfwNativeSource.TryCreate(sampleSource) is { } native)
                 {
                     // MPEG-4 Part 2, VC-1 and H.263 stored the Video for Windows way go to MP4 in their own form.

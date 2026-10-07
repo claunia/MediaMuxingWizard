@@ -72,13 +72,14 @@ public sealed class CrossContainerTests
             Assert.Empty(id.GetProperty("errors").EnumerateArray());
             Assert.Empty(id.GetProperty("warnings").EnumerateArray());
             var tracks = id.GetProperty("tracks").EnumerateArray().ToList();
-            Assert.Equal(["V_MPEG4/ISO/AVC", "A_AAC", "A_AAC", "S_TEXT/UTF8"], tracks.Select(t => t.GetProperty("properties").GetProperty("codec_id").GetString()!));
+            // tx3g has no Matroska form: it becomes ASS, which keeps its styles, positions and karaoke.
+            Assert.Equal(["V_MPEG4/ISO/AVC", "A_AAC", "A_AAC", "S_TEXT/ASS"], tracks.Select(t => t.GetProperty("properties").GetProperty("codec_id").GetString()!));
             Assert.Equal("Second audio", tracks[2].GetProperty("properties").GetProperty("track_name").GetString());
             Assert.Equal("fre", tracks[2].GetProperty("properties").GetProperty("language").GetString()); // Matroska: ISO 639-2/B
 
             var src = MediaProbe.Streams(source);
             var dst = MediaProbe.Streams(output);
-            Assert.Equal(["h264", "aac", "aac", "subrip"], dst.Select(s => s.Codec));
+            Assert.Equal(["h264", "aac", "aac", "ass"], dst.Select(s => s.Codec));
             AssertDuration(src[0].Duration, dst[0].Duration, 0.041);
             Assert.Equal(MediaProbe.PacketHashes(source), MediaProbe.PacketHashes(output));
             Assert.Equal(DecodedFrameHashes(source), DecodedFrameHashes(output));

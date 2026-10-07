@@ -64,7 +64,7 @@ public sealed class ImportChoiceTests
         var srt = new CodecConfig { Codec = CodecType.TextUtf8, Kind = TrackKind.Subtitle };
         var converted = new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToTx3g);
         var choices = ConversionDefaults.Choices(srt, converted, ContainerKind.Mp4, false, canOcr: true);
-        Assert.Equal(["Tx3g", "Skip"], choices.Select(c => c.DisplayName));
+        Assert.Equal(["Tx3g", "WebVTT", "Skip"], choices.Select(c => c.DisplayName));
         Assert.False(choices[0].Ocr);
         Assert.False(SubtitleConversions.IsOcr(new TrackImportOptions { Action = ImportAction.ConvertToTx3g }, CodecType.TextUtf8));
     }

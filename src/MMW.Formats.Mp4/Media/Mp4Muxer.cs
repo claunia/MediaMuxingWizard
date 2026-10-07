@@ -141,7 +141,10 @@ internal sealed class Mp4Muxer : IMuxer
             config = config with { Native = null };
         // WebVTT samples carry single cues (also when read from 'wvtt'); they are always rebuilt as 14496-30 samples.
         var webVtt = config.Codec == CodecType.WebVtt;
-        var text = config.Native is not Mp4NativeTrack && CodecNames.IsText(config.Codec) && !webVtt;
+        // tx3g with its own sample description (from the subtitle converter) is written as it is: its samples already
+        // follow each other and carry every style, karaoke and text box record.
+        var tx3g = config.Codec == CodecType.Tx3g && config.Extradata is { Length: >= 30 } && config.SourceCodecId == "tx3g";
+        var text = config.Native is not Mp4NativeTrack && CodecNames.IsText(config.Codec) && !webVtt && !tx3g;
         var timescale = config.Timescale == 0 ? 1000u : config.Timescale;
         var state = new TrackState
         {
