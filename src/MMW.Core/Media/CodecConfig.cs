@@ -60,6 +60,11 @@ public enum CodecType
     DvbSub,
     Cea608,
     Ttml,
+
+    // Added later (kept at the end so stored values do not shift)
+
+    /// <summary>AVS2 video (IEEE 1857.4 / GB/T 33475.2): start-code delimited stream, sequence header in-band.</summary>
+    Avs2,
 }
 
 /// <summary>
@@ -215,6 +220,7 @@ public static class CodecNames
         CodecType.ProRes => "ProRes",
         CodecType.Theora => "Theora",
         CodecType.Mjpeg => "Motion JPEG",
+        CodecType.Avs2 => "AVS2",
         CodecType.Aac => "AAC",
         CodecType.Ac3 => "AC-3",
         CodecType.Eac3 => "E-AC-3",
@@ -249,5 +255,5 @@ public static class CodecNames
 
     /// <summary>True for video codecs whose samples may be stored out of presentation order (B-frames).</summary>
     public static bool MayReorder(CodecType codec) =>
-        codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video;
+        codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Avs2;
 }

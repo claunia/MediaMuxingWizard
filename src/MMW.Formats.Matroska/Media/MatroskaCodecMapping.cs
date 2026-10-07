@@ -111,6 +111,8 @@ internal static class MatroskaCodecMapping
                 return c with { Codec = CodecType.Vp9 };
             case "V_MPEG2":
                 return c with { Codec = CodecType.Mpeg2Video, Extradata = priv };
+            case "V_AVS2":
+                return c with { Codec = CodecType.Avs2, Extradata = priv };
             case "V_MPEG1":
                 return c with { Codec = CodecType.Mpeg1Video, Extradata = priv };
             case "V_MJPEG":
@@ -244,6 +246,7 @@ internal static class MatroskaCodecMapping
         CodecType.Mpeg4Visual => "V_MPEG4/ISO/ASP",
         CodecType.Mpeg2Video => "V_MPEG2",
         CodecType.Mpeg1Video => "V_MPEG1",
+        CodecType.Avs2 => "V_AVS2", // as FFmpeg reads and writes it
         CodecType.Mjpeg => "V_MJPEG",
         CodecType.Theora => "V_THEORA",
         CodecType.ProRes => "V_PRORES",

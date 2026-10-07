@@ -17,6 +17,7 @@ internal static class MatroskaCodecs
         ("V_MPEG4/ISO/", "MPEG-4 Visual"),
         ("V_MPEG4/MS/V3", "MS MPEG-4 v3"),
         ("V_MPEG2", "MPEG-2"),
+        ("V_AVS2", "AVS2"),
         ("V_MPEG1", "MPEG-1"),
         ("V_THEORA", "Theora"),
         ("V_PRORES", "ProRes"),

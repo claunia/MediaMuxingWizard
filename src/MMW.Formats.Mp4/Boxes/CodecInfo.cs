@@ -20,6 +20,7 @@ public static class CodecInfo
             "av01" => "AV1",
             "vvc1" or "vvi1" => "VVC",
             "mp4v" => "MPEG-4 Visual",
+            "avst" => "AVS2",
             "jpeg" => "JPEG",
             "png " => "PNG",
             "vp08" => "VP8",

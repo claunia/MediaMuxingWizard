@@ -79,6 +79,7 @@ internal static class Mp4SampleEntries
             "jpeg" or "mjpa" => (CodecType.Mjpeg, null),
             "apcn" or "apch" or "apcs" or "apco" or "ap4h" or "ap4x" => (CodecType.ProRes, null),
             "mp4v" => VisualFromEsds(entry),
+            "avst" => (CodecType.Avs2, null),
             _ => (CodecType.Unknown, null),
         };
 
@@ -427,7 +428,7 @@ internal static class Mp4SampleEntries
         return config.Codec switch
         {
             CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or CodecType.Mpeg4Visual or
-                CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg => config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1
+                CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 => config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Av1
                     ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the codec configuration is missing")
                     : TrackSupport.Passthrough,
             CodecType.Aac or CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts or CodecType.Opus or CodecType.Flac or CodecType.Alac or
@@ -530,6 +531,11 @@ internal static class Mp4SampleEntries
                 type = fourcc is "apco" or "apcs" or "apcn" or "apch" or "ap4h" or "ap4x" ? fourcc : "apcn";
                 break;
             }
+
+            case CodecType.Avs2:
+                // MP4RA 'avst'. No configuration box is published for it: the sequence header stays in the samples.
+                type = "avst";
+                break;
 
             case CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg:
             {
