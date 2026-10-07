@@ -664,7 +664,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             if (subRip.Count > 0)
             {
                 string srt = Strings.Button_SubRip, ass = Strings.Button_Ass;
-                var names = string.Join("\n", subRip.Select(t => "• " + (string.IsNullOrEmpty(t.Name) ? t.Format : $"{t.Format} – {t.Name}")));
+                var names = string.Join("\n", subRip.Select(t => "• " + (string.IsNullOrEmpty(t.Name) ? CodecNames.Friendly(t.Format) : $"{CodecNames.Friendly(t.Format)} – {t.Name}")));
                 var answer = await _dialogs.ShowDialogAsync(new MessageDialogViewModel(Strings.Dialog_ConvertTx3g_Title,
                     string.Format(CultureInfo.CurrentCulture, Strings.Dialog_ConvertTx3g_MessageFormat, names), [srt, ass, Strings.Button_Cancel], ass));
                 var action = answer == srt ? ImportAction.ConvertToSrt : answer == ass ? ImportAction.ConvertToAss : (ImportAction?)null;
@@ -722,7 +722,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
             return (true, text);
         var lines = misfits.Select(c =>
         {
-            var track = string.IsNullOrEmpty(c.Track.Name) ? c.Track.Format : $"{c.Track.Format} – {c.Track.Name}";
+            var track = string.IsNullOrEmpty(c.Track.Name) ? CodecNames.Friendly(c.Track.Format) : $"{CodecNames.Friendly(c.Track.Format)} – {c.Track.Name}";
             return c.Reason is null
                 ? string.Format(CultureInfo.CurrentCulture, Strings.Incompatible_LineFormat, track)
                 : string.Format(CultureInfo.CurrentCulture, Strings.Incompatible_LineReasonFormat, track, c.Reason);
@@ -771,7 +771,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         {
             var lines = changes.Select(c =>
             {
-                var track = string.IsNullOrEmpty(c.Track.Name) ? c.Track.Format : $"{c.Track.Format} – {c.Track.Name}";
+                var track = string.IsNullOrEmpty(c.Track.Name) ? CodecNames.Friendly(c.Track.Format) : $"{CodecNames.Friendly(c.Track.Format)} – {c.Track.Name}";
                 return c.To.Action == ImportAction.Skip
                     ? string.Format(CultureInfo.CurrentCulture, c.Reason is null ? Strings.Retarget_LeftOutFormat : Strings.Retarget_LeftOutReasonFormat, track, c.Reason)
                     : string.Format(CultureInfo.CurrentCulture, Strings.Retarget_LineFormat, track, ConversionDefaults.DisplayName(c.From), c.To.DisplayName);
@@ -858,7 +858,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
         }
 
         var losses = checks.Where(c => c.Support.Level == TrackSupportLevel.Passthrough && c.Support.Reason is not null)
-            .Select(c => $"• {c.Track.Name} ({c.Track.Format}): {c.Support.Reason}")
+            .Select(c => $"• {c.Track.Name} ({CodecNames.Friendly(c.Track.Format)}): {c.Support.Reason}")
             .ToList();
         return losses.Count == 0 ||
                await _dialogs.ConfirmAsync(Strings.Dialog_MetadataLoss_Title,

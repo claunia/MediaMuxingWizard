@@ -324,6 +324,9 @@
   <data name="Error_UnsupportedFormat" xml:space="preserve">
     <value>“{0}” não está em um formato suportado.</value>
   </data>
+  <data name="Format_Tx3g" xml:space="preserve">
+    <value>Legenda Timed Text (Tx3g)</value>
+  </data>
   <data name="Label_ChapterNumber" xml:space="preserve">
     <value>Capítulo {0}</value>
   </data>

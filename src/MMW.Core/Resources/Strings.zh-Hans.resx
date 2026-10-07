@@ -324,6 +324,9 @@
   <data name="Error_UnsupportedFormat" xml:space="preserve">
     <value>“{0}” 不在受支持的格式中。</value>
   </data>
+  <data name="Format_Tx3g" xml:space="preserve">
+    <value>定时文本字幕 (Tx3g)</value>
+  </data>
   <data name="Label_ChapterNumber" xml:space="preserve">
     <value>章节 {0}</value>
   </data>

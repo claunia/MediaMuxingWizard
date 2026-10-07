@@ -272,6 +272,12 @@ public sealed record CodecConfig
 /// <summary>Display names of <see cref="CodecType"/> values.</summary>
 public static class CodecNames
 {
+    /// <summary>
+    /// The name a track's format is shown with ("Timed Text Subtitle (Tx3g)" for tx3g); <paramref name="format"/>
+    /// itself stays the name the code compares against.
+    /// </summary>
+    public static string Friendly(string format) => format == "Tx3g" ? Strings.Format_Tx3g : format;
+
     public static string Display(CodecType codec, string fallback = "") => codec switch
     {
         CodecType.H264 => "H.264",

@@ -71,7 +71,8 @@ public abstract partial class Track : ObservableObject
     {
         get
         {
-            var format = this is AudioTrack { Profile.Length: > 0 } audio ? $"{Format} ({audio.Profile})" : Format;
+            var name = Media.CodecNames.Friendly(Format);
+            var format = this is AudioTrack { Profile.Length: > 0 } audio ? $"{name} ({audio.Profile})" : name;
             return string.IsNullOrEmpty(FormatDetails) ? format : $"{format}, {FormatDetails}";
         }
     }

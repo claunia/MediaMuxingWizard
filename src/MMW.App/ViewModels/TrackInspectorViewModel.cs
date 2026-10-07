@@ -381,7 +381,7 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
             var lines = new List<string>
             {
                 string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_FormatFormat,
-                    Track is AudioTrack { Profile.Length: > 0 } audio ? $"{Track.Format} ({audio.Profile})" : Track.Format, Track.CodecId),
+                    Track is AudioTrack { Profile.Length: > 0 } audio ? $"{Track.Format} ({audio.Profile})" : MMW.Core.Media.CodecNames.Friendly(Track.Format), Track.CodecId),
             };
             if (Track.FormatDetails.Length > 0)
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_DetailsFormat, Track.FormatDetails));

@@ -30,7 +30,7 @@ public sealed partial class ImportTrackViewModel : ViewModelBase
 
     public string IdText => Track.TrackId.ToString(CultureInfo.InvariantCulture);
 
-    public string Info => $"{Track.Format}, {Track.Details}";
+    public string Info => $"{MMW.Core.Media.CodecNames.Friendly(Track.Format)}, {Track.Details}";
 
     public string Duration => TrackRowViewModel.FormatDuration(Track.Duration);
 
