@@ -178,7 +178,8 @@ public static class ConversionDefaults
                 {
                     CodecType.Ac3 or CodecType.Eac3 when ConvertAc3 => Find(ImportAction.AacPlusPassthrough),
                     CodecType.Dts when ConvertDts => Find(ImportAction.AacPlusPassthrough),
-                    CodecType.Flac or CodecType.Opus or CodecType.Vorbis or CodecType.TrueHd or CodecType.Mlp or CodecType.Pcm or CodecType.Mp1 =>
+                    // Opus stays Opus in MP4 ('Opus' + 'dOps'): browsers, VLC and mpv play it; AAC is still offered.
+                    CodecType.Flac or CodecType.Vorbis or CodecType.TrueHd or CodecType.Mlp or CodecType.Pcm or CodecType.Mp1 =>
                         Find(ImportAction.ConvertToAac, mixdown),
                     _ => null,
                 };

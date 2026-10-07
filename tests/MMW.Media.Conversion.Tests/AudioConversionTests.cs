@@ -251,17 +251,17 @@ public sealed class AudioConversionTests
     }
 
     [Fact]
-    public async Task Opus_offers_passthru_but_converts_by_default_for_mp4()
+    public async Task Opus_passes_through_by_default_for_mp4_and_converts_on_request()
     {
         var tracks = await TrackImporter.InspectAsync(OpusMkv(), ContainerKind.Mp4, Ct);
         var opus = Assert.Single(tracks);
-        Assert.Equal(ImportAction.ConvertToAac, opus.Action);
-        Assert.Contains(opus.Choices, c => c.Action == ImportAction.Passthrough);
+        Assert.Equal(ImportAction.Passthrough, opus.Action);
+        Assert.Contains(opus.Choices, c => c.Action == ImportAction.ConvertToAac);
         var forMkv = Assert.Single(await TrackImporter.InspectAsync(OpusMkv(), ContainerKind.Matroska, Ct));
         Assert.Equal(ImportAction.Passthrough, forMkv.Action);
 
         // Opus has an 80 ms pre-roll (pre-skip) that must not shift or lengthen the converted track.
-        var output = await ImportAndSaveAsync(OpusMkv(), ContainerKind.Mp4, _ => null);
+        var output = await ImportAndSaveAsync(OpusMkv(), ContainerKind.Mp4, t => t.Choices.First(c => c.Action == ImportAction.ConvertToAac));
         try
         {
             var s = Assert.Single(MediaProbe.Streams(output));
