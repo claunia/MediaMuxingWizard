@@ -222,12 +222,16 @@ public sealed partial class DocumentViewModel : ViewModelBase
             }
         }
 
-        // DTS: the product (DTS-HD MA, DTS:X …) is only known from the bitstream; so are Opus's modes and bandwidth.
-        foreach (var audio in Document.Tracks.OfType<AudioTrack>().Where(a => DtsDetector.NeedsCheck(a) || OpusDetector.NeedsCheck(a)).ToList())
+        // DTS: the product (DTS-HD MA, DTS:X …) is only known from the bitstream; so are Opus's modes and bandwidth, and
+        // FLAC's depth, block size and encoder are in its STREAMINFO and vendor string.
+        foreach (var audio in Document.Tracks.OfType<AudioTrack>().Where(a => DtsDetector.NeedsCheck(a) || OpusDetector.NeedsCheck(a) || FlacDetector.NeedsCheck(a)).ToList())
         {
             try
             {
-                if (OpusDetector.NeedsCheck(audio) ? await OpusDetector.DescribeAsync(audio) : await DtsDetector.DescribeAsync(audio))
+                var described = OpusDetector.NeedsCheck(audio) ? await OpusDetector.DescribeAsync(audio)
+                    : FlacDetector.NeedsCheck(audio) ? await FlacDetector.DescribeAsync(audio)
+                    : await DtsDetector.DescribeAsync(audio);
+                if (described)
                 {
                     if (_trackInspectors.TryGetValue(audio, out var inspector))
                         inspector.RefreshHdr();

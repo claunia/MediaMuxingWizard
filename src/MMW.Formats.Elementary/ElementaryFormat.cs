@@ -17,6 +17,7 @@ public enum ElementaryKind
     Aac,
     Ac3,
     Dts,
+    Flac,
     SubRip,
     Ass,
     WebVtt,
@@ -29,7 +30,7 @@ public static class ElementaryFormat
 
     /// <summary>File extensions recognised as elementary streams or subtitle files.</summary>
     public static IReadOnlyList<string> Extensions { get; } =
-        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".srt", ".ass", ".ssa", ".vtt"];
+        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".flac", ".fla", ".srt", ".ass", ".ssa", ".vtt"];
 
     public static void Register()
     {
@@ -58,6 +59,7 @@ public static class ElementaryFormat
             ".dts" or ".dtshd" => header.StartsWith("DTSHDHDR"u8) || header.IndexOf([(byte)0x7F, (byte)0xFE, (byte)0x80, (byte)0x01]) >= 0
                 ? ElementaryKind.Dts
                 : ElementaryKind.None,
+            ".flac" or ".fla" => FlacFile.LooksLikeFlac(header) ? ElementaryKind.Flac : ElementaryKind.None,
             ".srt" => ElementaryKind.SubRip,
             ".ass" or ".ssa" => ElementaryKind.Ass,
             ".vtt" => ElementaryKind.WebVtt,
@@ -153,6 +155,24 @@ public static class ElementaryFormat
                 return new ElementaryDemuxer(path, name, new ElementarySource(config, () => new DtsParser(OpenStream(path)), duration, count));
             }
 
+            case ElementaryKind.Flac:
+            {
+                CodecConfig config;
+                FlacFile.Header flacHeader;
+                long total;
+                FlacStreamInfo info;
+                using (var fs = File.OpenRead(path))
+                {
+                    config = FlacFile.Probe(fs, out flacHeader, out total);
+                    info = Flac.ParseStreamInfo(config.Extradata)!;
+                    total = FlacFile.CountSamples(fs, flacHeader, info);
+                }
+
+                var duration = TimeSpan.FromSeconds(total / (double)Math.Max(1, config.SampleRate));
+                var count = info.MaxBlockSize > 0 && total > 0 ? (total + info.MaxBlockSize - 1) / info.MaxBlockSize : -1;
+                return new ElementaryDemuxer(path, "FLAC", new ElementarySource(config, () => new FlacParser(OpenStream(path), flacHeader, info), duration, count));
+            }
+
             case ElementaryKind.SubRip or ElementaryKind.Ass or ElementaryKind.WebVtt:
             {
                 var text = SubtitleFiles.ReadText(path);
@@ -175,6 +195,19 @@ public static class ElementaryFormat
             default:
                 throw new InvalidDataException($"'{Path.GetFileName(path)}' is not a supported elementary stream.");
         }
+    }
+
+    /// <summary>
+    /// The tags and artwork a file carries outside of any container this application edits (FLAC's Vorbis comments
+    /// and pictures); null for other files.
+    /// </summary>
+    public static Core.Metadata.MetadataSet? ReadMetadata(string path)
+    {
+        Span<byte> header = stackalloc byte[16];
+        int read;
+        using (var fs = File.OpenRead(path))
+            read = fs.ReadAtLeast(header, header.Length, throwOnEndOfStream: false);
+        return Detect(path, header[..read]) == ElementaryKind.Flac ? FlacFile.ReadMetadata(path) : null;
     }
 
     /// <summary>True when <paramref name="demuxer"/> is a raw video stream without timing, whose frame rate must be chosen.</summary>

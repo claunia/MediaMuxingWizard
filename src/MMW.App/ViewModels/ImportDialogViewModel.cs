@@ -215,12 +215,15 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
         {
             foreach (var file in Files)
             {
-                if (ContainerKinds.FromPath(file.Path) == ContainerKind.Unknown)
-                    continue;
                 try
                 {
-                    var source = await new ContainerRegistry(Services.DocumentService.DefaultHandlers()).OpenAsync(file.Path);
-                    _document.ApplyMetadata(Strings.Undo_ImportMetadata, doc => doc.Metadata.Merge(source.Metadata, overwrite: false, replaceArtworks: false));
+                    // MP4 and Matroska documents, or the tags and pictures of files such as FLAC.
+                    var metadata = ContainerKinds.FromPath(file.Path) != ContainerKind.Unknown
+                        ? (await new ContainerRegistry(Services.DocumentService.DefaultHandlers()).OpenAsync(file.Path)).Metadata
+                        : await Task.Run(() => MMW.Formats.Elementary.ElementaryFormat.ReadMetadata(file.Path));
+                    if (metadata is null)
+                        continue;
+                    _document.ApplyMetadata(Strings.Undo_ImportMetadata, doc => doc.Metadata.Merge(metadata, overwrite: false, replaceArtworks: false));
                 }
                 catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
                 {

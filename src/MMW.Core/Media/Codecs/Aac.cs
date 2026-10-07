@@ -679,7 +679,7 @@ public enum OpusModes
 }
 
 /// <summary>FLAC STREAMINFO and frame header helpers.</summary>
-public static class Flac
+public static partial class Flac
 {
     /// <summary>Strips the "fLaC" marker of a Matroska CodecPrivate, returning the metadata blocks.</summary>
     public static byte[] MetadataBlocks(ReadOnlySpan<byte> codecPrivate) =>

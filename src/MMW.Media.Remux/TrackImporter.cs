@@ -163,6 +163,8 @@ public static class TrackImporter
             config = WithStreamInfo(source, config);
             config = WithDtsDescription(source, config);
             config = WithOpusDescription(source, config);
+            if (config.AudioProfile.Length == 0 && FlacDetector.Detect(config) is { Length: > 0 } flac)
+                config = config with { AudioProfile = flac };
             var support = muxer.CheckSupport(config);
             var canConvert = ConversionDefaults.CanConvert(config);
             var canOcr = ConversionDefaults.CanOcr(config);
