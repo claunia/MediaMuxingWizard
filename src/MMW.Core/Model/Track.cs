@@ -127,6 +127,12 @@ public sealed partial class VideoTrack : Track
     public bool Hdr10Plus { get; set; }
 
     /// <summary>
+    /// The frames carry HDR Vivid (CUVA, T/UWA 005.1) dynamic metadata. Detected from the bitstream, not edited (and not
+    /// tracked for undo).
+    /// </summary>
+    public bool HdrVivid { get; set; }
+
+    /// <summary>
     /// Colour description and static HDR10 metadata carried by the bitstream itself (VUI, SEI, AV1 sequence header and
     /// metadata OBUs), found by scanning; shown when the container signals none. Not edited, not tracked for undo.
     /// </summary>

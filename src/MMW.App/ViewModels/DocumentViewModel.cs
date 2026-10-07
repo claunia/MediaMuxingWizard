@@ -180,6 +180,12 @@ public sealed partial class DocumentViewModel : ViewModelBase
                     changed = true;
                 }
 
+                if (result.HdrVivid && !video.HdrVivid)
+                {
+                    video.HdrVivid = true;
+                    changed = true;
+                }
+
                 if (result.StreamInfo is { } stream && video.StreamInfo is null)
                 {
                     video.StreamInfo = stream;

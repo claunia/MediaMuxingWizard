@@ -157,6 +157,7 @@ public static class TrackImporter
                 continue;
             config = WithDetectedDolbyVision(source, config);
             config = WithDetectedHdr10Plus(source, config);
+            config = WithDetectedHdrVivid(source, config);
             config = WithStreamInfo(source, config);
             config = WithDtsDescription(source, config);
             var support = muxer.CheckSupport(config);
@@ -264,6 +265,21 @@ public static class TrackImporter
         }
     }
 
+    private static CodecConfig WithDetectedHdrVivid(ISampleSource source, CodecConfig config)
+    {
+        if (config.HdrVivid || !HdrVividDetector.CanScan(config))
+            return config;
+        try
+        {
+            return HdrVividDetector.Detect(source) ? config with { HdrVivid = true } : config;
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"HDR Vivid check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
+    }
+
     /// <summary>
     /// Appends the selected tracks to <paramref name="document"/> as pending tracks (ID 0, <see cref="Track.Source"/>
     /// pointing at the imported file). They are muxed when the document is saved.
@@ -339,6 +355,7 @@ public static class TrackImporter
                     FrameRate = item.FrameRate ?? c.FrameRate,
                     DolbyVisionRecord = DolbyVisionRecordFor(item), // also carries detected records to the muxer
                     Hdr10Plus = c.Hdr10Plus,
+                    HdrVivid = c.HdrVivid,
                     StreamInfo = new VideoStreamInfo(c.StreamColor, c.StreamHdr),
                 };
                 break;
@@ -444,6 +461,8 @@ public static class TrackImporter
                 var color = config.EffectiveColor;
                 if (config.Hdr10Plus)
                     parts.Add("HDR10+");
+                else if (config.HdrVivid)
+                    parts.Add("HDR Vivid");
                 else if (config.DolbyVisionConfig is null && (config.EffectiveHdr is not null || color.Transfer is 16 or 18))
                     parts.Add(color.Transfer == 18 ? "HLG" : "HDR10");
                 break;

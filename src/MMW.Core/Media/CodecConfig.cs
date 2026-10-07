@@ -166,6 +166,9 @@ public sealed record CodecConfig
     /// <summary>Video profile and level found in the bitstream when the configuration record has none (AVS).</summary>
     public string VideoProfile { get; init; } = string.Empty;
 
+    /// <summary>The frames carry HDR Vivid (CUVA, T/UWA 005.1) dynamic metadata in the bitstream.</summary>
+    public bool HdrVivid { get; init; }
+
     /// <summary>
     /// HDR10+ metadata is stored outside the bitstream, in Matroska BlockAdditions (VP9): only Matroska can keep it.
     /// </summary>

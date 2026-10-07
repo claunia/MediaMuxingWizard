@@ -4532,6 +4532,15 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to HDR Vivid dynamic metadata (CUVA, T/UWA 005.1).
+        /// </summary>
+        public static string TrackInspector_HdrVivid {
+            get {
+                return ResourceManager.GetString("TrackInspector_HdrVivid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to HDR10+.
         /// </summary>
         public static string Fallback_Hdr10Plus {

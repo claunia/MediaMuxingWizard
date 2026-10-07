@@ -4,7 +4,7 @@ using MMW.Core.Model;
 
 namespace MMW.Core.Tests;
 
-/// <summary>AVS1/AVS2/AVS3 sequence and picture headers, colour mapping and presentation order.</summary>
+/// <summary>AVS1/AVS2/AVS3 sequence and picture headers, colour mapping, presentation order and HDR Vivid.</summary>
 public sealed class AvsTests
 {
     /// <summary>xavs (AVS1 Jizhun, level 4.0): sequence header of a 320×176, 25 fps stream.</summary>
@@ -93,5 +93,18 @@ public sealed class AvsTests
         (int Coi, int Delay)[] pictures = [(0, 3), (1, 10), (2, 5), (3, 2), (4, 0), (255, 3), (0, 3)];
         var order = pictures.Select(p => counter.Next(sequence, new AvsPicture(false, p.Coi, p.Delay))).ToArray();
         Assert.Equal([0L, 8, 4, 2, 1, 255, 256], order);
+    }
+
+    [Fact]
+    public void Recognises_hdr_vivid()
+    {
+        Assert.True(HdrVivid.IsHdrVividT35([0x26, 0x00, 0x04, 0x00, 0x05, 0x01]));
+        Assert.False(HdrVivid.IsHdrVividT35([0xB5, 0x00, 0x3C, 0x00, 0x01, 0x04])); // HDR10+
+        // An AVS3 picture: picture header, HDR picture extension (id 0101), first slice.
+        byte[] picture = [0, 0, 1, 0xB6, 0x80, 0, 0, 0, 0, 1, 0xB5, 0x55, 0x01, 0x12, 0, 0, 1, 0x00, 0xAA];
+        Assert.True(Avs.HasHdrDynamicMetadata(picture));
+        Assert.True(HdrVivid.InSample(CodecType.Avs3, picture, 4));
+        byte[] sequenceExtension = [0, 0, 1, 0xB0, 0x22, 0x6A, 0, 0, 1, 0xB5, 0x55, 0x01];
+        Assert.False(Avs.HasHdrDynamicMetadata(sequenceExtension)); // only after a picture header
     }
 }

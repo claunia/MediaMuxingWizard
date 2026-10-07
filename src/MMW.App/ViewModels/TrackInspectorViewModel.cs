@@ -338,6 +338,8 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInspector_DolbyVisionFormat, dv));
             if (Video.Hdr10Plus)
                 lines.Add(Strings.TrackInspector_Hdr10Plus);
+            if (Video.HdrVivid)
+                lines.Add(Strings.TrackInspector_HdrVivid);
 
             // Container values first; what only the video stream carries is shown (and written on remux) as well.
             var stream = Video.StreamInfo;
