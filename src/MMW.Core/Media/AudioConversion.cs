@@ -151,7 +151,7 @@ public sealed record AudioConversionSettings
 /// </summary>
 public interface IAudioConverterFactory
 {
-    /// <summary>Name and version of the implementation (e.g. "FFmpeg 8.1").</summary>
+    /// <summary>Name and version of the implementation (e.g. "FFmpeg 9.0").</summary>
     string Name { get; }
 
     /// <summary>True when conversions can be performed (the native libraries were loaded).</summary>

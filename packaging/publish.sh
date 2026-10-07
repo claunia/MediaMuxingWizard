@@ -13,7 +13,7 @@ for project in src/MMW.App/MMW.App.csproj src/MMW.Cli/MMW.Cli.csproj; do
     -p:Version="$version" -p:PublishReadyToRun=true -p:DebugType=none -o "$out"
 done
 # Optional native libraries, bundled next to the executable:
-#   MMW_BUNDLE_FFMPEG=/path/to/lgpl-ffmpeg-8/lib     (libavcodec, libavformat, libavutil, libswresample, libswscale)
+#   MMW_BUNDLE_FFMPEG=/path/to/lgpl-ffmpeg-9/lib     (libavcodec, libavformat, libavutil, libswresample, libswscale)
 #   MMW_BUNDLE_TESSERACT=/path/to/tesseract-5/lib    (libtesseract and its dependencies)
 #   MMW_BUNDLE_TESSDATA=/path/to/tessdata            (at least eng.traineddata)
 if [ -n "${MMW_BUNDLE_FFMPEG:-}" ]; then

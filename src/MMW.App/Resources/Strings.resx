@@ -1150,7 +1150,7 @@ Your changes will be lost if you don't save them.</value>
     <value>{0} track(s) found.</value>
   </data>
   <data name="Import_FFmpegMissing" xml:space="preserve">
-    <value>Audio conversion needs FFmpeg 8 libraries, which were not found.</value>
+    <value>Audio conversion needs FFmpeg 9 libraries, which were not found.</value>
   </data>
   <data name="Search_Title" xml:space="preserve">
     <value>Search Metadata</value>

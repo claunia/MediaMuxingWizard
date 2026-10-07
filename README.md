@@ -22,7 +22,7 @@ dotnet run --project src/MMW.App
 
 Everything works without native dependencies except:
 
-- **Audio conversion and chapter previews** need FFmpeg 8 shared libraries (LGPL build: libavcodec,
+- **Audio conversion and chapter previews** need FFmpeg 9 shared libraries (LGPL build: libavcodec,
   libavformat, libavutil, libswresample, libswscale). They are looked up in `ffmpeg/` or `runtimes/<rid>/native`
   next to the executable, `MMW_FFMPEG_PATH`, then the system (e.g. Homebrew, `/usr/lib`).
 - **OCR of bitmap subtitles** (PGS, VobSub) needs Tesseract 5. The built-in OCR is basic:

@@ -10,11 +10,13 @@ public sealed class LoaderTests
     [Fact]
     public void Loader_reports_the_version_and_expected_majors()
     {
-        Assert.Equal(62, FFmpegLoader.ExpectedVersions["avcodec"]);
-        Assert.Equal(62, FFmpegLoader.ExpectedVersions["avformat"]);
-        Assert.Equal(60, FFmpegLoader.ExpectedVersions["avutil"]);
-        Assert.Equal(6, FFmpegLoader.ExpectedVersions["swresample"]);
-        Assert.Equal(9, FFmpegLoader.ExpectedVersions["swscale"]);
+        // FFmpeg 9
+        Assert.Equal(9, FFmpegLoader.BindingsMajor);
+        Assert.Equal(63, FFmpegLoader.ExpectedVersions["avcodec"]);
+        Assert.Equal(63, FFmpegLoader.ExpectedVersions["avformat"]);
+        Assert.Equal(61, FFmpegLoader.ExpectedVersions["avutil"]);
+        Assert.Equal(7, FFmpegLoader.ExpectedVersions["swresample"]);
+        Assert.Equal(10, FFmpegLoader.ExpectedVersions["swscale"]);
         Assert.NotEmpty(FFmpegLoader.SearchDirectories());
         if (!FFmpegLoader.IsAvailable)
         {
@@ -23,7 +25,7 @@ public sealed class LoaderTests
         }
 
         Assert.Null(FFmpegLoader.Error);
-        Assert.StartsWith("8.", FFmpegLoader.Version, StringComparison.Ordinal);
+        Assert.StartsWith("9.", FFmpegLoader.Version, StringComparison.Ordinal);
         Assert.NotNull(FFmpegLoader.LibraryDirectory);
         TestContext.Current.SendDiagnosticMessage($"FFmpeg {FFmpegLoader.Version} from '{FFmpegLoader.LibraryDirectory}'.");
     }

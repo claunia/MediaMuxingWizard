@@ -960,7 +960,7 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Audio conversion needs FFmpeg 8 libraries, which were not found..
+        ///   Looks up a localized string similar to Audio conversion needs FFmpeg 9 libraries, which were not found..
         /// </summary>
         public static string Import_FFmpegMissing {
             get {

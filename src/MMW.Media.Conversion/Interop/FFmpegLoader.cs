@@ -41,6 +41,9 @@ public static class FFmpegLoader
     /// <summary>Directory the libraries were loaded from (empty when found by the system loader), or null.</summary>
     public static string? LibraryDirectory => s_result.Value.Directory;
 
+    /// <summary>FFmpeg release the bindings are generated for (FFmpeg.AutoGen's major version).</summary>
+    public static int BindingsMajor => typeof(ffmpeg).Assembly.GetName().Version?.Major ?? 0;
+
     /// <summary>Library major versions expected by the bindings ("avcodec" → 62, …).</summary>
     public static IReadOnlyDictionary<string, int> ExpectedVersions => s_libraries.ToDictionary(l => l, l => ffmpeg.LibraryVersionMap[l]);
 
@@ -153,7 +156,7 @@ public static class FFmpegLoader
             var expected = string.Join(", ", names.Values);
             return new LoadResult(null, tried.Count > 0
                 ? $"the FFmpeg libraries in {string.Join(", ", tried)} could not be loaded"
-                : $"FFmpeg 8.x shared libraries ({expected}) were not found; install FFmpeg 8 or set MMW_FFMPEG_PATH", null);
+                : $"FFmpeg {BindingsMajor}.x shared libraries ({expected}) were not found; install FFmpeg {BindingsMajor} or set MMW_FFMPEG_PATH", null);
         }
 
         ffmpeg.RootPath = directory;
@@ -175,7 +178,11 @@ public static class FFmpegLoader
             return new LoadResult(null, "incompatible FFmpeg libraries: " + string.Join(", ", mismatch), directory);
 
         FFmpegLog.Install();
-        return new LoadResult(ffmpeg.av_version_info(), null, directory);
+        // Release builds report their tag ("n9.0.1"): shown without the "n".
+        var version = ffmpeg.av_version_info();
+        if (version is ['n', >= '0' and <= '9', ..])
+            version = version[1..];
+        return new LoadResult(version, null, directory);
     }
 
     private static bool TryLoadAll(Dictionary<string, string> names, Func<string, string> path, Dictionary<string, IntPtr> handles)
