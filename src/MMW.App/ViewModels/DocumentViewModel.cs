@@ -71,7 +71,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     public bool IsDirty => Document.IsDirty;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(DeleteTracksCommand), nameof(MoveTrackUpCommand), nameof(MoveTrackDownCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DeleteTracksCommand), nameof(MoveTrackUpCommand), nameof(MoveTrackDownCommand), nameof(ExportTrackCommand))]
     private TrackRowViewModel? _selectedRow;
 
     /// <summary>All selected rows (set by the view; the grid supports extended selection).</summary>
@@ -92,7 +92,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     private object? _inspector;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportTrackCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
@@ -479,6 +479,67 @@ public sealed partial class DocumentViewModel : ViewModelBase
         var path = await _dialogs.SaveFileAsync(Strings.Dialog_ExportNfo_Title, suggested, [new FileFilter(Strings.FileFilter_KodiNfo, ["nfo"])]);
         if (path is not null)
             await File.WriteAllTextAsync(path, MMW.Metadata.Nfo.NfoMetadata.Export(Document.Metadata));
+    }
+
+    private bool CanExportTrack() => !IsBusy && SelectedRow?.Track is { Source: not null } and not ChapterTrack;
+
+    /// <summary>Writes the selected track as a raw stream (.h264, .aac, .flac, .srt …), as its codec stores it outside a container.</summary>
+    [RelayCommand(CanExecute = nameof(CanExportTrack))]
+    private async Task ExportTrack()
+    {
+        if (SelectedRow?.Track is not { Source: { } source } track)
+            return;
+        CodecConfig? config;
+        try
+        {
+            config = await Task.Run(() =>
+            {
+                using var demuxer = MediaFormatRegistry.OpenDemuxer(source.Path, new DemuxOptions { FrameRate = source.Import?.FrameRate });
+                return demuxer.Tracks.FirstOrDefault(t => t.TrackId == source.TrackId)?.Config;
+            });
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+        {
+            await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotExport_Title, ex.Message);
+            return;
+        }
+
+        if (config is null || TrackExport.Extension(config) is not { } extension)
+        {
+            await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotExport_Title,
+                string.Format(CultureInfo.CurrentCulture, Strings.Dialog_CannotExportTrack, config?.FormatName ?? track.Format));
+            return;
+        }
+
+        var baseName = Path.GetFileNameWithoutExtension(Document.Path ?? source.Path);
+        var number = track.IsPending ? source.TrackId : track.Id;
+        var suggested = string.Create(CultureInfo.InvariantCulture, $"{baseName} - {number}{extension}");
+        var filter = new FileFilter(string.Format(CultureInfo.CurrentCulture, Strings.FileFilter_TrackFormat, config.FormatName), [extension.TrimStart('.')]);
+        if (await _dialogs.SaveFileAsync(Strings.Dialog_ExportTrack_Title, suggested, [filter]) is not { } path)
+            return;
+
+        IsBusy = true;
+        Progress = 0;
+        try
+        {
+            var progress = new Progress<double>(p => Progress = p);
+            await Task.Run(async () =>
+            {
+                using var demuxer = MediaFormatRegistry.OpenDemuxer(source.Path, new DemuxOptions { FrameRate = source.Import?.FrameRate });
+                var sampleSource = demuxer.Tracks.First(t => t.TrackId == source.TrackId);
+                await TrackExport.ExportAsync(sampleSource, path, progress);
+            });
+            AppLog.Info($"Exported {config.FormatName} track {track.Id} to '{path}'.");
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+        {
+            AppLog.Error($"Exporting track {track.Id} of '{Document.DisplayName}' failed", ex);
+            await _dialogs.ShowMessageAsync(Strings.Dialog_CouldNotExport_Title, ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     /// <summary>Imports a chapter file dropped on the document.</summary>

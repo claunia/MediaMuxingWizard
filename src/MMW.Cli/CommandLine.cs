@@ -36,6 +36,7 @@ internal static class CommandLine
           import <file> <source>... [--language l] [--frame-rate fps] [--only video|audio|subtitle]
                                                Add tracks from other files (remuxes on save)
           remux <file> <output>                Rewrite as MP4 or Matroska (by extension), no re-encoding
+          extract <file> <track-id> [output]   Write one track as a raw stream (.h264, .aac, .flac, .srt …)
           tag-names                            List the tag names accepted by "set"
 
         Every editing command saves the file in place, or to --output <path> when given.
@@ -66,6 +67,7 @@ internal static class CommandLine
                 "nfo" => await MediaCommands.NfoAsync(Arguments.Parse(args[1..]), output, Registry()),
                 "import" => await MediaCommands.ImportAsync(Arguments.Parse(args[1..]), output, Registry()),
                 "remux" => await MediaCommands.RemuxAsync(Arguments.Parse(args[1..]), output, Registry()),
+                "extract" => await MediaCommands.ExtractAsync(Arguments.Parse(args[1..]), output),
                 _ => throw new UsageException($"Unknown command '{args[0]}'."),
             };
         }

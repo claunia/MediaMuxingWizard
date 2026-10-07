@@ -162,5 +162,30 @@ internal static class MediaCommands
         return 0;
     }
 
+    /// <summary>
+    /// mmw extract &lt;file&gt; &lt;track-id&gt; [output]: writes one track of any readable file as a raw stream; the
+    /// output defaults to "&lt;file&gt; - &lt;id&gt;&lt;extension of the codec's raw format&gt;" next to the file.
+    /// </summary>
+    public static async Task<int> ExtractAsync(Arguments a, TextWriter output)
+    {
+        if (a.Positional.Count is < 2 or > 3 || ParseInt(a.Positional[1]) is not { } id)
+            throw new UsageException("Usage: mmw extract <file> <track-id> [output]");
+        var file = a.Positional[0];
+        if (!File.Exists(file))
+            throw new FileNotFoundException($"'{file}' does not exist.", file);
+        MediaRemux.EnsureRegistered();
+        using var demuxer = Core.Media.MediaFormatRegistry.OpenDemuxer(Path.GetFullPath(file));
+        var track = demuxer.Tracks.FirstOrDefault(t => t.TrackId == id)
+                    ?? throw new UsageException($"No track with id {id}; tracks: {string.Join(", ", demuxer.Tracks.Select(t => $"{t.TrackId} ({t.Config.FormatName})"))}.");
+        var extension = Core.Media.TrackExport.Extension(track.Config)
+                        ?? throw new NotSupportedException($"{track.Config.FormatName} tracks cannot be exported as a raw stream.");
+        var target = a.Positional.Count == 3
+            ? a.Positional[2]
+            : Path.Combine(Path.GetDirectoryName(Path.GetFullPath(file))!, string.Create(CultureInfo.InvariantCulture, $"{Path.GetFileNameWithoutExtension(file)} - {id}{extension}"));
+        await Core.Media.TrackExport.ExportAsync(track, Path.GetFullPath(target));
+        await output.WriteLineAsync($"Wrote {target} ({track.Config.FormatName}).");
+        return 0;
+    }
+
     private static int? ParseInt(string? s) => int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) ? v : null;
 }

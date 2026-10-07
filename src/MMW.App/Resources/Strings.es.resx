@@ -1570,4 +1570,19 @@ Si no los guardas, se perderán.</value>
   <data name="TrackInspector_FromStreamSuffix" xml:space="preserve">
     <value> (flujo de vídeo)</value>
   </data>
+  <data name="Tracks_Menu_Export" xml:space="preserve">
+    <value>Exportar pista…</value>
+  </data>
+  <data name="Dialog_ExportTrack_Title" xml:space="preserve">
+    <value>Exportar pista</value>
+  </data>
+  <data name="Dialog_CouldNotExport_Title" xml:space="preserve">
+    <value>No se pudo exportar la pista</value>
+  </data>
+  <data name="FileFilter_TrackFormat" xml:space="preserve">
+    <value>Flujo {0}</value>
+  </data>
+  <data name="Dialog_CannotExportTrack" xml:space="preserve">
+    <value>Las pistas {0} no se pueden exportar como flujo sin contenedor.</value>
+  </data>
 </root>

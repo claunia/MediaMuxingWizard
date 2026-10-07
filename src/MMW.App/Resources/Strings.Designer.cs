@@ -564,6 +564,15 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} tracks cannot be exported as a raw stream..
+        /// </summary>
+        public static string Dialog_CannotExportTrack {
+            get {
+                return ResourceManager.GetString("Dialog_CannotExportTrack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Set this language on every track whose language is undetermined..
         /// </summary>
         public static string Dialog_CompleteLanguages_Message {
@@ -578,6 +587,15 @@ namespace MMW.App.Resources {
         public static string Dialog_CompleteLanguages_Title {
             get {
                 return ResourceManager.GetString("Dialog_CompleteLanguages_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could Not Export Track.
+        /// </summary>
+        public static string Dialog_CouldNotExport_Title {
+            get {
+                return ResourceManager.GetString("Dialog_CouldNotExport_Title", resourceCulture);
             }
         }
         
@@ -632,6 +650,15 @@ namespace MMW.App.Resources {
         public static string Dialog_ExportNfo_Title {
             get {
                 return ResourceManager.GetString("Dialog_ExportNfo_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export Track.
+        /// </summary>
+        public static string Dialog_ExportTrack_Title {
+            get {
+                return ResourceManager.GetString("Dialog_ExportTrack_Title", resourceCulture);
             }
         }
         
@@ -857,6 +884,15 @@ namespace MMW.App.Resources {
         public static string FileFilter_Text {
             get {
                 return ResourceManager.GetString("FileFilter_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} stream.
+        /// </summary>
+        public static string FileFilter_TrackFormat {
+            get {
+                return ResourceManager.GetString("FileFilter_TrackFormat", resourceCulture);
             }
         }
         
@@ -4034,6 +4070,15 @@ namespace MMW.App.Resources {
         public static string Tracks_Menu_Delete {
             get {
                 return ResourceManager.GetString("Tracks_Menu_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export Track….
+        /// </summary>
+        public static string Tracks_Menu_Export {
+            get {
+                return ResourceManager.GetString("Tracks_Menu_Export", resourceCulture);
             }
         }
         

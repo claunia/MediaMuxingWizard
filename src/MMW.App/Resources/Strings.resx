@@ -1571,4 +1571,19 @@ Save anyway?</value>
   <data name="TrackInspector_FromStreamSuffix" xml:space="preserve">
     <value> (video stream)</value>
   </data>
+  <data name="Tracks_Menu_Export" xml:space="preserve">
+    <value>Export Track…</value>
+  </data>
+  <data name="Dialog_ExportTrack_Title" xml:space="preserve">
+    <value>Export Track</value>
+  </data>
+  <data name="Dialog_CouldNotExport_Title" xml:space="preserve">
+    <value>Could Not Export Track</value>
+  </data>
+  <data name="FileFilter_TrackFormat" xml:space="preserve">
+    <value>{0} stream</value>
+  </data>
+  <data name="Dialog_CannotExportTrack" xml:space="preserve">
+    <value>{0} tracks cannot be exported as a raw stream.</value>
+  </data>
 </root>
