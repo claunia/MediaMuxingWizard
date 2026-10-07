@@ -107,7 +107,8 @@ public sealed class CorpusRemuxTests
                 var src = source.First(s => s.Index == sourceIndex);
                 var dst = result[i];
                 Assert.Equal(src.Type, dst.Type);
-                if (src.Type != "subtitle")
+                // FFmpeg's MP4 demuxer has no mapping for the 'avst' (AVS2) sample entry.
+                if (src.Type != "subtitle" && !(src.Codec == "avs2" && target == ContainerKind.Mp4 && dst.Codec.Length == 0))
                     Assert.Equal(src.Codec, dst.Codec);
                 if (track is not (VideoTrack or AudioTrack))
                     continue;
