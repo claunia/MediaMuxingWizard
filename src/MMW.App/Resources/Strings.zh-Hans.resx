@@ -93,6 +93,9 @@
   <data name="Button_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
+  <data name="Button_ChangeFormat" xml:space="preserve">
+    <value>更改格式</value>
+  </data>
   <data name="Button_CheckAll" xml:space="preserve">
     <value>全选</value>
   </data>
@@ -116,6 +119,12 @@
   </data>
   <data name="Button_Import" xml:space="preserve">
     <value>导入</value>
+  </data>
+  <data name="Button_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="Button_Mp4" xml:space="preserve">
+    <value>MP4</value>
   </data>
   <data name="Button_OK" xml:space="preserve">
     <value>确定</value>
@@ -192,6 +201,16 @@
   <data name="Dialog_CannotExportTrack" xml:space="preserve">
     <value>无法将 {0} 轨道导出为原始流。</value>
   </data>
+  <data name="Dialog_ChangeContainer_MessageFormat" xml:space="preserve">
+    <value>{0} 无法原样保留所有轨道。切换将更改以下轨道：
+
+{1}
+
+文件本身只会在保存时更改。</value>
+  </data>
+  <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
+    <value>更改输出格式</value>
+  </data>
   <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
     <value>为所有未确定语言的轨道设置此语言。</value>
   </data>
@@ -243,6 +262,16 @@
   </data>
   <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
     <value>元数据将丢失</value>
+  </data>
+  <data name="Dialog_NewDocument_MessageFormat" xml:space="preserve">
+    <value>这些文件不是 MP4 或 Matroska 文件，因此将新建一个文档来容纳它们的轨道：
+
+{0}
+
+保存为 MP4 还是 Matroska？之后可以在“文件 › 输出格式”中更改。</value>
+  </data>
+  <data name="Dialog_NewDocument_Title" xml:space="preserve">
+    <value>新建文档</value>
   </data>
   <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
     <value>“{0}” 不是一个毫秒数。</value>
@@ -519,11 +548,20 @@
   <data name="Menu_File_ExportNfo" xml:space="preserve">
     <value>导出 _NFO…</value>
   </data>
+  <data name="Menu_File_NewMatroska" xml:space="preserve">
+    <value>新建 Matroska(_K)</value>
+  </data>
+  <data name="Menu_File_NewMp4" xml:space="preserve">
+    <value>新建 MP4(_M)</value>
+  </data>
   <data name="Menu_File_Open" xml:space="preserve">
     <value>打开(_O)…</value>
   </data>
   <data name="Menu_File_OpenRecent" xml:space="preserve">
     <value>最近打开(_R)</value>
+  </data>
+  <data name="Menu_File_OutputFormat" xml:space="preserve">
+    <value>输出格式(_U)</value>
   </data>
   <data name="Menu_File_Preferences" xml:space="preserve">
     <value>偏好设置(_P)…</value>
@@ -548,6 +586,12 @@
   </data>
   <data name="Menu_Metadata_Search" xml:space="preserve">
     <value>在线搜索(_S)…</value>
+  </data>
+  <data name="Menu_OutputFormat_Matroska" xml:space="preserve">
+    <value>Matroska(_M)</value>
+  </data>
+  <data name="Menu_OutputFormat_Mp4" xml:space="preserve">
+    <value>MP4(_4)</value>
   </data>
   <data name="Menu_Paste" xml:space="preserve">
     <value>粘贴</value>
@@ -1071,6 +1115,15 @@
   <data name="Queue_Tracks" xml:space="preserve">
     <value>轨道</value>
   </data>
+  <data name="Retarget_LeftOutFormat" xml:space="preserve">
+    <value>• {0}：不包含</value>
+  </data>
+  <data name="Retarget_LeftOutReasonFormat" xml:space="preserve">
+    <value>• {0}：不包含（{1}）</value>
+  </data>
+  <data name="Retarget_LineFormat" xml:space="preserve">
+    <value>• {0}：{1} → {2}</value>
+  </data>
   <data name="SaveAs_64BitOffsets" xml:space="preserve">
     <value>64 位块偏移量（适用于大于 4 GB 的文件）</value>
   </data>
@@ -1533,6 +1586,9 @@
   <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
     <value>更改备用组</value>
   </data>
+  <data name="Undo_ChangeContainerFormat" xml:space="preserve">
+    <value>将输出格式更改为 {0}</value>
+  </data>
   <data name="Undo_ChangeLanguage" xml:space="preserve">
     <value>更改语言</value>
   </data>
@@ -1613,6 +1669,12 @@
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
     <value>在此处拖放 MP4 或 Matroska 文件</value>
+  </data>
+  <data name="Welcome_NewMatroska" xml:space="preserve">
+    <value>新建 Matroska</value>
+  </data>
+  <data name="Welcome_NewMp4" xml:space="preserve">
+    <value>新建 MP4</value>
   </data>
   <data name="Welcome_Open" xml:space="preserve">
     <value>打开…</value>

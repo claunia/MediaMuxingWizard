@@ -1672,4 +1672,66 @@ Si no los guardas, se perderán.</value>
   <data name="Undo_ItemTrack" xml:space="preserve">
     <value>pista</value>
   </data>
+  <data name="Menu_File_NewMp4" xml:space="preserve">
+    <value>Nuevo _MP4</value>
+  </data>
+  <data name="Menu_File_NewMatroska" xml:space="preserve">
+    <value>Nuevo Matros_ka</value>
+  </data>
+  <data name="Menu_File_OutputFormat" xml:space="preserve">
+    <value>_Formato de salida</value>
+  </data>
+  <data name="Menu_OutputFormat_Mp4" xml:space="preserve">
+    <value>MP_4</value>
+  </data>
+  <data name="Menu_OutputFormat_Matroska" xml:space="preserve">
+    <value>_Matroska</value>
+  </data>
+  <data name="Welcome_NewMp4" xml:space="preserve">
+    <value>Nuevo MP4</value>
+  </data>
+  <data name="Welcome_NewMatroska" xml:space="preserve">
+    <value>Nuevo Matroska</value>
+  </data>
+  <data name="Button_Mp4" xml:space="preserve">
+    <value>MP4</value>
+  </data>
+  <data name="Button_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="Button_ChangeFormat" xml:space="preserve">
+    <value>Cambiar formato</value>
+  </data>
+  <data name="Dialog_NewDocument_Title" xml:space="preserve">
+    <value>Nuevo documento</value>
+  </data>
+  <data name="Dialog_NewDocument_MessageFormat" xml:space="preserve">
+    <value>Estos archivos no son MP4 ni Matroska, así que un documento nuevo contendrá sus pistas:
+
+{0}
+
+¿Guardarlo como MP4 o como Matroska? Puede cambiarlo más tarde en Archivo › Formato de salida.</value>
+  </data>
+  <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
+    <value>Cambiar formato de salida</value>
+  </data>
+  <data name="Dialog_ChangeContainer_MessageFormat" xml:space="preserve">
+    <value>{0} no puede conservar todas las pistas tal como están. El cambio modifica estas pistas:
+
+{1}
+
+El archivo solo cambia al guardar.</value>
+  </data>
+  <data name="Retarget_LineFormat" xml:space="preserve">
+    <value>• {0}: {1} → {2}</value>
+  </data>
+  <data name="Retarget_LeftOutFormat" xml:space="preserve">
+    <value>• {0}: se omite</value>
+  </data>
+  <data name="Retarget_LeftOutReasonFormat" xml:space="preserve">
+    <value>• {0}: se omite ({1})</value>
+  </data>
+  <data name="Undo_ChangeContainerFormat" xml:space="preserve">
+    <value>Cambiar formato de salida a {0}</value>
+  </data>
 </root>

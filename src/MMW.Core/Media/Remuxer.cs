@@ -31,6 +31,16 @@ public static class RemuxPolicy
                || TrackConversions.HasConversions(document);
     }
 
+    /// <summary>
+    /// True when the document's file is of another container family than <paramref name="target"/> (a Matroska file
+    /// whose output was switched to MP4): only a remux can write it.
+    /// </summary>
+    public static bool ChangesContainer(MediaDocument document, ContainerKind target)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        return document.Path is { } path && ContainerKinds.FromPath(path) is var kind && kind != ContainerKind.Unknown && kind != target;
+    }
+
     /// <summary>True when a track has a start offset to apply (only possible by rewriting the timeline).</summary>
     public static bool HasOffsets(MediaDocument document)
     {

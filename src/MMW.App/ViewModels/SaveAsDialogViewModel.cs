@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MMW.App.Resources;
 using MMW.App.Services;
+using MMW.Core.Media;
 using MMW.Core.Metadata;
 using MMW.Core.Model;
 
@@ -24,17 +25,32 @@ public sealed partial class SaveAsDialogViewModel : DialogViewModel<SaveOptions>
         // Saving to the other container family remuxes the file (no re-encoding).
         Formats = IsMp4 ? [.. mp4, .. mkv] : [.. mkv, .. mp4];
 
-        var source = document.Path ?? Strings.SaveAs_Untitled + ".m4v";
-        var ext = System.IO.Path.GetExtension(source).ToLowerInvariant();
-        _selectedFormat = Formats.FirstOrDefault(f => f.Value == ext) ?? Formats[0];
+        // An untitled document is saved next to its first imported track (or in the Videos folder); a document whose
+        // output format was switched starts with that format's first extension.
+        var folder = document.Path is { } existing
+            ? System.IO.Path.GetDirectoryName(existing)
+            : document.Tracks.Select(t => t.Source?.Path).OfType<string>().Select(System.IO.Path.GetDirectoryName).FirstOrDefault(d => !string.IsNullOrEmpty(d))
+              ?? DefaultFolder();
+        var ext = System.IO.Path.GetExtension(document.Path ?? string.Empty).ToLowerInvariant();
+        _selectedFormat = Formats.FirstOrDefault(f => f.Value == ext && ContainerKinds.FromPath("x" + ext) == document.Container) ?? Formats[0];
         var baseName = settings.UseFileNameFormat
             ? FileNameFormatter.FormatFor(document.Metadata, settings.MovieFileNameFormat, settings.TvFileNameFormat)
             : null;
-        baseName ??= string.Format(CultureInfo.CurrentCulture, Strings.SaveAs_CopyNameFormat, System.IO.Path.GetFileNameWithoutExtension(source));
-        _path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(source) ?? string.Empty, baseName + _selectedFormat.Value);
+        baseName ??= document.Path is null
+            ? Strings.SaveAs_Untitled
+            : RemuxPolicy.ChangesContainer(document, document.Container)
+                ? System.IO.Path.GetFileNameWithoutExtension(document.Path)
+                : string.Format(CultureInfo.CurrentCulture, Strings.SaveAs_CopyNameFormat, System.IO.Path.GetFileNameWithoutExtension(document.Path));
+        _path = System.IO.Path.Combine(folder ?? string.Empty, baseName + _selectedFormat.Value);
         _optimize = settings.OptimizeOnSave;
         _use64BitOffsets = settings.Use64BitOffsets || document.FileSize > 3_900_000_000L;
         _use64BitTimes = settings.Use64BitTimes;
+    }
+
+    private static string DefaultFolder()
+    {
+        var videos = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+        return Directory.Exists(videos) ? videos : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     }
 
     public override string Title => Strings.SaveAs_Title;

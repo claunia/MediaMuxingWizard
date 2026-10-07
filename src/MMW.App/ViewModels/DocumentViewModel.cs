@@ -47,6 +47,12 @@ public sealed partial class DocumentViewModel : ViewModelBase
                 OnPropertyChanged(nameof(Title));
                 OnPropertyChanged(nameof(IsDirty));
             }
+
+            if (e.PropertyName is nameof(MediaDocument.Path))
+            {
+                OnPropertyChanged(nameof(CanChangeOutputFormat));
+                ChangeOutputFormatCommand.NotifyCanExecuteChanged();
+            }
         };
 
         MetadataInspector = new MetadataInspectorViewModel(document.Metadata, Undo, dialogs, settings);
@@ -93,7 +99,7 @@ public sealed partial class DocumentViewModel : ViewModelBase
     private object? _inspector;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportTrackCommand), nameof(DuplicateTrackCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportTrackCommand), nameof(DuplicateTrackCommand), nameof(ChangeOutputFormatCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
@@ -596,11 +602,17 @@ public sealed partial class DocumentViewModel : ViewModelBase
 
     // ------------------------------------------------------------------ saving
 
-    private bool CanSave() => !IsBusy && Document.Path is not null;
+    private bool CanSave() => !IsBusy;
 
+    /// <summary>
+    /// Saves in place; a document that has no file yet, or whose output format was switched away from its file's,
+    /// goes through Save As.
+    /// </summary>
     [RelayCommand(CanExecute = nameof(CanSave))]
     public async Task<bool> Save()
     {
+        if (Document.Path is null || RemuxPolicy.ChangesContainer(Document, Document.Container))
+            return await SaveAsCoreAsync();
         var s = _settings.Settings;
         return await SaveCoreAsync(new SaveOptions
         {
@@ -611,17 +623,107 @@ public sealed partial class DocumentViewModel : ViewModelBase
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
-    private async Task SaveAs()
+    private Task<bool> SaveAs() => SaveAsCoreAsync();
+
+    private async Task<bool> SaveAsCoreAsync()
     {
         var dialog = new SaveAsDialogViewModel(Document, _dialogs, _settings.Settings);
         var options = await _dialogs.ShowDialogAsync(dialog);
         if (options is null)
-            return;
-        if (await SaveCoreAsync(options))
+            return false;
+
+        // A format of the other family switches the output format first, so every track is planned for it.
+        var target = RemuxPolicy.TargetKind(Document, options);
+        if (target != Document.Container && !await ChangeContainerAsync(target))
+            return false;
+        if (!await SaveCoreAsync(options))
+            return false;
+        _settings.Settings.AddRecent(options.OutputPath!);
+        _settings.Save();
+        return true;
+    }
+
+    // ------------------------------------------------------------------ output format
+
+    public bool IsMp4Output => Document.Container == ContainerKind.Mp4;
+
+    public bool IsMatroskaOutput => Document.Container == ContainerKind.Matroska;
+
+    /// <summary>
+    /// Only a new document (never saved) can change its mind about its container; a file on disk is what it is (Save
+    /// As still writes a copy in the other container).
+    /// </summary>
+    public bool CanChangeOutputFormat => Document.Path is null && !IsBusy;
+
+    [RelayCommand(CanExecute = nameof(CanChangeOutputFormat))]
+    private Task<bool> ChangeOutputFormat(string format) =>
+        ChangeContainerAsync(format == "mkv" ? ContainerKind.Matroska : ContainerKind.Mp4);
+
+    /// <summary>
+    /// Makes <paramref name="target"/> the container the document is saved as. Tracks it cannot keep as they are get
+    /// the recommended conversion (or are left out when nothing can store them), after the user agrees; the file
+    /// itself changes on the next save. One undo step; false when the user declines.
+    /// </summary>
+    public async Task<bool> ChangeContainerAsync(ContainerKind target)
+    {
+        if (target == Document.Container || target == ContainerKind.Unknown)
+            return true;
+        IsBusy = true;
+        IReadOnlyList<MMW.Media.Remux.TrackRetarget> changes;
+        try
         {
-            _settings.Settings.AddRecent(options.OutputPath!);
-            _settings.Save();
+            changes = await MMW.Media.Remux.ContainerSwitch.PlanAsync(Document, target);
         }
+        finally
+        {
+            IsBusy = false;
+        }
+
+        var name = ContainerName(target);
+        if (changes.Count > 0)
+        {
+            var lines = changes.Select(c =>
+            {
+                var track = string.IsNullOrEmpty(c.Track.Name) ? c.Track.Format : $"{c.Track.Format} – {c.Track.Name}";
+                return c.To.Action == ImportAction.Skip
+                    ? string.Format(CultureInfo.CurrentCulture, c.Reason is null ? Strings.Retarget_LeftOutFormat : Strings.Retarget_LeftOutReasonFormat, track, c.Reason)
+                    : string.Format(CultureInfo.CurrentCulture, Strings.Retarget_LineFormat, track, ConversionDefaults.DisplayName(c.From), c.To.DisplayName);
+            });
+            if (!await _dialogs.ConfirmAsync(Strings.Dialog_ChangeContainer_Title,
+                    string.Format(CultureInfo.CurrentCulture, Strings.Dialog_ChangeContainer_MessageFormat, name, string.Join("\n", lines)),
+                    Strings.Button_ChangeFormat))
+                return false;
+            if (changes.Any(c => c.To.Ocr) &&
+                !await OcrAdvice.EnsureModelsAsync(_dialogs, _settings.Settings, changes.Where(c => c.To.Ocr).Select(c => c.Track.Language).Distinct().ToList()))
+                return false;
+        }
+
+        var previous = Document.Container;
+        using (Undo.Transaction(string.Format(CultureInfo.CurrentCulture, Strings.Undo_ChangeContainerFormat, name)))
+        {
+            MMW.Media.Remux.ContainerSwitch.Apply(Document, target, changes);
+            Undo.Record(new DelegateEdit(string.Empty, () => SetContainer(target), () => SetContainer(previous)));
+        }
+
+        SetContainer(target);
+        Document.IsDirty = true;
+        return true;
+    }
+
+    private static string ContainerName(ContainerKind kind) => kind == ContainerKind.Matroska ? "Matroska" : "MP4";
+
+    /// <summary>Sets the output container and refreshes everything that depends on it (conversion choices, status).</summary>
+    private void SetContainer(ContainerKind kind)
+    {
+        Document.Container = kind;
+        _sourceTracks.Clear();
+        _trackInspectors.Clear();
+        UpdateInspector();
+        foreach (var row in Rows)
+            row.Refresh();
+        OnPropertyChanged(nameof(StatusText));
+        OnPropertyChanged(nameof(IsMp4Output));
+        OnPropertyChanged(nameof(IsMatroskaOutput));
     }
 
     /// <summary>Captures missing chapter previews before an MP4 save when the preference is on.</summary>

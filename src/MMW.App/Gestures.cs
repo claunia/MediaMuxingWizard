@@ -10,6 +10,10 @@ public static class Gestures
     /// <summary>The platform's command modifier (Cmd on macOS, Ctrl elsewhere).</summary>
     public static KeyModifiers Command => s_cmd;
 
+    public static KeyGesture NewMp4 { get; } = new(Key.N, s_cmd);
+
+    public static KeyGesture NewMatroska { get; } = new(Key.N, s_cmd | KeyModifiers.Shift);
+
     public static KeyGesture Open { get; } = new(Key.O, s_cmd);
 
     public static KeyGesture Save { get; } = new(Key.S, s_cmd);

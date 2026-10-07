@@ -93,6 +93,9 @@
   <data name="Button_Cancel" xml:space="preserve">
     <value>Abbrechen</value>
   </data>
+  <data name="Button_ChangeFormat" xml:space="preserve">
+    <value>Format ändern</value>
+  </data>
   <data name="Button_CheckAll" xml:space="preserve">
     <value>Alle auswählen</value>
   </data>
@@ -116,6 +119,12 @@
   </data>
   <data name="Button_Import" xml:space="preserve">
     <value>Importieren</value>
+  </data>
+  <data name="Button_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="Button_Mp4" xml:space="preserve">
+    <value>MP4</value>
   </data>
   <data name="Button_OK" xml:space="preserve">
     <value>OK</value>
@@ -192,6 +201,16 @@
   <data name="Dialog_CannotExportTrack" xml:space="preserve">
     <value>{0} Spuren können nicht als Rohstrom exportiert werden.</value>
   </data>
+  <data name="Dialog_ChangeContainer_MessageFormat" xml:space="preserve">
+    <value>{0} kann nicht jede Spur unverändert aufnehmen. Der Wechsel ändert diese Spuren:
+
+{1}
+
+Die Datei selbst ändert sich erst beim Speichern.</value>
+  </data>
+  <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
+    <value>Ausgabeformat ändern</value>
+  </data>
   <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
     <value>Setzen Sie diese Sprache für jede Spur, deren Sprache nicht bestimmt ist.</value>
   </data>
@@ -243,6 +262,16 @@ Trotzdem speichern?</value>
   </data>
   <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
     <value>Metadaten gehen verloren</value>
+  </data>
+  <data name="Dialog_NewDocument_MessageFormat" xml:space="preserve">
+    <value>Diese Dateien sind keine MP4- oder Matroska-Dateien, daher nimmt ein neues Dokument ihre Spuren auf:
+
+{0}
+
+Als MP4 oder als Matroska speichern? Sie können das später unter Datei › Ausgabeformat ändern.</value>
+  </data>
+  <data name="Dialog_NewDocument_Title" xml:space="preserve">
+    <value>Neues Dokument</value>
   </data>
   <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
     <value>„{0}“ ist keine Zahl in Millisekunden.</value>
@@ -519,11 +548,20 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   <data name="Menu_File_ExportNfo" xml:space="preserve">
     <value>Exportieren _NFO…</value>
   </data>
+  <data name="Menu_File_NewMatroska" xml:space="preserve">
+    <value>Neues Matros_ka</value>
+  </data>
+  <data name="Menu_File_NewMp4" xml:space="preserve">
+    <value>Neues _MP4</value>
+  </data>
   <data name="Menu_File_Open" xml:space="preserve">
     <value>_Öffnen…</value>
   </data>
   <data name="Menu_File_OpenRecent" xml:space="preserve">
     <value>_Zuletzt öffnen</value>
+  </data>
+  <data name="Menu_File_OutputFormat" xml:space="preserve">
+    <value>Ausgabe_format</value>
   </data>
   <data name="Menu_File_Preferences" xml:space="preserve">
     <value>_Einstellungen…</value>
@@ -548,6 +586,12 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   </data>
   <data name="Menu_Metadata_Search" xml:space="preserve">
     <value>Online _suchen…</value>
+  </data>
+  <data name="Menu_OutputFormat_Matroska" xml:space="preserve">
+    <value>_Matroska</value>
+  </data>
+  <data name="Menu_OutputFormat_Mp4" xml:space="preserve">
+    <value>MP_4</value>
   </data>
   <data name="Menu_Paste" xml:space="preserve">
     <value>Einfügen</value>
@@ -1071,6 +1115,15 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   <data name="Queue_Tracks" xml:space="preserve">
     <value>Spuren</value>
   </data>
+  <data name="Retarget_LeftOutFormat" xml:space="preserve">
+    <value>• {0}: wird weggelassen</value>
+  </data>
+  <data name="Retarget_LeftOutReasonFormat" xml:space="preserve">
+    <value>• {0}: wird weggelassen ({1})</value>
+  </data>
+  <data name="Retarget_LineFormat" xml:space="preserve">
+    <value>• {0}: {1} → {2}</value>
+  </data>
   <data name="SaveAs_64BitOffsets" xml:space="preserve">
     <value>64-Bit-Chunk-Offsets (benötigt für Dateien &gt;4 GB)</value>
   </data>
@@ -1533,6 +1586,9 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
     <value>Alternative Gruppe ändern</value>
   </data>
+  <data name="Undo_ChangeContainerFormat" xml:space="preserve">
+    <value>Ausgabeformat auf {0} ändern</value>
+  </data>
   <data name="Undo_ChangeLanguage" xml:space="preserve">
     <value>Sprache ändern</value>
   </data>
@@ -1613,6 +1669,12 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
     <value>MP4- oder Matroska-Dateien hier ablegen</value>
+  </data>
+  <data name="Welcome_NewMatroska" xml:space="preserve">
+    <value>Neues Matroska</value>
+  </data>
+  <data name="Welcome_NewMp4" xml:space="preserve">
+    <value>Neues MP4</value>
   </data>
   <data name="Welcome_Open" xml:space="preserve">
     <value>Öffnen…</value>

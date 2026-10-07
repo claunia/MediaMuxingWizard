@@ -93,6 +93,9 @@
   <data name="Button_Cancel" xml:space="preserve">
     <value>Annuler</value>
   </data>
+  <data name="Button_ChangeFormat" xml:space="preserve">
+    <value>Changer de format</value>
+  </data>
   <data name="Button_CheckAll" xml:space="preserve">
     <value>Vérifier tout</value>
   </data>
@@ -116,6 +119,12 @@
   </data>
   <data name="Button_Import" xml:space="preserve">
     <value>Importer</value>
+  </data>
+  <data name="Button_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="Button_Mp4" xml:space="preserve">
+    <value>MP4</value>
   </data>
   <data name="Button_OK" xml:space="preserve">
     <value>OK</value>
@@ -192,6 +201,16 @@
   <data name="Dialog_CannotExportTrack" xml:space="preserve">
     <value>{0} pistes ne peuvent pas être exportées comme flux brut.</value>
   </data>
+  <data name="Dialog_ChangeContainer_MessageFormat" xml:space="preserve">
+    <value>{0} ne peut pas conserver toutes les pistes telles quelles. Le changement modifie ces pistes :
+
+{1}
+
+Le fichier lui-même ne change qu’à l’enregistrement.</value>
+  </data>
+  <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
+    <value>Changer le format de sortie</value>
+  </data>
   <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
     <value>Définissez cette langue sur chaque piste dont la langue est indéterminée.</value>
   </data>
@@ -243,6 +262,16 @@ Enregistrer quand même?</value>
   </data>
   <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
     <value>Les métadonnées seront perdues</value>
+  </data>
+  <data name="Dialog_NewDocument_MessageFormat" xml:space="preserve">
+    <value>Ces fichiers ne sont pas des fichiers MP4 ou Matroska ; un nouveau document va donc recevoir leurs pistes :
+
+{0}
+
+L’enregistrer en MP4 ou en Matroska ? Vous pourrez changer plus tard dans Fichier › Format de sortie.</value>
+  </data>
+  <data name="Dialog_NewDocument_Title" xml:space="preserve">
+    <value>Nouveau document</value>
   </data>
   <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
     <value>« {0} » n’est pas un nombre de millisecondes.</value>
@@ -519,11 +548,20 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   <data name="Menu_File_ExportNfo" xml:space="preserve">
     <value>Exporter le _NFO…</value>
   </data>
+  <data name="Menu_File_NewMatroska" xml:space="preserve">
+    <value>Nouveau Matros_ka</value>
+  </data>
+  <data name="Menu_File_NewMp4" xml:space="preserve">
+    <value>Nouveau _MP4</value>
+  </data>
   <data name="Menu_File_Open" xml:space="preserve">
     <value>_Ouvrir…</value>
   </data>
   <data name="Menu_File_OpenRecent" xml:space="preserve">
     <value>Ouvrir les _récents</value>
+  </data>
+  <data name="Menu_File_OutputFormat" xml:space="preserve">
+    <value>Format de so_rtie</value>
   </data>
   <data name="Menu_File_Preferences" xml:space="preserve">
     <value>_Préférences…</value>
@@ -548,6 +586,12 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   </data>
   <data name="Menu_Metadata_Search" xml:space="preserve">
     <value>_Rechercher en ligne…</value>
+  </data>
+  <data name="Menu_OutputFormat_Matroska" xml:space="preserve">
+    <value>_Matroska</value>
+  </data>
+  <data name="Menu_OutputFormat_Mp4" xml:space="preserve">
+    <value>MP_4</value>
   </data>
   <data name="Menu_Paste" xml:space="preserve">
     <value>Coller</value>
@@ -1071,6 +1115,15 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   <data name="Queue_Tracks" xml:space="preserve">
     <value>Pistes</value>
   </data>
+  <data name="Retarget_LeftOutFormat" xml:space="preserve">
+    <value>• {0} : exclue</value>
+  </data>
+  <data name="Retarget_LeftOutReasonFormat" xml:space="preserve">
+    <value>• {0} : exclue ({1})</value>
+  </data>
+  <data name="Retarget_LineFormat" xml:space="preserve">
+    <value>• {0} : {1} → {2}</value>
+  </data>
   <data name="SaveAs_64BitOffsets" xml:space="preserve">
     <value>Décalages de blocs 64 bits (nécessaires pour les fichiers &gt;4 GB)</value>
   </data>
@@ -1533,6 +1586,9 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
     <value>Modifier le groupe alternatif</value>
   </data>
+  <data name="Undo_ChangeContainerFormat" xml:space="preserve">
+    <value>Changer le format de sortie en {0}</value>
+  </data>
   <data name="Undo_ChangeLanguage" xml:space="preserve">
     <value>Changer la langue</value>
   </data>
@@ -1613,6 +1669,12 @@ Vos modifications seront perdues si vous ne les enregistrez pas.</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
     <value>Déposez les fichiers MP4 ou Matroska ici</value>
+  </data>
+  <data name="Welcome_NewMatroska" xml:space="preserve">
+    <value>Nouveau Matroska</value>
+  </data>
+  <data name="Welcome_NewMp4" xml:space="preserve">
+    <value>Nouveau MP4</value>
   </data>
   <data name="Welcome_Open" xml:space="preserve">
     <value>Ouvrir…</value>

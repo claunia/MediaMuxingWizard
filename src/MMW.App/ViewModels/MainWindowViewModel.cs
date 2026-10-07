@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using MMW.App.Resources;
 using MMW.App.Services;
 using MMW.Core.Diagnostics;
+using MMW.Core.Model;
 
 namespace MMW.App.ViewModels;
 
@@ -92,8 +93,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private Task OpenRecent(string path) => OpenPathsAsync([path]);
 
     /// <summary>
-    /// Handles files opened from this window (open dialog, drop): artwork, NFO, chapter and track files go into its
-    /// document; documents fill this window when it is empty and get windows of their own otherwise.
+    /// Handles files opened from this window (open dialog, drop): documents fill this window when it is empty and get
+    /// windows of their own otherwise; artwork, NFO, chapter and track files go into its document. Track files with
+    /// no document to go into (a TS, raw streams, subtitles…) start a new MP4 or Matroska document, as the user chooses.
     /// </summary>
     public async Task OpenPathsAsync(IEnumerable<string> paths)
     {
@@ -102,17 +104,30 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         list.RemoveAll(p => Path.GetExtension(p).Equals(".sub", StringComparison.OrdinalIgnoreCase) &&
                             MMW.Media.Conversion.FFmpegDemuxerFactory.VobSubIndex(p) is { } idx &&
                             list.Any(o => string.Equals(o, idx, StringComparison.OrdinalIgnoreCase)));
+
+        // Documents first, so the other files of the same drop go into the document they came with.
+        list = [.. list.Where(DocumentService.IsSupported), .. list.Where(p => !DocumentService.IsSupported(p))];
+        var loose = new List<string>();
         foreach (var path in list)
         {
             var ext = Path.GetExtension(path).ToLowerInvariant();
+            if (DocumentService.IsSupported(path))
+            {
+                if (App.FindWindow(path) is { } open)
+                    open.RequestActivate();
+                else if (Document is null && !IsOpening)
+                    await LoadDocumentAsync(path);
+                else
+                    await App.OpenInNewWindowAsync(path);
+                continue;
+            }
+
             if (Document is { } doc && s_imageExtensions.Contains(ext))
             {
                 doc.MetadataInspector.AddArtworkData([await File.ReadAllBytesAsync(path)]);
                 doc.SelectedRow = doc.Rows[0];
-                continue;
             }
-
-            if (Document is { } nfoDoc && ext == ".nfo")
+            else if (Document is { } nfoDoc && ext == ".nfo")
             {
                 try
                 {
@@ -122,29 +137,65 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 {
                     await Dialogs.ShowMessageAsync(Strings.Dialog_CouldNotImportNfo_Title, ex.Message);
                 }
-
-                continue;
             }
-
-            if (Document is not null && s_trackExtensions.Contains(ext))
-            {
-                await ImportIntoSelectedAsync([path]);
-                continue;
-            }
-
-            if (Document is { } chapterDoc && s_chapterExtensions.Contains(ext))
+            else if (Document is { } chapterDoc && s_chapterExtensions.Contains(ext))
             {
                 await chapterDoc.ImportChaptersAsync(path);
-                continue;
             }
-
-            if (App.FindWindow(path) is { } open)
-                open.RequestActivate();
-            else if (Document is null && !IsOpening)
-                await LoadDocumentAsync(path);
-            else
-                await App.OpenInNewWindowAsync(path);
+            else if (IsTrackFile(ext))
+            {
+                if (Document is not null)
+                    await ImportIntoSelectedAsync([path]);
+                else
+                    loose.Add(path);
+            }
         }
+
+        if (loose.Count > 0)
+            await NewDocumentForTracksAsync(loose);
+    }
+
+    private static bool IsTrackFile(string extension) =>
+        s_trackExtensions.Contains(extension) || MMW.Media.Remux.MediaRemux.ImportExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Track files dropped where there is no document: asks whether to make an MP4 or a Matroska file of them, then
+    /// shows the import dialog for a new, untitled document. Nothing is left behind when the user cancels.
+    /// </summary>
+    private async Task NewDocumentForTracksAsync(IReadOnlyList<string> files)
+    {
+        string mp4 = Strings.Button_Mp4, matroska = Strings.Button_Matroska;
+        var names = string.Join("\n", files.Select(f => "• " + Path.GetFileName(f)));
+        var answer = await Dialogs.ShowDialogAsync(new MessageDialogViewModel(Strings.Dialog_NewDocument_Title,
+            string.Format(CultureInfo.CurrentCulture, Strings.Dialog_NewDocument_MessageFormat, names),
+            [mp4, matroska, Strings.Button_Cancel], Settings.NewDocumentFormat == "mkv" ? matroska : mp4));
+        if (answer != mp4 && answer != matroska)
+            return;
+        Settings.NewDocumentFormat = answer == matroska ? "mkv" : "mp4";
+        App.SettingsService.Save();
+
+        var window = NewDocument(answer == matroska ? ContainerKind.Matroska : ContainerKind.Mp4);
+        await window.ImportIntoSelectedAsync(files);
+        if (window.Document is { } doc && doc.Document.Tracks.Count == 0 && !doc.IsDirty)
+        {
+            // The import was cancelled: nothing to keep.
+            if (ReferenceEquals(window, this))
+                Document = null;
+            else
+                window.RequestClose(confirmed: true);
+        }
+    }
+
+    [RelayCommand]
+    private void NewDocument(string format) => NewDocument(format == "mkv" ? ContainerKind.Matroska : ContainerKind.Mp4);
+
+    /// <summary>A new, untitled document of <paramref name="kind"/>: in this window when it is empty, otherwise in a new one.</summary>
+    public MainWindowViewModel NewDocument(ContainerKind kind)
+    {
+        var window = Document is null && !IsOpening ? this : App.NewWindow();
+        window.Show(new MediaDocument(null, kind));
+        window.RequestActivate();
+        return window;
     }
 
     /// <summary>Opens <paramref name="path"/> as this window's document; false (after telling the user) when it cannot be read.</summary>
@@ -153,13 +204,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IsOpening = true;
         try
         {
-            var document = await App.DocumentService.OpenAsync(path);
-            Document = new DocumentViewModel(document, App.DocumentService, Dialogs, App.SettingsService);
-            Document.PropertyChanged += (_, e) =>
-            {
-                if (e.PropertyName == nameof(DocumentViewModel.Title))
-                    OnPropertyChanged(nameof(Title));
-            };
+            Show(await App.DocumentService.OpenAsync(path));
             App.AddRecent(path);
             AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_OpenedFormat, path));
             return true;
@@ -174,6 +219,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             IsOpening = false;
         }
+    }
+
+    private void Show(MediaDocument document)
+    {
+        Document = new DocumentViewModel(document, App.DocumentService, Dialogs, App.SettingsService);
+        Document.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(DocumentViewModel.Title))
+                OnPropertyChanged(nameof(Title));
+        };
     }
 
     // ------------------------------------------------------------------ document commands

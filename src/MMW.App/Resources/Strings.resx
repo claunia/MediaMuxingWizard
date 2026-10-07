@@ -1673,4 +1673,66 @@ Save anyway?</value>
   <data name="Undo_ItemTrack" xml:space="preserve">
     <value>Track</value>
   </data>
+  <data name="Menu_File_NewMp4" xml:space="preserve">
+    <value>New _MP4</value>
+  </data>
+  <data name="Menu_File_NewMatroska" xml:space="preserve">
+    <value>New Matros_ka</value>
+  </data>
+  <data name="Menu_File_OutputFormat" xml:space="preserve">
+    <value>Output _Format</value>
+  </data>
+  <data name="Menu_OutputFormat_Mp4" xml:space="preserve">
+    <value>MP_4</value>
+  </data>
+  <data name="Menu_OutputFormat_Matroska" xml:space="preserve">
+    <value>_Matroska</value>
+  </data>
+  <data name="Welcome_NewMp4" xml:space="preserve">
+    <value>New MP4</value>
+  </data>
+  <data name="Welcome_NewMatroska" xml:space="preserve">
+    <value>New Matroska</value>
+  </data>
+  <data name="Button_Mp4" xml:space="preserve">
+    <value>MP4</value>
+  </data>
+  <data name="Button_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="Button_ChangeFormat" xml:space="preserve">
+    <value>Change Format</value>
+  </data>
+  <data name="Dialog_NewDocument_Title" xml:space="preserve">
+    <value>New Document</value>
+  </data>
+  <data name="Dialog_NewDocument_MessageFormat" xml:space="preserve">
+    <value>These files are not MP4 or Matroska files, so a new document will hold their tracks:
+
+{0}
+
+Save it as MP4 or as Matroska? You can switch later in File › Output Format.</value>
+  </data>
+  <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
+    <value>Change Output Format</value>
+  </data>
+  <data name="Dialog_ChangeContainer_MessageFormat" xml:space="preserve">
+    <value>{0} cannot keep every track as it is. Switching changes these tracks:
+
+{1}
+
+The file itself only changes when you save.</value>
+  </data>
+  <data name="Retarget_LineFormat" xml:space="preserve">
+    <value>• {0}: {1} → {2}</value>
+  </data>
+  <data name="Retarget_LeftOutFormat" xml:space="preserve">
+    <value>• {0}: left out</value>
+  </data>
+  <data name="Retarget_LeftOutReasonFormat" xml:space="preserve">
+    <value>• {0}: left out ({1})</value>
+  </data>
+  <data name="Undo_ChangeContainerFormat" xml:space="preserve">
+    <value>Change Output Format to {0}</value>
+  </data>
 </root>

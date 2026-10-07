@@ -41,7 +41,7 @@ public sealed class MatroskaHandler : IContainerHandler
         ArgumentNullException.ThrowIfNull(options);
 
         var targetKind = RemuxPolicy.TargetKind(document, options);
-        if (targetKind != ContainerKind.Matroska || RemuxPolicy.HasImportedTracks(document) || RemuxPolicy.HasOffsets(document) ||
+        if (targetKind != ContainerKind.Matroska || RemuxPolicy.ChangesContainer(document, targetKind) || RemuxPolicy.HasImportedTracks(document) || RemuxPolicy.HasOffsets(document) ||
             document.ContainerState is not MatroskaLayout state || MatroskaUpdateBuilder.TrackListChange(document, state) is not null)
         {
             await Remuxer.SaveAsync(document, options, targetKind, progress, cancellationToken);

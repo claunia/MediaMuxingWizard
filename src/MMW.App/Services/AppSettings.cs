@@ -14,6 +14,9 @@ public sealed class AppSettings
 {
     public List<string> RecentFiles { get; set; } = [];
 
+    /// <summary>The container last chosen for a new document made from dropped track files ("mp4" or "mkv").</summary>
+    public string NewDocumentFormat { get; set; } = "mp4";
+
     public double WindowWidth { get; set; } = 1100;
 
     public double WindowHeight { get; set; } = 760;

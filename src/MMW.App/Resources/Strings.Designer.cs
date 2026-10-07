@@ -4882,5 +4882,167 @@ namespace MMW.App.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to New _MP4.
+        /// </summary>
+        public static string Menu_File_NewMp4 {
+            get {
+                return ResourceManager.GetString("Menu_File_NewMp4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Matros_ka.
+        /// </summary>
+        public static string Menu_File_NewMatroska {
+            get {
+                return ResourceManager.GetString("Menu_File_NewMatroska", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output _Format.
+        /// </summary>
+        public static string Menu_File_OutputFormat {
+            get {
+                return ResourceManager.GetString("Menu_File_OutputFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MP_4.
+        /// </summary>
+        public static string Menu_OutputFormat_Mp4 {
+            get {
+                return ResourceManager.GetString("Menu_OutputFormat_Mp4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Matroska.
+        /// </summary>
+        public static string Menu_OutputFormat_Matroska {
+            get {
+                return ResourceManager.GetString("Menu_OutputFormat_Matroska", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New MP4.
+        /// </summary>
+        public static string Welcome_NewMp4 {
+            get {
+                return ResourceManager.GetString("Welcome_NewMp4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Matroska.
+        /// </summary>
+        public static string Welcome_NewMatroska {
+            get {
+                return ResourceManager.GetString("Welcome_NewMatroska", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MP4.
+        /// </summary>
+        public static string Button_Mp4 {
+            get {
+                return ResourceManager.GetString("Button_Mp4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Matroska.
+        /// </summary>
+        public static string Button_Matroska {
+            get {
+                return ResourceManager.GetString("Button_Matroska", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Format.
+        /// </summary>
+        public static string Button_ChangeFormat {
+            get {
+                return ResourceManager.GetString("Button_ChangeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Document.
+        /// </summary>
+        public static string Dialog_NewDocument_Title {
+            get {
+                return ResourceManager.GetString("Dialog_NewDocument_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to These files are not MP4 or Matroska files, so a new document will hold their tracks:.
+        /// </summary>
+        public static string Dialog_NewDocument_MessageFormat {
+            get {
+                return ResourceManager.GetString("Dialog_NewDocument_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Output Format.
+        /// </summary>
+        public static string Dialog_ChangeContainer_Title {
+            get {
+                return ResourceManager.GetString("Dialog_ChangeContainer_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} cannot keep every track as it is. Switching changes these tracks:.
+        /// </summary>
+        public static string Dialog_ChangeContainer_MessageFormat {
+            get {
+                return ResourceManager.GetString("Dialog_ChangeContainer_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: {1} → {2}.
+        /// </summary>
+        public static string Retarget_LineFormat {
+            get {
+                return ResourceManager.GetString("Retarget_LineFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: left out.
+        /// </summary>
+        public static string Retarget_LeftOutFormat {
+            get {
+                return ResourceManager.GetString("Retarget_LeftOutFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to • {0}: left out ({1}).
+        /// </summary>
+        public static string Retarget_LeftOutReasonFormat {
+            get {
+                return ResourceManager.GetString("Retarget_LeftOutReasonFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change Output Format to {0}.
+        /// </summary>
+        public static string Undo_ChangeContainerFormat {
+            get {
+                return ResourceManager.GetString("Undo_ChangeContainerFormat", resourceCulture);
+            }
+        }
+        
     }
 }

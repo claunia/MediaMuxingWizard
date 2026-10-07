@@ -93,6 +93,9 @@
   <data name="Button_Cancel" xml:space="preserve">
     <value>Annulla</value>
   </data>
+  <data name="Button_ChangeFormat" xml:space="preserve">
+    <value>Cambia formato</value>
+  </data>
   <data name="Button_CheckAll" xml:space="preserve">
     <value>Seleziona tutto</value>
   </data>
@@ -116,6 +119,12 @@
   </data>
   <data name="Button_Import" xml:space="preserve">
     <value>Importa</value>
+  </data>
+  <data name="Button_Matroska" xml:space="preserve">
+    <value>Matroska</value>
+  </data>
+  <data name="Button_Mp4" xml:space="preserve">
+    <value>MP4</value>
   </data>
   <data name="Button_OK" xml:space="preserve">
     <value>OK</value>
@@ -192,6 +201,16 @@
   <data name="Dialog_CannotExportTrack" xml:space="preserve">
     <value>{0} tracce non possono essere esportate come flusso grezzo.</value>
   </data>
+  <data name="Dialog_ChangeContainer_MessageFormat" xml:space="preserve">
+    <value>{0} non può mantenere tutte le tracce così come sono. Il cambio modifica queste tracce:
+
+{1}
+
+Il file cambia solo quando salvi.</value>
+  </data>
+  <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
+    <value>Cambia formato di uscita</value>
+  </data>
   <data name="Dialog_CompleteLanguages_Message" xml:space="preserve">
     <value>Imposta questa lingua su ogni traccia la cui lingua è indeterminata.</value>
   </data>
@@ -243,6 +262,16 @@ Salvare comunque?</value>
   </data>
   <data name="Dialog_MetadataLoss_Title" xml:space="preserve">
     <value>I metadati verranno persi</value>
+  </data>
+  <data name="Dialog_NewDocument_MessageFormat" xml:space="preserve">
+    <value>Questi file non sono file MP4 o Matroska, quindi un nuovo documento conterrà le loro tracce:
+
+{0}
+
+Salvarlo come MP4 o come Matroska? Puoi cambiarlo in seguito da File › Formato di uscita.</value>
+  </data>
+  <data name="Dialog_NewDocument_Title" xml:space="preserve">
+    <value>Nuovo documento</value>
   </data>
   <data name="Dialog_Offset_NotANumberFormat" xml:space="preserve">
     <value>«{0}» non è un numero di millisecondi.</value>
@@ -519,11 +548,20 @@ Le tue modifiche andranno perse se non le salvi.</value>
   <data name="Menu_File_ExportNfo" xml:space="preserve">
     <value>Esporta _NFO…</value>
   </data>
+  <data name="Menu_File_NewMatroska" xml:space="preserve">
+    <value>Nuovo Matros_ka</value>
+  </data>
+  <data name="Menu_File_NewMp4" xml:space="preserve">
+    <value>Nuovo _MP4</value>
+  </data>
   <data name="Menu_File_Open" xml:space="preserve">
     <value>_Apri…</value>
   </data>
   <data name="Menu_File_OpenRecent" xml:space="preserve">
     <value>Apri _recenti</value>
+  </data>
+  <data name="Menu_File_OutputFormat" xml:space="preserve">
+    <value>_Formato di uscita</value>
   </data>
   <data name="Menu_File_Preferences" xml:space="preserve">
     <value>_Preferenze…</value>
@@ -548,6 +586,12 @@ Le tue modifiche andranno perse se non le salvi.</value>
   </data>
   <data name="Menu_Metadata_Search" xml:space="preserve">
     <value>_Cerca online…</value>
+  </data>
+  <data name="Menu_OutputFormat_Matroska" xml:space="preserve">
+    <value>_Matroska</value>
+  </data>
+  <data name="Menu_OutputFormat_Mp4" xml:space="preserve">
+    <value>MP_4</value>
   </data>
   <data name="Menu_Paste" xml:space="preserve">
     <value>Incolla</value>
@@ -1071,6 +1115,15 @@ Le tue modifiche andranno perse se non le salvi.</value>
   <data name="Queue_Tracks" xml:space="preserve">
     <value>Tracce</value>
   </data>
+  <data name="Retarget_LeftOutFormat" xml:space="preserve">
+    <value>• {0}: esclusa</value>
+  </data>
+  <data name="Retarget_LeftOutReasonFormat" xml:space="preserve">
+    <value>• {0}: esclusa ({1})</value>
+  </data>
+  <data name="Retarget_LineFormat" xml:space="preserve">
+    <value>• {0}: {1} → {2}</value>
+  </data>
   <data name="SaveAs_64BitOffsets" xml:space="preserve">
     <value>Offset di blocco a 64 bit (necessari per file &gt;4 GB)</value>
   </data>
@@ -1533,6 +1586,9 @@ Le tue modifiche andranno perse se non le salvi.</value>
   <data name="Undo_ChangeAlternateGroup" xml:space="preserve">
     <value>Cambia gruppo alternativo</value>
   </data>
+  <data name="Undo_ChangeContainerFormat" xml:space="preserve">
+    <value>Cambia formato di uscita in {0}</value>
+  </data>
   <data name="Undo_ChangeLanguage" xml:space="preserve">
     <value>Cambia lingua</value>
   </data>
@@ -1613,6 +1669,12 @@ Le tue modifiche andranno perse se non le salvi.</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
     <value>Trascina qui file MP4 o Matroska</value>
+  </data>
+  <data name="Welcome_NewMatroska" xml:space="preserve">
+    <value>Nuovo Matroska</value>
+  </data>
+  <data name="Welcome_NewMp4" xml:space="preserve">
+    <value>Nuovo MP4</value>
   </data>
   <data name="Welcome_Open" xml:space="preserve">
     <value>Apri…</value>

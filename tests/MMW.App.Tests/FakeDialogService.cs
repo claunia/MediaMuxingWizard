@@ -33,6 +33,13 @@ internal sealed class FakeDialogService : IDialogService
 
     public Task<string?> PromptAsync(string title, string message, string initialText = "") => Task.FromResult<string?>(initialText);
 
-    public Task<TResult?> ShowDialogAsync<TResult>(DialogViewModel<TResult> dialog) =>
-        Task.FromResult(DialogResults.Count > 0 ? (TResult?)DialogResults.Dequeue() : default);
+    /// <summary>Runs a dialog the way a user would (e.g. ticking tracks and importing); true when it handled the dialog.</summary>
+    public Func<object, Task<bool>>? OnShowDialog { get; set; }
+
+    public async Task<TResult?> ShowDialogAsync<TResult>(DialogViewModel<TResult> dialog)
+    {
+        if (OnShowDialog is not null && await OnShowDialog(dialog))
+            return default;
+        return DialogResults.Count > 0 ? (TResult?)DialogResults.Dequeue() : default;
+    }
 }
