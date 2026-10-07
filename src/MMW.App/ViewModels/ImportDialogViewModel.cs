@@ -217,10 +217,10 @@ public sealed partial class ImportDialogViewModel : DialogViewModel<bool>
             {
                 try
                 {
-                    // MP4 and Matroska documents, or the tags and pictures of files such as FLAC.
+                    // MP4 and Matroska documents, or the Vorbis comments and pictures of FLAC and Ogg files.
                     var metadata = ContainerKinds.FromPath(file.Path) != ContainerKind.Unknown
                         ? (await new ContainerRegistry(Services.DocumentService.DefaultHandlers()).OpenAsync(file.Path)).Metadata
-                        : await Task.Run(() => MMW.Formats.Elementary.ElementaryFormat.ReadMetadata(file.Path));
+                        : await Task.Run(() => TrackImporter.ReadMetadata(file.Path));
                     if (metadata is null)
                         continue;
                     _document.ApplyMetadata(Strings.Undo_ImportMetadata, doc => doc.Metadata.Merge(metadata, overwrite: false, replaceArtworks: false));

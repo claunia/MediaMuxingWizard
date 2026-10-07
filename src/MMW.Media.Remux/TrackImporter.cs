@@ -448,6 +448,22 @@ public static class TrackImporter
     }
 
     /// <summary>
+    /// The tags and artwork of a file outside the containers this application edits: Vorbis comments and pictures of
+    /// native FLAC and of Ogg (Opus, Vorbis, FLAC) files. Null for other files.
+    /// </summary>
+    public static Core.Metadata.MetadataSet? ReadMetadata(string path)
+    {
+        Span<byte> header = stackalloc byte[4];
+        using (var fs = File.OpenRead(path))
+        {
+            if (fs.ReadAtLeast(header, header.Length, throwOnEndOfStream: false) < header.Length)
+                return null;
+        }
+
+        return header.SequenceEqual("OggS"u8) ? OggMetadata.Read(path) : ElementaryFormat.ReadMetadata(path);
+    }
+
+    /// <summary>
     /// "Profile@Level" of an H.264, HEVC, VVC or EVC configuration record, or what the bitstream scan found (AVS); empty
     /// otherwise.
     /// </summary>

@@ -1,4 +1,5 @@
 using MMW.Core.Media;
+using MMW.Core.Metadata;
 using MMW.Core.Model;
 using MMW.Formats.Ogg;
 using MMW.TestSupport;
@@ -90,4 +91,73 @@ public sealed class OggTests
         Assert.Equal(2, track.Config.Extradata![0]); // three Xiph-laced headers
         Assert.Equal(3.0, track.Duration.TotalSeconds, 3);
     }
+
+    /// <summary>A tagged three-second tone as WAV and a JPEG cover, the inputs of the tagging encoders.</summary>
+    private static (string Wave, string Cover) TagInputs()
+    {
+        MediaProbe.RequireFfmpeg();
+        return (Wave("stereo", 48000), Fixtures.Get("ogg-cover.jpg", "ffmpeg", "-v error -y -f lavfi -i color=red:s=32x32 -frames:v 1 {out}"));
+    }
+
+    /// <summary>A FLAC PICTURE block of a JPEG, base64-encoded as Ogg Vorbis/Opus comments carry it.</summary>
+    private static string PictureComment(string jpeg)
+    {
+        var image = File.ReadAllBytes(jpeg);
+        var block = new List<byte>();
+        void U32(int v) => block.AddRange([(byte)(v >> 24), (byte)(v >> 16), (byte)(v >> 8), (byte)v]);
+        U32(3);
+        U32(10);
+        block.AddRange("image/jpeg"u8.ToArray());
+        U32(0);
+        U32(32);
+        U32(32);
+        U32(24);
+        U32(0);
+        U32(image.Length);
+        block.AddRange(image);
+        return Convert.ToBase64String(block.ToArray());
+    }
+
+    private static void AssertTags(string path, bool cover)
+    {
+        var metadata = Assert.IsType<MetadataSet>(TrackImporter.ReadMetadata(path));
+        Assert.Equal("Song", metadata.GetString(TagId.Name));
+        Assert.Equal("Someone", metadata.GetString(TagId.Artist));
+        Assert.Equal("Record", metadata.GetString(TagId.Album));
+        Assert.Equal(new IntPair(3, 12), metadata.GetPair(TagId.TrackNumber));
+        Assert.Equal(cover ? 1 : 0, metadata.Artworks.Count);
+        if (cover)
+            Assert.Equal(ArtworkFormat.Jpeg, metadata.Artworks[0].Format);
+    }
+
+    [Fact]
+    public void Reads_opus_comments()
+    {
+        var (wave, _) = TagInputs();
+        AssertTags(Fixtures.Get("opus-tagged.opus", "ffmpeg",
+            $"-v error -y -i {Fixtures.Quote(wave)} -c:a libopus -metadata title=Song -metadata artist=Someone -metadata album=Record -metadata track=3/12 {{out}}"), cover: false);
+    }
+
+    [Fact]
+    public void Reads_vorbis_comments_and_picture()
+    {
+        var (wave, cover) = TagInputs();
+        if (!Fixtures.HasTool("oggenc"))
+            Assert.Skip("oggenc not installed.");
+        AssertTags(Fixtures.Get("vorbis-tagged.ogg", "oggenc",
+            $"-Q -t Song -a Someone -l Record -N 3 -c TRACKTOTAL=12 -c METADATA_BLOCK_PICTURE={PictureComment(cover)} -o {{out}} {Fixtures.Quote(wave)}"), cover: true);
+    }
+
+    [Fact]
+    public void Reads_ogg_flac_comments_and_picture()
+    {
+        var (wave, cover) = TagInputs();
+        if (!Fixtures.HasTool("flac"))
+            Assert.Skip("flac not installed.");
+        AssertTags(Fixtures.Get("flac-tagged.oga", "flac",
+            $"-s -f --ogg -T TITLE=Song -T ARTIST=Someone -T ALBUM=Record -T TRACKNUMBER=3/12 --picture {Fixtures.Quote(cover)} -o {{out}} {Fixtures.Quote(wave)}"), cover: true);
+    }
+
+    [Fact]
+    public void Files_without_comments_have_no_metadata() => Assert.Null(TrackImporter.ReadMetadata(TagInputs().Wave));
 }

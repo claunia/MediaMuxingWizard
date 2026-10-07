@@ -95,5 +95,14 @@ public sealed class FlacTests
         Assert.False(metadata.Contains(TagId.Tempo)); // not a number
         Assert.True(metadata.GetBool(TagId.Compilation));
         Assert.Equal(jpeg, Assert.Single(metadata.Artworks).Data);
+
+        // Ogg streams carry pictures as comments: a base64 PICTURE block, or the older base64 image.
+        var ogg = VorbisComments.ToMetadata(
+        [
+            new("METADATA_BLOCK_PICTURE", Convert.ToBase64String(picture.ToArray())),
+            new("COVERART", Convert.ToBase64String([0x89, .. "PNG"u8, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2])),
+            new("COVERART", "not base64!"),
+        ]);
+        Assert.Equal([ArtworkFormat.Jpeg, ArtworkFormat.Png], ogg.Artworks.Select(a => a.Format));
     }
 }

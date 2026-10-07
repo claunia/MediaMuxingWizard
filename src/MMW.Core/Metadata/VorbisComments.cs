@@ -7,7 +7,8 @@ namespace MMW.Core.Metadata;
 /// <summary>
 /// Vorbis comments (FLAC VORBIS_COMMENT blocks, Ogg comment headers) and FLAC PICTURE blocks as a
 /// <see cref="MetadataSet"/>, using the field names of the Xiph recommendations and of common taggers (MusicBrainz
-/// Picard, foobar2000). Repeated fields are joined; unknown fields are ignored.
+/// Picard, foobar2000). Repeated fields are joined; unknown fields are ignored. Ogg streams carry their pictures as
+/// comments too: METADATA_BLOCK_PICTURE (a base64 FLAC PICTURE block) or the older COVERART (a base64 image).
 /// </summary>
 public static class VorbisComments
 {
@@ -127,10 +128,35 @@ public static class VorbisComments
             metadata.Set(TagId.DiskNumber, disc);
 
         // The front cover first, then the other pictures in order.
-        var images = (pictures ?? []).Select(ParsePicture).Where(p => p.Data.Length > 0).ToList();
+        var images = (pictures ?? []).Select(ParsePicture).ToList();
+        foreach (var encoded in values.GetValueOrDefault("METADATA_BLOCK_PICTURE") ?? [])
+        {
+            if (FromBase64(encoded) is { } block)
+                images.Add(ParsePicture(block));
+        }
+
+        foreach (var encoded in values.GetValueOrDefault("COVERART") ?? [])
+        {
+            if (FromBase64(encoded) is { } image)
+                images.Add((3, image));
+        }
+
+        images.RemoveAll(p => p.Data.Length == 0);
         foreach (var picture in images.OrderBy(p => p.Type == 3 ? 0 : 1))
             metadata.Artworks.Add(new Artwork(picture.Data));
         return metadata;
+    }
+
+    private static byte[]? FromBase64(string text)
+    {
+        try
+        {
+            return Convert.FromBase64String(text);
+        }
+        catch (FormatException)
+        {
+            return null;
+        }
     }
 
     /// <summary>"3", "3/12" with an optional separate total → (3, 12).</summary>
