@@ -15,6 +15,7 @@ internal static class MatroskaCodecs
         ("V_MPEGH/ISO/HEVC", "HEVC"),
         ("V_MPEGI/ISO/VVC", "VVC"),
         ("V_AV1", "AV1"),
+        ("V_AV2", "AV2"),
         ("V_VP9", "VP9"),
         ("V_VP8", "VP8"),
         ("V_MPEG4/ISO/", "MPEG-4 Visual"),

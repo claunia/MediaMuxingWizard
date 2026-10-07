@@ -432,7 +432,7 @@ internal static class Mp4Writer
         else
         {
             // Keep the codec configuration (avcC/hvcC/…) first, as some players expect.
-            var after = entry.Children!.FindLastIndex(c => c.Type is "avcC" or "hvcC" or "av1C" or "vvcC" or "esds" or "dvcC" or "dvvC" or "pasp");
+            var after = entry.Children!.FindLastIndex(c => c.Type is "avcC" or "hvcC" or "av1C" or "av2C" or "vvcC" or "esds" or "dvcC" or "dvvC" or "pasp");
             entry.Children.Insert(after + 1, box);
         }
     }

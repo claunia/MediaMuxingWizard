@@ -105,6 +105,9 @@ internal static class MatroskaCodecMapping
                 return c with { Codec = CodecType.Vvc, Extradata = priv };
             case "V_AV1":
                 return c with { Codec = CodecType.Av1, Extradata = priv };
+            case "V_AV2":
+                // As the AV2 reference encoder writes it; the demuxer turns the blocks into samples and 'av2C'.
+                return c with { Codec = CodecType.Av2, Extradata = priv };
             case "V_VP8":
                 return c with { Codec = CodecType.Vp8 };
             case "V_VP9":
@@ -244,6 +247,18 @@ internal static class MatroskaCodecMapping
             : TrackSupport.Passthrough;
     }
 
+    /// <summary>
+    /// The 4-byte configuration record the AV2 reference encoder stores as CodecPrivate, from the sequence header and
+    /// content interpretation of 'av2C' (kept as it is when it already is that record).
+    /// </summary>
+    private static byte[]? Av2CodecPrivate(byte[]? extradata)
+    {
+        if (extradata is { Length: 4 } && (extradata[0] & 0x80) != 0)
+            return extradata;
+        var (sequence, interpretation) = Av2.Describe(extradata);
+        return sequence is null ? null : Av2.BuildMatroskaRecord(sequence, interpretation);
+    }
+
     /// <summary>The Matroska CodecID for <paramref name="c"/>, or null when there is none.</summary>
     public static string? CodecIdFor(CodecConfig c) => c.Codec switch
     {
@@ -251,6 +266,7 @@ internal static class MatroskaCodecMapping
         CodecType.Hevc => "V_MPEGH/ISO/HEVC",
         CodecType.Vvc => "V_MPEGI/ISO/VVC",
         CodecType.Av1 => "V_AV1",
+        CodecType.Av2 => "V_AV2", // as the AV2 reference encoder (AVM) writes it; no mapping is published yet
         CodecType.Vp8 => "V_VP8",
         CodecType.Vp9 => "V_VP9",
         CodecType.Mpeg4Visual => "V_MPEG4/ISO/ASP",
@@ -298,6 +314,7 @@ internal static class MatroskaCodecMapping
         CodecType.Opus => c.Extradata,
         CodecType.Flac => c.Extradata is null ? null : [.. "fLaC"u8, .. Flac.FixLastFlags(c.Extradata)],
         CodecType.Alac => c.Extradata,
+        CodecType.Av2 => Av2CodecPrivate(c.Extradata),
         CodecType.WebVtt => c.Extradata is { Length: > 0 } header && Encoding.UTF8.GetString(header).StartsWith("WEBVTT", StringComparison.Ordinal) ? header : null,
         _ => null,
     };

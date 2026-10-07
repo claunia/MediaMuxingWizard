@@ -258,7 +258,7 @@ public static class TrackImporter
             var info = VideoStreamInfoScanner.Scan(source);
             if (info.IsEmpty)
                 return config;
-            config = config with { StreamColor = info.Color, StreamHdr = info.Hdr, VideoProfile = info.ProfileLevel };
+            config = config with { StreamColor = info.Color, StreamHdr = info.Hdr, VideoProfile = info.ProfileLevel.Length > 0 ? info.ProfileLevel : config.VideoProfile };
             // A raw stream has no container: its colour is the bitstream's, including the alternative transfer
             // characteristics SEI (HLG signalled as BT.2020 SDR) that the demuxer's VUI reading does not see.
             return source.Config.Native is null && info.Color.IsSpecified ? config with { Color = info.Color } : config;
@@ -476,6 +476,7 @@ public static class TrackImporter
                 CodecType.H264 => H264.ProfileLevel(record),
                 CodecType.Hevc => Hevc.ProfileLevel(record),
                 CodecType.Vvc => Vvc.ProfileLevel(record),
+                CodecType.Av2 when Av2.Describe(record).Sequence is { } sequence => Av2.ProfileLevel(sequence),
                 CodecType.Evc => Evc.ProfileLevel(record),
                 _ => config.VideoProfile,
             };

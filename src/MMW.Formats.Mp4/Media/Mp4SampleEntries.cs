@@ -75,6 +75,7 @@ internal static class Mp4SampleEntries
             "vvc1" or "vvi1" => (CodecType.Vvc, entry.Find("vvcC") is { Payload.Length: > 4 } vvcC ? vvcC.Payload[4..] : null), // vvcC is a FullBox
             "evc1" => (CodecType.Evc, entry.Find("evcC")?.Payload),
             "av01" or "dav1" => (CodecType.Av1, entry.Find("av1C")?.Payload),
+            "av02" => (CodecType.Av2, entry.Find("av2C")?.Payload),
             "vp09" => (CodecType.Vp9, entry.Find("vpcC")?.Payload),
             "vp08" => (CodecType.Vp8, entry.Find("vpcC")?.Payload),
             "jpeg" or "mjpa" => (CodecType.Mjpeg, null),
@@ -429,9 +430,9 @@ internal static class Mp4SampleEntries
             return TrackSupport.Passthrough;
         return config.Codec switch
         {
-            CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or
+            CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Av2 or CodecType.Vp9 or CodecType.Vp8 or CodecType.ProRes or
                 CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Mjpeg or CodecType.Avs2 or CodecType.Avs3 =>
-                config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1
+                config.Extradata is null && config.Codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Evc or CodecType.Av1 or CodecType.Av2
                     ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the codec configuration is missing")
                     : TrackSupport.Passthrough,
             CodecType.Aac or CodecType.Ac3 or CodecType.Eac3 or CodecType.Dts or CodecType.Opus or CodecType.Flac or CodecType.Alac or
@@ -592,6 +593,11 @@ internal static class Mp4SampleEntries
                 type = "av01";
                 children.Add(new Box("av1C", c.Extradata!));
                 break;
+            case CodecType.Av2:
+                // AV2 ISOBMFF binding (draft): 'av02' with its configuration OBUs in 'av2C', one 'colr' nclx and one 'pixi'.
+                type = "av02";
+                children.Add(new Box("av2C", c.Extradata!));
+                break;
             case CodecType.Vp9:
             case CodecType.Vp8:
                 type = c.Codec == CodecType.Vp9 ? "vp09" : "vp08";
@@ -643,6 +649,10 @@ internal static class Mp4SampleEntries
         // The container's colour and HDR10 metadata, or what the bitstream carries when the source container had none.
         if (c.EffectiveColor is { IsSpecified: true } color)
             children.Add(BuildColr(color));
+        else if (c.Codec == CodecType.Av2)
+            children.Add(BuildColr(new ColorInfo(2, 2, 2, false))); // the AV2 binding requires exactly one 'colr' nclx
+        if (c.Codec == CodecType.Av2)
+            children.Add(BuildAv2Pixi(c));
 
         if (c.EffectiveHdr is { } hdr)
         {
@@ -687,6 +697,25 @@ internal static class Mp4SampleEntries
             b.U16(Chroma(x)).U16(Chroma(y));
         b.U16(Chroma(w.X)).U16(Chroma(w.Y)).U32((uint)Math.Round(max * 10000)).U32((uint)Math.Round((hdr.MinLuminance ?? 0) * 10000));
         return new Box("mdcv", b.ToArray());
+    }
+
+    /// <summary>
+    /// The 'pixi' box the AV2 binding requires, with px_flags bit 0 set: channel count and depth from the sequence
+    /// header, then one byte per channel (channel_idc 0 "colour", component_format 0 unsigned integer, no subsampling
+    /// or label). channel_idc values follow ISO/IEC 23008-12:2024/CDAM 2 as libavif writes them; the binding's
+    /// examples hint at another table that is not settled yet.
+    /// </summary>
+    private static Box BuildAv2Pixi(CodecConfig c)
+    {
+        var (sequence, _) = Av2.Describe(c.Extradata);
+        var channels = sequence?.Monochrome == true ? 1 : 3;
+        var depth = sequence?.BitDepth ?? (c.BitsPerSample > 0 ? c.BitsPerSample : 8);
+        var b = new PayloadBuilder().FullBox(0, 1).U8(channels);
+        for (var i = 0; i < channels; i++)
+            b.U8(depth);
+        for (var i = 0; i < channels; i++)
+            b.U8(0);
+        return new Box("pixi", b.ToArray());
     }
 
     /// <summary>'colr' of type 'nclx'.</summary>

@@ -19,6 +19,7 @@ public static class CodecInfo
             "dva1" or "dvav" => "H.264 Dolby Vision",
             "dav1" => "AV1 Dolby Vision",
             "av01" => "AV1",
+            "av02" => "AV2",
             "vvc1" or "vvi1" => "VVC",
             "evc1" => "EVC",
             "mp4v" => "MPEG-4 Visual",

@@ -109,8 +109,8 @@ internal sealed class MatroskaMuxer : IMuxer
         if (!support.CanMux)
             throw new NotSupportedException($"{config.FormatName} cannot be written to Matroska: {support.Reason}");
 
-        if (IsWebM && config.Codec is not (CodecType.Vp8 or CodecType.Vp9 or CodecType.Av1 or CodecType.Opus or CodecType.Vorbis or CodecType.WebVtt))
-            throw new NotSupportedException($"{config.FormatName} cannot be stored in WebM (only VP8, VP9, AV1, Opus, Vorbis and WebVTT); save as .mkv instead.");
+        if (IsWebM && config.Codec is not (CodecType.Vp8 or CodecType.Vp9 or CodecType.Av1 or CodecType.Av2 or CodecType.Opus or CodecType.Vorbis or CodecType.WebVtt))
+            throw new NotSupportedException($"{config.FormatName} cannot be stored in WebM (only VP8, VP9, AV1, AV2, Opus, Vorbis and WebVTT); save as .mkv instead.");
 
         var shift = config.Kind == TrackKind.Audio ? (long)Math.Round(settings.PreRoll.TotalMilliseconds) : 0;
         _tracks.Add(new TrackState
@@ -542,6 +542,12 @@ internal sealed class MatroskaMuxer : IMuxer
             data = _buffer.AsSpan(0, size);
             if (data.Slice(4, 4).SequenceEqual("icpf"u8))
                 data = data[8..];
+        }
+        else if (t.Config.Codec == CodecType.Av2)
+        {
+            // Blocks hold whole temporal units (as the AV2 reference encoder writes them): a temporal delimiter, and the
+            // configuration OBUs again at random access points.
+            data = Av2.ToTemporalUnit(sample.GetData().Span, Av2.ConfigurationObus(t.Config.Extradata), sample.IsSync);
         }
         else if (t.WebVttLines)
         {

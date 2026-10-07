@@ -36,6 +36,9 @@ internal sealed class MatroskaDemuxer : IDemuxer
     private readonly FileSampleReader _reader;
     private readonly List<MatroskaTrackSource> _tracks = [];
 
+    /// <summary>The tracks as exposed: AV2 blocks (whole temporal units, possibly several) become one sample per unit.</summary>
+    private readonly List<ISampleSource> _sources = [];
+
     private MatroskaDemuxer(string path, FileSampleReader reader, MatroskaLayout layout, TimeSpan duration)
     {
         Path = path;
@@ -53,7 +56,7 @@ internal sealed class MatroskaDemuxer : IDemuxer
 
     public ContainerKind Container => ContainerKind.Matroska;
 
-    public IReadOnlyList<ISampleSource> Tracks => _tracks;
+    public IReadOnlyList<ISampleSource> Tracks => _sources;
 
     public TimeSpan Duration { get; }
 
@@ -87,6 +90,8 @@ internal sealed class MatroskaDemuxer : IDemuxer
 
             foreach (var t in demuxer._tracks)
                 t.Prepare();
+            foreach (var t in demuxer._tracks)
+                demuxer._sources.Add(t.Config.Codec == CodecType.Av2 ? new Av2TemporalUnitSource(t) : t);
             return demuxer;
         }
         catch

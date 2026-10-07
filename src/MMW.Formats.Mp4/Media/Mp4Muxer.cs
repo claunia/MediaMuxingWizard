@@ -1003,6 +1003,8 @@ internal sealed class Mp4Muxer : IMuxer
         };
         if (codecs.Contains(CodecType.Av1) && !brands.Contains("av01"))
             brands.Add("av01");
+        if (codecs.Contains(CodecType.Av2))
+            brands.AddRange(new[] { "av02", "iso6" }.Where(b => !brands.Contains(b))); // AV2 binding: 'av02' and a structural brand
         foreach (var c in configs.Where(c => c.Kind == TrackKind.Video))
         {
             if (DvInfo(c) is { } dv)
