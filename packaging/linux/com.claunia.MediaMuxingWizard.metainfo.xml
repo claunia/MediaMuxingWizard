@@ -5,6 +5,12 @@
   <project_license>GPL-3.0-or-later</project_license>
   <name>Media Muxing Wizard</name>
   <summary>Mux, convert and tag MP4 and Matroska files</summary>
+  <summary xml:lang="de">MP4- und Matroska-Dateien multiplexen, konvertieren und taggen</summary>
+  <summary xml:lang="es">Multiplexa, convierte y etiqueta archivos MP4 y Matroska</summary>
+  <summary xml:lang="fr">Multiplexer, convertir et étiqueter des fichiers MP4 et Matroska</summary>
+  <summary xml:lang="it">Multiplexare, convertire e taggare file MP4 e Matroska</summary>
+  <summary xml:lang="pt-BR">Multiplexe, converta e marque arquivos MP4 e Matroska</summary>
+  <summary xml:lang="zh-Hans">封装、转换 MP4 和 Matroska 文件并编辑其标签</summary>
   <developer id="com.claunia">
     <name>Natalia Portillo</name>
   </developer>
