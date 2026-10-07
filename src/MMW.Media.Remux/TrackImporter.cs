@@ -429,9 +429,9 @@ public static class TrackImporter
         }
 
         // A converted track is shown with the codec, channels and rate it will have once saved.
-        if (conversion is not null && track is AudioTrack audio && item.Action is ImportAction.ConvertToAac or ImportAction.ConvertToAc3)
+        if (conversion is not null && track is AudioTrack audio && ConversionDefaults.Target(item.Action) is { } target)
         {
-            var output = conversion.PredictOutput(c, item.Action == ImportAction.ConvertToAac ? AudioConversionTarget.Aac : AudioConversionTarget.Ac3);
+            var output = conversion.PredictOutput(c, target);
             audio.Channels = output.Channels;
             audio.SampleRate = output.SampleRate;
             audio.ChannelLayout = TrackConversions.ChannelName(output.Channels);

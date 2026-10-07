@@ -24,6 +24,12 @@ public enum AudioConversionTarget
 {
     Aac,
     Ac3,
+
+    /// <summary>Linear PCM (lossless decode), little-endian integers of the source's bit depth.</summary>
+    Pcm,
+
+    /// <summary>Apple Lossless.</summary>
+    Alac,
 }
 
 /// <summary>Settings of an audio conversion (Subler's audio preferences).</summary>
@@ -115,6 +121,20 @@ public sealed record AudioConversionSettings
         _ => 48000,
     };
 
+    /// <summary>Bits per sample of a lossless conversion: the source depth rounded up to 16, 24 or 32.</summary>
+    public static int LosslessBits(int sourceBits) => sourceBits switch
+    {
+        <= 16 => 16,
+        <= 24 => 24,
+        _ => 32,
+    };
+
+    /// <summary>Samples per ALAC packet (Apple's and FFmpeg's default frame length).</summary>
+    public const int AlacFrameSize = 4096;
+
+    /// <summary>Samples per PCM block produced by a conversion to PCM.</summary>
+    public const int PcmBlockSize = 4096;
+
     /// <summary>
     /// The configuration a conversion of <paramref name="input"/> is expected to produce (codec, channels, sample
     /// rate; no extradata), used to check container support and to describe pending tracks before converting.
@@ -122,6 +142,27 @@ public sealed record AudioConversionSettings
     public CodecConfig PredictOutput(CodecConfig input, AudioConversionTarget target)
     {
         ArgumentNullException.ThrowIfNull(input);
+        if (target is AudioConversionTarget.Pcm or AudioConversionTarget.Alac)
+        {
+            var pcm = target == AudioConversionTarget.Pcm;
+            return input with
+            {
+                Codec = pcm ? CodecType.Pcm : CodecType.Alac,
+                SourceCodecId = pcm ? "ipcm" : "alac",
+                Extradata = null,
+                Native = null,
+                Timescale = (uint)Math.Max(1, input.SampleRate),
+                DefaultSampleDuration = pcm ? PcmBlockSize : AlacFrameSize,
+                BitsPerSample = LosslessBits(input.BitsPerSample),
+                PcmBigEndian = false,
+                PcmFloat = false,
+                IsAtmos = false,
+                AudioProfile = string.Empty,
+                CodecDelay = TimeSpan.Zero,
+                SeekPreRoll = TimeSpan.Zero,
+            };
+        }
+
         var aac = target == AudioConversionTarget.Aac;
         var rate = aac ? AacSampleRate(input.SampleRate) : Ac3SampleRate(input.SampleRate);
         return input with

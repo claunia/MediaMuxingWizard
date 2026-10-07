@@ -34,7 +34,8 @@ public sealed record ImportChoice(ImportAction Action, string DisplayName, Audio
 /// <item>DTS into MP4: "AAC + Passthru" (Apple players cannot decode DTS, the original is kept as the disabled
 /// alternate); into Matroska: passthrough.</item>
 /// <item>Vorbis, TrueHD, MLP, PCM, MP1 into MP4 (not storable or not playable): AAC with the default mixdown.</item>
-/// <item>FLAC and Opus into MP4 (storable, but not playable by Apple players): AAC; passthrough is offered.</item>
+/// <item>FLAC into MP4 (storable, but not playable by Apple players): AAC; passthrough, LPCM and ALAC are offered.</item>
+/// <item>Opus into MP4: passthrough; AAC is offered.</item>
 /// <item>Everything else (AAC, ALAC, MP3, MP2, …) and every storable track into Matroska: passthrough.</item>
 /// </list>
 /// </remarks>
@@ -46,6 +47,8 @@ public static class ConversionDefaults
     public const string AacPlusPassthroughName = "AAC + Passthru";
     public const string AacPlusAc3Name = "AAC + AC3";
     public const string Ac3Name = "AC3";
+    public const string PcmName = "LPCM";
+    public const string AlacName = "ALAC";
 
     /// <summary>Default conversion settings (the application may replace them from its preferences).</summary>
     public static AudioConversionSettings Settings { get; set; } = AudioConversionSettings.Default;
@@ -58,7 +61,29 @@ public static class ConversionDefaults
 
     /// <summary>True for the actions that need the audio converter.</summary>
     public static bool IsConversion(ImportAction action) =>
-        action is ImportAction.ConvertToAac or ImportAction.ConvertToAc3 or ImportAction.AacPlusPassthrough or ImportAction.AacPlusAc3;
+        action is ImportAction.ConvertToAac or ImportAction.ConvertToAc3 or ImportAction.AacPlusPassthrough or ImportAction.AacPlusAc3 or
+            ImportAction.ConvertToPcm or ImportAction.ConvertToAlac;
+
+    /// <summary>The codec a single-track conversion action produces, or null for other actions.</summary>
+    public static AudioConversionTarget? Target(ImportAction action) => action switch
+    {
+        ImportAction.ConvertToAac => AudioConversionTarget.Aac,
+        ImportAction.ConvertToAc3 => AudioConversionTarget.Ac3,
+        ImportAction.ConvertToPcm => AudioConversionTarget.Pcm,
+        ImportAction.ConvertToAlac => AudioConversionTarget.Alac,
+        _ => null,
+    };
+
+    /// <summary>Lossless sources that are offered lossless conversions (LPCM, and ALAC for MP4).</summary>
+    public static bool IsLosslessSource(CodecConfig config) => config.Kind == TrackKind.Audio && config.Codec == CodecType.Flac;
+
+    /// <summary>
+    /// True when ALAC can hold the source without loss and with the same speaker layout: at most 24 bits (FFmpeg's
+    /// encoder stores 32-bit input as 24) and a channel count whose ALAC layout matches FLAC's (mono, stereo, L R C,
+    /// 5.0 and 5.1; FLAC's quadraphonic, 6.1 and 7.1 have side or back channels ALAC places elsewhere).
+    /// </summary>
+    public static bool AlacCanHold(CodecConfig config) =>
+        config.BitsPerSample <= 24 && config.Channels is 1 or 2 or 3 or 5 or 6;
 
     /// <summary>Subler's label of an AAC mixdown.</summary>
     public static string MixdownName(AudioMixdown mixdown) => mixdown switch
@@ -80,6 +105,8 @@ public static class ConversionDefaults
         ImportAction.ConvertToAc3 => Ac3Name,
         ImportAction.AacPlusPassthrough => AacPlusPassthroughName,
         ImportAction.AacPlusAc3 => AacPlusAc3Name,
+        ImportAction.ConvertToPcm => PcmName,
+        ImportAction.ConvertToAlac => AlacName,
         _ => SkipName,
     };
 
@@ -141,6 +168,14 @@ public static class ConversionDefaults
                 list.Add(new ImportChoice(ImportAction.AacPlusPassthrough, AacPlusPassthroughName));
             if (config.Codec is CodecType.Dts or CodecType.TrueHd or CodecType.Mlp)
                 list.Add(new ImportChoice(ImportAction.AacPlusAc3, AacPlusAc3Name));
+
+            // Lossless sources can stay lossless in another form: PCM anywhere, ALAC in MP4 (where Apple players play it).
+            if (IsLosslessSource(config))
+            {
+                list.Add(new ImportChoice(ImportAction.ConvertToPcm, PcmName));
+                if (target is ContainerKind.Mp4 or ContainerKind.Unknown && AlacCanHold(config))
+                    list.Add(new ImportChoice(ImportAction.ConvertToAlac, AlacName));
+            }
         }
 
         if (canOcr && config.Kind == TrackKind.Subtitle && SubtitleConversions.IsBitmap(config.Codec))

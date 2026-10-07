@@ -42,6 +42,12 @@ public enum ImportAction
     /// being copied (for DTS and other codecs Apple devices cannot play).
     /// </summary>
     AacPlusAc3,
+
+    /// <summary>Decode lossless audio (FLAC) to linear PCM: Matroska A_PCM, MP4 'ipcm' (requires FFmpeg).</summary>
+    ConvertToPcm,
+
+    /// <summary>Re-encode lossless audio (FLAC) to Apple Lossless (MP4 'alac'; requires FFmpeg).</summary>
+    ConvertToAlac,
 }
 
 /// <summary>How well a container can store a codec.</summary>

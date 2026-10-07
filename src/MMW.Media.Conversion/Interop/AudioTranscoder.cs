@@ -14,6 +14,10 @@ internal readonly record struct EncodedPacket(byte[] Data, long Pts, long Durati
 /// encoder. Every native object is owned by this class and released by <see cref="Dispose"/>.
 /// </summary>
 /// <remarks>
+/// Lossless targets (PCM, ALAC) keep the decoded layout, rate and integer samples: the resampler only repacks them
+/// (interleaved ↔ planar) into the encoder's format, so the output decodes to the source's exact samples.
+/// </remarks>
+/// <remarks>
 /// <para>
 /// The encoder is configured from the first decoded frame (the decoder's real output layout and rate). Output packet
 /// times are shifted by the encoder delay so the first packet starts at 0 and the decoded audio at
@@ -48,6 +52,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
     private AVChannelLayout _inLayout;
     private AVChannelLayout _outLayout;
     private AVSampleFormat _inFormat = AVSampleFormat.AV_SAMPLE_FMT_NONE;
+    private AVSampleFormat _outFormat = AVSampleFormat.AV_SAMPLE_FMT_FLTP;
     private int _inRate;
     private AVMatrixEncoding _matrix;
     private bool _smallLastFrame;
@@ -101,7 +106,10 @@ internal sealed unsafe class AudioTranscoder : IDisposable
 
     public int InputSampleRate => _inRate;
 
-    /// <summary>Encoder configuration (AAC AudioSpecificConfig); null for AC-3.</summary>
+    /// <summary>Bits per sample of a lossless output (PCM, ALAC); 0 otherwise.</summary>
+    public int OutputBits { get; private set; }
+
+    /// <summary>Encoder configuration (AAC AudioSpecificConfig, ALAC 'alac' atom); null for AC-3 and PCM.</summary>
     public byte[]? Extradata { get; private set; }
 
     /// <summary>Encoder delay in output samples (1024 for AAC, 256 for AC-3).</summary>
@@ -288,6 +296,12 @@ internal sealed unsafe class AudioTranscoder : IDisposable
 
     private void Configure(AVChannelLayout* inLayout, AVSampleFormat inFormat, int inRate)
     {
+        if (_target is AudioConversionTarget.Pcm or AudioConversionTarget.Alac)
+        {
+            ConfigureLossless(inLayout, inFormat, inRate);
+            return;
+        }
+
         var aac = _target == AudioConversionTarget.Aac;
         var codec = ffmpeg.avcodec_find_encoder_by_name(aac ? "aac" : "ac3");
         if (codec == null)
@@ -368,6 +382,100 @@ internal sealed unsafe class AudioTranscoder : IDisposable
                      $"{Bitrate / 1000} kbit/s{(matrix != AVMatrixEncoding.AV_MATRIX_ENCODING_NONE ? $", {mixdown}" : string.Empty)}.");
     }
 
+    /// <summary>
+    /// PCM or ALAC encoder for the decoded layout and rate. The bit depth is the decoder's (FLAC's STREAMINFO) rounded
+    /// up to 16, 24 or 32; integer samples are only repacked, never converted through floating point.
+    /// </summary>
+    private void ConfigureLossless(AVChannelLayout* inLayout, AVSampleFormat inFormat, int inRate)
+    {
+        var pcm = _target == AudioConversionTarget.Pcm;
+        var sourceBits = _decoder->bits_per_raw_sample > 0 ? _decoder->bits_per_raw_sample
+            : _input.BitsPerSample > 0 ? _input.BitsPerSample
+            : ffmpeg.av_get_bytes_per_sample(inFormat) * 8;
+        var bits = AudioConversionSettings.LosslessBits(sourceBits);
+        if (!pcm && bits > 24)
+            throw new NotSupportedException($"ALAC cannot hold {sourceBits}-bit audio without loss.");
+        var name = pcm ? $"pcm_s{bits}le" : "alac";
+        var codec = ffmpeg.avcodec_find_encoder_by_name(name);
+        if (codec == null)
+            throw new NotSupportedException($"This FFmpeg build has no {name} encoder.");
+        _smallLastFrame = (codec->capabilities & (ffmpeg.AV_CODEC_CAP_SMALL_LAST_FRAME | ffmpeg.AV_CODEC_CAP_VARIABLE_FRAME_SIZE)) != 0;
+
+        // The encoder's layout with the source's channel count: the same channels, or a relabelling of the same
+        // positions (5.1 with side surrounds → ALAC's 5.1 with back surrounds); never a remix.
+        AVChannelLayout outLayout = default;
+        var layouts = AvUtil.SupportedConfigs(codec, AVCodecConfig.AV_CODEC_CONFIG_CHANNEL_LAYOUT, (p, i) => (IntPtr)(((AVChannelLayout*)p) + i));
+        if (layouts is { Length: > 0 })
+        {
+            AVChannelLayout* match = null;
+            foreach (var p in layouts)
+            {
+                var candidate = (AVChannelLayout*)p;
+                if (ffmpeg.av_channel_layout_compare(candidate, inLayout) == 0)
+                {
+                    match = candidate;
+                    break;
+                }
+
+                if (match == null && candidate->nb_channels == inLayout->nb_channels)
+                    match = candidate;
+            }
+
+            if (match == null)
+                throw new NotSupportedException($"{name} cannot store {inLayout->nb_channels} channels.");
+            AvUtil.Check(ffmpeg.av_channel_layout_copy(&outLayout, match), "av_channel_layout_copy");
+        }
+        else
+        {
+            AvUtil.Check(ffmpeg.av_channel_layout_copy(&outLayout, inLayout), "av_channel_layout_copy");
+        }
+
+        var format = pcm
+            ? bits == 16 ? AVSampleFormat.AV_SAMPLE_FMT_S16 : AVSampleFormat.AV_SAMPLE_FMT_S32
+            : bits == 16 ? AVSampleFormat.AV_SAMPLE_FMT_S16P : AVSampleFormat.AV_SAMPLE_FMT_S32P;
+        var encoder = ffmpeg.avcodec_alloc_context3(codec);
+        if (encoder == null)
+            throw new InsufficientMemoryException("avcodec_alloc_context3 failed.");
+        _encoder = encoder;
+        encoder->sample_fmt = format;
+        encoder->sample_rate = inRate;
+        encoder->bits_per_raw_sample = bits;
+        AvUtil.Check(ffmpeg.av_channel_layout_copy(&encoder->ch_layout, &outLayout), "av_channel_layout_copy");
+        encoder->time_base = new AVRational { num = 1, den = inRate };
+        encoder->flags |= ffmpeg.AV_CODEC_FLAG_GLOBAL_HEADER;
+        AvUtil.Check(ffmpeg.avcodec_open2(encoder, codec, null), $"Opening the {name} encoder");
+
+        fixed (AVChannelLayout* target = &_outLayout)
+            AvUtil.Check(ffmpeg.av_channel_layout_copy(target, &outLayout), "av_channel_layout_copy");
+        ffmpeg.av_channel_layout_uninit(&outLayout);
+
+        _outFormat = format;
+        OutputSampleRate = inRate;
+        OutputChannels = encoder->ch_layout.nb_channels;
+        OutputBits = bits;
+        fixed (AVChannelLayout* l = &_outLayout)
+            OutputLayout = AvUtil.Describe(l);
+        InputLayout = AvUtil.Describe(inLayout);
+        Extradata = pcm ? null : AvUtil.GetExtradata(encoder);
+        InitialPadding = 0;
+        FrameSize = encoder->frame_size > 0 ? encoder->frame_size : pcm ? AudioConversionSettings.PcmBlockSize : AudioConversionSettings.AlacFrameSize;
+        Bitrate = encoder->bit_rate > 0 ? encoder->bit_rate : (long)inRate * OutputChannels * bits;
+        _fifo = ffmpeg.av_audio_fifo_alloc(format, OutputChannels, FrameSize * 4);
+        if (_fifo == null)
+            throw new InsufficientMemoryException("av_audio_fifo_alloc failed.");
+
+        // The resampler sees the output layout on both sides: a relabelling, not a remix.
+        fixed (AVChannelLayout* l = &_outLayout)
+            OpenResampler(l, inFormat, inRate);
+        fixed (AVChannelLayout* l = &_inLayout)
+        {
+            ffmpeg.av_channel_layout_uninit(l);
+            AvUtil.Check(ffmpeg.av_channel_layout_copy(l, inLayout), "av_channel_layout_copy");
+        }
+
+        AppLog.Debug($"Converting {_input.FormatName} {InputLayout} {inRate} Hz {sourceBits}-bit → {(pcm ? "PCM" : "ALAC")} {OutputLayout} {bits}-bit.");
+    }
+
     /// <summary>Picks the encoder layout closest to the input (same layout, else most shared channels).</summary>
     private static void ChooseLayout(AVCodec* codec, AVChannelLayout* input, int maxChannels, AVChannelLayout* result)
     {
@@ -429,7 +537,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         SwrContext* swr = null;
         fixed (AVChannelLayout* outLayout = &_outLayout)
         {
-            AvUtil.Check(ffmpeg.swr_alloc_set_opts2(&swr, outLayout, AVSampleFormat.AV_SAMPLE_FMT_FLTP, OutputSampleRate, inLayout, inFormat, inRate, 0, null),
+            AvUtil.Check(ffmpeg.swr_alloc_set_opts2(&swr, outLayout, _outFormat, OutputSampleRate, inLayout, inFormat, inRate, 0, null),
                 "swr_alloc_set_opts2");
         }
 
@@ -454,7 +562,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
         if (_converted->nb_samples < capacity || _converted->data[0] == null)
         {
             ffmpeg.av_frame_unref(_converted);
-            _converted->format = (int)AVSampleFormat.AV_SAMPLE_FMT_FLTP;
+            _converted->format = (int)_outFormat;
             _converted->sample_rate = OutputSampleRate;
             fixed (AVChannelLayout* l = &_outLayout)
                 AvUtil.Check(ffmpeg.av_channel_layout_copy(&_converted->ch_layout, l), "av_channel_layout_copy");
@@ -479,7 +587,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
             var frame = _encodeFrame;
             if (frame->data[0] == null)
             {
-                frame->format = (int)AVSampleFormat.AV_SAMPLE_FMT_FLTP;
+                frame->format = (int)_outFormat;
                 frame->sample_rate = OutputSampleRate;
                 fixed (AVChannelLayout* l = &_outLayout)
                     AvUtil.Check(ffmpeg.av_channel_layout_copy(&frame->ch_layout, l), "av_channel_layout_copy");
@@ -496,7 +604,7 @@ internal sealed unsafe class AudioTranscoder : IDisposable
                 if (_smallLastFrame)
                     frame->nb_samples = count;
                 else
-                    ffmpeg.av_samples_set_silence(frame->extended_data, count, FrameSize - count, OutputChannels, AVSampleFormat.AV_SAMPLE_FMT_FLTP);
+                    ffmpeg.av_samples_set_silence(frame->extended_data, count, FrameSize - count, OutputChannels, _outFormat);
             }
 
             frame->pts = _nextPts;

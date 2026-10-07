@@ -5,7 +5,7 @@ using MMW.Media.Conversion.Interop;
 namespace MMW.Media.Conversion;
 
 /// <summary>
-/// A sample source producing the AAC or AC-3 conversion of another (audio) sample source. Decoding and encoding
+/// A sample source producing the AAC, AC-3, PCM or ALAC conversion of another (audio) sample source. Decoding and encoding
 /// happen on demand in <see cref="ReadNext"/>, one source packet at a time, so memory use stays constant.
 /// </summary>
 /// <remarks>
@@ -51,13 +51,21 @@ public sealed class AudioConverterSource : ISampleSource, IDisposable
         _settings = settings;
         Start();
         var t = _transcoder!;
-        var aac = target == AudioConversionTarget.Aac;
+        var (codec, codecId, extradata) = target switch
+        {
+            AudioConversionTarget.Aac => (CodecType.Aac, "mp4a", t.Extradata),
+            AudioConversionTarget.Pcm => (CodecType.Pcm, "ipcm", null),
+            // FFmpeg's ALAC extradata is the 'alac' atom; the canonical form is the ALACSpecificConfig inside it.
+            AudioConversionTarget.Alac => (CodecType.Alac, "alac", t.Extradata is { Length: >= 36 } atom ? atom[12..] : t.Extradata),
+            _ => (CodecType.Ac3, "ac-3", (byte[]?)null),
+        };
         Config = new CodecConfig
         {
-            Codec = aac ? CodecType.Aac : CodecType.Ac3,
+            Codec = codec,
             Kind = TrackKind.Audio,
-            SourceCodecId = aac ? "mp4a" : "ac-3",
-            Extradata = aac ? t.Extradata : null,
+            SourceCodecId = codecId,
+            Extradata = extradata,
+            BitsPerSample = t.OutputBits,
             Timescale = (uint)t.OutputSampleRate,
             DefaultSampleDuration = t.FrameSize,
             Language = source.Config.Language,

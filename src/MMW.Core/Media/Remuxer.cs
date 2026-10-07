@@ -204,13 +204,7 @@ public static class Remuxer
         return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, import.Action, $"converted to {label} ({converter.Name}, {language})") : output;
     }
 
-    /// <summary>The codec a single-track conversion action produces, or null for other actions.</summary>
-    private static AudioConversionTarget? ConversionTarget(ImportAction action) => action switch
-    {
-        ImportAction.ConvertToAac => AudioConversionTarget.Aac,
-        ImportAction.ConvertToAc3 => AudioConversionTarget.Ac3,
-        _ => null,
-    };
+    private static AudioConversionTarget? ConversionTarget(ImportAction action) => ConversionDefaults.Target(action);
 
     /// <summary>
     /// The bitstream's colour and static HDR10 metadata when the container lacks some of it (the document scan's
