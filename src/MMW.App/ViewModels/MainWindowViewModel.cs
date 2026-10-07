@@ -17,7 +17,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Files that only contain tracks (no document of their own): dropping them imports into the open document.</summary>
     private static readonly string[] s_trackExtensions =
-        [".srt", ".ass", ".ssa", ".vtt", ".aac", ".ac3", ".eac3", ".ec3", ".264", ".h264", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".dts", ".dtshd", .. MMW.Formats.MpegTs.TsFormat.Extensions];
+        [".srt", ".ass", ".ssa", ".vtt", ".aac", ".ac3", ".eac3", ".ec3", ".264", ".h264", ".265", ".h265", ".hevc", ".266", ".h266", ".vvc", ".evc", ".avs", ".cavs", ".avs2", ".avs3", ".dts", ".dtshd", .. MMW.Formats.MpegTs.TsFormat.Extensions, .. MMW.Formats.Ogg.OggFormat.Extensions];
 
     private readonly DocumentService _documents;
     private readonly IDialogService _dialogs;

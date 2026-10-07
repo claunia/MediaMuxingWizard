@@ -16,7 +16,7 @@ public static class Fixtures
     {
         try
         {
-            using var p = Process.Start(new ProcessStartInfo(name, name.StartsWith("mkv", StringComparison.Ordinal) ? "--version" : "-version")
+            using var p = Process.Start(new ProcessStartInfo(name, name.StartsWith("mkv", StringComparison.Ordinal) || name is "oggenc" or "flac" ? "--version" : "-version")
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

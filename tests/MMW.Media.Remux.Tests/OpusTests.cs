@@ -9,7 +9,7 @@ namespace MMW.Media.Remux.Tests;
 public sealed class OpusTests
 {
     /// <summary>Three seconds of Opus in Ogg from libopus (pre-skip 312, the last packet padded).</summary>
-    private static string Ogg(string layout)
+    internal static string Ogg(string layout)
     {
         MediaProbe.RequireFfmpeg();
         return Fixtures.Get($"opus-{layout}.opus", "ffmpeg",

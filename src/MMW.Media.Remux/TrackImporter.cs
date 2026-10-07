@@ -5,6 +5,7 @@ using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Elementary;
 using MMW.Formats.MpegTs;
+using MMW.Formats.Ogg;
 using MMW.Formats.Matroska.Media;
 using MMW.Formats.Mp4.Media;
 using MMW.Media.Conversion;
@@ -28,13 +29,14 @@ public static class MediaRemux
         MatroskaMediaFormat.Register();
         ElementaryFormat.Register();
         TsFormat.Register();
+        OggFormat.Register();
         MediaConversion.Register();
         SubtitleOcr.Register();
     }
 
     /// <summary>Every file extension that can be inspected for tracks to import.</summary>
     public static IReadOnlyList<string> ImportExtensions { get; } =
-        [.. ContainerKinds.Mp4Extensions, .. ContainerKinds.MatroskaExtensions, .. ElementaryFormat.Extensions, .. TsFormat.Extensions];
+        [.. ContainerKinds.Mp4Extensions, .. ContainerKinds.MatroskaExtensions, .. ElementaryFormat.Extensions, .. TsFormat.Extensions, .. OggFormat.Extensions];
 }
 
 /// <summary>A track of a file that can be added to a document.</summary>
