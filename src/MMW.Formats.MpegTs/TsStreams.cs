@@ -52,9 +52,11 @@ internal abstract class TsStream
             case 0x0F:
                 return new AudioStream(info, AudioKind.Adts);
             case 0x1B:
-                return new NalVideoStream(info, hevc: false);
+                return new NalVideoStream(info, CodecType.H264);
             case 0x24:
-                return new NalVideoStream(info, hevc: true);
+                return new NalVideoStream(info, CodecType.Hevc);
+            case 0x33:
+                return new NalVideoStream(info, CodecType.Vvc);
             case 0xD2:
                 return new MpegVideoStream(info, CodecType.Avs2);
             case 0x81 or 0x84 or 0x87 or 0xA1:
@@ -73,7 +75,7 @@ internal abstract class TsStream
                 if (info.Descriptor(0x7B) is not null || registration is "DTS1" or "DTS2" or "DTS3")
                     return new AudioStream(info, AudioKind.Dts);
                 if (registration == "HEVC")
-                    return new NalVideoStream(info, hevc: true);
+                    return new NalVideoStream(info, CodecType.Hevc);
                 if (info.Descriptor(0x59) is { Length: >= 8 })
                     return new DvbSubtitleStream(info);
                 return info.Descriptor(0x59) is null && info.Descriptor(0x56) is null ? new SniffedStream(info) : null; // not DVB subtitles/teletext
@@ -101,13 +103,15 @@ internal abstract class TsStream
 }
 
 /// <summary>
-/// H.264 / HEVC video as a continuous Annex B byte stream: NAL units are found across PES packets and access units are
-/// delimited by their content (H.264 §7.4.1.2.3, H.265 §7.4.2.4.4: delimiter, parameter sets or SEI after a picture,
-/// the first slice of a new picture), since PES packets need not align with access units. An access unit takes the
+/// H.264 / HEVC / VVC video as a continuous Annex B byte stream: NAL units are found across PES packets and access units
+/// are delimited by their content (H.264 §7.4.1.2.3, H.265 §7.4.2.4.4, H.266 §7.4.2.4.4: delimiter, parameter sets,
+/// picture header or SEI after a picture, the first slice of a new picture), since PES packets need not align with access units. An access unit takes the
 /// timestamps of the PES it starts in; the second field of a field pair joins the first.
 /// </summary>
-internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(info)
+internal sealed class NalVideoStream(TsStreamInfo info, CodecType codec) : TsStream(info)
 {
+    private readonly bool _hevc = codec == CodecType.Hevc;
+    private readonly bool _vvc = codec == CodecType.Vvc;
     private readonly List<byte[]> _vps = [];
     private readonly List<byte[]> _sps = [];
     private readonly List<byte[]> _pps = [];
@@ -151,7 +155,7 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
     public override bool Ready => HasConfig && _dts.Count >= 24;
 
     /// <summary>Parameter sets and a random access point were seen (frame rate estimation uses what was seen).</summary>
-    public bool HasConfig => _sps.Count > 0 && _pps.Count > 0 && (!hevc || _vps.Count > 0) && _seenSync;
+    public bool HasConfig => _sps.Count > 0 && _pps.Count > 0 && (!_hevc || _vps.Count > 0) && _seenSync;
 
     public override void OnPes(Pes pes, Queue<MediaSample> output)
     {
@@ -224,10 +228,16 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
     {
         if (nal.Length == 0)
             return;
-        var type = hevc ? NalUnits.HevcType(nal) : NalUnits.H264Type(nal);
-        var vcl = hevc ? Hevc.IsVcl(type) : type is 1 or 5;
+        var type = _vvc ? Vvc.NalType(nal) : _hevc ? NalUnits.HevcType(nal) : NalUnits.H264Type(nal);
+        var vcl = _vvc ? Vvc.IsVcl(type) : _hevc ? Hevc.IsVcl(type) : type is 1 or 5;
         bool startsAccessUnit;
-        if (hevc)
+        if (_vvc)
+        {
+            startsAccessUnit = type == Vvc.NalAud ||
+                               _current is { HasVcl: true } && (type is (>= Vvc.NalOpi and <= Vvc.NalPrefixAps) or Vvc.NalPictureHeader or Vvc.NalSeiPrefix or (>= 26 and <= 29) ||
+                                                                vcl && Vvc.HasPictureHeaderInSlice(nal));
+        }
+        else if (_hevc)
         {
             startsAccessUnit = type == 35 ||
                                _current is { HasVcl: true } && (type is 32 or 33 or 34 or 39 or (>= 41 and <= 44) or (>= 48 and <= 55) ||
@@ -247,7 +257,7 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
             Time(_current, offset);
         }
 
-        if (hevc ? type is 35 or 38 : type is 9 or 12) // access unit delimiter, filler: not stored
+        if (_vvc ? type is Vvc.NalAud or Vvc.NalFiller : _hevc ? type is 35 or 38 : type is 9 or 12) // access unit delimiter, filler: not stored
             return;
         var bytes = nal.ToArray();
         TrackParameterSet(bytes, type);
@@ -257,7 +267,11 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
             if (au.FirstVclType < 0)
             {
                 au.FirstVclType = type;
-                if (hevc)
+                if (_vvc)
+                {
+                    au.Sync = Vvc.IsIrap(type);
+                }
+                else if (_hevc)
                 {
                     au.Sync = Hevc.IsIrap(type);
                 }
@@ -278,7 +292,7 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
 
             au.HasVcl = true;
         }
-        else if (!hevc && type == 6 && !au.HasVcl)
+        else if (codec == CodecType.H264 && type == 6 && !au.HasVcl)
         {
             var recovery = false;
             Sei.ForEachMessageInNal(bytes, CodecType.H264, (t, _) => recovery = t == 6); // recovery point: open-GOP random access
@@ -340,14 +354,17 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
 
     private void TrackParameterSet(byte[] nal, int type)
     {
-        List<byte[]>? list = hevc
-            ? type switch { 32 => _vps, 33 => _sps, 34 => _pps, _ => null }
-            : type switch { 7 => _sps, 8 => _pps, _ => null };
+        List<byte[]>? list = codec switch
+        {
+            CodecType.Vvc => type switch { Vvc.NalVps => _vps, Vvc.NalSps => _sps, Vvc.NalPps => _pps, _ => null },
+            CodecType.Hevc => type switch { 32 => _vps, 33 => _sps, 34 => _pps, _ => null },
+            _ => type switch { 7 => _sps, 8 => _pps, _ => null },
+        };
         if (list is null)
             return;
         if (!list.Any(n => n.AsSpan().SequenceEqual(nal)))
             list.Add(nal);
-        if (hevc)
+        if (codec != CodecType.H264)
             return;
         try
         {
@@ -373,11 +390,11 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
             return;
         if (!_seenSync && !au.Sync)
             return; // the stream starts mid-GOP: nothing before the first random access point decodes
-        if (hevc && au.Sync)
-            _dropRasl = au.FirstVclType == 21 && !_seenSync; // RASL pictures of the leading CRA reference missing pictures
-        else if (hevc && _dropRasl && !Hevc.IsRasl(au.FirstVclType) && au.FirstVclType >= 0)
+        if (codec != CodecType.H264 && au.Sync)
+            _dropRasl = au.FirstVclType == (_vvc ? Vvc.NalCra : 21) && !_seenSync; // RASL pictures of the leading CRA reference missing pictures
+        else if (_dropRasl && !IsRasl(au.FirstVclType) && au.FirstVclType >= 0)
             _dropRasl = false;
-        if (_dropRasl && Hevc.IsRasl(au.FirstVclType))
+        if (_dropRasl && IsRasl(au.FirstVclType))
             return;
         _seenSync = true;
         if (_dts.Count < 64)
@@ -395,6 +412,8 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
         output.Enqueue(new MediaSample { Dts = au.Dts, CtsOffset = au.Pts - au.Dts, IsSync = au.Sync, Data = data });
     }
 
+    private bool IsRasl(int type) => _vvc ? Vvc.IsRasl(type) : _hevc && Hevc.IsRasl(type);
+
     public override CodecConfig Describe()
     {
         int width = 0, height = 0, sarW = 1, sarH = 1, depth = 8;
@@ -402,7 +421,13 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
         byte[] extradata;
         try
         {
-            if (hevc)
+            if (_vvc)
+            {
+                var sps = Vvc.ParseSps(_sps[0]);
+                (width, height, sarW, sarH, depth, fps) = (sps.Width, sps.Height, sps.SarWidth, sps.SarHeight, sps.BitDepth, sps.FrameRate);
+                extradata = Vvc.BuildVvcC(_vps, _sps, _pps);
+            }
+            else if (_hevc)
             {
                 var sps = Hevc.ParseSps(_sps[0]);
                 (width, height, sarW, sarH, depth, fps) = (sps.Width, sps.Height, sps.SarWidth, sps.SarHeight, sps.BitDepthLuma, sps.FrameRate);
@@ -417,14 +442,14 @@ internal sealed class NalVideoStream(TsStreamInfo info, bool hevc) : TsStream(in
         }
         catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
         {
-            extradata = hevc ? Hevc.BuildHvcC(_vps, _sps, _pps) : H264.BuildAvcC(_sps, _pps);
+            extradata = _vvc ? Vvc.BuildVvcC(_vps, _sps, _pps) : _hevc ? Hevc.BuildHvcC(_vps, _sps, _pps) : H264.BuildAvcC(_sps, _pps);
         }
 
         if (fps is <= 0 or > 300)
             fps = FrameRateFromTimestamps();
         return Base(TrackKind.Video) with
         {
-            Codec = hevc ? CodecType.Hevc : CodecType.H264,
+            Codec = codec,
             Extradata = extradata,
             Width = width,
             Height = height,
