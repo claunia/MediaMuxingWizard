@@ -1,5 +1,6 @@
 using MMW.Core.Diagnostics;
 using MMW.Core.Media;
+using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 
 namespace MMW.Formats.MpegTs;
@@ -134,7 +135,9 @@ internal sealed class TsDemuxer : IDemuxer
             var hint = config.DefaultSampleDuration > 0 && config.Timescale > 0
                 ? (long)(duration.TotalSeconds * config.Timescale / config.DefaultSampleDuration)
                 : -1;
-            tracks.Add(new TsTrackSource(this, p.Spec, config, (long)Math.Round(start * config.Timescale), duration, hint));
+            // Opus: the first unit's start trim (the pre-skip) is decoded but not played.
+            var skip = config.Codec == CodecType.Opus ? Opus.Describe(config.Extradata).PreSkip : 0;
+            tracks.Add(new TsTrackSource(this, p.Spec, config, (long)Math.Round(start * config.Timescale) + skip, duration, hint));
         }
 
         Tracks = tracks;

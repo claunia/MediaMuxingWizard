@@ -82,6 +82,8 @@ internal abstract class TsStream
                     return new AudioStream(info, AudioKind.Dts);
                 if (registration == "HEVC")
                     return new NalVideoStream(info, CodecType.Hevc);
+                if (registration == "Opus")
+                    return new AudioStream(info, AudioKind.Opus);
                 if (info.Descriptor(0x59) is { Length: >= 8 })
                     return new DvbSubtitleStream(info);
                 return info.Descriptor(0x59) is null && info.Descriptor(0x56) is null ? new SniffedStream(info) : null; // not DVB subtitles/teletext
@@ -94,6 +96,7 @@ internal abstract class TsStream
     {
         CodecType.Ac3 or CodecType.Eac3 => new AudioStream(info, AudioKind.Ac3),
         CodecType.Dts => new AudioStream(info, AudioKind.Dts),
+        CodecType.Opus => new AudioStream(info, AudioKind.Opus),
         CodecType.Aac => new AudioStream(info, AudioKind.Adts),
         CodecType.Mp1 or CodecType.Mp2 or CodecType.Mp3 => new AudioStream(info, AudioKind.MpegAudio),
         _ => null,
@@ -629,6 +632,9 @@ internal enum AudioKind
     Dts,
     MpegAudio,
     TrueHd,
+
+    /// <summary>Opus (ETSI TS 102 366 style mapping: stream type 0x06, registration "Opus", access units behind a control header).</summary>
+    Opus,
 }
 
 /// <summary>
@@ -649,6 +655,8 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
     private CodecConfig? _config;
     private readonly LatmParser _latm = new();
     private List<byte[]> _latmUnits = [];
+    private byte[]? _opusUnit;
+    private long _trimEnd;
 
     private enum Status
     {
@@ -737,7 +745,13 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
             }
 
             _lastFrameOffset = offset;
-            var units = kind == AudioKind.Latm ? _latmUnits : [Payload(span[..length])];
+            var units = kind switch
+            {
+                AudioKind.Latm => _latmUnits,
+                AudioKind.Opus => [_opusUnit!],
+                _ => [Payload(span[..length])],
+            };
+            var trimEnd = _trimEnd;
             _start += length;
             if (units.Count == 0)
                 continue;
@@ -761,7 +775,7 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
 
             foreach (var data in units)
             {
-                output.Enqueue(new MediaSample { Dts = time, Duration = samples, IsSync = sync, Data = data });
+                output.Enqueue(new MediaSample { Dts = time, Duration = samples, IsSync = sync, Data = data, TrimEnd = trimEnd });
                 time += samples;
             }
 
@@ -827,6 +841,9 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
                 };
                 return (Status.Frame, frameLength, aac.FrameLength * _latmUnits.Count, true, config);
             }
+
+            case AudioKind.Opus:
+                return OpusFrameAt(s, atEnd);
 
             case AudioKind.Ac3:
             {
@@ -964,6 +981,111 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
                 return (Status.Frame, length, samples, au.IsMajorSync, config);
             }
         }
+    }
+
+    /// <summary>Opus stream and coupled stream counts and channel mappings (Vorbis order) of channel_config_code 0–8.</summary>
+    private static readonly byte[] s_opusStreams = [1, 1, 1, 2, 2, 3, 4, 4, 5];
+    private static readonly byte[] s_opusCoupled = [1, 0, 1, 1, 2, 2, 2, 3, 3];
+    private static readonly byte[][] s_opusMappings =
+    [
+        [0], [0, 1], [0, 2, 1], [0, 1, 2, 3], [0, 4, 1, 2, 3], [0, 4, 1, 2, 3, 5], [0, 4, 1, 2, 3, 5, 6], [0, 6, 1, 2, 3, 4, 5, 7],
+    ];
+
+    /// <summary>
+    /// One Opus access unit behind its opus_control_header: an 11-bit 0x3FF prefix, start/end trim and extension flags,
+    /// the 0xFF-continued au_size, the 13-bit trims and the extension. The start trim of the first unit is the pre-skip.
+    /// </summary>
+    private (Status, int Length, int Samples, bool Sync, CodecConfig? Config) OpusFrameAt(ReadOnlySpan<byte> s, bool atEnd)
+    {
+        var none = (Status.NeedMore, 0, 0, false, (CodecConfig?)null);
+        if (s.Length < 3)
+            return atEnd ? (Status.Discard, s.Length, 0, false, null) : none;
+        if (((s[0] << 3) | (s[1] >> 5)) != 0x3FF)
+            return (Status.Invalid, 0, 0, false, null);
+        var startTrimFlag = (s[1] & 0x10) != 0;
+        var endTrimFlag = (s[1] & 0x08) != 0;
+        var extensionFlag = (s[1] & 0x04) != 0;
+        var pos = 2;
+        var size = 0;
+        while (true)
+        {
+            if (pos >= s.Length)
+                return atEnd ? (Status.Discard, s.Length, 0, false, null) : none;
+            var b = s[pos++];
+            size += b;
+            if (b != 0xFF)
+                break;
+        }
+
+        var startTrim = 0;
+        if (startTrimFlag)
+        {
+            if (pos + 2 > s.Length)
+                return atEnd ? (Status.Discard, s.Length, 0, false, null) : none;
+            startTrim = BinaryPrimitives.ReadUInt16BigEndian(s[pos..]) & 0x1FFF;
+            pos += 2;
+        }
+
+        _trimEnd = 0;
+        if (endTrimFlag)
+        {
+            if (pos + 2 > s.Length)
+                return atEnd ? (Status.Discard, s.Length, 0, false, null) : none;
+            _trimEnd = BinaryPrimitives.ReadUInt16BigEndian(s[pos..]) & 0x1FFF;
+            pos += 2;
+        }
+
+        if (extensionFlag)
+        {
+            if (pos >= s.Length)
+                return atEnd ? (Status.Discard, s.Length, 0, false, null) : none;
+            pos += 1 + s[pos];
+        }
+
+        if (pos + size > s.Length)
+            return atEnd ? (Status.Discard, s.Length, 0, false, null) : none;
+        var packet = s.Slice(pos, size);
+        var samples = Opus.PacketSamples(packet);
+        if (samples <= 0)
+            return (Status.Discard, pos + size, 0, false, null);
+        _opusUnit = packet.ToArray();
+        _trimEnd = Math.Min(_trimEnd, samples);
+        CodecConfig? config = null;
+        if (_config is null)
+        {
+            var head = OpusHead(startTrim);
+            config = Base(TrackKind.Audio) with
+            {
+                Codec = CodecType.Opus,
+                SampleRate = 48000,
+                Channels = head[9],
+                Extradata = head,
+                Timescale = 48000,
+                DefaultSampleDuration = samples,
+                CodecDelay = TimeSpan.FromSeconds(startTrim / 48000.0),
+            };
+        }
+
+        return (Status.Frame, pos + size, samples, true, config);
+    }
+
+    /// <summary>The OpusHead for the PMT's channel_config_code (Opus extension descriptor 0x80, as FFmpeg reads it).</summary>
+    private byte[] OpusHead(int preSkip)
+    {
+        var code = Info.Descriptor(0x7F) is { Length: >= 2 } d && d[0] == 0x80 && d[1] <= 8 ? d[1] : 2;
+        var channels = code == 0 ? 2 : code;
+        var family = code == 0 ? 255 : channels > 2 ? 1 : 0;
+        var head = new List<byte>(Opus.DefaultHead(channels, preSkip, 48000));
+        head[9] = (byte)channels;
+        head[18] = (byte)family;
+        if (family != 0)
+        {
+            head.Add(s_opusStreams[code]);
+            head.Add(s_opusCoupled[code]);
+            head.AddRange(s_opusMappings[channels - 1]);
+        }
+
+        return [.. head];
     }
 
     private static readonly int[,] s_mpaBitrates =

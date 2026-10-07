@@ -74,6 +74,29 @@ public sealed class OpusTests
         }
     }
 
+    /// <summary>
+    /// The Ogg stream copied to MPEG-TS by FFmpeg: the pre-skip and padding become the control headers' start and end
+    /// trims, the channel configuration the Opus extension descriptor.
+    /// </summary>
+    [Theory]
+    [InlineData("stereo", ContainerKind.Matroska)]
+    [InlineData("5.1", ContainerKind.Mp4)]
+    [InlineData("7.1", ContainerKind.Matroska)]
+    public async Task Transport_stream_opus_keeps_its_trims(string layout, ContainerKind target)
+    {
+        var source = Ogg(layout);
+        var ts = Fixtures.Get($"opus-{layout}.ts", "ffmpeg", $"-v error -y -i {Fixtures.Quote(source)} -c copy {{out}}");
+        var output = await PassthroughAsync(ts, target);
+        try
+        {
+            Assert.Equal(Pcm(source), Pcm(output));
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
+    }
+
     [Fact]
     public async Task Corpus_opus_keeps_its_exact_length()
     {
