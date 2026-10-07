@@ -87,6 +87,24 @@ public enum CodecType
 
     /// <summary>RealVideo (RV10/RV20/RV30/RV40).</summary>
     RealVideo,
+
+    /// <summary>VC-1 (SMPTE 421M) as MP4 stores it ('vc-1' with 'dvc1').</summary>
+    Vc1,
+
+    /// <summary>H.263 as 3GPP stores it ('s263' with 'd263').</summary>
+    H263,
+
+    /// <summary>Dirac / SMPTE VC-2 ('drac').</summary>
+    Dirac,
+
+    /// <summary>Avid DNxHD / DNxHR (SMPTE VC-3; 'AVdn', 'AVdh').</summary>
+    Dnxhd,
+
+    /// <summary>AMR narrowband ('samr' with 'damr').</summary>
+    AmrNb,
+
+    /// <summary>AMR wideband ('sawb' with 'damr').</summary>
+    AmrWb,
 }
 
 /// <summary>
@@ -116,6 +134,7 @@ public enum CodecType
 /// <item><term>VFW video</term><description>BITMAPINFOHEADER followed by the codec's extra data (Matroska V_MS/VFW/FOURCC CodecPrivate).</description></item>
 /// <item><term>ACM audio</term><description>WAVEFORMATEX followed by the codec's extra data (Matroska A_MS/ACM CodecPrivate).</description></item>
 /// <item><term>RealVideo</term><description>The RealMedia 'VIDO' type-specific data (Matroska V_REAL/* CodecPrivate).</description></item>
+/// <item><term>VC-1, H.263, Dirac, DNxHD, AMR</term><description>The QuickTime / ISO sample entry, header included (Matroska V_QUICKTIME / A_QUICKTIME CodecPrivate).</description></item>
 /// </list>
 /// </remarks>
 public sealed record CodecConfig
@@ -297,6 +316,12 @@ public static class CodecNames
         CodecType.VfwVideo => "VFW video",
         CodecType.AcmAudio => "ACM audio",
         CodecType.RealVideo => "RealVideo",
+        CodecType.Vc1 => "VC-1",
+        CodecType.H263 => "H.263",
+        CodecType.Dirac => "Dirac",
+        CodecType.Dnxhd => "DNxHD",
+        CodecType.AmrNb => "AMR-NB",
+        CodecType.AmrWb => "AMR-WB",
         _ => fallback.Length > 0 ? fallback : "Unknown",
     };
 
@@ -307,5 +332,5 @@ public static class CodecNames
     /// <summary>True for video codecs whose samples may be stored out of presentation order (B-frames).</summary>
     public static bool MayReorder(CodecType codec) =>
         codec is CodecType.H264 or CodecType.Hevc or CodecType.Vvc or CodecType.Mpeg4Visual or CodecType.Mpeg2Video or CodecType.Mpeg1Video or CodecType.Avs2 or
-                 CodecType.Evc or CodecType.Avs3 or CodecType.Avs1 or CodecType.Av2;
+                 CodecType.Evc or CodecType.Avs3 or CodecType.Avs1 or CodecType.Av2 or CodecType.Vc1;
 }

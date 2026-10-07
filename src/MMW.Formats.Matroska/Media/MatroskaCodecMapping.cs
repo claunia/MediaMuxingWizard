@@ -200,6 +200,22 @@ internal static class MatroskaCodecMapping
                 return c with { Codec = CodecType.DvbSub, Extradata = priv };
         }
 
+        if (id is "V_QUICKTIME" or "A_QUICKTIME" && priv is { Length: >= 8 })
+        {
+            // The QuickTime sample description, as mkvmerge stores it (older files may lack the size and type header).
+            var entry = priv;
+            if (QuickTime.CodecFor(QuickTime.EntryType(priv) ?? string.Empty) is null && QuickTime.CodecFor(Encoding.ASCII.GetString(priv, 0, 4)) is not null)
+            {
+                entry = new byte[priv.Length + 4];
+                System.Buffers.Binary.BinaryPrimitives.WriteInt32BigEndian(entry, entry.Length);
+                priv.CopyTo(entry, 4);
+            }
+
+            return QuickTime.CodecFor(QuickTime.EntryType(entry) ?? string.Empty) is { } codec
+                ? c with { Codec = codec, Extradata = entry, BitsPerSample = c.Kind == TrackKind.Audio ? 0 : c.BitsPerSample }
+                : c with { Codec = CodecType.Unknown, Extradata = priv };
+        }
+
         if (id.StartsWith("V_REAL/", StringComparison.Ordinal) && Vfw.RealVideoFourCc(priv) is not null)
             return c with { Codec = CodecType.RealVideo, Extradata = priv };
         if (id.StartsWith("V_MPEG4/ISO/", StringComparison.Ordinal))
@@ -301,6 +317,9 @@ internal static class MatroskaCodecMapping
         CodecType.VfwVideo => "V_MS/VFW/FOURCC", // the BITMAPINFOHEADER as CodecPrivate, as mkvmerge writes it
         CodecType.RealVideo when Vfw.RealVideoFourCc(c.Extradata) is { } fourCc => "V_REAL/" + fourCc,
         CodecType.AcmAudio => "A_MS/ACM", // the WAVEFORMATEX as CodecPrivate, as mkvmerge writes it
+        // The QuickTime sample description as CodecPrivate, as mkvmerge writes these codecs from MP4/MOV.
+        CodecType.Vc1 or CodecType.H263 or CodecType.Dirac or CodecType.Dnxhd when c.Extradata is { Length: >= 8 } => "V_QUICKTIME",
+        CodecType.AmrNb or CodecType.AmrWb when c.Extradata is { Length: >= 8 } => "A_QUICKTIME",
         CodecType.Mjpeg => "V_MJPEG",
         CodecType.Theora => "V_THEORA",
         CodecType.ProRes => "V_PRORES",
@@ -342,6 +361,7 @@ internal static class MatroskaCodecMapping
         CodecType.Alac => c.Extradata,
         CodecType.Av2 => Av2CodecPrivate(c.Extradata),
         CodecType.VfwVideo or CodecType.AcmAudio or CodecType.RealVideo => c.Extradata,
+        _ when QuickTime.IsEntryCodec(c.Codec) => c.Extradata,
         CodecType.WebVtt => c.Extradata is { Length: > 0 } header && Encoding.UTF8.GetString(header).StartsWith("WEBVTT", StringComparison.Ordinal) ? header : null,
         _ => null,
     };

@@ -55,12 +55,17 @@ internal static class Mp4SampleEntries
             Native = new Mp4NativeTrack(entry, handler, trak.FindPath("mdia/minf")?.Children?.FirstOrDefault(c => c.Type is "vmhd" or "smhd" or "nmhd" or "gmhd" or "sthd" or "hmhd")),
         };
 
-        return kind switch
+        var described = kind switch
         {
             TrackKind.Video => DescribeVideo(config, entry, tkhd),
             TrackKind.Audio => DescribeAudio(config, entry),
             _ => DescribeOther(config, entry, tkhd),
         };
+
+        // Codecs described by their whole sample entry (VC-1, H.263, Dirac, DNxHD, AMR): kept as it is for any container.
+        return described.Codec == CodecType.Unknown && kind is TrackKind.Video or TrackKind.Audio && QuickTime.CodecFor(entry.Type) is { } entryCodec
+            ? described with { Codec = entryCodec, Extradata = BoxWriter.ToArray(entry), BitsPerSample = kind == TrackKind.Audio ? 0 : described.BitsPerSample }
+            : described;
     }
 
     private static CodecConfig DescribeVideo(CodecConfig config, Box entry, Box? tkhd)
@@ -449,6 +454,7 @@ internal static class Mp4SampleEntries
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
             CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
                 "AVS (AVS1-P2 / AVS+) video has no MP4 sample entry (none is registered), so it cannot be stored in MP4; save as Matroska instead"),
+            _ when QuickTime.IsEntryCodec(config.Codec) && config.Extradata is { Length: >= 8 } => TrackSupport.Passthrough,
             CodecType.VfwVideo or CodecType.RealVideo => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
                 $"{config.FormatName} video has no MP4 sample entry, so it cannot be stored in MP4; save as Matroska instead"),
             CodecType.Pgs or CodecType.DvbSub =>
@@ -557,6 +563,9 @@ internal static class Mp4SampleEntries
 
             return entry;
         }
+
+        if (QuickTime.IsEntryCodec(config.Codec) && config.Extradata is { Length: >= 8 } stored)
+            return BoxParser.ParseList(stored, "stsd")[0]; // the sample entry itself (from Matroska V_QUICKTIME / A_QUICKTIME)
 
         return config.Kind switch
         {
