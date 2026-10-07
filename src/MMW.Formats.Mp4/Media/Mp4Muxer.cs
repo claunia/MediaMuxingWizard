@@ -754,7 +754,12 @@ internal sealed class Mp4Muxer : IMuxer
     private static Box BuildStbl(TrackState t, Box entry, long[] durations, long shift, long offsetDelta, bool force64)
     {
         var n = t.Sizes.Count;
-        var stsd = new Box("stsd", new PayloadBuilder().FullBox(0, 0).U32(1).ToArray(), [entry]);
+        // ISO/IEC 14496-12: an AudioSampleEntryV1 ('srat' for rates above 65535 Hz) needs a version 1 'stsd'; readers
+        // otherwise take it for a QuickTime version 1 sound description.
+        var isoV1 = entry.Payload.Length >= 10 && entry.Type is "ipcm" or "fpcm" && entry.Payload[9] == 1;
+        var stsd = new Box("stsd", new PayloadBuilder().FullBox(isoV1 ? 1 : 0, 0).U32(1).ToArray(), [entry]);
+        if (PcmFrameTables(t, durations, offsetDelta, force64) is { } pcm)
+            return new Box("stbl", null, [stsd, .. pcm]);
 
         // stts (run-length)
         var stts = new List<(uint Count, uint Delta)>();
@@ -825,6 +830,55 @@ internal sealed class Mp4Muxer : IMuxer
         children.Add(new Box("stsz", stsz.ToArray()));
         children.Add(SampleTable.BuildChunkOffsets(t.ChunkOffsets.Select(o => o + offsetDelta).ToList(), force64));
         return new Box("stbl", null, children);
+    }
+
+    /// <summary>
+    /// PCM is written with one sample per audio frame, as ISO/IEC 23003-5 and QuickTime describe it: the blocks the
+    /// muxer received become chunks of frames, so the tables stay a few entries long (constant size, unit duration).
+    /// Null when the blocks do not hold whole frames at one tick each (the track is then written block by block).
+    /// </summary>
+    private static List<Box>? PcmFrameTables(TrackState t, long[] durations, long offsetDelta, bool force64)
+    {
+        var frameBytes = Mp4SampleEntries.PcmFrameBytes(t.Config);
+        if (frameBytes <= 0 || t.Timescale != t.Config.SampleRate || t.Sizes.Count == 0)
+            return null;
+        long frames = 0;
+        for (var i = 0; i < t.Sizes.Count; i++)
+        {
+            if (t.Sizes[i] % frameBytes != 0 || durations[i] != t.Sizes[i] / frameBytes)
+                return null;
+            frames += t.Sizes[i] / frameBytes;
+        }
+
+        if (frames > uint.MaxValue)
+            return null;
+        var chunkFrames = new List<long>(t.ChunkCounts.Count);
+        var sample = 0;
+        foreach (var count in t.ChunkCounts)
+        {
+            long sum = 0;
+            for (var k = 0; k < count; k++)
+                sum += t.Sizes[sample++] / frameBytes;
+            chunkFrames.Add(sum);
+        }
+
+        var stsc = new List<(uint FirstChunk, uint PerChunk)>();
+        for (var i = 0; i < chunkFrames.Count; i++)
+        {
+            if (stsc.Count == 0 || stsc[^1].PerChunk != chunkFrames[i])
+                stsc.Add(((uint)i + 1, (uint)chunkFrames[i]));
+        }
+
+        var stscBox = new PayloadBuilder().FullBox(0, 0).U32((uint)stsc.Count);
+        foreach (var (first, per) in stsc)
+            stscBox.U32(first).U32(per).U32(1);
+        return
+        [
+            new Box("stts", new PayloadBuilder().FullBox(0, 0).U32(1).U32((uint)frames).U32(1).ToArray()),
+            new Box("stsc", stscBox.ToArray()),
+            new Box("stsz", new PayloadBuilder().FullBox(0, 0).U32((uint)frameBytes).U32((uint)frames).ToArray()),
+            SampleTable.BuildChunkOffsets(t.ChunkOffsets.Select(o => o + offsetDelta).ToList(), force64),
+        ];
     }
 
     /// <summary>Applies edited values (colour, forced flags) of the document track to a reused sample entry.</summary>

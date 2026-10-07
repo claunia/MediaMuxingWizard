@@ -441,6 +441,7 @@ internal static class Mp4SampleEntries
                 new TrackSupport(TrackSupportLevel.Converted, ImportAction.ConvertToTx3g, "converted to 3GPP timed text (tx3g)"),
             // Dolby TrueHD (FBA syntax) is stored as mlpa + dmlp; DVD-Audio MLP (FBB) is not allowed in ISO files.
             CodecType.TrueHd => TrackSupport.Passthrough,
+            CodecType.Pcm when PcmWritable(config) => TrackSupport.Passthrough,
             CodecType.Vorbis or CodecType.Mlp or CodecType.Pcm =>
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.ConvertToAac, $"{config.FormatName} audio is not supported in MP4 by most players; convert it to AAC or AC-3"),
             CodecType.Avs1 => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip,
@@ -449,6 +450,56 @@ internal static class Mp4SampleEntries
                 new TrackSupport(TrackSupportLevel.NeedsConversion, ImportAction.Skip, $"{config.FormatName} bitmap subtitles cannot be stored in MP4; they need OCR to text"),
             _ => new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, $"{config.FormatName} cannot be stored in MP4"),
         };
+    }
+
+    /// <summary>PCM that an ISO/IEC 23003-5 'ipcm' / 'fpcm' entry describes: 16/24/32-bit integers or 32/64-bit floats.</summary>
+    private static bool PcmWritable(CodecConfig config) =>
+        config.PcmFloat ? config.BitsPerSample is 32 or 64 : config.BitsPerSample is 16 or 24 or 32;
+
+    /// <summary>Bytes of one PCM frame (all channels), or 0 when unknown.</summary>
+    public static int PcmFrameBytes(CodecConfig config) =>
+        config.Codec == CodecType.Pcm && config.BitsPerSample % 8 == 0 ? config.Channels * config.BitsPerSample / 8 : 0;
+
+    /// <summary>
+    /// The 16.16 SampleRate field for rates it cannot hold (above 65535 Hz): the rate halved until it fits, as FFmpeg
+    /// writes it (192 kHz → 48 kHz). Readers take the real rate from the decoder configuration or the 'srat' box.
+    /// </summary>
+    private static uint SampleRateField(int rate)
+    {
+        if (rate <= 0)
+            return 0;
+        while (rate > ushort.MaxValue)
+            rate /= 2;
+        return (uint)rate << 16;
+    }
+
+    /// <summary>
+    /// ISO/IEC 23091-3 speaker positions of PCM channels in the WAVE / FLAC default order for their count (back
+    /// surrounds as Lsr/Rsr, side as Ls/Rs, as FFmpeg writes them); null when there is no default.
+    /// </summary>
+    private static byte[]? DefaultSpeakerPositions(int channels) => channels switch
+    {
+        3 => [0, 1, 2],
+        4 => [0, 1, 8, 9],
+        5 => [0, 1, 2, 8, 9],
+        6 => [0, 1, 2, 3, 8, 9],
+        7 => [0, 1, 2, 3, 10, 4, 5],
+        8 => [0, 1, 2, 3, 8, 9, 4, 5],
+        _ => null,
+    };
+
+    /// <summary>The 'chnl' box (ISO/IEC 14496-12 ChannelLayout v0): CICP mono / stereo, else explicit positions.</summary>
+    private static Box? BuildChnl(int channels)
+    {
+        var b = new PayloadBuilder().FullBox(0, 0).U8(1); // stream_structure: channels
+        if (channels is 1 or 2)
+            return new Box("chnl", b.U8((byte)channels).U32(0).U32(0).ToArray()); // defined layout, no omitted channels
+        if (DefaultSpeakerPositions(channels) is not { } positions)
+            return null;
+        b.U8(0);
+        foreach (var position in positions)
+            b.U8(position);
+        return new Box("chnl", b.ToArray());
     }
 
     /// <summary>Handler type for a new track.</summary>
@@ -721,6 +772,7 @@ internal static class Mp4SampleEntries
         var rate = c.SampleRate > 0 ? c.SampleRate : (int)c.Timescale;
         var sampleSize = 16;
         var mlpSampleRate = false;
+        var entryVersion = 0;
         string type;
         switch (c.Codec)
         {
@@ -808,6 +860,23 @@ internal static class Mp4SampleEntries
                 break;
             }
 
+            case CodecType.Pcm:
+            {
+                // ISO/IEC 23003-5: integer or floating-point PCM, endianness and depth in 'pcmC'; above 65535 Hz the
+                // version 1 entry carries the rate in 'srat'.
+                type = c.PcmFloat ? "fpcm" : "ipcm";
+                if (rate > ushort.MaxValue)
+                {
+                    entryVersion = 1;
+                    children.Add(new Box("srat", new PayloadBuilder().FullBox(0, 0).U32((uint)rate).ToArray()));
+                }
+
+                if (BuildChnl(channels) is { } chnl)
+                    children.Add(chnl);
+                children.Add(new Box("pcmC", new PayloadBuilder().FullBox(0, 0).U8(c.PcmBigEndian ? 0 : 1).U8(c.BitsPerSample).ToArray()));
+                break;
+            }
+
             case CodecType.Alac:
             {
                 type = "alac";
@@ -832,10 +901,10 @@ internal static class Mp4SampleEntries
 
         var payload = new PayloadBuilder()
             .Zeros(6).U16(1)
-            .U16(0).U16(0).U32(0) // version, revision, vendor
+            .U16(entryVersion).U16(0).U32(0) // version, revision, vendor
             .U16(Math.Clamp(channels, 1, ushort.MaxValue)).U16(sampleSize)
             .U16(0).U16(0)
-            .U32(mlpSampleRate ? (uint)rate : rate is > 0 and <= ushort.MaxValue ? (uint)rate << 16 : 0)
+            .U32(mlpSampleRate ? (uint)rate : SampleRateField(rate))
             .ToArray();
         return new Box(type, payload, children);
     }

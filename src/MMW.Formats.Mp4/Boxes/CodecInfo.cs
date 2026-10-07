@@ -318,6 +318,10 @@ public static class CodecInfo
             }
         }
 
+        // ISO version 1 entries hold rates above 65535 Hz in a SamplingRateBox (the 16.16 field is a divisor of it).
+        if (entry.Find("srat") is { Payload.Length: >= 8 } srat && BinaryPrimitives.ReadUInt32BigEndian(srat.Payload.AsSpan(4)) is > 0 and <= int.MaxValue and var rate)
+            track.SampleRate = (int)rate;
+
         if (entry.Find("dac3") is { Payload.Length: >= 3 } dac3)
         {
             var acmod = (dac3.Payload[1] >> 3) & 7;

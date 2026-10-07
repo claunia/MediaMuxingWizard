@@ -146,11 +146,18 @@ public static class BoxParser
         var version = BinaryPrimitives.ReadUInt16BigEndian(body[8..]);
         return version switch
         {
+            // ISO AudioSampleEntryV1 (e.g. 'ipcm' with 'srat') has its boxes right after the common fields; QuickTime
+            // version 1 adds four 32-bit packet fields first.
+            1 when IsoBoxAt(body, 28) => 28,
             1 => 44,
             2 => 64,
             _ => 28,
         };
     }
+
+    private static bool IsoBoxAt(ReadOnlySpan<byte> body, int offset) =>
+        body.Length >= offset + 8 && BinaryPrimitives.ReadUInt32BigEndian(body[offset..]) is var size && size >= 8 && size <= body.Length - offset &&
+        LooksLikeBoxType(body.Slice(offset + 4, 4));
 
     private static bool LooksLikeBoxType(ReadOnlySpan<byte> type)
     {

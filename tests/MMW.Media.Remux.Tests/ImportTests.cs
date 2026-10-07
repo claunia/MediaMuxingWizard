@@ -223,8 +223,9 @@ public sealed class ImportTests
     public async Task Codecs_that_need_conversion_are_reported_for_mp4()
     {
         MediaProbe.RequireFfmpeg();
-        var mkv = Fixtures.Get("remux-vorbis-pcm.mkv", "ffmpeg",
-            "-v error -y -f lavfi -i sine=d=1 -f lavfi -i sine=d=1 -map 0:a -map 1:a -ac 2 -c:a:0 vorbis -strict experimental -c:a:1 pcm_s16le {out}");
+        // 8-bit PCM is unsigned in Matroska; MP4's 'ipcm' holds 16, 24 and 32-bit signed integers only.
+        var mkv = Fixtures.Get("remux-vorbis-pcm8.mkv", "ffmpeg",
+            "-v error -y -f lavfi -i sine=d=1 -f lavfi -i sine=d=1 -map 0:a -map 1:a -ac 2 -c:a:0 vorbis -strict experimental -c:a:1 pcm_u8 {out}");
         var forMp4 = await TrackImporter.InspectAsync(mkv, ContainerKind.Mp4, Ct);
         var canConvert = MediaFormatRegistry.AvailableAudioConverter is not null;
         Assert.All(forMp4, t =>
