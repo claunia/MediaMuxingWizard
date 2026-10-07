@@ -11,6 +11,7 @@ public enum ElementaryKind
     Hevc,
     Aac,
     Ac3,
+    Dts,
     SubRip,
     Ass,
     WebVtt,
@@ -23,7 +24,7 @@ public static class ElementaryFormat
 
     /// <summary>File extensions recognised as elementary streams or subtitle files.</summary>
     public static IReadOnlyList<string> Extensions { get; } =
-        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".srt", ".ass", ".ssa", ".vtt"];
+        [".264", ".h264", ".avc", ".265", ".h265", ".hevc", ".aac", ".adts", ".ac3", ".eac3", ".ec3", ".dts", ".dtshd", ".srt", ".ass", ".ssa", ".vtt"];
 
     public static void Register()
     {
@@ -42,6 +43,9 @@ public static class ElementaryFormat
             ".265" or ".h265" or ".hevc" => LooksLikeAnnexB(header) ? ElementaryKind.Hevc : ElementaryKind.None,
             ".aac" or ".adts" => header.IndexOf((byte)0xFF) >= 0 ? ElementaryKind.Aac : ElementaryKind.None,
             ".ac3" or ".eac3" or ".ec3" => header.IndexOf([(byte)0x0B, (byte)0x77]) >= 0 ? ElementaryKind.Ac3 : ElementaryKind.None,
+            ".dts" or ".dtshd" => header.StartsWith("DTSHDHDR"u8) || header.IndexOf([(byte)0x7F, (byte)0xFE, (byte)0x80, (byte)0x01]) >= 0
+                ? ElementaryKind.Dts
+                : ElementaryKind.None,
             ".srt" => ElementaryKind.SubRip,
             ".ass" or ".ssa" => ElementaryKind.Ass,
             ".vtt" => ElementaryKind.WebVtt,
@@ -97,6 +101,17 @@ public static class ElementaryFormat
                 var duration = TimeSpan.FromSeconds(count * (double)config.DefaultSampleDuration / Math.Max(1, config.SampleRate));
                 return new ElementaryDemuxer(path, config.Codec == CodecType.Eac3 ? "E-AC-3" : "AC-3",
                     new ElementarySource(config, () => new Ac3Parser(OpenStream(path)), duration, count));
+            }
+
+            case ElementaryKind.Dts:
+            {
+                CodecConfig config;
+                long count;
+                using (var fs = File.OpenRead(path))
+                    config = DtsParser.Probe(fs, out count);
+                var duration = TimeSpan.FromSeconds(count * (double)config.DefaultSampleDuration / Math.Max(1, config.Timescale));
+                var name = config.AudioProfile.Length > 0 ? config.AudioProfile : "DTS";
+                return new ElementaryDemuxer(path, name, new ElementarySource(config, () => new DtsParser(OpenStream(path)), duration, count));
             }
 
             case ElementaryKind.SubRip or ElementaryKind.Ass or ElementaryKind.WebVtt:

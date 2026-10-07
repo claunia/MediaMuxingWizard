@@ -321,7 +321,11 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
     }
 
     /// <summary>Updates the HDR details after a background scan found more (e.g. HDR10+).</summary>
-    public void RefreshHdr() => OnPropertyChanged(nameof(HdrText));
+    public void RefreshHdr()
+    {
+        OnPropertyChanged(nameof(HdrText));
+        OnPropertyChanged(nameof(InfoText));
+    }
 
     public string HdrText
     {
@@ -366,7 +370,8 @@ public sealed partial class TrackInspectorViewModel : ViewModelBase
         {
             var lines = new List<string>
             {
-                string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_FormatFormat, Track.Format, Track.CodecId),
+                string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_FormatFormat,
+                    Track is AudioTrack { Profile.Length: > 0 } audio ? $"{Track.Format} ({audio.Profile})" : Track.Format, Track.CodecId),
             };
             if (Track.FormatDetails.Length > 0)
                 lines.Add(string.Format(CultureInfo.CurrentCulture, Strings.TrackInfo_DetailsFormat, Track.FormatDetails));

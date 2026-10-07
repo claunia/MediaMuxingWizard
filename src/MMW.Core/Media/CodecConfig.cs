@@ -175,6 +175,9 @@ public sealed record CodecConfig
     /// <summary>E-AC-3 with Joint Object Coding (Dolby Atmos).</summary>
     public bool IsAtmos { get; init; }
 
+    /// <summary>Codec profile or product shown with the format (e.g. "DTS-HD MA", "DTS:X"); empty when plain.</summary>
+    public string AudioProfile { get; init; } = string.Empty;
+
     // ----- subtitles
 
     /// <summary>Subtitle canvas size (tx3g track size, VobSub frame size); 0 when unknown.</summary>

@@ -67,7 +67,14 @@ public abstract partial class Track : ObservableObject
     /// <summary>True for tracks that are not yet in the file on disk (imported, waiting to be muxed).</summary>
     public bool IsPending => Id == 0;
 
-    public string DisplayFormat => string.IsNullOrEmpty(FormatDetails) ? Format : $"{Format}, {FormatDetails}";
+    public string DisplayFormat
+    {
+        get
+        {
+            var format = this is AudioTrack { Profile.Length: > 0 } audio ? $"{Format} ({audio.Profile})" : Format;
+            return string.IsNullOrEmpty(FormatDetails) ? format : $"{format}, {FormatDetails}";
+        }
+    }
 }
 
 /// <summary>Identifies a track in a source file.</summary>
@@ -162,6 +169,9 @@ public sealed partial class AudioTrack : Track
 
     /// <summary>E-AC-3 with Joint Object Coding (Dolby Atmos).</summary>
     public bool IsAtmos { get; set; }
+
+    /// <summary>Codec profile or product found in the bitstream (e.g. "DTS-HD MA", "DTS:X"); empty when plain or unknown.</summary>
+    public string Profile { get; set; } = string.Empty;
 }
 
 public sealed partial class SubtitleTrack : Track

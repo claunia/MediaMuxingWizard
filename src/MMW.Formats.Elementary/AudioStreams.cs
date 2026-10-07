@@ -214,3 +214,91 @@ internal sealed class Ac3Parser : IElementaryParser
 
     public void Dispose() => _reader.Dispose();
 }
+
+/// <summary>
+/// Raw DTS (.dts: core frames, each optionally followed by a DTS-HD extension substream) and DTS-HD Master Audio
+/// stream files (.dtshd: the same frames in the STRMDATA chunk of a DTSHDHDR file).
+/// </summary>
+internal sealed class DtsParser : IElementaryParser
+{
+    private readonly FrameReader _reader;
+    private long _dts;
+
+    public DtsParser(Stream stream)
+    {
+        stream.Position = DataOffset(stream);
+        _reader = new FrameReader(stream);
+    }
+
+    /// <summary>Where the frames start: after the STRMDATA chunk header of a .dtshd file, else at 0.</summary>
+    public static long DataOffset(Stream stream)
+    {
+        Span<byte> header = stackalloc byte[16];
+        stream.Position = 0;
+        if (stream.ReadAtLeast(header, 16, throwOnEndOfStream: false) < 16 || !header[..8].SequenceEqual("DTSHDHDR"u8))
+            return 0;
+        // Chunks: 8-byte identifier, 64-bit big-endian size, data.
+        long position = 0;
+        while (position + 16 <= stream.Length)
+        {
+            stream.Position = position;
+            if (stream.ReadAtLeast(header, 16, throwOnEndOfStream: false) < 16)
+                break;
+            var size = (long)System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(header[8..]);
+            if (header[..8].SequenceEqual("STRMDATA"u8))
+                return position + 16;
+            position += 16 + size;
+        }
+
+        throw new InvalidDataException("The DTS-HD file has no STRMDATA chunk.");
+    }
+
+    public static CodecConfig Probe(Stream stream, out long sampleCountHint)
+    {
+        using var parser = new DtsParser(stream);
+        var units = new List<ReadOnlyMemory<byte>>();
+        for (var i = 0; i < DtsDetector.MaxSamples && parser.Next() is { } sample; i++)
+            units.Add(sample.Data);
+        if (units.Count == 0 || Dts.Parse(units[0].Span) is not { } first)
+            throw new InvalidDataException("No DTS frame found.");
+        sampleCountHint = stream.Length / Math.Max(1, units[0].Length);
+        var config = new CodecConfig
+        {
+            Codec = CodecType.Dts,
+            Kind = TrackKind.Audio,
+            SourceCodecId = "dts",
+            Timescale = (uint)first.SampleRate, // timing follows the core
+            DefaultSampleDuration = first.Samples,
+            SampleRate = first.SampleRate,
+            Channels = first.Channels,
+            BitsPerSample = first.BitsPerSample,
+        };
+        return Dts.Describe(units) is { } best ? DtsDetector.Apply(config, best) : config;
+    }
+
+    public MediaSample? Next()
+    {
+        while (_reader.Ensure(16))
+        {
+            var length = Dts.AccessUnitLength(_reader.Available, atEnd: false);
+            if (length < 0 && !_reader.Ensure(_reader.Available.Length + 4096))
+                length = Dts.AccessUnitLength(_reader.Available, atEnd: true);
+            if (length < 0)
+                continue;
+            if (length == 0)
+            {
+                _reader.Skip(1);
+                continue;
+            }
+
+            var samples = Dts.Parse(_reader.Available[..length])?.Samples ?? 512;
+            var sample = new MediaSample { Dts = _dts, Duration = samples, IsSync = true, Data = _reader.Take(length) };
+            _dts += samples;
+            return sample;
+        }
+
+        return null;
+    }
+
+    public void Dispose() => _reader.Dispose();
+}

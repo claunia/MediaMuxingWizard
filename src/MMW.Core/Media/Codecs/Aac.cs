@@ -169,6 +169,45 @@ public sealed record DtsHeader
 
     /// <summary>True when the extension substream carries lossless (XLL) data (DTS-HD Master Audio).</summary>
     public bool HasLossless { get; init; }
+
+    /// <summary>What the stream is, from its extensions (core only, DTS-HD High Resolution / Master Audio, DTS:X …).</summary>
+    public DtsProduct Product { get; init; }
+
+    /// <summary>Maximum sample rate of the extension substream's asset (e.g. 96000 for a 48 kHz core); 0 without one.</summary>
+    public int ExtensionSampleRate { get; init; }
+
+    /// <summary>Total channels of the extension substream's asset (e.g. 8 for 7.1 over a 5.1 core); 0 without one.</summary>
+    public int ExtensionChannels { get; init; }
+
+    public int ExtensionBitsPerSample { get; init; }
+
+    /// <summary>Loudspeaker activity mask of the asset (ETSI TS 102 114 table 7-28, as the ddts ChannelLayout); 0 when unknown.</summary>
+    public int SpeakerMask { get; init; }
+
+    /// <summary>The decoded stream's sample rate (the extension's when present; timing still follows the core).</summary>
+    public int OutputSampleRate => ExtensionSampleRate > 0 ? ExtensionSampleRate : SampleRate;
+
+    public int OutputChannels => ExtensionChannels > 0 ? ExtensionChannels : Channels;
+
+    public int OutputBitsPerSample => ExtensionBitsPerSample > 0 ? ExtensionBitsPerSample : BitsPerSample;
+}
+
+/// <summary>DTS products, as named by DTS (and reported by FFmpeg profiles and MediaInfo).</summary>
+public enum DtsProduct
+{
+    /// <summary>DTS core (Digital Surround).</summary>
+    Core,
+
+    /// <summary>Core with the XCh (or XXCH) extension: 6.1 discrete.</summary>
+    Es,
+
+    /// <summary>Core with the X96 extension: 96 kHz.</summary>
+    Dts9624,
+    HighResolution,
+    MasterAudio,
+    Express,
+    DtsX,
+    DtsXImax,
 }
 
 /// <summary>DTS frame parsing and ddts construction (ETSI TS 102 114).</summary>
@@ -196,7 +235,10 @@ public static class Dts
         var amode = (int)r.Read(6);
         var sfreq = (int)r.Read(4);
         var rate = (int)r.Read(5);
-        r.Skip(10); // MIX, DYNF, TIMEF, AUXF, HDCD, EXT_AUDIO_ID(3), EXT_AUDIO, ASPF
+        r.Skip(5); // MIX, DYNF, TIMEF, AUXF, HDCD
+        var extAudioId = (int)r.Read(3);
+        var extAudio = r.Flag();
+        r.Skip(1); // ASPF
         var lff = (int)r.Read(2);
         r.Skip(1); // HFLAG
         // HCRC only when CPF; skip FILTS, VERNUM, CHIST then read PCMR.
@@ -208,18 +250,23 @@ public static class Dts
 
         var exss = false;
         var xll = false;
+        // Core extensions: XCh (6.1 discrete, DTS-ES) and X96 (DTS 96/24) live inside the core frame.
+        var product = extAudio ? extAudioId switch { 0 or 6 => DtsProduct.Es, 2 => DtsProduct.Dts9624, _ => DtsProduct.Core } : DtsProduct.Core;
+        ExssAsset? asset = null;
         if (fsize + 4 <= data.Length && HasExssSync(data[fsize..]))
         {
             exss = true;
             var ext = data[fsize..];
-            for (var i = 4; i + 4 <= ext.Length; i++)
-            {
-                if (ext[i] == 0x41 && ext[i + 1] == 0xA2 && ext[i + 2] == 0x95 && ext[i + 3] == 0x47)
-                {
-                    xll = true;
-                    break;
-                }
-            }
+            asset = ParseExtensionSubstream(ext);
+            var coding = asset is { } a && a.DataOffset + a.DataSize <= ext.Length ? ext.Slice(a.DataOffset, a.DataSize) : ext[4..];
+            var xllAt = IndexOfSync(coding, 0x41A29547);
+            xll = xllAt >= 0;
+            if (xll)
+                product = DtsXSync(coding[xllAt..]) ?? DtsProduct.MasterAudio;
+            else if (IndexOfSync(coding, 0x655E315E) >= 0 || IndexOfSync(coding, 0x1D95F262) >= 0) // XBR, X96
+                product = DtsProduct.HighResolution;
+            else if (IndexOfSync(coding, 0x0A801921) >= 0) // LBR
+                product = DtsProduct.Express;
         }
 
         return new DtsHeader
@@ -227,14 +274,191 @@ public static class Dts
             FrameSize = fsize,
             Samples = (nblks + 1) * 32,
             SampleRate = s_rates[sfreq],
+            ExtensionSampleRate = asset?.SampleRate is > 0 ? asset.SampleRate : product == DtsProduct.Dts9624 ? 96000 : 0,
             Amode = amode,
-            Channels = (amode < 16 ? s_amodeChannels[amode] : 2) + (lff is 1 or 2 ? 1 : 0),
+            Channels = (amode < 16 ? s_amodeChannels[amode] : 2) + (lff is 1 or 2 ? 1 : 0) + (product == DtsProduct.Es ? 1 : 0),
             Lfe = lff is 1 or 2,
             BitsPerSample = s_pcmr[pcmr] == 0 ? 16 : s_pcmr[pcmr],
             BitRateKbps = s_bitrates[rate],
             HasExtensionSubstream = exss,
             HasLossless = xll,
+            Product = product,
+            ExtensionChannels = asset?.Channels ?? 0,
+            ExtensionBitsPerSample = asset?.BitsPerSample ?? 0,
+            SpeakerMask = asset?.SpeakerMask ?? 0,
         };
+    }
+
+    /// <summary>Size of the core frame starting <paramref name="data"/> (FSIZE + 1), or 0 when it is not one.</summary>
+    public static int CoreFrameSize(ReadOnlySpan<byte> data)
+    {
+        if (!HasCoreSync(data) || data.Length < 8)
+            return 0;
+        var size = ((data[5] & 3) << 12 | data[6] << 4 | data[7] >> 4) + 1;
+        return size >= 96 ? size : 0;
+    }
+
+    /// <summary>Size of the extension substream starting <paramref name="data"/> (nuExtSSFsize + 1), or 0.</summary>
+    public static int ExtensionSubstreamSize(ReadOnlySpan<byte> data)
+    {
+        if (!HasExssSync(data) || data.Length < 10)
+            return 0;
+        var r = new BitReader(data[4..]);
+        r.Skip(8 + 2); // UserDefinedBits, nExtSSIndex
+        var longHeader = r.Flag();
+        r.Skip(longHeader ? 12 : 8); // nuExtSSHeaderSize
+        return (int)r.Read(longHeader ? 20 : 16) + 1;
+    }
+
+    /// <summary>
+    /// Length of the access unit starting <paramref name="data"/>: a core frame and the extension substream that
+    /// follows it. -1 when more data is needed to know (unless <paramref name="atEnd"/>), 0 when it is not a frame.
+    /// </summary>
+    public static int AccessUnitLength(ReadOnlySpan<byte> data, bool atEnd)
+    {
+        if (data.Length < 16)
+            return atEnd || data.Length >= 4 && !HasCoreSync(data) ? 0 : -1;
+        var length = CoreFrameSize(data);
+        if (length == 0)
+            return 0;
+        if (data.Length < length + 12)
+            return atEnd ? (data.Length >= length ? length : 0) : -1;
+        if (HasExssSync(data[length..]))
+            length += ExtensionSubstreamSize(data[length..]);
+        return data.Length >= length ? length : atEnd ? 0 : -1;
+    }
+
+    /// <summary>
+    /// The most complete description among the first access units of a stream: DTS:X and extension information may
+    /// be missing from some frames (the X marker sits in XLL frames only).
+    /// </summary>
+    public static DtsHeader? Describe(IEnumerable<ReadOnlyMemory<byte>> accessUnits)
+    {
+        ArgumentNullException.ThrowIfNull(accessUnits);
+        DtsHeader? best = null;
+        foreach (var au in accessUnits)
+        {
+            if (Parse(au.Span) is not { } h)
+                continue;
+            if (best is null || h.Product > best.Product || h.Product == best.Product && h.ExtensionChannels > best.ExtensionChannels)
+                best = h;
+        }
+
+        return best;
+    }
+
+    /// <summary>Display name of a DTS product ("DTS-HD MA", "DTS:X" …); empty for a plain core.</summary>
+    public static string ProductName(DtsProduct product) => product switch
+    {
+        DtsProduct.Es => "DTS-ES",
+        DtsProduct.Dts9624 => "DTS 96/24",
+        DtsProduct.HighResolution => "DTS-HD HRA",
+        DtsProduct.MasterAudio => "DTS-HD MA",
+        DtsProduct.Express => "DTS Express",
+        DtsProduct.DtsX => "DTS:X",
+        DtsProduct.DtsXImax => "DTS:X IMAX",
+        _ => string.Empty,
+    };
+
+    private static readonly int[] s_exssRates = [8000, 16000, 32000, 64000, 128000, 22050, 44100, 88200, 176400, 352800, 12000, 24000, 48000, 96000, 192000, 384000];
+
+    private sealed record ExssAsset(int SampleRate, int Channels, int BitsPerSample, int SpeakerMask, int DataOffset, int DataSize);
+
+    /// <summary>
+    /// The first audio asset of an extension substream (ETSI TS 102 114 §7.5): its descriptor's sample rate, channels,
+    /// bit resolution and speaker mask, and where its coded data lies. Null when the header cannot be read.
+    /// </summary>
+    private static ExssAsset? ParseExtensionSubstream(ReadOnlySpan<byte> s)
+    {
+        try
+        {
+            var r = new BitReader(s);
+            r.Skip(32 + 8); // SYNCEXTSSH, UserDefinedBits
+            var index = (int)r.Read(2);
+            var wide = r.Flag();
+            var headerSize = (int)r.Read(wide ? 12 : 8) + 1;
+            var sizeBits = wide ? 20 : 16;
+            r.Skip(sizeBits); // nuExtSSFsize
+            var staticFields = r.Flag();
+            var assets = 1;
+            if (staticFields)
+            {
+                r.Skip(2 + 3); // nuRefClockCode, nuExSSFrameDurationCode
+                if (r.Flag())
+                    r.Skip(36); // timecode
+                var presentations = (int)r.Read(3) + 1;
+                assets = (int)r.Read(3) + 1;
+                var masks = new int[presentations];
+                for (var i = 0; i < presentations; i++)
+                    masks[i] = (int)r.Read(index + 1);
+                for (var i = 0; i < presentations; i++)
+                    r.Skip(int.PopCount(masks[i]) * 8); // nuActiveAssetMask
+                if (r.Flag()) // bMixMetadataEnbl
+                {
+                    r.Skip(2);
+                    var maskBits = ((int)r.Read(2) + 1) << 2;
+                    var configs = (int)r.Read(2) + 1;
+                    r.Skip(configs * maskBits);
+                }
+            }
+
+            var dataSize = (int)r.Read(sizeBits) + 1; // nuAssetFsize of the first asset
+            r.Skip((assets - 1) * sizeBits);
+
+            r.Skip(9 + 3); // nuAssetDescriptFsize, nuAssetIndex
+            if (!staticFields)
+                return new ExssAsset(0, 0, 0, 0, headerSize, dataSize);
+            if (r.Flag())
+                r.Skip(4); // nuAssetTypeDescriptor
+            if (r.Flag())
+                r.Skip(24); // LanguageDescriptor
+            if (r.Flag())
+                r.Skip(((int)r.Read(10) + 1) * 8); // InfoText
+            var bits = (int)r.Read(5) + 1;
+            var rate = s_exssRates[(int)r.Read(4)];
+            var channels = (int)r.Read(8) + 1;
+            var mask = 0;
+            if (r.Flag()) // bOne2OneMapChannels2Speakers
+            {
+                if (channels > 2)
+                    r.Skip(1); // bEmbeddedStereoFlag
+                if (channels > 6)
+                    r.Skip(1); // bEmbeddedSixChFlag
+                if (r.Flag()) // bSpkrMaskEnabled
+                    mask = (int)r.Read(((int)r.Read(2) + 1) << 2);
+            }
+
+            return new ExssAsset(rate, channels, bits, mask, headerSize, dataSize);
+        }
+        catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
+        {
+            return null;
+        }
+    }
+
+    private static int IndexOfSync(ReadOnlySpan<byte> data, uint sync)
+    {
+        Span<byte> pattern = stackalloc byte[4];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(pattern, sync);
+        return data.IndexOf(pattern);
+    }
+
+    /// <summary>
+    /// DTS:X is signalled by a sync word in the extra data that follows the XLL frame's band data, dword-aligned
+    /// (FFmpeg dca_xll.c): 0x02000850, or 0xF14000D0 (±1) for IMAX Enhanced.
+    /// </summary>
+    private static DtsProduct? DtsXSync(ReadOnlySpan<byte> xll)
+    {
+        for (var i = 4; i + 4 <= xll.Length; i += 4)
+        {
+            var word = System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(xll[i..]);
+            if (word == 0x02000850)
+                return DtsProduct.DtsX;
+            if (word >> 1 == 0xF14000D0u >> 1)
+                return DtsProduct.DtsXImax;
+        }
+
+        return null;
     }
 
     /// <summary>MP4 sample entry type for a DTS stream.</summary>
@@ -255,11 +479,13 @@ public static class Dts
             layout |= 0x0008;
         if (channels >= 8)
             layout = 0x0007 | 0x0008 | 0x0040 | (layout & 0x0010);
+        if (h.SpeakerMask != 0)
+            layout = h.SpeakerMask & 0xFFFF; // the extension substream's loudspeaker mask uses the same bits
         var w = new BitWriter();
-        w.Write((ulong)h.SampleRate, 32);
+        w.Write((ulong)h.OutputSampleRate, 32);
         w.Write((ulong)maxBitrate, 32);
         w.Write((ulong)avgBitrate, 32);
-        w.Write((ulong)h.BitsPerSample, 8);
+        w.Write((ulong)h.OutputBitsPerSample, 8);
         w.Write((ulong)frameCode, 2);
         w.Write(0, 5); // StreamConstruction (unspecified)
         w.Flag(h.Lfe);

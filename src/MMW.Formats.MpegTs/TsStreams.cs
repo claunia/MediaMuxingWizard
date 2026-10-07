@@ -572,9 +572,15 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
         Frame,
     }
 
-    public override uint Timescale => (uint)Math.Max(1, _config?.SampleRate ?? 90000);
+    public override uint Timescale => Math.Max(1u, _config?.Timescale ?? 90000);
 
-    public override bool Ready => _config is not null;
+    public override bool Ready => _config is not null && (kind != AudioKind.Dts || _dtsFrames >= DtsProbeFrames);
+
+    /// <summary>DTS frames examined while probing: the DTS:X marker and extension details need not be in the first.</summary>
+    private const int DtsProbeFrames = 16;
+
+    private readonly List<ReadOnlyMemory<byte>> _dtsProbe = [];
+    private int _dtsFrames;
 
     /// <summary>The reading instance is created with the probed configuration (sample rate for timestamps).</summary>
     public AudioStream WithConfig(CodecConfig config)
@@ -629,6 +635,12 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
             }
 
             _config ??= config;
+            if (kind == AudioKind.Dts && _dtsFrames < DtsProbeFrames)
+            {
+                _dtsFrames++;
+                _dtsProbe.Add(span[..length].ToArray());
+            }
+
             var offset = _consumed + _start;
             long? pts = null;
             while (_markers.Count > 0 && _markers.Peek().Offset <= offset)
@@ -748,38 +760,23 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
 
             case AudioKind.Dts:
             {
-                if (s.Length < 16)
+                var length = Dts.AccessUnitLength(s, atEnd);
+                if (length < 0)
                     return (Status.NeedMore, 0, 0, false, null);
-                if (!Dts.HasCoreSync(s))
+                if (length == 0)
                     return (Status.Invalid, 0, 0, false, null);
-                var fsize = ((s[5] & 3) << 12 | s[6] << 4 | s[7] >> 4) + 1;
-                if (fsize < 96)
-                    return (Status.Invalid, 0, 0, false, null);
-                var length = fsize;
-                if (s.Length < length + 12)
-                {
-                    if (!atEnd)
-                        return (Status.NeedMore, 0, 0, false, null);
-                }
-                else if (Dts.HasExssSync(s[length..]))
-                {
-                    length += ExtensionSubstreamSize(s[length..]);
-                    if (s.Length < length && !atEnd)
-                        return (Status.NeedMore, 0, 0, false, null);
-                }
-
-                if (s.Length < length)
-                    return (Status.NeedMore, 0, 0, false, null);
                 if (Dts.Parse(s[..length]) is not { } h || h.SampleRate == 0)
                     return (Status.Invalid, 0, 0, false, null);
+                // Timing follows the core (its sample rate and frame size); the description is the whole stream's.
                 var config = Base(TrackKind.Audio) with
                 {
                     Codec = CodecType.Dts,
-                    SampleRate = h.SampleRate,
-                    Channels = h.Channels,
-                    BitsPerSample = h.BitsPerSample,
+                    SampleRate = h.OutputSampleRate,
+                    Channels = h.OutputChannels,
+                    BitsPerSample = h.OutputBitsPerSample,
                     Timescale = (uint)h.SampleRate,
                     DefaultSampleDuration = h.Samples,
+                    AudioProfile = Dts.ProductName(h.Product),
                 };
                 return (Status.Frame, length, h.Samples, true, config);
             }
@@ -845,18 +842,6 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
         }
     }
 
-    /// <summary>Size of a DTS-HD extension substream (ETSI TS 102 114 §7.4.1).</summary>
-    private static int ExtensionSubstreamSize(ReadOnlySpan<byte> s)
-    {
-        if (s.Length < 10)
-            return 0;
-        var r = new BitReader(s[4..]);
-        r.Skip(8 + 2); // UserDefinedBits, nExtSSIndex
-        var longHeader = r.Flag();
-        r.Skip(longHeader ? 12 : 8); // nuExtSSHeaderSize
-        return (int)r.Read(longHeader ? 20 : 16) + 1;
-    }
-
     private static readonly int[,] s_mpaBitrates =
     {
         { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448 }, // MPEG-1 layer I
@@ -902,7 +887,8 @@ internal sealed class AudioStream(TsStreamInfo info, AudioKind kind) : TsStream(
         return channels > 0 ? channels : 2;
     }
 
-    public override CodecConfig Describe() => _config!;
+    public override CodecConfig Describe() =>
+        kind == AudioKind.Dts && Dts.Describe(_dtsProbe) is { } best ? DtsDetector.Apply(_config!, best) : _config!;
 }
 
 /// <summary>Presentation graphic stream (Blu-ray subtitles): segments gathered into display sets, ended by an END segment.</summary>

@@ -202,6 +202,25 @@ public sealed partial class DocumentViewModel : ViewModelBase
                 AppLog.Debug($"Video scan skipped for {Document.DisplayName}: {ex.Message}");
             }
         }
+
+        // DTS: the product (DTS-HD MA, DTS:X …) is only known from the bitstream.
+        foreach (var audio in Document.Tracks.OfType<AudioTrack>().Where(DtsDetector.NeedsCheck).ToList())
+        {
+            try
+            {
+                if (await DtsDetector.DescribeAsync(audio))
+                {
+                    if (_trackInspectors.TryGetValue(audio, out var inspector))
+                        inspector.RefreshHdr();
+                    foreach (var row in Rows.Where(r => r.Track == audio))
+                        row.Refresh();
+                }
+            }
+            catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException or UnauthorizedAccessException)
+            {
+                AppLog.Debug($"DTS scan skipped for {Document.DisplayName}: {ex.Message}");
+            }
+        }
     }
 
     private void OfferDolbyVisionRepair(VideoTrack video, DolbyVisionDetection detection)

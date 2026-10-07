@@ -158,6 +158,7 @@ public static class TrackImporter
             config = WithDetectedDolbyVision(source, config);
             config = WithDetectedHdr10Plus(source, config);
             config = WithStreamInfo(source, config);
+            config = WithDtsDescription(source, config);
             var support = muxer.CheckSupport(config);
             var canConvert = ConversionDefaults.CanConvert(config);
             var canOcr = ConversionDefaults.CanOcr(config);
@@ -205,6 +206,22 @@ public static class TrackImporter
         catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
         {
             AppLog.Debug($"Dolby Vision check of track {source.TrackId} failed: {ex.Message}");
+            return config;
+        }
+    }
+
+    /// <summary>DTS product (DTS-HD MA, DTS:X …), channels and sample rate from the first access units.</summary>
+    private static CodecConfig WithDtsDescription(ISampleSource source, CodecConfig config)
+    {
+        if (!DtsDetector.CanScan(config) || config.AudioProfile.Length > 0)
+            return config;
+        try
+        {
+            return DtsDetector.Detect(source) is { } header ? DtsDetector.Apply(config, header) : config;
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or NotSupportedException)
+        {
+            AppLog.Debug($"DTS check of track {source.TrackId} failed: {ex.Message}");
             return config;
         }
     }
@@ -333,6 +350,7 @@ public static class TrackImporter
                     SampleRate = c.SampleRate,
                     ChannelLayout = Formats.Mp4.Boxes.CodecInfo.ChannelDescription(c.Channels),
                     IsAtmos = c.IsAtmos,
+                    Profile = c.AudioProfile,
                 };
                 break;
             case TrackKind.Subtitle:
@@ -409,6 +427,8 @@ public static class TrackImporter
                     parts.Add(color.Transfer == 18 ? "HLG" : "HDR10");
                 break;
             case TrackKind.Audio:
+                if (config.AudioProfile.Length > 0)
+                    parts.Add(config.AudioProfile);
                 if (config.Channels > 0)
                     parts.Add(Formats.Mp4.Boxes.CodecInfo.ChannelDescription(config.Channels));
                 if (config.SampleRate > 0)
