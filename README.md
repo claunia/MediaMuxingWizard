@@ -79,3 +79,10 @@ Optional environment variables:
 ## Licence notes
 
 Icons are from [Material Design Icons](https://pictogrammers.com/library/mdi/) (Apache 2.0).
+
+## License
+
+Media Muxing Wizard is free software: you can redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+later version. See [LICENSE](LICENSE). Third-party components keep their own licenses (FFmpeg: LGPL; Tesseract:
+Apache-2.0; see the notices next to each component).

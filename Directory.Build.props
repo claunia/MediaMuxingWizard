@@ -9,6 +9,7 @@
     <Authors>Natalia Portillo</Authors>
     <Product>Media Muxing Wizard</Product>
     <Copyright>Copyright © 2026 Natalia Portillo</Copyright>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <Version>0.1.0</Version>
     <NoWarn>$(NoWarn);CA1707;CA1716;CA1720;CA1711;CA1819;CA2227;CA1002;CA1031;CA1305;CA1307;CA1309;CA1310;CA1311;CA1304;CA1862;CA1848;CA1303;CA5394</NoWarn>
   </PropertyGroup>
