@@ -40,6 +40,32 @@ public static class Aac
     }
 
     /// <summary>Parses an AudioSpecificConfig.</summary>
+    /// <summary>
+    /// The name of the AAC flavour an AudioSpecificConfig declares ("AAC", "HE-AAC", "HE-AACv2", "xHE-AAC"…); "AAC"
+    /// when it is missing or too short. MP4 (esds) and Matroska (CodecPrivate) carry the same record.
+    /// </summary>
+    public static string ProfileName(ReadOnlySpan<byte> asc)
+    {
+        if (asc.Length < 2)
+            return "AAC";
+        var aot = asc[0] >> 3;
+        if (aot == 31)
+            aot = 32 + (((asc[0] & 7) << 3) | (asc[1] >> 5));
+        return aot switch
+        {
+            1 => "AAC Main",
+            2 => "AAC",
+            3 => "AAC SSR",
+            4 => "AAC LTP",
+            5 => "HE-AAC",
+            29 => "HE-AACv2",
+            23 => "AAC LD",
+            39 => "AAC ELD",
+            42 => "xHE-AAC",
+            _ => "AAC",
+        };
+    }
+
     public static AacConfig ParseConfig(ReadOnlySpan<byte> asc)
     {
         var r = new BitReader(asc);

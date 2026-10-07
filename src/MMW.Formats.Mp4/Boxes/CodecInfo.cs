@@ -22,7 +22,7 @@ public static class CodecInfo
             "av02" => "AV2",
             "vvc1" or "vvi1" => "VVC",
             "evc1" => "EVC",
-            "mp4v" => "MPEG-4 Visual",
+            "mp4v" => Mp4vName(entry),
             "avst" => "AVS2",
             "avs3" => "AVS3",
             "jpeg" => "JPEG",
@@ -54,6 +54,18 @@ public static class CodecInfo
         };
     }
 
+    /// <summary>'mp4v' holds MPEG-1 and MPEG-2 video too: the esds object type says which.</summary>
+    private static string Mp4vName(Box entry) =>
+        FindDescendant(entry, "esds") is { } esds
+            ? ParseEsds(esds.Payload).ObjectType switch
+            {
+                >= 0x60 and <= 0x65 => "MPEG-2",
+                0x6A => "MPEG-1",
+                0x6C => "JPEG",
+                _ => "MPEG-4 Visual",
+            }
+            : "MPEG-4 Visual";
+
     private static string Mp4aName(Box entry)
     {
         var esds = FindDescendant(entry, "esds");
@@ -67,29 +79,7 @@ public static class CodecInfo
             0xA6 => "E-AC-3",
             0xA9 => "DTS",
             0xAD => "Opus",
-            _ => AacProfile(asc),
-        };
-    }
-
-    private static string AacProfile(byte[]? asc)
-    {
-        if (asc is null || asc.Length < 2)
-            return "AAC";
-        var aot = asc[0] >> 3;
-        if (aot == 31 && asc.Length >= 2)
-            aot = 32 + (((asc[0] & 7) << 3) | (asc[1] >> 5));
-        return aot switch
-        {
-            1 => "AAC Main",
-            2 => "AAC",
-            3 => "AAC SSR",
-            4 => "AAC LTP",
-            5 => "HE-AAC",
-            29 => "HE-AACv2",
-            23 => "AAC LD",
-            39 => "AAC ELD",
-            42 => "xHE-AAC",
-            _ => "AAC",
+            _ => Aac.ProfileName(asc),
         };
     }
 
@@ -190,50 +180,17 @@ public static class CodecInfo
         if (dvBox is { Payload.Length: >= 5 })
             track.DolbyVisionRecord = dvBox.Payload;
 
-        var details = string.Create(CultureInfo.InvariantCulture, $"{track.PixelWidth}×{track.PixelHeight}");
-        if (track.ParNumerator > 0 && track.ParDenominator > 0 && track.ParNumerator != track.ParDenominator)
-            details += string.Create(CultureInfo.InvariantCulture, $", PAR {track.ParNumerator}:{track.ParDenominator}");
-        if (track.ProfileLevel.Length > 0)
-            details += ", " + track.ProfileLevel;
-        if (track.DolbyVision is { } dv)
-            details += ", DV " + dv;
-        else if (track.Hdr is not null || track.Color.Transfer is 16 or 18)
-            details += track.Color.Transfer == 18 ? ", HLG" : ", HDR10";
-        track.FormatDetails = details;
+        TrackDetails.Refresh(track);
     }
 
     private static string ProfileLevel(Box entry)
     {
+        // The same formatting as Matroska, which carries the same records as CodecPrivate.
         if (entry.Find("avcC") is { Payload.Length: >= 4 } avcc)
-        {
-            var profile = avcc.Payload[1] switch
-            {
-                66 => "Baseline",
-                77 => "Main",
-                88 => "Extended",
-                100 => "High",
-                110 => "High 10",
-                122 => "High 4:2:2",
-                244 => "High 4:4:4",
-                var x => x.ToString(CultureInfo.InvariantCulture),
-            };
-            var level = avcc.Payload[3];
-            return string.Create(CultureInfo.InvariantCulture, $"{profile}@{level / 10}.{level % 10}");
-        }
+            return H264.ProfileLevel(avcc.Payload);
 
         if (entry.Find("hvcC") is { Payload.Length: >= 13 } hvcc)
-        {
-            var profile = (hvcc.Payload[1] & 0x1F) switch
-            {
-                1 => "Main",
-                2 => "Main 10",
-                3 => "Main Still",
-                4 => "RExt",
-                var x => x.ToString(CultureInfo.InvariantCulture),
-            };
-            var level = hvcc.Payload[12] / 30.0;
-            return string.Create(CultureInfo.InvariantCulture, $"{profile}@L{level:0.#}");
-        }
+            return Hevc.ProfileLevel(hvcc.Payload);
 
         if (entry.Find("av3c") is { } av3c && Avs.SequenceHeaderOfAv3C(av3c.Payload) is { IsEmpty: false } header &&
             Avs.ParseSequenceHeader(AvsGeneration.Avs3, header) is { } avs3)
@@ -361,14 +318,7 @@ public static class CodecInfo
             }
         }
 
-        var parts = new List<string>();
-        if (track.Channels > 0)
-            parts.Add(ChannelDescription(track.Channels));
-        if (track.SampleRate > 0)
-            parts.Add(string.Create(CultureInfo.InvariantCulture, $"{track.SampleRate / 1000.0:0.###} kHz"));
-        if (track.IsAtmos)
-            parts.Add("Atmos");
-        track.FormatDetails = string.Join(", ", parts);
+        TrackDetails.Refresh(track);
     }
 
     public static string ChannelDescription(int channels) => channels switch

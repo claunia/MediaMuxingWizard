@@ -1,5 +1,6 @@
 using System.Globalization;
 using MMW.Core.Languages;
+using MMW.Core.Media;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
 using MMW.Formats.Matroska.Ebml;
@@ -34,7 +35,12 @@ internal static class MatroskaTrackParser
         track.CodecId = codecId;
         track.Format = codecId == "V_MS/VFW/FOURCC" && c.Child(CodecPrivate) is { } vfw && MatroskaCodecs.VfwFourCc(vfw.Data.Span) == "CAVS"
             ? "AVS"
-            : MatroskaCodecs.FormatName(codecId);
+            // AAC's flavour (HE-AAC, xHE-AAC…) is in its AudioSpecificConfig, as in MP4.
+            : codecId == "A_AAC" && c.Child(CodecPrivate) is { Data.Length: >= 2 } asc
+                ? Aac.ProfileName(asc.Data.Span)
+                : codecId.StartsWith("A_AAC/", StringComparison.Ordinal) && codecId.Contains("SBR", StringComparison.Ordinal)
+                    ? "HE-AAC"
+                    : MatroskaCodecs.FormatName(codecId);
         track.Source = new TrackSource(path, ContainerKind.Matroska, (uint)number);
         track.Name = c.GetString(Name) ?? string.Empty;
         track.Language = ReadLanguage(c.GetString(LanguageBcp47), c.GetString(TrackLanguage));
@@ -88,10 +94,11 @@ internal static class MatroskaTrackParser
             var unit = v.GetUInt(DisplayUnit, 0);
             var dw = (int)v.GetUInt(DisplayWidth, (ulong)pw);
             var dh = (int)v.GetUInt(DisplayHeight, (ulong)ph);
-            if (unit == 0 && pw > 0 && ph > 0 && dw > 0 && dh > 0)
+            if (unit is 0 or 3 && pw > 0 && ph > 0 && dw > 0 && dh > 0)
             {
-                track.DisplayWidth = dw;
-                track.DisplayHeight = dh;
+                // Unit 3: the display size is an aspect ratio (853:480), not pixels; the PAR comes out the same.
+                track.DisplayWidth = unit == 3 ? (int)Math.Round((double)ph * dw / dh) : dw;
+                track.DisplayHeight = unit == 3 ? ph : dh;
                 long num = (long)dw * ph;
                 long den = (long)dh * pw;
                 var g = Gcd(num, den);
@@ -131,10 +138,7 @@ internal static class MatroskaTrackParser
 
         track.Hdr10Plus = HasItuT35BlockAdditions(entry, codecId);
 
-        var details = string.Create(CultureInfo.InvariantCulture, $"{track.PixelWidth}×{track.PixelHeight}");
-        if (track.ProfileLevel.Length > 0)
-            details += ", " + track.ProfileLevel;
-        track.FormatDetails = details;
+        TrackDetails.Refresh(track);
         return track;
     }
 
@@ -222,7 +226,7 @@ internal static class MatroskaTrackParser
         }
 
         track.ChannelLayout = MatroskaCodecs.ChannelLayout(track.Channels);
-        track.FormatDetails = string.Create(CultureInfo.InvariantCulture, $"{track.Channels} ch, {track.SampleRate} Hz");
+        TrackDetails.Refresh(track);
         return track;
     }
 

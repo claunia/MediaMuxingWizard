@@ -75,6 +75,9 @@ internal static class CommandLine
     private static async Task<int> InfoAsync(Arguments a, TextWriter output, bool includeTracks)
     {
         var doc = await Registry().OpenAsync(RequireFile(a));
+        // What the containers do not say (Dolby Atmos, the DTS product) is read from the bitstream, as the editor does.
+        MMW.Media.Remux.MediaRemux.EnsureRegistered();
+        await TrackActions.DescribeAudioAsync(doc);
         var tags = doc.Metadata.Keys.ToDictionary(id => TagCatalog.Get(id).Name, id => (object)MetadataSet.FormatValue(id, doc.Metadata[id]!));
 
         if (a.Has("json"))

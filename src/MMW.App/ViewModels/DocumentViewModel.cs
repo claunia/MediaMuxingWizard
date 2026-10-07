@@ -280,6 +280,9 @@ public sealed partial class DocumentViewModel : ViewModelBase
         var (video, detection) = _dolbyVisionRepair!.Value;
         using (Undo.Transaction(Strings.Undo_RepairDolbyVision))
             video.DolbyVisionRecord = detection.ConfigurationRecord;
+        TrackDetails.Refresh(video);
+        foreach (var row in Rows.Where(r => r.Track == video))
+            row.Refresh();
         DolbyVisionNotice = null;
         AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_DolbyVisionRebuiltFormat, Document.DisplayName, detection.ProfileName, detection.Level));
     }

@@ -79,7 +79,7 @@ public static class DtsDetector
         {
             audio.Channels = header.OutputChannels;
             audio.SampleRate = header.OutputSampleRate;
-            audio.FormatDetails = string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{audio.Channels} ch, {audio.SampleRate} Hz");
+            TrackDetails.Refresh(audio);
         }
 
         return true;

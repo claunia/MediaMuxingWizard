@@ -56,7 +56,7 @@ public sealed class MatroskaReadTests
         Assert.Equal("fr", audio.Language);
         Assert.Equal("AAC", audio.Format);
         Assert.False(audio.IsDefault);
-        Assert.Equal("1 ch, 44100 Hz", audio.FormatDetails);
+        Assert.Equal("Mono, 44.1 kHz", audio.FormatDetails);
 
         var subtitle = Assert.IsType<SubtitleTrack>(doc.Tracks[2]);
         Assert.Equal("SRT", subtitle.Format);
