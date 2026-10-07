@@ -274,6 +274,34 @@ public sealed class MpegTsTests
         }
     }
 
+    /// <summary>
+    /// MPEG-H 3D Audio (stream type 0x2D, MHAS): the access units (configuration changes included) and the 'mhm1' entry
+    /// written to MP4 are those of the encoder's own MP4 of the same content.
+    /// </summary>
+    [Theory]
+    [InlineData("MPEG-H 2.0")]
+    [InlineData("MPEG-H 5.1")]
+    [InlineData("MPEG-H 2.0, 5.1.2, 5.1 config change")]
+    public async Task Corpus_mpegh_transport_streams_match_the_reference_mp4(string name)
+    {
+        var dir = Corpus.Directory;
+        var source = dir is null ? string.Empty : Path.Combine(dir, "Multichannel audio", $"{{{name} - MPEG-TS}} Fraunhofer.ts");
+        Corpus.Require(File.Exists(source) ? source : string.Empty);
+        MediaProbe.RequireFfmpeg();
+        var reference = Path.Combine(dir!, "Multichannel audio", $"{{{name} - MP4}} Fraunhofer.mp4");
+        string Packets(string path) => Fixtures.Run("ffmpeg", $"-v error -i {Fixtures.Quote(path)} -map 0:a -c copy -f framemd5 -")
+            .Split('\n').Where(l => l.Length > 0 && l[0] != '#').Select(l => string.Join(',', l.Split(',').Skip(1).Select(f => f.Trim()))).Aggregate(string.Empty, (a, b) => a + b + "\n");
+        var output = await ImportAll(source, ContainerKind.Mp4);
+        try
+        {
+            Assert.Equal(Packets(reference), Packets(output));
+        }
+        finally
+        {
+            MediaProbe.Delete(output);
+        }
+    }
+
     /// <summary>Each stream starts at the same time relative to the others as in the source.</summary>
     private static void AssertInSync(string source, string output)
     {

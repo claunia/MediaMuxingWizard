@@ -75,6 +75,8 @@ internal abstract class TsStream
                 return new LpcmStream(info, known);
             case 0x90:
                 return new PgsStream(info);
+            case 0x2D:
+                return new MpegHTsStream(info, known);
             case 0x06:
                 if (info.Descriptor(0x6A) is not null || info.Descriptor(0x7A) is not null || registration is "AC-3" or "EAC3")
                     return new AudioStream(info, AudioKind.Ac3);
@@ -1488,3 +1490,93 @@ internal sealed class Av1TsStream(TsStreamInfo info) : TsStream(info)
     /// <summary>A PES payload that starts an AV1 low-overhead temporal unit: temporal delimiter, then a sequence header.</summary>
     public static bool LooksLikeAv1(ReadOnlySpan<byte> d) => d.Length >= 3 && d[0] == 0x12 && d[1] == 0x00 && ((d[2] >> 3) & 0x0F) == Av1.ObuSequenceHeader;
 }
+
+/// <summary>
+/// MPEG-H 3D Audio main stream (stream type 0x2D): MHAS packets, which PES packets may cut anywhere. An access unit is
+/// every packet up to and including its frame packet, kept as it is (the 'mhm1' sample format); one that carries a
+/// configuration is a random access point. Times are in samples of the configuration's rate.
+/// </summary>
+internal sealed class MpegHTsStream(TsStreamInfo info, CodecConfig? known) : TsStream(info)
+{
+    private readonly List<byte> _pending = [];
+    private readonly List<byte> _unit = [];
+    private (byte[] Config, MpegHConfig Parsed)? _configuration;
+    private long _nextPts = long.MinValue;
+    private long? _pesPts;
+    private long? _unitPts;
+    private bool _unitHasConfig;
+    private int _unitTruncation;
+    private bool _seenSync;
+    private int _samples;
+
+    public override uint Timescale => (uint)(known?.SampleRate is > 0 and var probed ? probed : _configuration?.Parsed.SampleRate is > 0 and var rate ? rate : 48000);
+
+    public override bool Ready => _configuration is not null && _samples >= 2;
+
+    public override void OnPes(Pes pes, Queue<MediaSample> output)
+    {
+        if (pes.Pts is { } pts)
+            _pesPts = pts; // applies to the first access unit that starts in this PES
+        _pending.AddRange(pes.Data);
+        var data = _pending.ToArray();
+        var consumed = MpegH.ForEachPacket(data, (type, packet, payload) =>
+        {
+            if (_unit.Count == 0 && _pesPts is { } start)
+            {
+                _unitPts = start;
+                _pesPts = null;
+            }
+
+            _unit.AddRange(packet.ToArray());
+            if (type == MpegH.PacketConfig)
+            {
+                _unitHasConfig = true;
+                if (_configuration is null && MpegH.ParseConfig(payload) is { } parsed)
+                    _configuration = (payload.ToArray(), parsed);
+            }
+
+            if (type == MpegH.PacketAudioTruncation)
+                _unitTruncation = MpegH.Truncation(payload);
+            if (type == MpegH.PacketFrame)
+                Emit(output);
+        });
+        _pending.RemoveRange(0, consumed);
+    }
+
+    private void Emit(Queue<MediaSample> output)
+    {
+        var sync = _unitHasConfig;
+        var data = _unit.ToArray();
+        _unit.Clear();
+        _unitHasConfig = false;
+        var frameLength = _configuration?.Parsed.FrameLength ?? 1024;
+        var truncation = _unitTruncation;
+        _unitTruncation = 0;
+        // A truncated access unit (the end of the stream) lasts what is left of it, as the encoder's own MP4 stores it.
+        var duration = truncation > 0 && truncation < frameLength ? frameLength - truncation : frameLength;
+        if (_unitPts is { } start)
+            _nextPts = (long)Math.Round(start * (double)Timescale / 90000); // a PES timestamp resynchronises
+        _unitPts = null;
+        if (_nextPts == long.MinValue || !_seenSync && !sync)
+            return; // decoding starts at a configuration
+        _seenSync = true;
+        _samples++;
+        output.Enqueue(new MediaSample { Dts = _nextPts, Duration = duration, IsSync = sync, Data = data });
+        _nextPts += duration;
+    }
+
+    public override CodecConfig Describe()
+    {
+        var (config, parsed) = _configuration!.Value;
+        return Base(TrackKind.Audio) with
+        {
+            Codec = CodecType.MpegH,
+            SourceCodecId = "mhm1",
+            Extradata = MpegH.BuildEntry(config, parsed),
+            SampleRate = parsed.SampleRate,
+            Channels = MpegH.Channels(parsed.Cicp),
+            DefaultSampleDuration = parsed.FrameLength,
+        };
+    }
+}
+
