@@ -191,6 +191,8 @@ internal sealed class Mp4Muxer : IMuxer
 
         if (state.Config.Codec == CodecType.Hevc && sample.IsSync)
             data = InspectHevc(state, data);
+        else if (state.Config.Codec == CodecType.Vvc && sample.IsSync && !state.InBandParameterSets)
+            state.InBandParameterSets = HasVvcParameterSets(state, data);
 
         Append(state, data, sample.Dts, sample.CtsOffset, sample.Duration, sample.IsSync);
     }
@@ -239,6 +241,25 @@ internal sealed class Mp4Muxer : IMuxer
         if (state.HevcParameterSets is null || keep.Count == nals.Count || lengthSize != 4)
             return data;
         return NalUnits.ToLengthPrefixed(data, keep);
+    }
+
+    /// <summary>True when a VVC sample repeats VPS/SPS/PPS: the sample entry is then 'vvi1'.</summary>
+    private static bool HasVvcParameterSets(TrackState state, ReadOnlySpan<byte> data)
+    {
+        var lengthSize = state.Config.Extradata is { Length: > 0 } c ? ((c[0] >> 1) & 3) + 1 : 4;
+        try
+        {
+            foreach (var r in NalUnits.SplitLengthPrefixed(data, lengthSize))
+            {
+                if (Vvc.IsParameterSet(Vvc.NalType(data[r])))
+                    return true;
+            }
+        }
+        catch (InvalidDataException)
+        {
+        }
+
+        return false;
     }
 
     private void WriteText(TrackState state, MediaSample sample)

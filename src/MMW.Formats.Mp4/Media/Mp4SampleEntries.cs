@@ -482,7 +482,17 @@ internal static class Mp4SampleEntries
     public static Box Build(CodecConfig config, EntryContext ctx)
     {
         if (config.Native is Mp4NativeTrack native)
-            return BoxParser.ParseList(BoxWriter.ToArray(native.Entry), "stsd")[0];
+        {
+            var entry = BoxParser.ParseList(BoxWriter.ToArray(native.Entry), "stsd")[0];
+            // A 'vvc1' source whose samples repeat parameter sets is stored as the 'vvi1' it should have been.
+            if (entry.Type == "vvc1" && ctx.InBandParameterSets && entry.Find("vvcC") is { Payload.Length: > 4 } vvcC)
+            {
+                entry.Type = "vvi1";
+                vvcC.Payload = [.. vvcC.Payload.AsSpan(0, 4), .. Vvc.MarkArraysComplete(vvcC.Payload[4..], false)];
+            }
+
+            return entry;
+        }
 
         return config.Kind switch
         {
@@ -512,8 +522,9 @@ internal static class Mp4SampleEntries
             }
 
             case CodecType.Vvc:
-                type = "vvc1";
-                children.Add(new Box("vvcC", [0, 0, 0, 0, .. c.Extradata!]));
+                // 'vvi1' when the samples repeat parameter sets (ISO/IEC 14496-15 §11.2.1).
+                type = ctx.InBandParameterSets ? "vvi1" : "vvc1";
+                children.Add(new Box("vvcC", [0, 0, 0, 0, .. Vvc.MarkArraysComplete(c.Extradata!, !ctx.InBandParameterSets)]));
                 break;
             case CodecType.Av1:
                 type = "av01";
