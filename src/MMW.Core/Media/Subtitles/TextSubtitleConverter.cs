@@ -1,5 +1,7 @@
 using System.Text;
+using System.Globalization;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Subtitles;
 
@@ -24,7 +26,7 @@ public sealed class TextSubtitleConverter : ISampleSource
     {
         ArgumentNullException.ThrowIfNull(source);
         if (!CodecNames.IsText(source.Config.Codec) || !CodecNames.IsText(target))
-            throw new NotSupportedException($"{source.Config.FormatName} cannot be converted to {CodecNames.Display(target)}.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotConvertText, source.Config.FormatName, CodecNames.Display(target)));
         _source = source;
         var script = Read(source, canvasWidth, canvasHeight);
         (Config, _samples) = Write(script, source.Config, target, canvasWidth, canvasHeight);

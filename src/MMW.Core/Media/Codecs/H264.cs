@@ -1,4 +1,5 @@
 using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -290,7 +291,7 @@ public static class H264
         var sliceType = (int)r.Ue();
         var ppsId = (int)r.Ue();
         if (!ppss.TryGetValue(ppsId, out var pps) || !spss.TryGetValue(pps.SpsId, out var sps))
-            throw new InvalidDataException($"Slice refers to unknown PPS {ppsId}.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_SliceUnknownPps, ppsId));
         if (sps.SeparateColourPlane)
             r.Skip(2);
         var frameNum = (int)r.Read(sps.Log2MaxFrameNum);
@@ -318,7 +319,7 @@ public static class H264
     public static byte[] BuildAvcC(IReadOnlyList<byte[]> spsList, IReadOnlyList<byte[]> ppsList, IReadOnlyList<byte[]>? spsExtList = null)
     {
         if (spsList.Count == 0)
-            throw new InvalidDataException("An H.264 stream needs at least one SPS.");
+            throw new InvalidDataException(Strings.Error_H264NeedsSps);
         var sps = ParseSps(spsList[0]);
         using var ms = new MemoryStream();
         ms.WriteByte(1);
@@ -360,7 +361,7 @@ public static class H264
     public static AvcConfig ParseAvcC(ReadOnlySpan<byte> avcC)
     {
         if (avcC.Length < 7 || avcC[0] != 1)
-            throw new InvalidDataException("Invalid avcC record.");
+            throw new InvalidDataException(Strings.Error_InvalidAvcC);
         var lengthSize = (avcC[4] & 3) + 1;
         var pos = 6;
         var sps = ReadArray(avcC, ref pos, avcC[5] & 0x1F);
@@ -383,7 +384,7 @@ public static class H264
             var len = (data[pos] << 8) | data[pos + 1];
             pos += 2;
             if (pos + len > data.Length)
-                throw new InvalidDataException("Truncated parameter set array.");
+                throw new InvalidDataException(Strings.Error_TruncatedParameterSetArray);
             list.Add(data.Slice(pos, len).ToArray());
             pos += len;
         }
@@ -407,7 +408,7 @@ public static class H264
             122 => "High 4:2:2",
             244 => "High 4:4:4",
             44 => "CAVLC 4:4:4",
-            var p => "Profile " + p.ToString(CultureInfo.InvariantCulture),
+            var p => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, p),
         };
         var level = avcC[3];
         return string.Create(CultureInfo.InvariantCulture, $"{profile}@{level / 10}.{level % 10}");

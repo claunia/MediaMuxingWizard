@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Languages;
 
@@ -62,7 +63,7 @@ public static class LanguageTable
     public static string DisplayName(string? tag)
     {
         if (string.IsNullOrEmpty(tag))
-            return "Undetermined";
+            return Strings.Language_Undetermined;
         if (Find(tag) is { } lang)
             return lang.Name;
 
@@ -142,7 +143,7 @@ public static class LanguageTable
         }
 
         var sorted = list.Values.OrderBy(l => l.Name, StringComparer.CurrentCulture).ToList();
-        sorted.Insert(0, new Language(Undetermined, Undetermined, Undetermined, "Undetermined"));
+        sorted.Insert(0, new Language(Undetermined, Undetermined, Undetermined, Strings.Language_Undetermined));
         return sorted;
     }
 }

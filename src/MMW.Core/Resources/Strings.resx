@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Characteristic_AuxiliaryContent" xml:space="preserve">
+    <value>Auxiliary content</value>
+  </data>
+  <data name="Characteristic_DescribesMusic" xml:space="preserve">
+    <value>Describes music and sound</value>
+  </data>
+  <data name="Characteristic_DescribesVideo" xml:space="preserve">
+    <value>Describes video</value>
+  </data>
+  <data name="Characteristic_Dubbed" xml:space="preserve">
+    <value>Dubbed translation</value>
+  </data>
+  <data name="Characteristic_EasyToRead" xml:space="preserve">
+    <value>Easy to read</value>
+  </data>
+  <data name="Characteristic_EnhancesSpeech" xml:space="preserve">
+    <value>Enhances speech intelligibility</value>
+  </data>
+  <data name="Characteristic_ForcedOnly" xml:space="preserve">
+    <value>Forced only</value>
+  </data>
+  <data name="Characteristic_MainProgramContent" xml:space="preserve">
+    <value>Main program content</value>
+  </data>
+  <data name="Characteristic_OriginalContent" xml:space="preserve">
+    <value>Original content</value>
+  </data>
+  <data name="Characteristic_TranscribesDialog" xml:space="preserve">
+    <value>Transcribes spoken dialog (SDH)</value>
+  </data>
+  <data name="Characteristic_Translation" xml:space="preserve">
+    <value>Translation</value>
+  </data>
+  <data name="Characteristic_VoiceOver" xml:space="preserve">
+    <value>Voice-over translation</value>
+  </data>
+  <data name="Choice_AacMono" xml:space="preserve">
+    <value>AAC - Mono</value>
+  </data>
+  <data name="Choice_AacMultichannel" xml:space="preserve">
+    <value>AAC - Multi-channel</value>
+  </data>
+  <data name="Choice_AacStereo" xml:space="preserve">
+    <value>AAC - Stereo</value>
+  </data>
+  <data name="Choice_NotAvailable" xml:space="preserve">
+    <value>Not available</value>
+  </data>
+  <data name="Choice_Skip" xml:space="preserve">
+    <value>Skip</value>
+  </data>
+  <data name="Color_Implicit" xml:space="preserve">
+    <value>Implicit</value>
+  </data>
+  <data name="Color_Undefined" xml:space="preserve">
+    <value>Undefined ({0})</value>
+  </data>
+  <data name="Detail_BitDepth" xml:space="preserve">
+    <value>{0}-bit</value>
+  </data>
+  <data name="Detail_DiracProfile" xml:space="preserve">
+    <value>{0}@L{1}, version {2}</value>
+  </data>
+  <data name="Detail_DivXBuild" xml:space="preserve">
+    <value>DivX {0} build {1}</value>
+  </data>
+  <data name="Detail_DualChannel" xml:space="preserve">
+    <value>dual channel</value>
+  </data>
+  <data name="Detail_Fullband" xml:space="preserve">
+    <value>fullband</value>
+  </data>
+  <data name="Detail_ImmersiveObjectBased" xml:space="preserve">
+    <value>Immersive object based</value>
+  </data>
+  <data name="Detail_Interlaced" xml:space="preserve">
+    <value>interlaced</value>
+  </data>
+  <data name="Detail_JointStereo" xml:space="preserve">
+    <value>joint stereo</value>
+  </data>
+  <data name="Detail_MediumBand" xml:space="preserve">
+    <value>medium band</value>
+  </data>
+  <data name="Detail_MpegQuantisation" xml:space="preserve">
+    <value>MPEG quantisation</value>
+  </data>
+  <data name="Detail_Narrowband" xml:space="preserve">
+    <value>narrowband</value>
+  </data>
+  <data name="Detail_NoMd5" xml:space="preserve">
+    <value>no MD5</value>
+  </data>
+  <data name="Detail_ObjectBased" xml:space="preserve">
+    <value>Object based</value>
+  </data>
+  <data name="Detail_OpusHybrid" xml:space="preserve">
+    <value>Hybrid</value>
+  </data>
+  <data name="Detail_OpusSummary" xml:space="preserve">
+    <value>{0}, {1}, {2} frames</value>
+  </data>
+  <data name="Detail_Presentations" xml:space="preserve">
+    <value>{0}, {1} presentations</value>
+  </data>
+  <data name="Detail_Range" xml:space="preserve">
+    <value>{0} to {1}</value>
+  </data>
+  <data name="Detail_SampleBlocks" xml:space="preserve">
+    <value>{0}-sample blocks</value>
+  </data>
+  <data name="Detail_SuperWideband" xml:space="preserve">
+    <value>super-wideband</value>
+  </data>
+  <data name="Detail_Wideband" xml:space="preserve">
+    <value>wideband</value>
+  </data>
+  <data name="Detail_XvidBuild" xml:space="preserve">
+    <value>Xvid build {0}</value>
+  </data>
+  <data name="Error_Av2NoSequenceHeader" xml:space="preserve">
+    <value>The AV2 stream does not start with a sequence header.</value>
+  </data>
+  <data name="Error_Av2ObuCount" xml:space="preserve">
+    <value>An AV2 configuration needs between 1 and 256 OBUs.</value>
+  </data>
+  <data name="Error_CannotConvertText" xml:space="preserve">
+    <value>{0} cannot be converted to {1}.</value>
+  </data>
+  <data name="Error_CannotExportRaw" xml:space="preserve">
+    <value>{0} tracks cannot be exported to a raw file.</value>
+  </data>
+  <data name="Error_DestinationTooSmall" xml:space="preserve">
+    <value>Destination is too small for the sample.</value>
+  </data>
+  <data name="Error_DmlpNeedsMajorSync" xml:space="preserve">
+    <value>The dmlp box is built from an access unit with a major sync.</value>
+  </data>
+  <data name="Error_DolbyVisionRecordTooShort" xml:space="preserve">
+    <value>Dolby Vision configuration record is too short.</value>
+  </data>
+  <data name="Error_EvcNeedsSps" xml:space="preserve">
+    <value>An EVC configuration needs an SPS.</value>
+  </data>
+  <data name="Error_EvcTemporalIdBeyondSubGop" xml:space="preserve">
+    <value>EVC temporal id beyond the sub-GOP structure.</value>
+  </data>
+  <data name="Error_ExpectedIntPair" xml:space="preserve">
+    <value>Expected an IntPair.</value>
+  </data>
+  <data name="Error_ExpectedStringList" xml:space="preserve">
+    <value>Expected a list of strings, got {0}.</value>
+  </data>
+  <data name="Error_FirstSliceSegmentPoc" xml:space="preserve">
+    <value>Only first slice segments carry the picture order count.</value>
+  </data>
+  <data name="Error_H264NeedsSps" xml:space="preserve">
+    <value>An H.264 stream needs at least one SPS.</value>
+  </data>
+  <data name="Error_HevcNeedsSps" xml:space="preserve">
+    <value>An HEVC stream needs at least one SPS.</value>
+  </data>
+  <data name="Error_IncompleteLoasFrame" xml:space="preserve">
+    <value>Not a complete LOAS frame.</value>
+  </data>
+  <data name="Error_InvalidAvcC" xml:space="preserve">
+    <value>Invalid avcC record.</value>
+  </data>
+  <data name="Error_InvalidDopsBox" xml:space="preserve">
+    <value>Invalid dOps box.</value>
+  </data>
+  <data name="Error_InvalidEvcC" xml:space="preserve">
+    <value>Invalid evcC record.</value>
+  </data>
+  <data name="Error_InvalidEvcChromaFormat" xml:space="preserve">
+    <value>Invalid EVC chroma_format_idc.</value>
+  </data>
+  <data name="Error_InvalidExpGolomb" xml:space="preserve">
+    <value>Invalid Exp-Golomb code.</value>
+  </data>
+  <data name="Error_InvalidHvcC" xml:space="preserve">
+    <value>Invalid hvcC record.</value>
+  </data>
+  <data name="Error_InvalidOpusHead" xml:space="preserve">
+    <value>Invalid OpusHead.</value>
+  </data>
+  <data name="Error_InvalidRgCode" xml:space="preserve">
+    <value>Invalid rg() code.</value>
+  </data>
+  <data name="Error_LatmFrameLengthType" xml:space="preserve">
+    <value>LATM frameLengthType {0} is not supported.</value>
+  </data>
+  <data name="Error_LatmMuxVersionA" xml:space="preserve">
+    <value>LATM audioMuxVersionA 1 is not supported.</value>
+  </data>
+  <data name="Error_LatmObjectType" xml:space="preserve">
+    <value>LATM audio object type {0} is not supported.</value>
+  </data>
+  <data name="Error_LatmProgramConfigElement" xml:space="preserve">
+    <value>LATM AudioSpecificConfig with a program config element is not supported.</value>
+  </data>
+  <data name="Error_LatmSeveralPrograms" xml:space="preserve">
+    <value>LATM with several programs or layers is not supported.</value>
+  </data>
+  <data name="Error_NalUnitPastEnd" xml:space="preserve">
+    <value>NAL unit length runs past the end of the sample.</value>
+  </data>
+  <data name="Error_NoDestinationPath" xml:space="preserve">
+    <value>The document has no destination path.</value>
+  </data>
+  <data name="Error_NoIndependentEac3Substream" xml:space="preserve">
+    <value>No independent E-AC-3 substream found.</value>
+  </data>
+  <data name="Error_NoSourceFile" xml:space="preserve">
+    <value>The track has no source file.</value>
+  </data>
+  <data name="Error_NoTrackHasSamples" xml:space="preserve">
+    <value>None of the tracks has any samples.</value>
+  </data>
+  <data name="Error_NotMp4OrMatroska" xml:space="preserve">
+    <value>'{0}' is not a supported MP4 or Matroska file.</value>
+  </data>
+  <data name="Error_NotNumberOfTotal" xml:space="preserve">
+    <value>'{0}' is not in n/total form.</value>
+  </data>
+  <data name="Error_NotPictureHeaderOrSlice" xml:space="preserve">
+    <value>Not a picture header or slice.</value>
+  </data>
+  <data name="Error_NotYesNo" xml:space="preserve">
+    <value>'{0}' is not a yes/no value.</value>
+  </data>
+  <data name="Error_RatingsResourceMissing" xml:space="preserve">
+    <value>ratings.json resource missing.</value>
+  </data>
+  <data name="Error_RemuxComponentMissing" xml:space="preserve">
+    <value>Writing {0} files requires the remux component, which is not registered.</value>
+  </data>
+  <data name="Error_SampleShorterThanHead" xml:space="preserve">
+    <value>The sample is shorter than the requested head.</value>
+  </data>
+  <data name="Error_SliceUnknownPps" xml:space="preserve">
+    <value>Slice refers to unknown PPS {0}.</value>
+  </data>
+  <data name="Error_SliceWithoutPictureHeader" xml:space="preserve">
+    <value>The slice has no picture header.</value>
+  </data>
+  <data name="Error_TrackCannotBeWritten" xml:space="preserve">
+    <value>{0} track '{1}' cannot be written to {2}: {3}</value>
+  </data>
+  <data name="Error_TrackHasNoSourceFile" xml:space="preserve">
+    <value>Track '{0}' ({1}) has no source file.</value>
+  </data>
+  <data name="Error_TrackNotFoundInFile" xml:space="preserve">
+    <value>Track {0} was not found in '{1}'.</value>
+  </data>
+  <data name="Error_TrueHdInvalidAccessUnit" xml:space="preserve">
+    <value>Invalid Dolby TrueHD access unit #{0} (bad check nibble, length or format_sync); the stream is damaged or not FBA syntax.</value>
+  </data>
+  <data name="Error_TrueHdNoMajorSync" xml:space="preserve">
+    <value>No Dolby TrueHD major sync (FBA syntax) was found at the start of the track.</value>
+  </data>
+  <data name="Error_TrueHdReservedFrequency" xml:space="preserve">
+    <value>The Dolby TrueHD stream uses a reserved sampling frequency.</value>
+  </data>
+  <data name="Error_TrueHdSplitAccessUnit" xml:space="preserve">
+    <value>Dolby TrueHD access unit #{0} is split across container blocks.</value>
+  </data>
+  <data name="Error_TruncatedEvcC" xml:space="preserve">
+    <value>Truncated evcC record.</value>
+  </data>
+  <data name="Error_TruncatedEvcPps" xml:space="preserve">
+    <value>Truncated EVC PPS.</value>
+  </data>
+  <data name="Error_TruncatedEvcSliceHeader" xml:space="preserve">
+    <value>Truncated EVC slice header.</value>
+  </data>
+  <data name="Error_TruncatedEvcSps" xml:space="preserve">
+    <value>Truncated EVC SPS.</value>
+  </data>
+  <data name="Error_TruncatedLatmMuxElement" xml:space="preserve">
+    <value>Truncated LATM AudioMuxElement.</value>
+  </data>
+  <data name="Error_TruncatedOpusMapping" xml:space="preserve">
+    <value>Truncated OpusHead channel mapping table.</value>
+  </data>
+  <data name="Error_TruncatedParameterSetArray" xml:space="preserve">
+    <value>Truncated parameter set array.</value>
+  </data>
+  <data name="Error_TruncatedVvcC" xml:space="preserve">
+    <value>Truncated vvcC record.</value>
+  </data>
+  <data name="Error_TruncatedVvcPps" xml:space="preserve">
+    <value>Truncated VVC PPS.</value>
+  </data>
+  <data name="Error_Tx3gTextTooLong" xml:space="preserve">
+    <value>Subtitle text is too long for a tx3g sample.</value>
+  </data>
+  <data name="Error_UnexpectedEndOfBitstream" xml:space="preserve">
+    <value>Unexpected end of bitstream.</value>
+  </data>
+  <data name="Error_UnexpectedEndOfFile" xml:space="preserve">
+    <value>Unexpected end of file at offset {0}.</value>
+  </data>
+  <data name="Error_UnknownEvcPps" xml:space="preserve">
+    <value>Unknown EVC PPS {0}.</value>
+  </data>
+  <data name="Error_UnknownVvcPps" xml:space="preserve">
+    <value>Unknown VVC PPS {0}.</value>
+  </data>
+  <data name="Error_UnsupportedFormat" xml:space="preserve">
+    <value>'{0}' is not in a supported format.</value>
+  </data>
+  <data name="Label_ChapterNumber" xml:space="preserve">
+    <value>Chapter {0}</value>
+  </data>
+  <data name="Label_DolbyVisionConfig" xml:space="preserve">
+    <value>Profile {0}.{1:00}, level {2}</value>
+  </data>
+  <data name="Label_Level" xml:space="preserve">
+    <value>level {0}</value>
+  </data>
+  <data name="Label_Profile" xml:space="preserve">
+    <value>Profile {0}</value>
+  </data>
+  <data name="Label_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Label_Untitled" xml:space="preserve">
+    <value>Untitled</value>
+  </data>
+  <data name="Language_Undetermined" xml:space="preserve">
+    <value>Undetermined</value>
+  </data>
+  <data name="Log_AllSubtitlesForced" xml:space="preserve">
+    <value>Subtitle track '{0}': all subtitles are forced.</value>
+  </data>
+  <data name="Log_Av2SequenceHeaderChanges" xml:space="preserve">
+    <value>AV2 track {0}: the sequence header changes during the stream; the new one is kept in the samples.</value>
+  </data>
+  <data name="Log_ConvertingAudio" xml:space="preserve">
+    <value>Converting {0} track '{1}' to {2} ({3} ch, {4} Hz).</value>
+  </data>
+  <data name="Log_ConvertingTrack" xml:space="preserve">
+    <value>Converting {0} track '{1}' to {2}.</value>
+  </data>
+  <data name="Log_CouldNotDeleteTemp" xml:space="preserve">
+    <value>Could not delete temporary file '{0}': {1}</value>
+  </data>
+  <data name="Log_RecognisingOcr" xml:space="preserve">
+    <value>Recognising {0} track '{1}' as {2} text (OCR).</value>
+  </data>
+  <data name="Log_Remuxed" xml:space="preserve">
+    <value>Remuxed {0} track(s) into '{1}'.</value>
+  </data>
+  <data name="Log_SomeSubtitlesForced" xml:space="preserve">
+    <value>Subtitle track '{0}': some subtitles are forced.</value>
+  </data>
+  <data name="Log_StoredNativelyInMp4" xml:space="preserve">
+    <value>{0} track '{1}' is stored as {2} in MP4.</value>
+  </data>
+  <data name="Log_StreamMetadataAdded" xml:space="preserve">
+    <value>Track '{0}': the container lacks colour or HDR10 metadata that the video stream carries; it is added to the output.</value>
+  </data>
+  <data name="Log_TrackHasNoSamples" xml:space="preserve">
+    <value>{0} track '{1}' has no samples; it is left out.</value>
+  </data>
+  <data name="Log_TrackWarning" xml:space="preserve">
+    <value>{0} track '{1}': {2}</value>
+  </data>
+  <data name="Log_TrueHdDroppedLeading" xml:space="preserve">
+    <value>Dropped {0} Dolby TrueHD access unit(s) before the first major sync.</value>
+  </data>
+  <data name="Log_VideoStartsEarly" xml:space="preserve">
+    <value>Video starts {0:0.###} s before the presentation; shifting all tracks.</value>
+  </data>
+  <data name="Name_MonoAudio" xml:space="preserve">
+    <value>Mono Audio</value>
+  </data>
+  <data name="Name_StereoAudio" xml:space="preserve">
+    <value>Stereo Audio</value>
+  </data>
+  <data name="Name_SurroundAudio" xml:space="preserve">
+    <value>Surround Audio</value>
+  </data>
+  <data name="Reason_AudioCannotBeDecoded" xml:space="preserve">
+    <value>{0} audio cannot be decoded by {1}</value>
+  </data>
+  <data name="Reason_ConversionUnavailable" xml:space="preserve">
+    <value>converting to {0} is not available: {1}</value>
+  </data>
+  <data name="Reason_ConvertedTo" xml:space="preserve">
+    <value>converted to {0}</value>
+  </data>
+  <data name="Reason_ConvertedToWith" xml:space="preserve">
+    <value>converted to {0} ({1}, {2})</value>
+  </data>
+  <data name="Reason_NoAudioConverter" xml:space="preserve">
+    <value>no audio converter is installed</value>
+  </data>
+  <data name="Reason_NoOcrEngine" xml:space="preserve">
+    <value>no OCR engine is installed</value>
+  </data>
+  <data name="Reason_NoSourceFile" xml:space="preserve">
+    <value>the track has no source file</value>
+  </data>
+  <data name="Reason_SubtitlesCannotBeDecodedForOcr" xml:space="preserve">
+    <value>{0} subtitles cannot be decoded for OCR</value>
+  </data>
+  <data name="Reason_TrackNotFoundInSource" xml:space="preserve">
+    <value>the track was not found in its source file</value>
+  </data>
+  <data name="TagChoice_AlertTone" xml:space="preserve">
+    <value>Alert Tone</value>
+  </data>
+  <data name="TagChoice_Audiobook" xml:space="preserve">
+    <value>Audiobook</value>
+  </data>
+  <data name="TagChoice_Booklet" xml:space="preserve">
+    <value>Booklet</value>
+  </data>
+  <data name="TagChoice_Clean" xml:space="preserve">
+    <value>Clean</value>
+  </data>
+  <data name="TagChoice_Explicit" xml:space="preserve">
+    <value>Explicit</value>
+  </data>
+  <data name="TagChoice_HomeVideo" xml:space="preserve">
+    <value>Home Video</value>
+  </data>
+  <data name="TagChoice_Movie" xml:space="preserve">
+    <value>Movie</value>
+  </data>
+  <data name="TagChoice_Music" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="TagChoice_MusicVideo" xml:space="preserve">
+    <value>Music Video</value>
+  </data>
+  <data name="TagChoice_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="TagChoice_Ringtone" xml:space="preserve">
+    <value>Ringtone</value>
+  </data>
+  <data name="TagChoice_TVShow" xml:space="preserve">
+    <value>TV Show</value>
+  </data>
+  <data name="TagGroup_Audiobook" xml:space="preserve">
+    <value>Audiobook</value>
+  </data>
+  <data name="TagGroup_Classical" xml:space="preserve">
+    <value>Classical</value>
+  </data>
+  <data name="TagGroup_Credits" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+  <data name="TagGroup_Descriptions" xml:space="preserve">
+    <value>Descriptions</value>
+  </data>
+  <data name="TagGroup_Encoding" xml:space="preserve">
+    <value>Encoding</value>
+  </data>
+  <data name="TagGroup_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="TagGroup_People" xml:space="preserve">
+    <value>People</value>
+  </data>
+  <data name="TagGroup_Rating" xml:space="preserve">
+    <value>Rating</value>
+  </data>
+  <data name="TagGroup_Sorting" xml:space="preserve">
+    <value>Sorting</value>
+  </data>
+  <data name="TagGroup_Store" xml:space="preserve">
+    <value>iTunes Store</value>
+  </data>
+  <data name="TagGroup_TvShow" xml:space="preserve">
+    <value>TV Show</value>
+  </data>
+  <data name="TagGroup_Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="Tag_Abridged" xml:space="preserve">
+    <value>Abridged</value>
+  </data>
+  <data name="Tag_Acknowledgement" xml:space="preserve">
+    <value>Acknowledgement</value>
+  </data>
+  <data name="Tag_Album" xml:space="preserve">
+    <value>Album</value>
+  </data>
+  <data name="Tag_AlbumArtist" xml:space="preserve">
+    <value>Album Artist</value>
+  </data>
+  <data name="Tag_Arranger" xml:space="preserve">
+    <value>Arranger</value>
+  </data>
+  <data name="Tag_ArtDirector" xml:space="preserve">
+    <value>Art Director</value>
+  </data>
+  <data name="Tag_Artist" xml:space="preserve">
+    <value>Artist</value>
+  </data>
+  <data name="Tag_ArtistId" xml:space="preserve">
+    <value>Artist ID</value>
+  </data>
+  <data name="Tag_Asin" xml:space="preserve">
+    <value>ASIN</value>
+  </data>
+  <data name="Tag_AudiobookLanguage" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Tag_AudiobookSubtitle" xml:space="preserve">
+    <value>Subtitle</value>
+  </data>
+  <data name="Tag_Cast" xml:space="preserve">
+    <value>Cast</value>
+  </data>
+  <data name="Tag_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Tag_Codirector" xml:space="preserve">
+    <value>Codirector</value>
+  </data>
+  <data name="Tag_Comments" xml:space="preserve">
+    <value>Comments</value>
+  </data>
+  <data name="Tag_Compilation" xml:space="preserve">
+    <value>Compilation</value>
+  </data>
+  <data name="Tag_Composer" xml:space="preserve">
+    <value>Composer</value>
+  </data>
+  <data name="Tag_ComposerId" xml:space="preserve">
+    <value>Composer ID</value>
+  </data>
+  <data name="Tag_Conductor" xml:space="preserve">
+    <value>Conductor</value>
+  </data>
+  <data name="Tag_ContentId" xml:space="preserve">
+    <value>Content ID</value>
+  </data>
+  <data name="Tag_ContentRating" xml:space="preserve">
+    <value>Content Rating</value>
+  </data>
+  <data name="Tag_Copyright" xml:space="preserve">
+    <value>Copyright</value>
+  </data>
+  <data name="Tag_Credits" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+  <data name="Tag_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Tag_Director" xml:space="preserve">
+    <value>Director</value>
+  </data>
+  <data name="Tag_DiskNumber" xml:space="preserve">
+    <value>Disk #</value>
+  </data>
+  <data name="Tag_EncodedBy" xml:space="preserve">
+    <value>Encoded By</value>
+  </data>
+  <data name="Tag_EncodingTool" xml:space="preserve">
+    <value>Encoding Tool</value>
+  </data>
+  <data name="Tag_ExecutiveProducer" xml:space="preserve">
+    <value>Executive Producer</value>
+  </data>
+  <data name="Tag_Gapless" xml:space="preserve">
+    <value>Gapless</value>
+  </data>
+  <data name="Tag_Genre" xml:space="preserve">
+    <value>Genre</value>
+  </data>
+  <data name="Tag_GenreId" xml:space="preserve">
+    <value>Genre ID</value>
+  </data>
+  <data name="Tag_Grouping" xml:space="preserve">
+    <value>Grouping</value>
+  </data>
+  <data name="Tag_HdVideo" xml:space="preserve">
+    <value>HD Video</value>
+  </data>
+  <data name="Tag_ITunesAccount" xml:space="preserve">
+    <value>iTunes Account</value>
+  </data>
+  <data name="Tag_ITunesAccountType" xml:space="preserve">
+    <value>iTunes Account Type</value>
+  </data>
+  <data name="Tag_ITunesCountry" xml:space="preserve">
+    <value>iTunes Country</value>
+  </data>
+  <data name="Tag_ITunesU" xml:space="preserve">
+    <value>iTunes U</value>
+  </data>
+  <data name="Tag_Keywords" xml:space="preserve">
+    <value>Keywords</value>
+  </data>
+  <data name="Tag_LinerNotes" xml:space="preserve">
+    <value>Liner Notes</value>
+  </data>
+  <data name="Tag_LongDescription" xml:space="preserve">
+    <value>Long Description</value>
+  </data>
+  <data name="Tag_Lyricist" xml:space="preserve">
+    <value>Lyricist</value>
+  </data>
+  <data name="Tag_Lyrics" xml:space="preserve">
+    <value>Lyrics</value>
+  </data>
+  <data name="Tag_MediaKind" xml:space="preserve">
+    <value>Media Kind</value>
+  </data>
+  <data name="Tag_MovementCount" xml:space="preserve">
+    <value>Movement Count</value>
+  </data>
+  <data name="Tag_MovementName" xml:space="preserve">
+    <value>Movement Name</value>
+  </data>
+  <data name="Tag_MovementNumber" xml:space="preserve">
+    <value>Movement Number</value>
+  </data>
+  <data name="Tag_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Tag_OnlineExtras" xml:space="preserve">
+    <value>Online Extras</value>
+  </data>
+  <data name="Tag_OriginalArtist" xml:space="preserve">
+    <value>Original Artist</value>
+  </data>
+  <data name="Tag_Performer" xml:space="preserve">
+    <value>Performer</value>
+  </data>
+  <data name="Tag_PhonogramRights" xml:space="preserve">
+    <value>Phonogram Rights</value>
+  </data>
+  <data name="Tag_PlaylistId" xml:space="preserve">
+    <value>Playlist ID</value>
+  </data>
+  <data name="Tag_Podcast" xml:space="preserve">
+    <value>Podcast</value>
+  </data>
+  <data name="Tag_Producers" xml:space="preserve">
+    <value>Producers</value>
+  </data>
+  <data name="Tag_Publisher" xml:space="preserve">
+    <value>Publisher</value>
+  </data>
+  <data name="Tag_PurchaseDate" xml:space="preserve">
+    <value>Purchase Date</value>
+  </data>
+  <data name="Tag_Rating" xml:space="preserve">
+    <value>Rating</value>
+  </data>
+  <data name="Tag_RatingAnnotation" xml:space="preserve">
+    <value>Rating Annotation</value>
+  </data>
+  <data name="Tag_RecordCompany" xml:space="preserve">
+    <value>Record Company</value>
+  </data>
+  <data name="Tag_ReleaseDate" xml:space="preserve">
+    <value>Release Date</value>
+  </data>
+  <data name="Tag_Screenwriters" xml:space="preserve">
+    <value>Screenwriters</value>
+  </data>
+  <data name="Tag_SeriesDescription" xml:space="preserve">
+    <value>Series Description</value>
+  </data>
+  <data name="Tag_ShowWorkAndMovement" xml:space="preserve">
+    <value>Show Work And Movement</value>
+  </data>
+  <data name="Tag_Soloist" xml:space="preserve">
+    <value>Soloist</value>
+  </data>
+  <data name="Tag_SongDescription" xml:space="preserve">
+    <value>Song Description</value>
+  </data>
+  <data name="Tag_SongProducer" xml:space="preserve">
+    <value>Song Producer</value>
+  </data>
+  <data name="Tag_SortAlbum" xml:space="preserve">
+    <value>Sort Album</value>
+  </data>
+  <data name="Tag_SortAlbumArtist" xml:space="preserve">
+    <value>Sort Album Artist</value>
+  </data>
+  <data name="Tag_SortArtist" xml:space="preserve">
+    <value>Sort Artist</value>
+  </data>
+  <data name="Tag_SortComposer" xml:space="preserve">
+    <value>Sort Composer</value>
+  </data>
+  <data name="Tag_SortName" xml:space="preserve">
+    <value>Sort Name</value>
+  </data>
+  <data name="Tag_SortTvShow" xml:space="preserve">
+    <value>Sort TV Show</value>
+  </data>
+  <data name="Tag_SoundEngineer" xml:space="preserve">
+    <value>Sound Engineer</value>
+  </data>
+  <data name="Tag_Studio" xml:space="preserve">
+    <value>Studio</value>
+  </data>
+  <data name="Tag_Tempo" xml:space="preserve">
+    <value>Tempo</value>
+  </data>
+  <data name="Tag_Thanks" xml:space="preserve">
+    <value>Thanks</value>
+  </data>
+  <data name="Tag_TrackNumber" xml:space="preserve">
+    <value>Track #</value>
+  </data>
+  <data name="Tag_TrackSubtitle" xml:space="preserve">
+    <value>Track Sub-Title</value>
+  </data>
+  <data name="Tag_TvEpisodeId" xml:space="preserve">
+    <value>TV Episode ID</value>
+  </data>
+  <data name="Tag_TvEpisodeNumber" xml:space="preserve">
+    <value>TV Episode #</value>
+  </data>
+  <data name="Tag_TvNetwork" xml:space="preserve">
+    <value>TV Network</value>
+  </data>
+  <data name="Tag_TvSeason" xml:space="preserve">
+    <value>TV Season</value>
+  </data>
+  <data name="Tag_TvShow" xml:space="preserve">
+    <value>TV Show</value>
+  </data>
+  <data name="Tag_WorkName" xml:space="preserve">
+    <value>Work Name</value>
+  </data>
+  <data name="Tag_Xid" xml:space="preserve">
+    <value>XID</value>
+  </data>
+  <data name="Undo_Add" xml:space="preserve">
+    <value>Add {0}</value>
+  </data>
+  <data name="Undo_Change" xml:space="preserve">
+    <value>Change {0}</value>
+  </data>
+  <data name="Undo_Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Undo_Move" xml:space="preserve">
+    <value>Move {0}</value>
+  </data>
+  <data name="Undo_Remove" xml:space="preserve">
+    <value>Remove {0}</value>
+  </data>
+</root>

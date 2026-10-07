@@ -1,5 +1,6 @@
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -125,7 +126,7 @@ public static class VideoBitstreamScan
     public static Task<VideoScanResult> ScanAsync(VideoTrack video, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(video);
-        var source = video.Source ?? throw new InvalidOperationException("The track has no source file.");
+        var source = video.Source ?? throw new InvalidOperationException(Strings.Error_NoSourceFile);
         var checkDolbyVision = DolbyVisionDetector.NeedsCheck(video);
         var checkHdr10Plus = Hdr10PlusDetector.NeedsCheck(video);
         var checkHdrVivid = HdrVividDetector.NeedsCheck(video);

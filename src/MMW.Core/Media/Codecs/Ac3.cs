@@ -1,3 +1,5 @@
+using MMW.Core.Resources;
+
 namespace MMW.Core.Media.Codecs;
 
 /// <summary>Header of one AC-3 or E-AC-3 syncframe.</summary>
@@ -319,7 +321,7 @@ public static class Ac3
         }
 
         if (independents.Count == 0)
-            throw new InvalidDataException("No independent E-AC-3 substream found.");
+            throw new InvalidDataException(Strings.Error_NoIndependentEac3Substream);
 
         var first = independents[0].Header;
         var seconds = first.Samples / (double)first.SampleRate;

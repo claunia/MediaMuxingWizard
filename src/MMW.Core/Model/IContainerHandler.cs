@@ -1,3 +1,6 @@
+using System.Globalization;
+using MMW.Core.Resources;
+
 namespace MMW.Core.Model;
 
 /// <summary>Options for writing a document.</summary>
@@ -60,7 +63,7 @@ public sealed class ContainerRegistry
     public Task<MediaDocument> OpenAsync(string path, CancellationToken cancellationToken = default)
     {
         var kind = Detect(path);
-        var handler = Get(kind) ?? throw new NotSupportedException($"'{Path.GetFileName(path)}' is not a supported MP4 or Matroska file.");
+        var handler = Get(kind) ?? throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotMp4OrMatroska, Path.GetFileName(path)));
         return handler.ReadAsync(path, cancellationToken);
     }
 }

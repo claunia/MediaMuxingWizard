@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -61,7 +62,7 @@ public static class Mpeg12Video
         if (chroma is 2 or 3 && !profile.StartsWith("4:2:2", StringComparison.Ordinal))
             parts.Add(chroma == 2 ? "4:2:2" : "4:4:4");
         if (!progressive)
-            parts.Add("interlaced");
+            parts.Add(Strings.Detail_Interlaced);
         return new LegacyVideoInfo(string.Join(", ", parts), color);
     }
 
@@ -299,7 +300,7 @@ public static partial class Mpeg4Part2
             if (shape == 0)
                 r.Skip(1 + 13 + 1 + 13 + 1); // width, height and markers
             if (r.Flag())
-                tools.Add("interlaced");
+                tools.Add(Strings.Detail_Interlaced);
             r.Skip(1); // obmc_disable
             var sprite = verid == 1 ? r.Read(1) : r.Read(2);
             if (sprite == 2)
@@ -321,7 +322,7 @@ public static partial class Mpeg4Part2
                 r.Skip(3);
             if (r.Flag()) // quant_type (MPEG quantisation)
             {
-                tools.Add("MPEG quantisation");
+                tools.Add(Strings.Detail_MpegQuantisation);
                 for (var matrix = 0; matrix < 2; matrix++)
                 {
                     if (!r.Flag())
@@ -352,11 +353,11 @@ public static partial class Mpeg4Part2
         if (DivX().Match(text) is { Success: true } divx)
         {
             var version = divx.Groups[1].Value;
-            return string.Create(CultureInfo.InvariantCulture, $"DivX {version[0]}.{version[1..]} build {divx.Groups[2].Value}");
+            return string.Format(CultureInfo.CurrentCulture, Strings.Detail_DivXBuild, $"{version[0]}.{version[1..]}", divx.Groups[2].Value);
         }
 
         if (Xvid().Match(text) is { Success: true } xvid)
-            return "Xvid build " + int.Parse(xvid.Groups[1].Value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
+            return string.Format(CultureInfo.CurrentCulture, Strings.Detail_XvidBuild, int.Parse(xvid.Groups[1].Value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture));
         return text.StartsWith("Lavc", StringComparison.Ordinal) ? text : string.Empty;
     }
 
@@ -401,7 +402,7 @@ public static class Vc1
     {
         var s = ParseSequence(header);
         var name = s.Profile == 3 ? $"Advanced@L{s.Level}" : string.Empty;
-        return new LegacyVideoInfo(s.Interlaced && name.Length > 0 ? name + ", interlaced" : name, s.Color);
+        return new LegacyVideoInfo(s.Interlaced && name.Length > 0 ? name + ", " + Strings.Detail_Interlaced : name, s.Color);
     }
 
     /// <summary>
@@ -595,7 +596,7 @@ public static class H263
 {
     /// <summary>"Profile 0@L30" from the 'd263' of a sample entry; empty when it has none.</summary>
     public static string ProfileLevel(ReadOnlySpan<byte> entry) =>
-        QuickTime.EntryBox(entry, "d263") is { Length: >= 7 } d263 ? $"Profile {d263[6]}@L{d263[5]}" : string.Empty;
+        QuickTime.EntryBox(entry, "d263") is { Length: >= 7 } d263 ? string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, d263[6]) + string.Create(CultureInfo.InvariantCulture, $"@L{d263[5]}") : string.Empty;
 }
 
 /// <summary>Dirac / SMPTE VC-2 (SMPTE ST 2042-1) parse info and sequence header.</summary>
@@ -622,9 +623,9 @@ public static class Dirac
                     2 => "Main",
                     3 => "High Quality",
                     8 => "Main (Dirac)",
-                    _ => $"Profile {profile}",
+                    _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, profile),
                 };
-                return $"{name}@L{level}, version {major}";
+                return string.Format(CultureInfo.CurrentCulture, Strings.Detail_DiracProfile, name, level, major);
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
             {

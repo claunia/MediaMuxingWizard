@@ -1,5 +1,6 @@
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -53,7 +54,7 @@ public static class MpegAudioDetector
     public static async Task<bool> DescribeAsync(AudioTrack audio, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(audio);
-        var source = audio.Source ?? throw new InvalidOperationException("The track has no source file.");
+        var source = audio.Source ?? throw new InvalidOperationException(Strings.Error_NoSourceFile);
         var description = await Task.Run(() =>
         {
             using var demuxer = MediaFormatRegistry.OpenDemuxer(source.Path, new DemuxOptions());

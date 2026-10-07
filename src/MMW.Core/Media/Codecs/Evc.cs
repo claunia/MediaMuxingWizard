@@ -1,4 +1,5 @@
 using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -93,7 +94,7 @@ public static class Evc
         1 => "Main",
         2 => "Baseline Still Picture",
         3 => "Main Still Picture",
-        _ => "Profile " + profileIdc.ToString(CultureInfo.InvariantCulture),
+        _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, profileIdc),
     };
 
     /// <summary>"Main@L4.1".</summary>
@@ -118,7 +119,7 @@ public static class Evc
     public static EvcConfig ParseEvcC(ReadOnlySpan<byte> evcC)
     {
         if (evcC.Length < 18 || evcC[0] != 1)
-            throw new InvalidDataException("Invalid evcC record.");
+            throw new InvalidDataException(Strings.Error_InvalidEvcC);
         try
         {
             var nals = new List<(int, bool, byte[])>();
@@ -142,7 +143,7 @@ public static class Evc
         }
         catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException)
         {
-            throw new InvalidDataException("Truncated evcC record.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedEvcC, ex);
         }
     }
 
@@ -156,7 +157,7 @@ public static class Evc
         ArgumentNullException.ThrowIfNull(sps);
         ArgumentNullException.ThrowIfNull(pps);
         if (sps.Count == 0)
-            throw new InvalidDataException("An EVC configuration needs an SPS.");
+            throw new InvalidDataException(Strings.Error_EvcNeedsSps);
         var info = ParseSps(sps[0]);
         var toolsets = Toolsets(sps[0]);
         var o = new List<byte>
@@ -206,14 +207,14 @@ public static class Evc
         }
         catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException)
         {
-            throw new InvalidDataException("Truncated EVC SPS.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedEvcSps, ex);
         }
     }
 
     private static EvcSps ParseSpsCore(ReadOnlySpan<byte> nal)
     {
         if (nal.Length < 3)
-            throw new InvalidDataException("Truncated EVC SPS.");
+            throw new InvalidDataException(Strings.Error_TruncatedEvcSps);
         var r = new BitReader(nal[2..]);
         var id = (int)r.Ue();
         var profile = (int)r.Read(8);
@@ -221,7 +222,7 @@ public static class Evc
         r.Skip(64); // toolset_idc_h, toolset_idc_l
         var chroma = (int)r.Ue();
         if (chroma > 3)
-            throw new InvalidDataException("Invalid EVC chroma_format_idc.");
+            throw new InvalidDataException(Strings.Error_InvalidEvcChromaFormat);
         var width = (int)r.Ue();
         var height = (int)r.Ue();
         var depthLuma = (int)r.Ue() + 8;
@@ -447,7 +448,7 @@ public static class Evc
         }
         catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException)
         {
-            throw new InvalidDataException("Truncated EVC PPS.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedEvcPps, ex);
         }
     }
 
@@ -468,7 +469,7 @@ public static class Evc
             var r = new BitReader(nal[2..Math.Min(nal.Length, 64)]);
             var ppsId = (int)r.Ue();
             if (!ppss.TryGetValue(ppsId, out var pps) || !spss.TryGetValue(pps.SpsId, out var sps))
-                throw new InvalidDataException($"Unknown EVC PPS {ppsId}.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownEvcPps, ppsId));
 
             var first = true;
             var singleTileInSlice = true;
@@ -506,7 +507,7 @@ public static class Evc
         }
         catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException)
         {
-            throw new InvalidDataException("Truncated EVC slice header.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedEvcSliceHeader, ex);
         }
     }
 
@@ -574,7 +575,7 @@ public static class Evc
             }
 
             if (temporalId > (subGop > 1 ? 1 + Log2(subGop - 1) : 0))
-                throw new InvalidDataException("EVC temporal id beyond the sub-GOP structure.");
+                throw new InvalidDataException(Strings.Error_EvcTemporalIdBeyondSubGop);
             var docOffset = (_prevDocOffset + 1) % subGop;
             int expectedTid;
             if (docOffset == 0)

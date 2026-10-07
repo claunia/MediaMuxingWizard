@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Numerics;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -123,7 +124,7 @@ public static class Vvc
         66 => "Main 12 Still Picture",
         98 => "Main 12 4:4:4 Still Picture",
         99 => "Main 16 4:4:4 Still Picture",
-        _ => "Profile " + profileIdc.ToString(CultureInfo.InvariantCulture),
+        _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, profileIdc),
     };
 
     /// <summary>"Main 10@L5.1" (with " High" for the high tier); empty when <paramref name="profileIdc"/> is unknown (-1).</summary>
@@ -192,11 +193,11 @@ public static class Vvc
         }
         catch (IndexOutOfRangeException ex)
         {
-            throw new InvalidDataException("Truncated vvcC record.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedVvcC, ex);
         }
         catch (ArgumentOutOfRangeException ex)
         {
-            throw new InvalidDataException("Truncated vvcC record.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedVvcC, ex);
         }
     }
 
@@ -802,7 +803,7 @@ public static class Vvc
     public static VvcPps ParsePps(ReadOnlySpan<byte> nal)
     {
         if (nal.Length < 4)
-            throw new InvalidDataException("Truncated VVC PPS.");
+            throw new InvalidDataException(Strings.Error_TruncatedVvcPps);
         var r = new BitReader(nal[2..4]); // no emulation prevention can occur in the first 10 bits
         return new VvcPps((int)r.Read(6), (int)r.Read(4));
     }
@@ -822,9 +823,9 @@ public static class Vvc
         var r = new BitReader(rbsp);
         r.Skip(16);
         if (IsVcl(type) && !r.Flag()) // sh_picture_header_in_slice_header_flag
-            throw new InvalidDataException("The slice has no picture header.");
+            throw new InvalidDataException(Strings.Error_SliceWithoutPictureHeader);
         if (type != NalPictureHeader && !IsVcl(type))
-            throw new InvalidDataException("Not a picture header or slice.");
+            throw new InvalidDataException(Strings.Error_NotPictureHeaderOrSlice);
 
         // picture_header_structure()
         var gdrOrIrap = r.Flag();
@@ -835,7 +836,7 @@ public static class Vvc
             r.Skip(1); // ph_intra_slice_allowed_flag
         var ppsId = (int)r.Ue();
         if (!ppss.TryGetValue(ppsId, out var pps) || !spss.TryGetValue(pps.SpsId, out var sps))
-            throw new InvalidDataException($"Unknown VVC PPS {ppsId}.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownVvcPps, ppsId));
         return ((int)r.Read(sps.Log2MaxPocLsb), sps.Log2MaxPocLsb, nonRef);
     }
 

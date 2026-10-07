@@ -1,4 +1,6 @@
+using System.Globalization;
 using Microsoft.Win32.SafeHandles;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -26,7 +28,7 @@ public sealed class FileSampleReader : ISampleDataReader, IDisposable
         {
             var n = RandomAccess.Read(_handle, destination[total..], position + total);
             if (n == 0)
-                throw new EndOfStreamException($"Unexpected end of file at offset {position + total}.");
+                throw new EndOfStreamException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnexpectedEndOfFile, position + total));
             total += n;
         }
     }

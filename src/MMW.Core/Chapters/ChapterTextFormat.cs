@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Chapters;
 
@@ -36,7 +37,7 @@ public static partial class ChapterTextFormat
         if (times.Count > 0)
         {
             foreach (var (n, time) in times)
-                result.Add(new Chapter(time, names.GetValueOrDefault(n) is { Length: > 0 } name ? name : $"Chapter {result.Count + 1}"));
+                result.Add(new Chapter(time, names.GetValueOrDefault(n) is { Length: > 0 } name ? name : string.Format(CultureInfo.CurrentCulture, Strings.Label_ChapterNumber, result.Count + 1)));
         }
         else
         {
@@ -45,7 +46,7 @@ public static partial class ChapterTextFormat
                 if (Mp4Chaps().Match(line) is { Success: true } m && ChapterTime.TryParse(m.Groups["time"].Value, out var ts))
                 {
                     var name = m.Groups["name"].Value.Trim();
-                    result.Add(new Chapter(ts, name.Length > 0 ? name : $"Chapter {result.Count + 1}"));
+                    result.Add(new Chapter(ts, name.Length > 0 ? name : string.Format(CultureInfo.CurrentCulture, Strings.Label_ChapterNumber, result.Count + 1)));
                 }
             }
         }

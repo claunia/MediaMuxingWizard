@@ -1,5 +1,7 @@
+using System.Globalization;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media.Codecs;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -77,9 +79,9 @@ public sealed class TrueHdAccessUnitSource : ISampleSource
         {
             var au = TrueHd.Parse(data.Span[pos..], _substreams)
                      ?? throw new InvalidDataException(
-                         $"Invalid Dolby TrueHD access unit #{_accessUnits} (bad check nibble, length or format_sync); the stream is damaged or not FBA syntax.");
+                         string.Format(CultureInfo.CurrentCulture, Strings.Error_TrueHdInvalidAccessUnit, _accessUnits));
             if (pos + au.Length > data.Length)
-                throw new InvalidDataException($"Dolby TrueHD access unit #{_accessUnits} is split across container blocks.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrueHdSplitAccessUnit, _accessUnits));
             if (au.IsMajorSync)
                 _substreams = au.Substreams;
 
@@ -98,7 +100,7 @@ public sealed class TrueHdAccessUnitSource : ISampleSource
                 var seconds = _inner.Config.Timescale == 0 ? 0 : (double)block.Pts / _inner.Config.Timescale;
                 _next = (long)Math.Round(seconds * Config.Timescale) + (long)AccessUnitsBefore(pos, data.Span) * Config.DefaultSampleDuration;
                 if (DroppedLeadingAccessUnits > 0)
-                    AppLog.Info($"Dropped {DroppedLeadingAccessUnits} Dolby TrueHD access unit(s) before the first major sync.");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_TrueHdDroppedLeading, DroppedLeadingAccessUnits));
             }
 
             _pending.Enqueue(new MediaSample
@@ -147,7 +149,7 @@ public sealed class TrueHdAccessUnitSource : ISampleSource
                     if (au.IsMajorSync)
                     {
                         if (au.SampleRate == 0)
-                            throw new InvalidDataException("The Dolby TrueHD stream uses a reserved sampling frequency.");
+                            throw new InvalidDataException(Strings.Error_TrueHdReservedFrequency);
                         return inner.Config with
                         {
                             Codec = CodecType.TrueHd,
@@ -163,7 +165,7 @@ public sealed class TrueHdAccessUnitSource : ISampleSource
                 }
             }
 
-            throw new InvalidDataException("No Dolby TrueHD major sync (FBA syntax) was found at the start of the track.");
+            throw new InvalidDataException(Strings.Error_TrueHdNoMajorSync);
         }
         finally
         {

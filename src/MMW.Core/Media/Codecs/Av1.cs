@@ -1,4 +1,6 @@
+using System.Globalization;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -226,13 +228,13 @@ public static class Av1
             0 => "Main",
             1 => "High",
             2 => "Professional",
-            _ => $"Profile {profile}",
+            _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, profile),
         };
         var levelName = level switch
         {
             < 24 => $"L{2 + (level >> 2)}.{level & 3}",
             31 => "max",
-            _ => $"level {level}",
+            _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Level, level),
         };
         return $"{name}@{levelName}{(tier == 1 ? " High tier" : string.Empty)}";
     }

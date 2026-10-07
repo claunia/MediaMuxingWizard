@@ -1,3 +1,6 @@
+using System.Globalization;
+using MMW.Core.Resources;
+
 namespace MMW.Core.Media;
 
 /// <summary>
@@ -117,7 +120,7 @@ public static class MediaFormatRegistry
     /// <exception cref="NotSupportedException">No registered demuxer recognises the file.</exception>
     public static IDemuxer OpenDemuxer(string path, DemuxOptions? options = null)
     {
-        var factory = FindDemuxer(path) ?? throw new NotSupportedException($"'{Path.GetFileName(path)}' is not in a supported format.");
+        var factory = FindDemuxer(path) ?? throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_UnsupportedFormat, Path.GetFileName(path)));
         return factory.Open(path, options);
     }
 }

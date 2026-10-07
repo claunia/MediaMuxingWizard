@@ -1,5 +1,6 @@
 using System.Globalization;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -36,7 +37,7 @@ public static class TrackConversions
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(track);
-        var source = track.Source ?? throw new InvalidOperationException($"Track '{track.Name}' ({track.Format}) has no source file.");
+        var source = track.Source ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackHasNoSourceFile, track.Name, track.Format));
         var import = source.Import ?? new TrackImportOptions();
         var isOcr = SubtitleConversions.Target(action) is not null && (ocr is not null || import.Ocr is not null || SubtitleConversions.IsBitmapFormat(track.Format));
         track.Source = source with

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Metadata;
 
@@ -58,7 +59,7 @@ public static class Ratings
     private static List<ContentRatingEntry> Load()
     {
         using var stream = typeof(Ratings).Assembly.GetManifestResourceStream("MMW.Core.Resources.ratings.json")
-                           ?? throw new InvalidOperationException("ratings.json resource missing.");
+                           ?? throw new InvalidOperationException(Strings.Error_RatingsResourceMissing);
         var countries = JsonSerializer.Deserialize<List<CountryDto>>(stream) ?? [];
         return countries.SelectMany(c => c.Entries.Select(r => new ContentRatingEntry(c.Country, r.Media, r.Prefix, r.Code, r.Value, r.Name))).ToList();
     }

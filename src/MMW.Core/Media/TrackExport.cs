@@ -1,4 +1,6 @@
+using System.Globalization;
 using MMW.Core.Media.Export;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -55,7 +57,7 @@ public static class TrackExport
         ArgumentNullException.ThrowIfNull(source);
         ArgumentException.ThrowIfNullOrEmpty(outputPath);
         if (Extension(source.Config) is null)
-            throw new NotSupportedException($"{source.Config.FormatName} tracks cannot be exported to a raw file.");
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotExportRaw, source.Config.FormatName));
         return Task.Run(() => Export(source, Path.GetFullPath(outputPath), progress, cancellationToken), cancellationToken);
     }
 

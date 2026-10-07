@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -57,7 +58,7 @@ public static class NalUnits
             };
             pos += lengthSize;
             if (len < 0 || pos + len > data.Length)
-                throw new InvalidDataException("NAL unit length runs past the end of the sample.");
+                throw new InvalidDataException(Strings.Error_NalUnitPastEnd);
             result.Add(new Range(pos, pos + len));
             pos += len;
         }

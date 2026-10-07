@@ -1,3 +1,5 @@
+using MMW.Core.Resources;
+
 namespace MMW.Core.Media.Codecs;
 
 /// <summary>MSB-first bit reader over a byte span (with Exp-Golomb support for H.264/HEVC syntax).</summary>
@@ -25,7 +27,7 @@ public ref struct BitReader
         if (count is < 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(count));
         if (BitsLeft < count)
-            throw new InvalidDataException("Unexpected end of bitstream.");
+            throw new InvalidDataException(Strings.Error_UnexpectedEndOfBitstream);
         uint v = 0;
         for (var i = 0; i < count; i++)
         {
@@ -50,7 +52,7 @@ public ref struct BitReader
     public void Skip(long count)
     {
         if (BitsLeft < count)
-            throw new InvalidDataException("Unexpected end of bitstream.");
+            throw new InvalidDataException(Strings.Error_UnexpectedEndOfBitstream);
         _bit += count;
     }
 
@@ -61,7 +63,7 @@ public ref struct BitReader
         while (Read(1) == 0)
         {
             if (++zeros > 31)
-                throw new InvalidDataException("Invalid Exp-Golomb code.");
+                throw new InvalidDataException(Strings.Error_InvalidExpGolomb);
         }
 
         return zeros == 0 ? 0 : (uint)((1UL << zeros) - 1 + Read(zeros));

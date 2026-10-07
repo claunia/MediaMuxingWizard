@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -163,7 +164,7 @@ public static class TrueHd
     {
         ArgumentNullException.ThrowIfNull(majorSync);
         if (!majorSync.IsMajorSync)
-            throw new ArgumentException("The dmlp box is built from an access unit with a major sync.", nameof(majorSync));
+            throw new ArgumentException(Strings.Error_DmlpNeedsMajorSync, nameof(majorSync));
         var box = new byte[10];
         BinaryPrimitives.WriteUInt32BigEndian(box, majorSync.FormatInfo);
         BinaryPrimitives.WriteUInt16BigEndian(box.AsSpan(4), (ushort)(majorSync.PeakDataRate << 1));

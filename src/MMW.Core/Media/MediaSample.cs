@@ -1,3 +1,5 @@
+using MMW.Core.Resources;
+
 namespace MMW.Core.Media;
 
 /// <summary>Reads byte ranges of a source file (used to load sample payloads lazily).</summary>
@@ -85,7 +87,7 @@ public sealed class MediaSample
     public void CopyTo(Span<byte> destination)
     {
         if (destination.Length < Size)
-            throw new ArgumentException("Destination is too small for the sample.", nameof(destination));
+            throw new ArgumentException(Strings.Error_DestinationTooSmall, nameof(destination));
         if (Reader is null)
         {
             Data.Span.CopyTo(destination);
@@ -100,7 +102,7 @@ public sealed class MediaSample
     public void CopyHead(Span<byte> destination)
     {
         if (destination.Length > Size)
-            throw new ArgumentException("The sample is shorter than the requested head.", nameof(destination));
+            throw new ArgumentException(Strings.Error_SampleShorterThanHead, nameof(destination));
         if (Reader is null)
         {
             Data.Span[..destination.Length].CopyTo(destination);

@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -454,7 +456,7 @@ public static class Av2
                 return (q << n) + (int)r.Read(n);
         }
 
-        throw new InvalidDataException("Invalid rg() code.");
+        throw new InvalidDataException(Strings.Error_InvalidRgCode);
     }
 
     /// <summary>
@@ -608,13 +610,13 @@ public static class Av2
             3 => "Main_422_10_IP1",
             4 => "Main_444_10_IP1",
             31 => "Configurable",
-            _ => $"Profile {header.Profile}",
+            _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, header.Profile),
         };
         var level = header.Level switch
         {
             < 22 => $"L{s_levels[header.Level]}",
             31 => "max",
-            _ => $"level {header.Level}",
+            _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Level, header.Level),
         };
         return $"{profile}@{level}{(header.Tier == 1 ? " High tier" : string.Empty)}";
     }
@@ -629,7 +631,7 @@ public static class Av2
     {
         ArgumentNullException.ThrowIfNull(configurationObus);
         if (configurationObus.Count is 0 or > 256)
-            throw new InvalidDataException("An AV2 configuration needs between 1 and 256 OBUs.");
+            throw new InvalidDataException(Strings.Error_Av2ObuCount);
         var o = new List<byte> { 0, (byte)(configurationObus.Count - 1) };
         foreach (var obu in configurationObus)
         {

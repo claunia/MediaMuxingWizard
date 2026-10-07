@@ -6,6 +6,7 @@
 // General Public License version 3 or later, as section 3 of the LGPL permits.
 
 using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -291,13 +292,13 @@ public static class Ac4
         }
         else
         {
-            layout = p.Immersive ? "Immersive object based" : "Object based";
+            layout = p.Immersive ? Strings.Detail_ImmersiveObjectBased : Strings.Detail_ObjectBased;
             if (info.ChannelCount > 0)
                 layout += string.Create(CultureInfo.InvariantCulture, $" ({info.ChannelCount} ch)");
         }
 
         return info.Presentations.Count > 1
-            ? string.Create(CultureInfo.InvariantCulture, $"{layout}, {info.Presentations.Count} presentations")
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Detail_Presentations, layout, info.Presentations.Count)
             : layout;
     }
 

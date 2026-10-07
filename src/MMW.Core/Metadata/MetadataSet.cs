@@ -1,4 +1,5 @@
 using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Metadata;
 
@@ -147,11 +148,11 @@ public sealed class MetadataSet
             TagValueKind.StringList => value switch
             {
                 IEnumerable<string> list => list.Select(x => x.Trim()).Where(x => x.Length > 0).ToArray() is { Length: > 0 } arr ? arr : null,
-                _ => throw new FormatException($"Expected a list of strings, got {value.GetType().Name}."),
+                _ => throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Error_ExpectedStringList, value.GetType().Name)),
             },
             TagValueKind.Bool => value is bool b ? b : Convert.ToBoolean(value, CultureInfo.InvariantCulture),
             TagValueKind.Integer or TagValueKind.Enum => value is int i ? i : Convert.ToInt32(value, CultureInfo.InvariantCulture),
-            TagValueKind.IntegerPair => value is IntPair p ? p : throw new FormatException("Expected an IntPair."),
+            TagValueKind.IntegerPair => value is IntPair p ? p : throw new FormatException(Strings.Error_ExpectedIntPair),
             _ => value,
         };
     }
@@ -169,10 +170,10 @@ public sealed class MetadataSet
             {
                 "1" or "YES" or "TRUE" or "ON" => true,
                 "0" or "NO" or "FALSE" or "OFF" => false,
-                _ => throw new FormatException($"'{text}' is not a yes/no value."),
+                _ => throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotYesNo, text)),
             },
             TagValueKind.Integer or TagValueKind.Enum => int.Parse(text, NumberStyles.Integer, CultureInfo.InvariantCulture),
-            TagValueKind.IntegerPair => IntPair.TryParse(text, out var pair) ? pair : throw new FormatException($"'{text}' is not in n/total form."),
+            TagValueKind.IntegerPair => IntPair.TryParse(text, out var pair) ? pair : throw new FormatException(string.Format(CultureInfo.CurrentCulture, Strings.Error_NotNumberOfTotal, text)),
             _ => text,
         };
     }

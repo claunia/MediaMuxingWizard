@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MMW.Core.Chapters;
 using MMW.Core.Metadata;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Model;
 
@@ -44,7 +45,7 @@ public sealed partial class MediaDocument : ObservableObject
     /// </summary>
     public object? ContainerState { get; set; }
 
-    public string DisplayName => Path is null ? "Untitled" : System.IO.Path.GetFileName(Path);
+    public string DisplayName => Path is null ? Strings.Label_Untitled : System.IO.Path.GetFileName(Path);
 
     partial void OnPathChanged(string? value) => OnPropertyChanged(nameof(DisplayName));
 

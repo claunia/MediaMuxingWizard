@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
+using System.Globalization;
 using MMW.Core.Media.Codecs;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Export;
 
@@ -154,7 +156,7 @@ internal static class ExportWriters
             CodecType.Pgs => new SupWriter(context),
             CodecType.VobSub => new VobSubWriter(context),
             _ when Extension(config) is not null => new ConcatWriter(context),
-            _ => throw new NotSupportedException($"{config.FormatName} tracks cannot be exported to a raw file."),
+            _ => throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_CannotExportRaw, config.FormatName)),
         };
     }
 }

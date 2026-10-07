@@ -1,5 +1,7 @@
+using System.Globalization;
 using MMW.Core.Chapters;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Actions;
 
@@ -22,9 +24,9 @@ public static class TrackActions
         {
             a.Name = a.Channels switch
             {
-                1 => "Mono Audio",
-                2 => "Stereo Audio",
-                > 2 => "Surround Audio",
+                1 => Strings.Name_MonoAudio,
+                2 => Strings.Name_StereoAudio,
+                > 2 => Strings.Name_SurroundAudio,
                 _ => a.Name,
             };
         }
@@ -37,13 +39,13 @@ public static class TrackActions
         RemoveAll(doc.Chapters);
         if (interval is not { } step || step <= TimeSpan.Zero)
         {
-            doc.Chapters.Add(new Chapter(TimeSpan.Zero, "Chapter 1"));
+            doc.Chapters.Add(new Chapter(TimeSpan.Zero, string.Format(CultureInfo.CurrentCulture, Strings.Label_ChapterNumber, 1)));
         }
         else
         {
             var n = 1;
             for (var t = TimeSpan.Zero; t < doc.Duration || n == 1; t += step)
-                doc.Chapters.Add(new Chapter(t, $"Chapter {n++}"));
+                doc.Chapters.Add(new Chapter(t, string.Format(CultureInfo.CurrentCulture, Strings.Label_ChapterNumber, n++)));
         }
 
         EnsureChapterTrack(doc);
@@ -55,7 +57,7 @@ public static class TrackActions
         ArgumentNullException.ThrowIfNull(doc);
         var n = 1;
         foreach (var c in doc.Chapters.OrderBy(c => c.Start))
-            c.Title = $"Chapter {n++}";
+            c.Title = string.Format(CultureInfo.CurrentCulture, Strings.Label_ChapterNumber, n++);
     }
 
     /// <summary>Replaces the chapters (item by item, so the change can be undone).</summary>

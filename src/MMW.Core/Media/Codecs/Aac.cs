@@ -1,3 +1,6 @@
+using System.Globalization;
+using MMW.Core.Resources;
+
 namespace MMW.Core.Media.Codecs;
 
 /// <summary>Decoded MPEG-4 AudioSpecificConfig.</summary>
@@ -509,7 +512,7 @@ public static class Opus
     public static byte[] OpusHeadToDops(ReadOnlySpan<byte> head)
     {
         if (head.Length < 19 || !head[..8].SequenceEqual("OpusHead"u8))
-            throw new InvalidDataException("Invalid OpusHead.");
+            throw new InvalidDataException(Strings.Error_InvalidOpusHead);
         var channels = head[9];
         var family = head[18];
         var w = new List<byte>
@@ -524,7 +527,7 @@ public static class Opus
         if (family != 0)
         {
             if (head.Length < 21 + channels)
-                throw new InvalidDataException("Truncated OpusHead channel mapping table.");
+                throw new InvalidDataException(Strings.Error_TruncatedOpusMapping);
             w.AddRange(head.Slice(19, 2 + channels).ToArray());
         }
 
@@ -535,7 +538,7 @@ public static class Opus
     public static byte[] DopsToOpusHead(ReadOnlySpan<byte> dops)
     {
         if (dops.Length < 11)
-            throw new InvalidDataException("Invalid dOps box.");
+            throw new InvalidDataException(Strings.Error_InvalidDopsBox);
         var channels = dops[1];
         var family = dops[10];
         var w = new List<byte>();
@@ -648,21 +651,21 @@ public static class Opus
         if (modes.HasFlag(OpusModes.Silk))
             names.Add("SILK");
         if (modes.HasFlag(OpusModes.Hybrid))
-            names.Add("Hybrid");
+            names.Add(Strings.Detail_OpusHybrid);
         if (modes.HasFlag(OpusModes.Celt))
             names.Add("CELT");
-        var band = minBandwidth == maxBandwidth ? BandwidthName(maxBandwidth) : $"{BandwidthName(minBandwidth)} to {BandwidthName(maxBandwidth)}";
+        var band = minBandwidth == maxBandwidth ? BandwidthName(maxBandwidth) : string.Format(CultureInfo.CurrentCulture, Strings.Detail_Range, BandwidthName(minBandwidth), BandwidthName(maxBandwidth));
         var frames = minFrame == maxFrame ? $"{Milliseconds(maxFrame)} ms" : $"{Milliseconds(minFrame)}–{Milliseconds(maxFrame)} ms";
-        return $"{string.Join('/', names)}, {band}, {frames} frames";
+        return string.Format(CultureInfo.CurrentCulture, Strings.Detail_OpusSummary, string.Join('/', names), band, frames);
     }
 
     private static string BandwidthName(int hz) => hz switch
     {
-        4000 => "narrowband",
-        6000 => "medium band",
-        8000 => "wideband",
-        12000 => "super-wideband",
-        _ => "fullband",
+        4000 => Strings.Detail_Narrowband,
+        6000 => Strings.Detail_MediumBand,
+        8000 => Strings.Detail_Wideband,
+        12000 => Strings.Detail_SuperWideband,
+        _ => Strings.Detail_Fullband,
     };
 
     private static string Milliseconds(int quarterMs) => (quarterMs / 4.0).ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
@@ -851,10 +854,10 @@ public static class MpegAudio
         switch (mode)
         {
             case 1:
-                parts.Add("joint stereo");
+                parts.Add(Strings.Detail_JointStereo);
                 break;
             case 2:
-                parts.Add("dual channel");
+                parts.Add(Strings.Detail_DualChannel);
                 break;
         }
 

@@ -1,3 +1,5 @@
+using MMW.Core.Resources;
+
 namespace MMW.Core.Model;
 
 /// <summary>Apple media characteristic tags (<c>tagc</c> box), also mapped to Matroska track flags.</summary>
@@ -20,27 +22,27 @@ public static class MediaCharacteristics
 
     private static readonly Characteristic[] s_common =
     [
-        new(MainProgramContent, "Main program content"),
-        new(AuxiliaryContent, "Auxiliary content"),
-        new(OriginalContent, "Original content"),
+        new(MainProgramContent, Strings.Characteristic_MainProgramContent),
+        new(AuxiliaryContent, Strings.Characteristic_AuxiliaryContent),
+        new(OriginalContent, Strings.Characteristic_OriginalContent),
     ];
 
     private static readonly Characteristic[] s_audio =
     [
-        new(DescribesVideo, "Describes video"),
-        new(EnhancesSpeechIntelligibility, "Enhances speech intelligibility"),
-        new(Dubbed, "Dubbed translation"),
-        new(VoiceOver, "Voice-over translation"),
-        new(Translation, "Translation"),
+        new(DescribesVideo, Strings.Characteristic_DescribesVideo),
+        new(EnhancesSpeechIntelligibility, Strings.Characteristic_EnhancesSpeech),
+        new(Dubbed, Strings.Characteristic_Dubbed),
+        new(VoiceOver, Strings.Characteristic_VoiceOver),
+        new(Translation, Strings.Characteristic_Translation),
     ];
 
     private static readonly Characteristic[] s_subtitle =
     [
-        new(ForcedOnly, "Forced only"),
-        new(TranscribesSpokenDialog, "Transcribes spoken dialog (SDH)"),
-        new(DescribesMusicAndSound, "Describes music and sound"),
-        new(EasyToRead, "Easy to read"),
-        new(Translation, "Translation"),
+        new(ForcedOnly, Strings.Characteristic_ForcedOnly),
+        new(TranscribesSpokenDialog, Strings.Characteristic_TranscribesDialog),
+        new(DescribesMusicAndSound, Strings.Characteristic_DescribesMusic),
+        new(EasyToRead, Strings.Characteristic_EasyToRead),
+        new(Translation, Strings.Characteristic_Translation),
     ];
 
     /// <summary>Characteristics that apply to a given track kind, in display order.</summary>

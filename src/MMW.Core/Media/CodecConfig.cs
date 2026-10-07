@@ -1,4 +1,5 @@
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -326,7 +327,7 @@ public static class CodecNames
         CodecType.AmrNb => "AMR-NB",
         CodecType.AmrWb => "AMR-WB",
         CodecType.MpegH => "MPEG-H",
-        _ => fallback.Length > 0 ? fallback : "Unknown",
+        _ => fallback.Length > 0 ? fallback : Strings.Label_Unknown,
     };
 
     /// <summary>True for text subtitle formats that can be converted to each other.</summary>

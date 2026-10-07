@@ -1,5 +1,6 @@
 using System.Globalization;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -673,7 +674,7 @@ public static class Avs
         (AvsGeneration.Avs3, 0x22) => "Main 10",
         (AvsGeneration.Avs3, 0x30) => "High",
         (AvsGeneration.Avs3, 0x32) => "High 10",
-        _ => "Profile 0x" + profileId.ToString("X2", CultureInfo.InvariantCulture),
+        _ => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, "0x" + profileId.ToString("X2", CultureInfo.InvariantCulture)),
     };
 
     /// <summary>"Main 10@L6.2.60" (AVS2/AVS3 levels name the picture size class, its variant and the frame rate class).</summary>
@@ -695,7 +696,7 @@ public static class Avs
         };
         var low = levelId & 0xF;
         if (size is null || low > 0xB || (low & 1) == 1 && size is "2" or "4")
-            return profile + string.Create(CultureInfo.InvariantCulture, $", level 0x{levelId:X2}");
+            return profile + ", " + string.Format(CultureInfo.CurrentCulture, Strings.Label_Level, "0x" + levelId.ToString("X2", CultureInfo.InvariantCulture));
         var variant = size is "2" or "4" ? 0 : low & 2;
         var rate = size is "2" ? (low >> 1) switch { 0 => 15, 1 => 30, _ => 60 }
             : size is "4" ? (low >> 1 == 0 ? 30 : 60)

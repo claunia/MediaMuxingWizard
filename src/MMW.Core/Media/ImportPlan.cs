@@ -1,4 +1,6 @@
+using System.Globalization;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -141,7 +143,7 @@ public sealed class ImportPlan
         var plan = new ImportPlan();
         foreach (var track in document.Tracks.Where(t => t is not ChapterTrack))
         {
-            var source = track.Source ?? throw new InvalidOperationException($"Track '{track.Name}' ({track.Format}) has no source file.");
+            var source = track.Source ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackHasNoSourceFile, track.Name, track.Format));
             plan.Add(new TrackImport(source.Path, source.TrackId, source.Import?.Action ?? ImportAction.Passthrough)
             {
                 FrameRate = source.Import?.FrameRate,

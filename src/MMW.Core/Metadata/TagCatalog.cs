@@ -1,14 +1,32 @@
 using System.Collections.Frozen;
+using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Metadata;
 
-/// <summary>Describes one metadata field: display name, group, value kind and, for enums, its choices.</summary>
-public sealed record TagDefinition(TagId Id, string Name, TagGroup Group, TagValueKind Kind, IReadOnlyList<EnumChoice>? Choices = null);
+/// <summary>Describes one metadata field: name, group, value kind and, for enums, its choices.</summary>
+/// <param name="Name">
+/// Stable English name: used as the {Token} of file name templates, by the command line and in exports, so it is never
+/// translated. Show <see cref="DisplayName"/> instead.
+/// </param>
+public sealed record TagDefinition(TagId Id, string Name, TagGroup Group, TagValueKind Kind, IReadOnlyList<EnumChoice>? Choices = null)
+{
+    /// <summary>The name in the user interface language (resource Tag_&lt;TagId&gt;; <see cref="Name"/> when missing).</summary>
+    public string DisplayName => Strings.ResourceManager.GetString("Tag_" + Id, CultureInfo.CurrentUICulture) ?? Name;
+}
 
 /// <summary>One choice of an enumerated tag such as Media Kind.</summary>
+/// <param name="Name">Stable English name, also stored in text-based containers (Matroska CONTENT_TYPE); never translated.</param>
 public sealed record EnumChoice(int Value, string Name)
 {
-    public override string ToString() => Name;
+    /// <summary>
+    /// The name in the user interface language (resource TagChoice_&lt;Name without spaces&gt;; <see cref="Name"/> when
+    /// missing, as for names that are the same in every language).
+    /// </summary>
+    public string DisplayName =>
+        Strings.ResourceManager.GetString("TagChoice_" + string.Concat(Name.Where(char.IsLetterOrDigit)), CultureInfo.CurrentUICulture) ?? Name;
+
+    public override string ToString() => DisplayName;
 }
 
 /// <summary>Static catalog of all known tags, in the order the editor shows them.</summary>
@@ -187,18 +205,18 @@ public static class TagCatalog
 
     public static string GroupDisplayName(TagGroup group) => group switch
     {
-        TagGroup.General => "General",
-        TagGroup.Video => "Video",
-        TagGroup.TvShow => "TV Show",
-        TagGroup.People => "People",
-        TagGroup.Descriptions => "Descriptions",
-        TagGroup.Sorting => "Sorting",
-        TagGroup.Classical => "Classical",
-        TagGroup.Credits => "Credits",
-        TagGroup.Rating => "Rating",
-        TagGroup.Encoding => "Encoding",
-        TagGroup.Store => "iTunes Store",
-        TagGroup.Audiobook => "Audiobook",
+        TagGroup.General => Strings.TagGroup_General,
+        TagGroup.Video => Strings.TagGroup_Video,
+        TagGroup.TvShow => Strings.TagGroup_TvShow,
+        TagGroup.People => Strings.TagGroup_People,
+        TagGroup.Descriptions => Strings.TagGroup_Descriptions,
+        TagGroup.Sorting => Strings.TagGroup_Sorting,
+        TagGroup.Classical => Strings.TagGroup_Classical,
+        TagGroup.Credits => Strings.TagGroup_Credits,
+        TagGroup.Rating => Strings.TagGroup_Rating,
+        TagGroup.Encoding => Strings.TagGroup_Encoding,
+        TagGroup.Store => Strings.TagGroup_Store,
+        TagGroup.Audiobook => Strings.TagGroup_Audiobook,
         _ => group.ToString(),
     };
 

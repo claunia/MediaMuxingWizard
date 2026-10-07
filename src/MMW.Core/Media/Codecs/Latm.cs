@@ -1,3 +1,6 @@
+using System.Globalization;
+using MMW.Core.Resources;
+
 namespace MMW.Core.Media.Codecs;
 
 /// <summary>
@@ -42,7 +45,7 @@ public sealed class LatmParser
     {
         var length = FrameLength(frame);
         if (length <= 0 || length > frame.Length)
-            throw new InvalidDataException("Not a complete LOAS frame.");
+            throw new InvalidDataException(Strings.Error_IncompleteLoasFrame);
         try
         {
             var r = new BitReader(frame[3..length]);
@@ -68,14 +71,14 @@ public sealed class LatmParser
         }
         catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException)
         {
-            throw new InvalidDataException("Truncated LATM AudioMuxElement.", ex);
+            throw new InvalidDataException(Strings.Error_TruncatedLatmMuxElement, ex);
         }
     }
 
     private int ReadPayloadLength(ref BitReader r)
     {
         if (_frameLengthType != 0)
-            throw new InvalidDataException($"LATM frameLengthType {_frameLengthType} is not supported.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_LatmFrameLengthType, _frameLengthType));
         var length = 0;
         int tmp;
         do
@@ -92,7 +95,7 @@ public sealed class LatmParser
         var audioMuxVersion = (int)r.Read(1);
         _audioMuxVersionA = audioMuxVersion == 1 ? (int)r.Read(1) : 0;
         if (_audioMuxVersionA != 0)
-            throw new InvalidDataException("LATM audioMuxVersionA 1 is not supported.");
+            throw new InvalidDataException(Strings.Error_LatmMuxVersionA);
         if (audioMuxVersion == 1)
             LatmGetValue(ref r); // taraBufferFullness
         r.Skip(1); // allStreamsSameTimeFraming
@@ -100,7 +103,7 @@ public sealed class LatmParser
         var numProgram = (int)r.Read(4);
         var numLayer = (int)r.Read(3);
         if (numProgram != 0 || numLayer != 0)
-            throw new InvalidDataException("LATM with several programs or layers is not supported.");
+            throw new InvalidDataException(Strings.Error_LatmSeveralPrograms);
 
         // The first layer of the first program always carries its AudioSpecificConfig.
         if (audioMuxVersion == 1)
@@ -125,7 +128,7 @@ public sealed class LatmParser
                 r.Skip(9); // frameLength
                 break;
             default:
-                throw new InvalidDataException($"LATM frameLengthType {_frameLengthType} is not supported.");
+                throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_LatmFrameLengthType, _frameLengthType));
         }
 
         _otherDataPresent = r.Flag();
@@ -190,7 +193,7 @@ public sealed class LatmParser
                 r.Skip(14);
             var extension = r.Flag();
             if (channels == 0)
-                throw new InvalidDataException("LATM AudioSpecificConfig with a program config element is not supported.");
+                throw new InvalidDataException(Strings.Error_LatmProgramConfigElement);
             if (aot is 6 or 20)
                 r.Skip(3); // layerNr
             if (extension)
@@ -204,7 +207,7 @@ public sealed class LatmParser
         }
         else
         {
-            throw new InvalidDataException($"LATM audio object type {aot} is not supported.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_LatmObjectType, aot));
         }
 
         if (aot is 17 or >= 19 and <= 27 or 39)

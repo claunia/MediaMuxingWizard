@@ -1,4 +1,5 @@
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -45,8 +46,8 @@ public sealed record ImportChoice(ImportAction Action, string DisplayName, Audio
 public static class ConversionDefaults
 {
     public const string PassthroughName = "Passthru";
-    public const string SkipName = "Skip";
-    public const string NotAvailableName = "Not available";
+    public static string SkipName => Strings.Choice_Skip;
+    public static string NotAvailableName => Strings.Choice_NotAvailable;
     public const string AacPlusPassthroughName = "AAC + Passthru";
     public const string AacPlusAc3Name = "AAC + AC3";
     public const string Ac3Name = "AC3";
@@ -106,9 +107,9 @@ public static class ConversionDefaults
     {
         AudioMixdown.DolbyProLogicII => "AAC - Dolby Pro Logic II",
         AudioMixdown.DolbyProLogic => "AAC - Dolby Pro Logic",
-        AudioMixdown.Stereo => "AAC - Stereo",
-        AudioMixdown.Mono => "AAC - Mono",
-        _ => "AAC - Multi-channel",
+        AudioMixdown.Stereo => Strings.Choice_AacStereo,
+        AudioMixdown.Mono => Strings.Choice_AacMono,
+        _ => Strings.Choice_AacMultichannel,
     };
 
     /// <summary>Label of an action (with the mixdown for <see cref="ImportAction.ConvertToAac"/>).</summary>

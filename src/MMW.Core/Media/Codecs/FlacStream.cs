@@ -1,5 +1,7 @@
 using System.Buffers.Binary;
 using System.Text;
+using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -83,12 +85,12 @@ public static partial class Flac
     {
         if (blocks is null || ParseStreamInfo(blocks) is not { } info)
             return string.Empty;
-        var parts = new List<string> { $"{info.BitsPerSample}-bit" };
-        parts.Add(info.MinBlockSize == info.MaxBlockSize ? $"{info.MaxBlockSize}-sample blocks" : $"{info.MinBlockSize}–{info.MaxBlockSize}-sample blocks");
+        var parts = new List<string> { string.Format(CultureInfo.CurrentCulture, Strings.Detail_BitDepth, info.BitsPerSample) };
+        parts.Add(info.MinBlockSize == info.MaxBlockSize ? string.Format(CultureInfo.CurrentCulture, Strings.Detail_SampleBlocks, info.MaxBlockSize) : string.Format(CultureInfo.CurrentCulture, Strings.Detail_SampleBlocks, $"{info.MinBlockSize}–{info.MaxBlockSize}"));
         if (EncoderName(Vendor(blocks)) is { Length: > 0 } encoder)
             parts.Add(encoder);
         if (!info.HasMd5)
-            parts.Add("no MD5");
+            parts.Add(Strings.Detail_NoMd5);
         return string.Join(", ", parts);
     }
 

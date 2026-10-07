@@ -1,6 +1,8 @@
+using System.Globalization;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media.Subtitles;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -57,9 +59,9 @@ public static class Remuxer
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(options);
-        var output = Path.GetFullPath(options.OutputPath ?? document.Path ?? throw new InvalidOperationException("The document has no destination path."));
+        var output = Path.GetFullPath(options.OutputPath ?? document.Path ?? throw new InvalidOperationException(Strings.Error_NoDestinationPath));
         var factory = MediaFormatRegistry.GetMuxer(target) ??
-                      throw new NotSupportedException($"Writing {target} files requires the remux component, which is not registered.");
+                      throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_RemuxComponentMissing, target));
 
         // "AAC + Passthru" / "AAC + AC3" become two document tracks (on the caller's context: the document is changed).
         TrackConversions.Expand(document);
@@ -88,7 +90,7 @@ public static class Remuxer
     {
         ArgumentNullException.ThrowIfNull(document);
         var factory = MediaFormatRegistry.GetMuxer(target) ??
-                      throw new NotSupportedException($"Writing {target} files requires the remux component, which is not registered.");
+                      throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_RemuxComponentMissing, target));
         var tracks = document.Tracks.Where(t => t is not ChapterTrack).ToList();
         return Task.Run<IReadOnlyList<(Track, TrackSupport)>>(() =>
         {
@@ -101,7 +103,7 @@ public static class Remuxer
                     cancellationToken.ThrowIfCancellationRequested();
                     if (track.Source is not { } source)
                     {
-                        result.Add((track, new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the track has no source file")));
+                        result.Add((track, new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, Strings.Reason_NoSourceFile)));
                         continue;
                     }
 
@@ -114,7 +116,7 @@ public static class Remuxer
 
                     var sample = demuxer.Tracks.FirstOrDefault(t => t.TrackId == source.TrackId);
                     result.Add((track, sample is null
-                        ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, "the track was not found in its source file")
+                        ? new TrackSupport(TrackSupportLevel.Unsupported, ImportAction.Skip, Strings.Reason_TrackNotFoundInSource)
                         : CheckConverted(factory, sample.Config, source.Import)));
                 }
             }
@@ -153,7 +155,7 @@ public static class Remuxer
             }, cancellationToken);
             if (mode != ForcedSubtitleMode.None)
             {
-                AppLog.Info($"Subtitle track '{track.Name}': {(mode == ForcedSubtitleMode.AllSamplesForced ? "all" : "some")} subtitles are forced.");
+                AppLog.Info(string.Format(CultureInfo.CurrentCulture, mode == ForcedSubtitleMode.AllSamplesForced ? Strings.Log_AllSubtitlesForced : Strings.Log_SomeSubtitlesForced, track.Name));
                 sub.ForcedMode = mode;
             }
         }
@@ -168,7 +170,7 @@ public static class Remuxer
         if (TextSubtitleConverter.Converts(config, action))
         {
             var converted = factory.CheckSupport(TextSubtitleConverter.PredictOutput(config, TextSubtitleConverter.Target(action)!.Value));
-            return converted.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, $"converted to {ConversionDefaults.DisplayName(action)}") : converted;
+            return converted.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_ConvertedTo, ConversionDefaults.DisplayName(action))) : converted;
         }
 
         if (ConversionTarget(action) is not { } target)
@@ -177,15 +179,15 @@ public static class Remuxer
         var label = ConversionDefaults.DisplayName(action, import?.Conversion?.Mixdown);
         if (MediaFormatRegistry.AvailableAudioConverter is not { } converter)
         {
-            var reason = MediaFormatRegistry.AudioConverter?.UnavailableReason ?? "no audio converter is installed";
-            return new TrackSupport(TrackSupportLevel.NeedsConversion, action, $"converting to {label} is not available: {reason}");
+            var reason = MediaFormatRegistry.AudioConverter?.UnavailableReason ?? Strings.Reason_NoAudioConverter;
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_ConversionUnavailable, label, reason));
         }
 
         if (!converter.CanDecode(config))
-            return new TrackSupport(TrackSupportLevel.NeedsConversion, action, $"{config.FormatName} audio cannot be decoded by {converter.Name}");
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_AudioCannotBeDecoded, config.FormatName, converter.Name));
 
         var output = factory.CheckSupport((import?.Conversion ?? ConversionDefaults.Settings).PredictOutput(config, target));
-        return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, $"converted to {label}") : output;
+        return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_ConvertedTo, label)) : output;
     }
 
     /// <summary>Support of a bitmap subtitle track converted to text by OCR.</summary>
@@ -195,19 +197,19 @@ public static class Remuxer
         var label = SubtitleConversions.DisplayName(target);
         if (MediaFormatRegistry.AvailableSubtitleConverter is not { } converter)
         {
-            var reason = MediaFormatRegistry.SubtitleConverter?.UnavailableReason ?? "no OCR engine is installed";
-            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, $"converting to {label} is not available: {reason}");
+            var reason = MediaFormatRegistry.SubtitleConverter?.UnavailableReason ?? Strings.Reason_NoOcrEngine;
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_ConversionUnavailable, label, reason));
         }
 
         if (!converter.CanDecode(config))
-            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, $"{config.FormatName} subtitles cannot be decoded for OCR");
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_SubtitlesCannotBeDecodedForOcr, config.FormatName));
 
         var language = converter.ResolveLanguage(config.Language, import.Ocr ?? OcrOptions.Default);
         if (converter.CheckLanguage(language) is { } missing)
-            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, $"converting to {label} is not available: {missing}");
+            return new TrackSupport(TrackSupportLevel.NeedsConversion, import.Action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_ConversionUnavailable, label, missing));
 
         var output = factory.CheckSupport(SubtitleConversions.PredictOutput(config, target));
-        return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, import.Action, $"converted to {label} ({converter.Name}, {language})") : output;
+        return output.CanMux ? new TrackSupport(TrackSupportLevel.Converted, import.Action, string.Format(CultureInfo.CurrentCulture, Strings.Reason_ConvertedToWith, label, converter.Name, language)) : output;
     }
 
     private static AudioConversionTarget? ConversionTarget(ImportAction action) => ConversionDefaults.Target(action);
@@ -249,7 +251,7 @@ public static class Remuxer
         if (info.IsEmpty)
             return null;
         if (!config.Color.IsSpecified && info.Color.IsSpecified || !ReferenceEquals(HdrInfo.Merge(hdr, info.Hdr), hdr))
-            AppLog.Info($"Track '{track.Name}': the container lacks colour or HDR10 metadata that the video stream carries; it is added to the output.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_StreamMetadataAdded, track.Name));
         return info;
     }
 
@@ -306,7 +308,7 @@ public static class Remuxer
             foreach (var track in tracks)
             {
                 ct.ThrowIfCancellationRequested();
-                var source = track.Source ?? throw new InvalidOperationException($"Track '{track.Name}' ({track.Format}) has no source file.");
+                var source = track.Source ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackHasNoSourceFile, track.Name, track.Format));
                 var action = source.Import?.Action ?? ImportAction.Passthrough;
                 var key = (Path.GetFullPath(source.Path), source.Import?.FrameRate);
                 IDemuxer? demuxer;
@@ -323,12 +325,12 @@ public static class Remuxer
                 }
 
                 var sampleSource = demuxer.Tracks.FirstOrDefault(t => t.TrackId == source.TrackId) ??
-                                   throw new InvalidDataException($"Track {source.TrackId} was not found in '{Path.GetFileName(source.Path)}'.");
+                                   throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackNotFoundInFile, source.TrackId, Path.GetFileName(source.Path)));
                 var support = CheckConverted(factory, sampleSource.Config, source.Import);
                 if (!support.CanMux)
-                    throw new NotSupportedException($"{sampleSource.Config.FormatName} track '{track.Name}' cannot be written to {factory.Kind}: {support.Reason}");
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, Strings.Error_TrackCannotBeWritten, sampleSource.Config.FormatName, track.Name, factory.Kind, support.Reason));
                 if (support.Level == TrackSupportLevel.Passthrough && support.Reason is { } warning)
-                    AppLog.Warn($"{sampleSource.Config.FormatName} track '{track.Name}': {warning}");
+                    AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_TrackWarning, sampleSource.Config.FormatName, track.Name, warning));
 
                 // HDR10+ in AV1 is signalled in MP4 by the cdm4 brand ("HDR10+ Metadata in AV1", §3), so the muxer
                 // must know before it starts; only AV1 bitstreams are scanned for it.
@@ -344,7 +346,7 @@ public static class Remuxer
                     var converter = MediaFormatRegistry.AvailableSubtitleConverter!.Create(sampleSource, target, source.Import!.Ocr ?? OcrOptions.Default, ct);
                     if (converter is IDisposable disposable)
                         converters.Add(disposable);
-                    AppLog.Info($"Recognising {sampleSource.Config.FormatName} track '{track.Name}' as {converter.Config.FormatName} text (OCR).");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_RecognisingOcr, sampleSource.Config.FormatName, track.Name, converter.Config.FormatName));
                     sampleSource = converter;
                 }
                 else if (ConversionTarget(action) is { } target)
@@ -353,8 +355,8 @@ public static class Remuxer
                     var converter = MediaFormatRegistry.AvailableAudioConverter!.Create(sampleSource, target, settings);
                     if (converter is IDisposable disposable)
                         converters.Add(disposable);
-                    AppLog.Info($"Converting {sampleSource.Config.FormatName} track '{track.Name}' to {converter.Config.FormatName} " +
-                                $"({converter.Config.Channels} ch, {converter.Config.SampleRate} Hz).");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_ConvertingAudio, sampleSource.Config.FormatName, track.Name, converter.Config.FormatName,
+                                converter.Config.Channels, converter.Config.SampleRate));
                     sampleSource = converter;
                 }
 
@@ -363,13 +365,13 @@ public static class Remuxer
                     // Text subtitles in another text format: styles, positions and karaoke kept as the target allows.
                     var (width, height) = Canvas(tracks);
                     var converter = new TextSubtitleConverter(sampleSource, TextSubtitleConverter.Target(textAction)!.Value, width, height);
-                    AppLog.Info($"Converting {sampleSource.Config.FormatName} track '{track.Name}' to {converter.Config.FormatName}.");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_ConvertingTrack, sampleSource.Config.FormatName, track.Name, converter.Config.FormatName));
                     sampleSource = converter;
                 }
                 else if (factory.Kind == ContainerKind.Mp4 && VfwNativeSource.TryCreate(sampleSource) is { } native)
                 {
                     // MPEG-4 Part 2, VC-1 and H.263 stored the Video for Windows way go to MP4 in their own form.
-                    AppLog.Info($"{sampleSource.Config.FormatName} track '{track.Name}' is stored as {native.Config.FormatName} in MP4.");
+                    AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_StoredNativelyInMp4, sampleSource.Config.FormatName, track.Name, native.Config.FormatName));
                     sampleSource = native;
                 }
                 else if (factory.Kind == ContainerKind.Mp4 && sampleSource.Config.Codec == CodecType.TrueHd)
@@ -401,12 +403,12 @@ public static class Remuxer
                 var withMedia = outputs.Count;
                 foreach (var empty in outputs.Where(o => o.Head is null).ToList())
                 {
-                    AppLog.Warn($"{empty.Source.Config.FormatName} track '{empty.Model.Name}' has no samples; it is left out.");
+                    AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_TrackHasNoSamples, empty.Source.Config.FormatName, empty.Model.Name));
                     outputs.Remove(empty);
                 }
 
                 if (withMedia > 0 && outputs.Count == 0)
-                    throw new InvalidDataException("None of the tracks has any samples.");
+                    throw new InvalidDataException(Strings.Error_NoTrackHasSamples);
 
                 // Video decoded before time zero (e.g. an MP4 edit list skipping leading frames) cannot be hidden in
                 // every container: then everything moves so the earliest video frame is shown at zero.
@@ -418,7 +420,7 @@ public static class Remuxer
                         .Max();
                     if (shift > 0)
                     {
-                        AppLog.Info($"Video starts {shift:0.###} s before the presentation; shifting all tracks.");
+                        AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_VideoStartsEarly, shift));
                         foreach (var o in outputs)
                         {
                             var ticks = (long)Math.Round(shift * o.Timescale);
@@ -458,7 +460,7 @@ public static class Remuxer
             // Release the sources before replacing the destination (it may be one of them).
             Release();
             File.Move(temp, output, overwrite: true);
-            AppLog.Info($"Remuxed {tracks.Count} track(s) into '{Path.GetFileName(output)}'.");
+            AppLog.Info(string.Format(CultureInfo.CurrentCulture, Strings.Log_Remuxed, tracks.Count, Path.GetFileName(output)));
         }
         catch
         {
@@ -519,11 +521,11 @@ public static class Remuxer
         }
         catch (IOException ex)
         {
-            AppLog.Warn($"Could not delete temporary file '{path}': {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_CouldNotDeleteTemp, path, ex.Message));
         }
         catch (UnauthorizedAccessException ex)
         {
-            AppLog.Warn($"Could not delete temporary file '{path}': {ex.Message}");
+            AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_CouldNotDeleteTemp, path, ex.Message));
         }
     }
 }

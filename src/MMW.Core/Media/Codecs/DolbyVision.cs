@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -183,7 +184,7 @@ public static class DolbyVision
     public static byte[] WithLevel(ReadOnlySpan<byte> record, int level)
     {
         if (record.Length < 5)
-            throw new InvalidDataException("Dolby Vision configuration record is too short.");
+            throw new InvalidDataException(Strings.Error_DolbyVisionRecordTooShort);
         var copy = record.ToArray();
         var bits = BinaryPrimitives.ReadUInt16BigEndian(copy.AsSpan(2));
         bits = (ushort)((bits & ~(0x3F << 3)) | ((level & 0x3F) << 3));
@@ -195,7 +196,7 @@ public static class DolbyVision
     public static DolbyVisionInfo ParseConfigurationRecord(ReadOnlySpan<byte> p)
     {
         if (p.Length < 5)
-            throw new InvalidDataException("Dolby Vision configuration record is too short.");
+            throw new InvalidDataException(Strings.Error_DolbyVisionRecordTooShort);
         var profile = p[2] >> 1;
         var level = ((p[2] & 1) << 5) | (p[3] >> 3);
         return new DolbyVisionInfo(p[0], p[1], profile, level, (p[3] & 4) != 0, (p[3] & 2) != 0, (p[3] & 1) != 0, p[4] >> 4);

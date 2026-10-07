@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Reflection;
+using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Undo;
 
@@ -48,9 +50,10 @@ public sealed class ObservableUndoTracker
     }
 
     /// <summary>Tracks a collection; added items that are observable are tracked too.</summary>
-    public void TrackCollection(INotifyCollectionChanged collection, string description = "Items")
+    public void TrackCollection(INotifyCollectionChanged collection, string? description = null)
     {
         ArgumentNullException.ThrowIfNull(collection);
+        description ??= Strings.Undo_Items;
         if (!_tracked.Add(collection))
             return;
         foreach (var item in (IList)collection)
@@ -115,7 +118,7 @@ public sealed class ObservableUndoTracker
             {
                 var items = e.NewItems.Cast<object>().ToArray();
                 var index = e.NewStartingIndex;
-                _stack.Record(new DelegateEdit($"Add {description}",
+                _stack.Record(new DelegateEdit(string.Format(CultureInfo.CurrentCulture, Strings.Undo_Add, description),
                     () => Insert(list, index, items),
                     () => RemoveAt(list, index, items.Length)));
                 break;
@@ -125,7 +128,7 @@ public sealed class ObservableUndoTracker
             {
                 var items = e.OldItems.Cast<object>().ToArray();
                 var index = e.OldStartingIndex;
-                _stack.Record(new DelegateEdit($"Remove {description}",
+                _stack.Record(new DelegateEdit(string.Format(CultureInfo.CurrentCulture, Strings.Undo_Remove, description),
                     () => RemoveAt(list, index, items.Length),
                     () => Insert(list, index, items)));
                 break;
@@ -135,7 +138,7 @@ public sealed class ObservableUndoTracker
             {
                 var from = e.OldStartingIndex;
                 var to = e.NewStartingIndex;
-                _stack.Record(new DelegateEdit($"Move {description}",
+                _stack.Record(new DelegateEdit(string.Format(CultureInfo.CurrentCulture, Strings.Undo_Move, description),
                     () => Move(list, from, to),
                     () => Move(list, to, from)));
                 break;
@@ -146,7 +149,7 @@ public sealed class ObservableUndoTracker
                 var index = e.NewStartingIndex;
                 var oldItem = e.OldItems[0];
                 var newItem = e.NewItems[0];
-                _stack.Record(new DelegateEdit($"Change {description}",
+                _stack.Record(new DelegateEdit(string.Format(CultureInfo.CurrentCulture, Strings.Undo_Change, description),
                     () => list[index] = newItem,
                     () => list[index] = oldItem));
                 break;
@@ -197,7 +200,7 @@ public sealed class ObservableUndoTracker
 
         public DateTime Time { get; set; } = time;
 
-        public string Description { get; } = $"Change {Humanize(property.Name)}";
+        public string Description { get; } = string.Format(CultureInfo.CurrentCulture, Strings.Undo_Change, Humanize(property.Name));
 
         public void Do() => Property.SetValue(Target, NewValue);
 

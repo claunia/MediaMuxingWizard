@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Globalization;
 using System.Text;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -320,7 +321,7 @@ public static class SubtitleText
         ArgumentNullException.ThrowIfNull(text);
         var utf8 = Encoding.UTF8.GetBytes(text.Text);
         if (utf8.Length > ushort.MaxValue)
-            throw new InvalidDataException("Subtitle text is too long for a tx3g sample.");
+            throw new InvalidDataException(Strings.Error_Tx3gTextTooLong);
         var runs = Normalize(text);
         var styl = runs.Count == 0 ? 0 : 10 + runs.Count * 12;
         var frcd = text.Forced && !text.IsEmpty ? 8 : 0;

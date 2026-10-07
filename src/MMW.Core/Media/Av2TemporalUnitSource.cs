@@ -1,5 +1,7 @@
+using System.Globalization;
 using MMW.Core.Diagnostics;
 using MMW.Core.Media.Codecs;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -68,7 +70,7 @@ public sealed class Av2TemporalUnitSource : ISampleSource, IDisposable
 
         inner.Reset();
         if (_configuration.Count == 0)
-            throw new InvalidDataException("The AV2 stream does not start with a sequence header.");
+            throw new InvalidDataException(Strings.Error_Av2NoSequenceHeader);
         _firstTime = times.Count == 0 ? 0 : times[0];
         _frameTicks = frameRate > 0 ? Math.Max(1, (long)Math.Round(timescale / frameRate))
             : step != long.MaxValue ? step
@@ -134,7 +136,7 @@ public sealed class Av2TemporalUnitSource : ISampleSource, IDisposable
             if (!_warnedConfiguration)
             {
                 _warnedConfiguration = true;
-                AppLog.Warn($"AV2 track {TrackId}: the sequence header changes during the stream; the new one is kept in the samples.");
+                AppLog.Warn(string.Format(CultureInfo.CurrentCulture, Strings.Log_Av2SequenceHeaderChanges, TrackId));
             }
 
             var o = new List<byte>();

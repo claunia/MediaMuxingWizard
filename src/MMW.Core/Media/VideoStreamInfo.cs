@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using MMW.Core.Media.Codecs;
 using MMW.Core.Model;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media;
 
@@ -44,7 +45,7 @@ public static class VideoStreamInfoScanner
         if (config.Codec == CodecType.Vc1)
         {
             return Vc1.EntrySequence(config.Extradata) is { } sequence
-                ? new VideoStreamInfo(State.Meaningful(sequence.Color), null, $"Advanced@L{sequence.Level}" + (sequence.Interlaced ? ", interlaced" : string.Empty))
+                ? new VideoStreamInfo(State.Meaningful(sequence.Color), null, $"Advanced@L{sequence.Level}" + (sequence.Interlaced ? ", " + Strings.Detail_Interlaced : string.Empty))
                 : VideoStreamInfo.None;
         }
 

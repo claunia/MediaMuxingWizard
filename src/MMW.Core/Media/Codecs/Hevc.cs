@@ -1,4 +1,5 @@
 using System.Globalization;
+using MMW.Core.Resources;
 
 namespace MMW.Core.Media.Codecs;
 
@@ -349,9 +350,9 @@ public static class Hevc
             r.Skip(1); // no_output_of_prior_pics_flag
         var ppsId = (int)r.Ue();
         if (!ppss.TryGetValue(ppsId, out var pps) || !spss.TryGetValue(pps.SpsId, out var sps))
-            throw new InvalidDataException($"Slice refers to unknown PPS {ppsId}.");
+            throw new InvalidDataException(string.Format(CultureInfo.CurrentCulture, Strings.Error_SliceUnknownPps, ppsId));
         if (!first)
-            throw new InvalidDataException("Only first slice segments carry the picture order count.");
+            throw new InvalidDataException(Strings.Error_FirstSliceSegmentPoc);
         if (IsIdr(type))
             return (0, sps.Log2MaxPocLsb);
         r.Skip(pps.NumExtraSliceHeaderBits);
@@ -371,7 +372,7 @@ public static class Hevc
     public static byte[] BuildHvcC(IReadOnlyList<byte[]> vps, IReadOnlyList<byte[]> sps, IReadOnlyList<byte[]> pps, IReadOnlyList<byte[]>? sei = null)
     {
         if (sps.Count == 0)
-            throw new InvalidDataException("An HEVC stream needs at least one SPS.");
+            throw new InvalidDataException(Strings.Error_HevcNeedsSps);
         var info = ParseSps(sps[0]);
         using var ms = new MemoryStream();
         ms.WriteByte(1);
@@ -409,7 +410,7 @@ public static class Hevc
     public static HevcConfig ParseHvcC(ReadOnlySpan<byte> hvcC)
     {
         if (hvcC.Length < 23)
-            throw new InvalidDataException("Invalid hvcC record.");
+            throw new InvalidDataException(Strings.Error_InvalidHvcC);
         var lengthSize = (hvcC[21] & 3) + 1;
         var count = hvcC[22];
         var pos = 23;
@@ -461,7 +462,7 @@ public static class Hevc
             2 => "Main 10",
             3 => "Main Still",
             4 => "RExt",
-            var p => "Profile " + p.ToString(CultureInfo.InvariantCulture),
+            var p => string.Format(CultureInfo.CurrentCulture, Strings.Label_Profile, p),
         };
         var levelIdc = hvcC[12];
         var text = levelIdc == 0
