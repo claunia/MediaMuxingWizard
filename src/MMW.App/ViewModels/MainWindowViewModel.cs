@@ -423,6 +423,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         Queue.AddFiles([path]);
         ShowQueue();
+
+        // The queue has the file now: like Subler, the document is done with.
+        CloseSettled();
     }
 
     [RelayCommand]
@@ -443,6 +446,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     {
         if (Document is null || !await ConfirmCloseAsync())
             return;
+        CloseSettled();
+    }
+
+    /// <summary>Closes a document whose changes are settled: its window goes, or the last one returns to the home screen.</summary>
+    private void CloseSettled()
+    {
         if (App.Windows.Count > 1)
             RequestClose(confirmed: true);
         else

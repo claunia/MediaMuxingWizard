@@ -365,6 +365,31 @@ public class QueueWindowTests
         window.CaptureRenderedFrame()?.Save(Path.Combine(shots, "08-queue.png"));
     }
 
+    /// <summary>Send to Queue is the document's last step: its window closes, the last one returning to the home screen.</summary>
+    [AvaloniaFact]
+    public async Task Send_to_queue_closes_the_document()
+    {
+        var path = Path.Combine(Fixtures.GeneratedDirectory, "mp4-moov-end.mp4");
+        if (!File.Exists(path))
+            Assert.Skip("Run the MP4 format tests first to generate fixtures.");
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        var settings = new SettingsService(Path.Combine(dir, "settings.json"));
+        var runner = new MMW.Queue.QueueRunner(new ContainerRegistry(DocumentService.DefaultHandlers()));
+        var queue = new QueueViewModel(runner, new FakeDialogService(), settings, new NullNotifications(), Path.Combine(dir, "queue.json"));
+        var home = new MainWindowViewModel(new DocumentService(), new FakeDialogService(), settings, queue);
+        await home.OpenPathsAsync([Fixtures.CopyToTemp(path), Fixtures.CopyToTemp(path)]);
+        var other = home.App.Windows[1];
+
+        await other.SendToQueueCommand.ExecuteAsync(null);
+        Assert.Same(home, Assert.Single(home.App.Windows));
+        Assert.Single(queue.Items);
+
+        await home.SendToQueueCommand.ExecuteAsync(null);
+        Assert.Same(home, Assert.Single(home.App.Windows));
+        Assert.Null(home.Document);
+        Assert.Equal(2, queue.Items.Count);
+    }
+
     private sealed class NullNotifications : INotificationService
     {
         public void Notify(string title, string message)
