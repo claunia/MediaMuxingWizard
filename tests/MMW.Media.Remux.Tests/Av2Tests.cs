@@ -192,14 +192,10 @@ public sealed class Av2Tests
         Assert.Equal(50, fast.Tracks[0].Config.FrameRate, 3);
     }
 
-    /// <summary>The AV2 corpus (reference encoder output): imported, remuxed to MP4 and back, decoded unchanged.</summary>
+    /// <summary>The AV2 corpus written by the reference encoder (raw OBU, WebM): imported, its frames in order and starting on a key frame.</summary>
     [Theory]
-    [InlineData("Video codecs/AV2.ivf", "")]
     [InlineData("Video codecs/AV2.obu", "")]
     [InlineData("Video codecs/AV2.webm", "")]
-    [InlineData("High Dynamic Range/HDR10/{HDR10, AV2 - IVF} Exodus Sample.ivf", "HDR10")]
-    [InlineData("High Dynamic Range/HDR10+/{HDR10+, AV2 - IVF} Movie Sample.ivf", "HDR10+")]
-    [InlineData("High Dynamic Range/HLG/{HLG, AV2 - IVF} Cymatic Jazz.ivf", "HLG")]
     public async Task Corpus_av2_is_read(string file, string hdr)
     {
         var path = Corpus.Directory is { } dir ? Path.Combine(dir, file) : string.Empty;
@@ -215,7 +211,7 @@ public sealed class Av2Tests
     }
 
     /// <summary>
-    /// The Matroska versions of the AV2 corpus (the IVF streams muxed by this application with their source's audio):
+    /// The Matroska AV2 corpus (the reference encoder's IVF streams muxed by this application with their source's audio):
     /// the container carries the colour and HDR read from the bitstream, the video keeps every frame (AV2 packets can
     /// hold several), and the audio comes along.
     /// </summary>

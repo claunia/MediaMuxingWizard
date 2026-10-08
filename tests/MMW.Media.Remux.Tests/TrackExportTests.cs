@@ -329,7 +329,7 @@ public sealed class TrackExportTests
     {
         { Path.Combine("Video codecs", "H266 VVC.mp4"), "v", ".h266", true },
         { Path.Combine("Video codecs", "MPEG-5 EVC.mp4"), "v", ".evc", false },
-        { Path.Combine("Video codecs", "AV2.ivf"), "v", ".ivf", false },
+        { Path.Combine("Video codecs", "AV2.mkv"), "v", ".ivf", false },
         { Path.Combine("Video codecs", "AVS.mkv"), "v", ".avs", true },
         { Path.Combine("Video codecs", "AVS2.mkv"), "v", ".avs2", false },
         { Path.Combine("Video codecs", "AVS3.mkv"), "v", ".avs3", false },
