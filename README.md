@@ -22,6 +22,11 @@ Dolby Vision file has lost its configuration, when HDR10 metadata sits in the bi
 codec the rest of the world hasn't caught up with yet needs to land in a file your player can open. Then it fixes it. Your
 video and audio are never re-encoded.
 
+<p align="center">
+  <img src="docs/screenshots/dolby-vision-repair.png" alt="An episode whose Matroska file lost its Dolby Vision configuration: the app found the Dolby Vision 8.1 RPU in the HEVC bitstream and offers to repair it" width="900"><br>
+  <em>A Matroska episode that lost its Dolby Vision configuration. One click on <strong>Repair</strong> rebuilds it from the bitstream.</em>
+</p>
+
 ## Why you'll want it
 
 ### 🩹 It repairs Dolby Vision. We don't know of any other muxer that does.
@@ -48,6 +53,26 @@ form that FFmpeg, mpv, Plex and Jellyfin actually play.
   know exactly what your file carries.
 - Dolby TrueHD and DTS (including **DTS:X**) are described in full and stored in MP4 the way their owners specify.
 
+### 🔊 Know your audio
+- **Dolby Atmos is found in the frames**, in TrueHD and in Dolby Digital Plus (E-AC-3 JOC), whatever the container says (Matroska
+  never says). **DTS-HD MA, DTS:X and the rest** are read from the DTS bitstream the same way.
+- **Prettify names tracks by what they are**: "7.1 Surround (Dolby TrueHD Atmos)", "5.1 Surround (Dolby Digital Plus Atmos)",
+  "7.1 Surround (DTS:X)", "Stereo (AAC)". No more five tracks called "Surround Audio".
+- **TrueHD keeps its Atmos in MP4**: it is stored the way Dolby specifies, with an AAC fallback added for Apple players, instead
+  of being thrown away for AAC.
+- MP4 and Matroska show **exactly the same details for the same stream**: we checked every MP4/Matroska pair in our test corpus.
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/dark-truehd-atmos.png" alt="A movie with Dolby TrueHD Atmos 7.1 in MP4, in the dark theme"></td>
+    <td><img src="docs/screenshots/audio-tracks.png" alt="Three audio tracks named by what they are: Dolby Digital Plus, Dolby Digital and Dolby Digital Plus Atmos"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>TrueHD Atmos 7.1 kept in MP4 (dark theme)</em></td>
+    <td align="center"><em>Every track named for what it is, Atmos included</em></td>
+  </tr>
+</table>
+
 ### 📦 One app, both worlds
 **Subler only writes MP4 and only runs on macOS. MKVToolNix only writes Matroska.** Media Muxing Wizard reads and writes both, on every
 desktop OS:
@@ -60,6 +85,21 @@ desktop OS:
 It takes input from MP4, Matroska, **MPEG-TS and Blu-ray M2TS** (with program selection), Ogg, raw elementary streams (H.264, HEVC,
 VVC, EVC, AV1, AV2, AVS, AAC, AC-3, E-AC-3, AC-4, DTS, FLAC…), subtitle files and, through FFmpeg, AVI, MPEG-PS/VOB, ASF/WMV,
 RealMedia, DV, WAV, AIFF and MP3. VfW, ACM and RealVideo tracks pass through to Matroska exactly as mkvmerge would store them.
+
+**Drop anything on it.** Drop a file on a document and its tracks are offered for import, each with the conversion the target
+needs already picked. Drop track files where there is no document and the app asks whether to build an MP4 or a Matroska file of
+them. Every document gets its own window, and **File › New** starts an empty MP4 or MKV.
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/home.png" alt="The home screen: drop files, open, or start a new MP4 or Matroska file"></td>
+    <td><img src="docs/screenshots/import.png" alt="Importing a Blu-ray M2TS with TrueHD Atmos and a Matroska file with WebVTT into an MP4"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Start from anything</em></td>
+    <td align="center"><em>A Blu-ray M2TS and an MKV going into one MP4: TrueHD Atmos kept with an AAC fallback, WebVTT to tx3g</em></td>
+  </tr>
+</table>
 
 ### 💬 Subtitles, your way
 - Convert freely between **SubRip, ASS, SSA, WebVTT and 3GPP timed text (tx3g)**, or pass them through untouched. You choose per
@@ -77,6 +117,13 @@ RealMedia, DV, WAV, AIFF and MP3. VfW, ACM and RealVideo tracks pass through to 
   over to Matroska and back without loss.
 - Artwork, chapters (with **preview thumbnails**), Kodi **NFO import and export**, and reusable **tag sets**.
 
+<table>
+  <tr>
+    <td><img src="docs/screenshots/metadata.png" alt="Movie tags: name, director, composer, genres, release date and media kind"></td>
+    <td><img src="docs/screenshots/artwork.png" alt="The artwork tab with the movie's poster"></td>
+  </tr>
+</table>
+
 ### ⚡ Fast, safe, scriptable
 - **Never re-encodes your media.** Edits are written in place whenever they fit; otherwise only the headers are rewritten.
 - **Batch queue** for whole seasons: fetch metadata, organise alternate groups, fix audio fallbacks, complete languages, apply
@@ -84,7 +131,7 @@ RealMedia, DV, WAV, AIFF and MP3. VfW, ACM and RealVideo tracks pass through to 
 - Audio conversion (AAC with every downmix, AC-3, ALAC, LPCM) **only when the target can't hold the original**, with an AAC
   fallback track made automatically.
 - **Export any track as a raw stream.**
-- Full undo and redo, drag and drop, light and dark themes.
+- Full undo and redo, one window per document, light and dark themes.
 - **Speaks your language:** English, Spanish, German, French, Italian, Brazilian Portuguese and Simplified Chinese.
 
 ### 🖥️ Command line included
