@@ -265,4 +265,32 @@ public sealed class SubtitleConversionTests
             MediaProbe.Delete(output);
         }
     }
+
+    /// <summary>
+    /// FFmpeg writes tx3g tracks without a size (0×0): their text is laid out on the video, so an 18-pixel font stays
+    /// 18 pixels on a 240-line video instead of shrinking as if the canvas were 1080 lines.
+    /// </summary>
+    [Fact]
+    public void Sizeless_tx3g_is_laid_out_on_the_video()
+    {
+        MediaProbe.RequireFfmpeg();
+        var srt = MediaProbe.TempPath(".srt");
+        var mp4 = MediaProbe.TempPath(".mp4");
+        try
+        {
+            File.WriteAllText(srt, "1\n00:00:00,500 --> 00:00:02,000\nHello\n");
+            Fixtures.Run("ffmpeg", $"-v error -y -f lavfi -i testsrc=duration=3:size=320x240:rate=25 -i {Fixtures.Quote(srt)} -c:v libx264 -preset ultrafast -c:s mov_text {Fixtures.Quote(mp4)}");
+            using var demuxer = MediaFormatRegistry.OpenDemuxer(mp4);
+            var text = demuxer.Tracks.Single(t => t.Config.Codec == CodecType.Tx3g);
+            var script = TextSubtitleConverter.Read(text, 320, 240);
+            Assert.Equal((320, 240), (script.Width, script.Height));
+            Assert.Equal("Hello", Assert.Single(script.Events).Text);
+            Assert.InRange(script.StyleAt(script.Events[0], 0).Size ?? 0, 12, 30);
+        }
+        finally
+        {
+            File.Delete(srt);
+            File.Delete(mp4);
+        }
+    }
 }

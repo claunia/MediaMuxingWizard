@@ -111,7 +111,10 @@ public sealed class TextSubtitleConverter : ISampleSource
                 script = vtt.Script;
                 break;
             case CodecType.Tx3g:
-                (script, tx3g) = Tx3gFormat.ReadDescription(config.Extradata, config.SubtitleWidth, config.SubtitleHeight);
+                // A tx3g track without a size of its own (FFmpeg writes 0×0) is laid out on the video, as players do.
+                (script, tx3g) = config.SubtitleWidth > 0 && config.SubtitleHeight > 0
+                    ? Tx3gFormat.ReadDescription(config.Extradata, config.SubtitleWidth, config.SubtitleHeight)
+                    : Tx3gFormat.ReadDescription(config.Extradata, canvasWidth, canvasHeight);
                 break;
             default:
             {
