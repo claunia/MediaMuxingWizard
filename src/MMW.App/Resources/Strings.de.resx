@@ -1732,7 +1732,7 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
     <value>Dolby Vision reparieren</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
-    <value>MP4- oder Matroska-Dateien hier ablegen</value>
+    <value>Video-, Audio- oder Untertiteldateien hier ablegen</value>
   </data>
   <data name="Welcome_NewMatroska" xml:space="preserve">
     <value>Neues Matroska</value>
@@ -1747,7 +1747,7 @@ Ihre Änderungen gehen verloren, wenn Sie sie nicht speichern.</value>
     <value>Zuletzt verwendete Dateien</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>Tags, Cover, Kapitel und Spuren-Eigenschaften bearbeiten ohne Neu-Kodierung.</value>
+    <value>Öffnen Sie eine MP4- oder Matroska-Datei zum Bearbeiten oder erstellen Sie eine neue aus den Spuren beliebiger Dateien. Nichts wird neu kodiert, außer Sie verlangen es.</value>
   </data>
   <data name="Window_TitleFormat" xml:space="preserve">
     <value>{0} — Media Muxing Wizard</value>

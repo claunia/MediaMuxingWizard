@@ -1732,7 +1732,7 @@ Suas alterações serão perdidas se você não as salvar.</value>
     <value>Reparar Dolby Vision</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
-    <value>Solte arquivos MP4 ou Matroska aqui</value>
+    <value>Solte aqui arquivos de vídeo, áudio ou legendas</value>
   </data>
   <data name="Welcome_NewMatroska" xml:space="preserve">
     <value>Novo Matroska</value>
@@ -1747,7 +1747,7 @@ Suas alterações serão perdidas se você não as salvar.</value>
     <value>Arquivos recentes</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>Editar metadados, capa, capítulos e propriedades da faixa sem re-codificar.</value>
+    <value>Abra um arquivo MP4 ou Matroska para editá-lo, ou crie um novo com as faixas de qualquer arquivo. Nada é recodificado a menos que você peça.</value>
   </data>
   <data name="Window_TitleFormat" xml:space="preserve">
     <value>{0} — Media Muxing Wizard</value>

@@ -103,7 +103,7 @@ public partial class LocalizationTests
         {
             var window = ShowMainWindow();
             Assert.Equal(["_Archivo", "_Edición", "_Metadatos", "_Pistas", "Ay_uda"], MenuHeaders(window).Where(h => h != "_Ventana"));
-            Assert.Contains(window.GetLogicalDescendants().OfType<TextBlock>(), t => t.Text == "Suelta aquí archivos MP4 o Matroska");
+            Assert.Contains(window.GetLogicalDescendants().OfType<TextBlock>(), t => t.Text == "Suelta aquí archivos de vídeo, audio o subtítulos");
             Assert.Equal("Media Muxing Wizard", window.Title);
 
             var dir = Environment.GetEnvironmentVariable("MMW_SCREENSHOTS") ?? Path.Combine(Path.GetTempPath(), "mmw-screenshots");

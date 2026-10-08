@@ -1732,7 +1732,7 @@ ASS 会保留样式、位置和卡拉OK；SubRip 保留文本以及粗体、斜�
     <value>修复 Dolby Vision</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
-    <value>在此处拖放 MP4 或 Matroska 文件</value>
+    <value>将视频、音频或字幕文件拖放到此处</value>
   </data>
   <data name="Welcome_NewMatroska" xml:space="preserve">
     <value>新建 Matroska</value>
@@ -1747,7 +1747,7 @@ ASS 会保留样式、位置和卡拉OK；SubRip 保留文本以及粗体、斜�
     <value>最近文件</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>编辑标签、插图、章节和轨道属性，无需重新编码。</value>
+    <value>打开 MP4 或 Matroska 文件进行编辑，或用任意文件的轨道新建一个文件。除非您要求，否则不会重新编码。</value>
   </data>
   <data name="Window_TitleFormat" xml:space="preserve">
     <value>{0} — Media Muxing Wizard</value>

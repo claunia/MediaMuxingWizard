@@ -273,8 +273,9 @@ public static class ConversionDefaults
                     CodecType.Flac => Find(ImportAction.ConvertToAlac) ?? Find(ImportAction.ConvertToAac, mixdown),
                     // Opus stays Opus in MP4 ('Opus' + 'dOps'): browsers, VLC and mpv play it; AAC is still offered.
                     // PCM stays PCM ('ipcm').
-                    CodecType.Vorbis or CodecType.TrueHd or CodecType.Mlp or CodecType.Mp1 =>
-                        Find(ImportAction.ConvertToAac, mixdown),
+                    // TrueHD (and its Atmos) is kept as Dolby stores it in MP4, with an AAC fallback for Apple players.
+                    CodecType.TrueHd or CodecType.Mlp => Find(ImportAction.AacPlusPassthrough) ?? Find(ImportAction.ConvertToAac, mixdown),
+                    CodecType.Vorbis or CodecType.Mp1 => Find(ImportAction.ConvertToAac, mixdown),
                     _ => null,
                 };
             }

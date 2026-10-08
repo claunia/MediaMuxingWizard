@@ -63,9 +63,9 @@
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
-        <DataGridTextColumn Header="{x:Static res:Strings.Tracks_Column_Name}" Binding="{Binding Name}" Width="2*" />
+        <DataGridTextColumn Header="{x:Static res:Strings.Tracks_Column_Name}" Binding="{Binding Name}" Width="3*" />
         <DataGridTextColumn Header="{x:Static res:Strings.Tracks_Column_Duration}" Binding="{Binding Duration}" IsReadOnly="True" Width="104" />
-        <DataGridTextColumn Header="{x:Static res:Strings.Tracks_Column_Language}" Binding="{Binding Language}" IsReadOnly="True" Width="*" />
+        <DataGridTextColumn Header="{x:Static res:Strings.Tracks_Column_Language}" Binding="{Binding Language}" IsReadOnly="True" Width="130" />
         <DataGridTextColumn Header="{x:Static res:Strings.Tracks_Column_Format}" Binding="{Binding Format}" IsReadOnly="True" Width="3*" />
       </DataGrid.Columns>
     </DataGrid>

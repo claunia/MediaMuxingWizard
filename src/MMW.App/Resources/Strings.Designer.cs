@@ -4443,7 +4443,7 @@ namespace MMW.App.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Drop MP4 or Matroska files here.
+        ///   Looks up a localized string similar to Drop video, audio or subtitle files here.
         /// </summary>
         public static string Welcome_DropHere {
             get {

@@ -34,6 +34,8 @@ public static class TrackDetails
             parts.Add("DV " + dv);
         else if (video.Hdr10Plus)
             parts.Add("HDR10+");
+        else if (video.HdrVivid)
+            parts.Add("HDR Vivid");
         else if (video.Color.Transfer == 18)
             parts.Add("HLG");
         else if (video.Hdr is not null || video.Color.Transfer == 16)

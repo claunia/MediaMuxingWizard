@@ -287,10 +287,10 @@
     <value>Show the batch queue</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
-    <value>Drop MP4 or Matroska files here</value>
+    <value>Drop video, audio or subtitle files here</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>Edit tags, artwork, chapters and track properties without re-encoding.</value>
+    <value>Open an MP4 or Matroska file to edit it, or build a new one from the tracks of any file. Nothing is re-encoded unless you ask.</value>
   </data>
   <data name="Welcome_Open" xml:space="preserve">
     <value>Open…</value>

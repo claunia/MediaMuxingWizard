@@ -17,6 +17,7 @@ internal static class MatroskaCodecs
         ("V_AV1", "AV1"),
         ("V_AV2", "AV2"),
         ("V_VP9", "VP9"),
+        ("V_MJPEG", "Motion JPEG"),
         ("V_VP8", "VP8"),
         ("V_MPEG4/ISO/", "MPEG-4 Visual"),
         ("V_MPEG4/MS/V3", "MS MPEG-4 v3"),

@@ -287,10 +287,10 @@
     <value>Mostrar la cola de procesamiento por lotes</value>
   </data>
   <data name="Welcome_DropHere" xml:space="preserve">
-    <value>Suelta aquí archivos MP4 o Matroska</value>
+    <value>Suelta aquí archivos de vídeo, audio o subtítulos</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>Edita etiquetas, carátulas, capítulos y propiedades de las pistas sin volver a codificar.</value>
+    <value>Abre un archivo MP4 o Matroska para editarlo, o crea uno nuevo con las pistas de cualquier archivo. Nada se recodifica salvo que lo pidas.</value>
   </data>
   <data name="Welcome_Open" xml:space="preserve">
     <value>Abrir…</value>
@@ -1710,7 +1710,7 @@ Si no los guardas, se perderán.</value>
 
 {0}
 
-¿Guardarlo como MP4 o como Matroska? Puede cambiarlo más tarde en Archivo › Formato de salida.</value>
+¿Guardarlo como MP4 o como Matroska? Puedes cambiarlo más tarde en Archivo › Formato de salida.</value>
   </data>
   <data name="Dialog_ChangeContainer_Title" xml:space="preserve">
     <value>Cambiar formato de salida</value>
@@ -1738,7 +1738,7 @@ El archivo solo cambia al guardar.</value>
     <value>No se puede guardar</value>
   </data>
   <data name="Dialog_IncompatibleTracks_MessageFormat" xml:space="preserve">
-    <value>Hay pistas incompatibles con el formato de destino ({0}); conviértalas o elimínelas:
+    <value>Hay pistas incompatibles con el formato de destino ({0}); conviértelas o elimínalas:
 
 {1}</value>
   </data>

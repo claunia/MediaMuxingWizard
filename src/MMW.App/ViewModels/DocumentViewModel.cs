@@ -204,13 +204,14 @@ public sealed partial class DocumentViewModel : ViewModelBase
                     video.StreamInfo = stream;
                     // Codecs that signal their profile only in the bitstream (AVS).
                     if (video.ProfileLevel.Length == 0 && stream.ProfileLevel.Length > 0)
-                    {
                         video.ProfileLevel = stream.ProfileLevel;
-                        video.FormatDetails = video.FormatDetails.Length > 0 ? video.FormatDetails + ", " + stream.ProfileLevel : stream.ProfileLevel;
-                    }
 
                     changed = true;
                 }
+
+                // What the bitstream showed (HDR10+, HDR Vivid, the profile) belongs in the details too.
+                if (changed)
+                    TrackDetails.Refresh(video);
 
                 if (changed)
                 {
@@ -444,6 +445,10 @@ public sealed partial class DocumentViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+
+        // Atmos or a DTS product just found changes the details shown, not only the names.
+        foreach (var row in Rows.Skip(1))
+            row.Refresh();
 
         using (Undo.Transaction(Strings.Undo_PrettifyAudioNames))
             TrackActions.PrettifyAudioNames(Document);
