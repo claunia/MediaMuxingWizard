@@ -112,7 +112,12 @@ public sealed class DolbyVisionTests
         Assert.Null(DolbyVision.ParseRpuHeader(w.ToArray()));
 
         Assert.Null(DolbyVision.Describe(CodecType.Hevc, null, false, 1920, 1080, 24, Pq));
-        Assert.Null(DolbyVision.Describe(CodecType.H264, DolbyVision.ParseRpuHeader(rpu), false, 1920, 1080, 24, Pq));
+        Assert.Null(DolbyVision.Describe(CodecType.H264, null, false, 1920, 1080, 24, Pq));
+        Assert.Null(DolbyVision.Describe(CodecType.Vp9, DolbyVision.ParseRpuHeader(rpu), false, 1920, 1080, 24, Pq));
+
+        // H.264 carries profile 9: an SDR base layer (compatibility 2) whatever the RPU's own profile says.
+        var avc = DolbyVision.Describe(CodecType.H264, DolbyVision.ParseRpuHeader(rpu), false, 1920, 1080, 24, Pq);
+        Assert.Equal((9, 2, 3), (avc!.Profile, avc.BlSignalCompatibilityId, avc.Level));
     }
 
     [Theory]

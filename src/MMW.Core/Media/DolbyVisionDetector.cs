@@ -13,12 +13,12 @@ public static class DolbyVisionDetector
     /// <summary>Frames inspected; RPUs come with every frame, so a few are enough.</summary>
     public const int MaxSamples = 96;
 
-    /// <summary>True when the track is worth scanning: HEVC or AV1 video without a configuration record.</summary>
+    /// <summary>True when the track is worth scanning: HEVC, AV1 or H.264 video without a configuration record.</summary>
     public static bool NeedsCheck(VideoTrack video)
     {
         ArgumentNullException.ThrowIfNull(video);
         return video.DolbyVisionRecord is null && video.Source is not null && !video.IsPending &&
-               video.Format is "HEVC" or "AV1" or "HEVC Dolby Vision" or "AV1 Dolby Vision";
+               video.Format is "HEVC" or "AV1" or "H.264" or "HEVC Dolby Vision" or "AV1 Dolby Vision" or "H.264 Dolby Vision";
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public static class DolbyVisionDetector
     {
         ArgumentNullException.ThrowIfNull(track);
         var config = track.Config;
-        if (config.Codec is not (CodecType.Hevc or CodecType.Av1))
+        if (config.Codec is not (CodecType.Hevc or CodecType.Av1 or CodecType.H264))
             return null;
 
         track.Reset();
@@ -63,6 +63,14 @@ public static class DolbyVisionDetector
         {
             var (found, av1Header) = DolbyVision.ScanAv1(samples);
             return found ? DolbyVision.Describe(CodecType.Av1, av1Header, false, config.Width, config.Height, fps, colour) : null;
+        }
+
+        if (config.Codec == CodecType.H264)
+        {
+            // avcC: lengthSizeMinusOne in the low bits of byte 4.
+            var avcLength = config.Extradata is { Length: > 4 } avcc ? (avcc[4] & 3) + 1 : 4;
+            var (avcHeader, avcRpu) = DolbyVision.ScanAvc(samples, avcLength);
+            return avcRpu ? DolbyVision.Describe(CodecType.H264, avcHeader, false, config.Width, config.Height, fps, colour) : null;
         }
 
         var lengthSize = config.Extradata is { Length: > 21 } hvcc ? (hvcc[21] & 3) + 1 : 4;

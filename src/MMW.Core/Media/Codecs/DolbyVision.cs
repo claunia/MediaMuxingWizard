@@ -325,6 +325,38 @@ public static class DolbyVision
     }
 
     /// <summary>
+    /// Looks for Dolby Vision in H.264 samples (length-prefixed NAL units, profile 9): the RPU travels in NAL unit type
+    /// 28 with the same two header bytes (0x7C 0x01) and payload as HEVC's UNSPEC62. Returns the first RPU header.
+    /// </summary>
+    public static (DolbyVisionRpuHeader? Header, bool RpuSeen) ScanAvc(IEnumerable<ReadOnlyMemory<byte>> samples, int nalLengthSize)
+    {
+        ArgumentNullException.ThrowIfNull(samples);
+        DolbyVisionRpuHeader? header = null;
+        var rpuSeen = false;
+        foreach (var sample in samples)
+        {
+            var data = sample.Span;
+            foreach (var range in NalUnits.SplitLengthPrefixed(data, nalLengthSize))
+            {
+                var nal = data[range];
+                if (nal.Length > 3 && (nal[0] & 0x1F) == AvcRpuNalType && nal[1] == 0x01)
+                {
+                    rpuSeen = true;
+                    header ??= ParseRpuHeader(NalUnits.ToRbsp(nal[2..]));
+                }
+            }
+
+            if (header is not null)
+                break;
+        }
+
+        return (header, rpuSeen);
+    }
+
+    /// <summary>NAL unit type of a Dolby Vision RPU in H.264 (profile 9).</summary>
+    private const int AvcRpuNalType = 28;
+
+    /// <summary>
     /// Looks for Dolby Vision in AV1 samples: a metadata OBU of type ITU-T T.35 with the Dolby provider code
     /// (country 0xB5, provider 0x003B, provider-oriented code 0x00000800). The RPU inside its EMDF container is
     /// unwrapped and its header parsed when possible.
@@ -451,6 +483,11 @@ public static class DolbyVision
                 el = profile is 4 or 7;
                 if (el && !elInBand)
                     el = false; // dual-track profile 7: the EL is elsewhere; this track carries BL + RPU only
+                break;
+            case CodecType.H264 when header is not null:
+                // H.264 Dolby Vision is profile 9: an SDR (BT.709) base layer, cross-compatible with plain AVC.
+                profile = 9;
+                compat = 2;
                 break;
             case CodecType.Av1:
                 // AV1 is always profile 10; the RPU tells whether the base layer is cross-compatible (like 8.x) or
