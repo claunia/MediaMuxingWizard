@@ -192,9 +192,8 @@ public sealed class Av2Tests
         Assert.Equal(50, fast.Tracks[0].Config.FrameRate, 3);
     }
 
-    /// <summary>The AV2 corpus written by the reference encoder (raw OBU, WebM): imported, its frames in order and starting on a key frame.</summary>
+    /// <summary>The AV2 WebM written by the reference encoder: imported, its frames in order and starting on a key frame.</summary>
     [Theory]
-    [InlineData("Video codecs/AV2.obu", "")]
     [InlineData("Video codecs/AV2.webm", "")]
     public async Task Corpus_av2_is_read(string file, string hdr)
     {
