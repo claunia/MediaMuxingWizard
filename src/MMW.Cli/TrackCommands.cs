@@ -229,12 +229,26 @@ internal static partial class TrackCommands
     /// [--language [[n:]id=]lang] [--name [n:]id=name] [--forced/--default/--enabled [n:]id=bool]
     /// [--ocr-language [[n:]id=]lang] [--frame-rate [[n:]id=]fps] [--duplicate [n:]id=name] [--dry-run] [--output path] [--optimize]
     /// </summary>
-    public static async Task<int> ImportAsync(Arguments a, TextWriter output, ContainerRegistry registry)
+    public static async Task<int> ImportAsync(Arguments a, TextWriter output, ContainerRegistry registry, bool newFile = false)
     {
         if (a.Positional.Count < 2)
             throw new UsageException(Strings.Error_ImportUsage);
         MediaRemux.EnsureRegistered();
-        var doc = await registry.OpenAsync(Existing(a.Positional[0]));
+        // A file that does not exist yet is created (its extension says MP4 or Matroska) from the sources' tracks.
+        var target = a.Positional[0];
+        MediaDocument doc;
+        if (!newFile && File.Exists(target))
+        {
+            doc = await registry.OpenAsync(target);
+        }
+        else
+        {
+            var kind = ContainerKinds.FromPath(target);
+            if (kind == ContainerKind.Unknown)
+                throw new UsageException(Strings.Error_OutputExtension);
+            doc = new MediaDocument(null, kind);
+        }
+
         var only = a.Value("only")?.ToLowerInvariant();
         // --track "1,3-5" (every source) or "2:1,3" (source 2).
         var picks = a.Values("track").Select(v => v.Contains(':', StringComparison.Ordinal)
@@ -343,8 +357,9 @@ internal static partial class TrackCommands
             return 1;
         }
 
-        await registry.Get(doc.Container)!.SaveAsync(doc, new SaveOptions { OutputPath = a.Value("output"), Optimize = a.Has("optimize") });
-        await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Import_Done, added, a.Value("output") ?? doc.Path));
+        var destination = a.Value("output") ?? (doc.Path is null ? Path.GetFullPath(target) : null);
+        await registry.Get(doc.Container)!.SaveAsync(doc, new SaveOptions { OutputPath = destination, Optimize = a.Has("optimize") });
+        await output.WriteLineAsync(string.Format(CultureInfo.CurrentCulture, Strings.Import_Done, added, destination ?? doc.Path));
         return 0;
     }
 
@@ -382,7 +397,16 @@ internal static partial class TrackCommands
         if (a.Positional.Count != 2)
             throw new UsageException(Strings.Error_RemuxUsage);
         MediaRemux.EnsureRegistered();
-        var doc = await registry.OpenAsync(Existing(a.Positional[0]));
+
+        // Anything else (raw streams, TS, Ogg, subtitles, FFmpeg formats) becomes a new file made of its tracks, with
+        // the same per-track options: that is an import into a file that does not exist yet.
+        if (ContainerKinds.FromPath(Existing(a.Positional[0])) == ContainerKind.Unknown)
+        {
+            (a.Positional[0], a.Positional[1]) = (a.Positional[1], a.Positional[0]);
+            return await ImportAsync(a, output, registry, newFile: true);
+        }
+
+        var doc = await registry.OpenAsync(a.Positional[0]);
         var target = ContainerKinds.FromPath(a.Positional[1]);
         if (target == ContainerKind.Unknown)
             throw new UsageException(Strings.Error_OutputExtension);

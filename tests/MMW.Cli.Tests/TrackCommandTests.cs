@@ -188,4 +188,32 @@ public class TrackCommandTests
         Assert.Equal(MMW.Core.Media.ImportAction.ConvertToTx3g, TrackCommands.Resolve(mp4, "srt-ocr", 0, "track 3").Action);
         Assert.Equal(MMW.Core.Media.ImportAction.ConvertToTx3g, TrackCommands.Resolve(mp4, "tx3g-ocr", 0, "track 3").Action);
     }
+
+    /// <summary>
+    /// A file that is not MP4 or Matroska (raw streams, subtitles, TS…) is remuxed into a new file made of its tracks,
+    /// and import creates the file it imports into when it does not exist yet.
+    /// </summary>
+    [Fact]
+    public async Task Raw_streams_are_remuxed_and_imported_into_new_files()
+    {
+        MediaProbe.RequireFfmpeg();
+        var dir = Path.Combine(Path.GetTempPath(), "mmw-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        var h264 = Path.Combine(dir, "video.h264");
+        Fixtures.Run("ffmpeg", $"-v error -y -f lavfi -i testsrc=duration=2:size=320x240:rate=25 -c:v libx264 -preset ultrafast -f h264 {Fixtures.Quote(h264)}");
+        var srt = Path.Combine(dir, "subs.srt");
+        await File.WriteAllTextAsync(srt, Srt, TestContext.Current.CancellationToken);
+
+        var mkv = Path.Combine(dir, "remuxed.mkv");
+        var (code, text, err) = await Run("remux", h264, mkv, "--frame-rate", "25");
+        Assert.True(code == 0, err + text);
+        Assert.Equal("h264", Assert.Single(MediaProbe.Streams(mkv)).Codec);
+
+        var mp4 = Path.Combine(dir, "built.mp4");
+        (code, text, err) = await Run("import", mp4, h264, srt, "--frame-rate", "25");
+        Assert.True(code == 0, err + text);
+        var tags = Fixtures.Run("ffprobe", $"-v error -show_entries stream=codec_tag_string -of csv=p=0 {Fixtures.Quote(mp4)}")
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        Assert.Equal(["avc1", "tx3g"], tags);
+    }
 }

@@ -213,4 +213,30 @@ public sealed class Av2Tests
         Assert.Equal(samples.Count, samples.Select(s => s.Pts).Distinct().Count());
         Assert.True(samples[0].IsSync);
     }
+
+    /// <summary>
+    /// The Matroska versions of the AV2 corpus (the IVF streams muxed by this application with their source's audio):
+    /// the container carries the colour and HDR read from the bitstream, the video keeps every frame (AV2 packets can
+    /// hold several), and the audio comes along.
+    /// </summary>
+    [Theory]
+    [InlineData("Video codecs/AV2.mkv", "", 1899)]
+    [InlineData("High Dynamic Range/HDR10/{HDR10, AV2 - Matroska} Exodus Sample.mkv", "HDR10", 1146)]
+    [InlineData("High Dynamic Range/HDR10+/{HDR10+, AV2 - Matroska} Movie Sample.mkv", "HDR10+", 1411)]
+    [InlineData("High Dynamic Range/HLG/{HLG, AV2 - Matroska} Cymatic Jazz.mkv", "HLG", 1231)]
+    public async Task Corpus_av2_matroska_is_read(string file, string hdr, int frames)
+    {
+        var path = Corpus.Directory is { } dir ? Path.Combine(dir, file) : string.Empty;
+        Corpus.Require(File.Exists(path) ? path : string.Empty);
+        MediaRemux.EnsureRegistered();
+        var tracks = await TrackImporter.InspectAsync(path, ContainerKind.Mp4, Ct);
+        var video = Assert.Single(tracks, t => t.Kind == TrackKind.Video);
+        Assert.Equal(CodecType.Av2, video.Config.Codec);
+        Assert.Single(tracks, t => t.Kind == TrackKind.Audio);
+        if (hdr.Length > 0)
+            Assert.Contains(hdr, video.Details.Split(", "));
+        var samples = Samples(path);
+        Assert.True(samples[0].IsSync);
+        Assert.InRange(video.Duration.TotalSeconds * video.Config.FrameRate, frames - 2, frames + 2);
+    }
 }
