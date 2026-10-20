@@ -15,6 +15,10 @@
 //          }
 //        }
 //
+//   4. Keys compiled into the build (ApiKeys.Bundled). BundledApiKeys.targets reads the git-ignored
+//      appsettings.json at the repository root, and the MMW_*_API_KEY MSBuild properties or environment
+//      variables at build time, so every build has default keys even without a file next to the binaries.
+//
 //  TMDb accepts either a v3 API key (sent as ?api_key=) or a v4 "API Read Access Token" (a JWT, sent as a
 //  bearer token); the kind is detected automatically. TheTVDB uses the project key only: a subscriber PIN
 //  is optional (ProviderSettings.TvdbPin) and never required.
@@ -47,6 +51,12 @@ public sealed record ApiKeys(string TheMovieDb = "", string TheTvDb = "", string
 
     /// <summary>No keys at all.</summary>
     public static ApiKeys Empty { get; } = new();
+
+    /// <summary>Keys compiled into the assembly at build time (empty when none were available).</summary>
+    public static ApiKeys Bundled { get; } = new(
+        Decode(BundledApiKeys.TheMovieDbData, BundledApiKeys.TheMovieDbPad),
+        Decode(BundledApiKeys.TheTvDbData, BundledApiKeys.TheTvDbPad),
+        Decode(BundledApiKeys.FanartTvData, BundledApiKeys.FanartTvPad));
 
     /// <summary>True when the TMDb credential is set.</summary>
     public bool HasTheMovieDb => !string.IsNullOrWhiteSpace(TheMovieDb);
@@ -128,6 +138,14 @@ public sealed record ApiKeys(string TheMovieDb = "", string TheTvDb = "", string
 
     private static string Pick(string? preferred, string fallback) =>
         string.IsNullOrWhiteSpace(preferred) ? fallback : preferred.Trim();
+
+    private static string Decode(byte[] data, byte[] pad)
+    {
+        var plain = new byte[data.Length];
+        for (var i = 0; i < data.Length; i++)
+            plain[i] = (byte)(data[i] ^ pad[i]);
+        return System.Text.Encoding.UTF8.GetString(plain);
+    }
 
     private static string Mask(string key) => string.IsNullOrEmpty(key) ? "<none>" : "***";
 

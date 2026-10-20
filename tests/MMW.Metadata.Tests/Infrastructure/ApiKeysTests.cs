@@ -115,6 +115,24 @@ public sealed class ApiKeysTests
         }
     }
 
+    [Fact]
+    public void ProviderSettings_DefaultFileLayer_FallsBackToBundledKeys()
+    {
+        var settings = new ProviderSettings();
+        _ = settings.ApiKeys;
+
+        Assert.Equal(ApiKeys.Bundled.WithOverrides(ApiKeys.Load()), settings.FileApiKeys);
+    }
+
+    [Fact]
+    public void Bundled_IsMaskedWhenPrinted()
+    {
+        if (ApiKeys.Bundled.HasTheMovieDb)
+            Assert.DoesNotContain(ApiKeys.Bundled.TheMovieDb, ApiKeys.Bundled.ToString(), StringComparison.Ordinal);
+        if (ApiKeys.Bundled.HasTheTvDb)
+            Assert.DoesNotContain(ApiKeys.Bundled.TheTvDb, ApiKeys.Bundled.ToString(), StringComparison.Ordinal);
+    }
+
     [Theory]
     [InlineData("0123456789abcdef0123456789abcdef", false)]
     [InlineData("eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMTIzNDU2Nzg5YWJjZGVmIiwic3ViIjoiNjAwMCJ9.c2lnbmF0dXJlLXNpZ25hdHVyZS1zaWduYXR1cmU", true)]

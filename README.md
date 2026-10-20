@@ -173,9 +173,14 @@ libraries, and copies their licence notices alongside.
 
 ### Metadata search API keys
 
-TheMovieDB and TheTVDB keys are read from `appsettings.json` next to the executable. Copy `appsettings.example.json` to
-`appsettings.json` at the repository root and fill in your keys; the build copies it to the output directory. The file is
-git-ignored, so keys are never committed. The environment variables `MMW_TMDB_API_KEY` and `MMW_TVDB_API_KEY` override the file.
+Copy `appsettings.example.json` to `appsettings.json` at the repository root and fill in your TheMovieDB and TheTVDB keys.
+The file is git-ignored, so keys are never committed; the build compiles them (lightly obfuscated) into `MMW.Metadata.dll`,
+so the binaries work without any file next to them. When building, the environment variables or MSBuild properties
+`MMW_TMDB_API_KEY`, `MMW_TVDB_API_KEY` and `MMW_FANARTTV_API_KEY` override the file (useful for CI secrets); a build with
+neither has no default keys.
+
+At run time the built-in keys are the last resort: the keys set in Preferences win, then the `MMW_TMDB_API_KEY` and
+`MMW_TVDB_API_KEY` environment variables, then an `appsettings.json` placed next to the executable.
 
 ## For developers
 

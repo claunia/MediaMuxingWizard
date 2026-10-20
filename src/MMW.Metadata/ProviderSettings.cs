@@ -20,7 +20,10 @@ public sealed class ProviderSettings
         }
     }
 
-    /// <summary>Keys from appsettings.json; null loads them with <see cref="ApiKeys.Load"/> on first use.</summary>
+    /// <summary>
+    /// Lowest-precedence keys; null uses <see cref="ApiKeys.Bundled"/> overridden by <see cref="ApiKeys.Load"/>
+    /// (appsettings.json next to the binaries) on first use.
+    /// </summary>
     public ApiKeys? FileApiKeys
     {
         get => _fileApiKeys;
@@ -31,8 +34,8 @@ public sealed class ProviderSettings
         }
     }
 
-    /// <summary>Effective keys: user override, then environment variables, then appsettings.json.</summary>
-    public ApiKeys ApiKeys => _resolved ??= ApiKeys.Resolve(UserApiKeys, FileApiKeys ??= ApiKeys.Load());
+    /// <summary>Effective keys: user override, then environment variables, then appsettings.json, then the build's keys.</summary>
+    public ApiKeys ApiKeys => _resolved ??= ApiKeys.Resolve(UserApiKeys, FileApiKeys ??= ApiKeys.Bundled.WithOverrides(ApiKeys.Load()));
 
     /// <summary>Optional TheTVDB subscriber PIN. Never required and not exposed in the UI.</summary>
     public string? TvdbPin { get; set; }

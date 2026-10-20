@@ -14,4 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MMW.Core\MMW.Core.csproj" />
   </ItemGroup>
+
+  <Import Project="BundledApiKeys.targets" />
 </Project>
