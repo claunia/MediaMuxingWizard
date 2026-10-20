@@ -19,13 +19,33 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Install ffmpeg and mkvtoolnix (test fixtures only)
+      # The app binds FFmpeg 9's shared libraries (FFmpeg.AutoGen 9): distro and Chocolatey packages are older or
+      # static, so Linux and Windows use BtbN's FFmpeg 9.0 shared build (GPL, for its x264/x265/SVT-AV1 encoders the
+      # fixtures need; tests only, nothing is shipped). MMW_FFMPEG_PATH points the loader at its libraries.
+      - name: Install FFmpeg 9 and mkvtoolnix (test fixtures only)
         shell: bash
         run: |
+          ffmpeg_build=https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n9.0-latest
           case "${{ runner.os }}" in
-            Linux)   sudo apt-get update && sudo apt-get install -y ffmpeg mkvtoolnix ;;
-            macOS)   brew install ffmpeg mkvtoolnix ;;
-            Windows) choco install -y ffmpeg mkvtoolnix && echo "C:\Program Files\MKVToolNix" >> $GITHUB_PATH ;;
+            Linux)
+              sudo apt-get update && sudo apt-get install -y mkvtoolnix
+              curl -sSfL "$ffmpeg_build-linux64-gpl-shared-9.0.tar.xz" | tar -xJ -C "$RUNNER_TEMP"
+              ffmpeg_dir="$RUNNER_TEMP/ffmpeg-n9.0-latest-linux64-gpl-shared-9.0"
+              echo "$ffmpeg_dir/bin" >> "$GITHUB_PATH"
+              echo "MMW_FFMPEG_PATH=$ffmpeg_dir/lib" >> "$GITHUB_ENV"
+              echo "LD_LIBRARY_PATH=$ffmpeg_dir/lib" >> "$GITHUB_ENV"
+              ;;
+            macOS)
+              brew install ffmpeg mkvtoolnix
+              ;;
+            Windows)
+              choco install -y mkvtoolnix && echo "C:\Program Files\MKVToolNix" >> "$GITHUB_PATH"
+              curl -sSfL -o "$RUNNER_TEMP/ffmpeg.zip" "$ffmpeg_build-win64-gpl-shared-9.0.zip"
+              unzip -q "$RUNNER_TEMP/ffmpeg.zip" -d "$RUNNER_TEMP"
+              ffmpeg_dir="$(cygpath -w "$RUNNER_TEMP/ffmpeg-n9.0-latest-win64-gpl-shared-9.0/bin")"
+              echo "$ffmpeg_dir" >> "$GITHUB_PATH"
+              echo "MMW_FFMPEG_PATH=$ffmpeg_dir" >> "$GITHUB_ENV"
+              ;;
           esac
 
       # Provider API keys compiled into the binaries (see src/MMW.Metadata/BundledApiKeys.targets). Only the build step
@@ -39,3 +59,12 @@ jobs:
 
       - name: Test
         run: dotnet test --solution MediaMuxingWizard.slnx -c Release --no-build
+
+      # The fixtures were made by this runner's tools: keep them to reproduce a failure locally.
+      - name: Upload generated fixtures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixtures-${{ matrix.os }}
+          path: tests/fixtures/generated/
+          retention-days: 7
