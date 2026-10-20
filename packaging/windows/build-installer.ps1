@@ -20,8 +20,8 @@ if ($env:MMW_BUNDLE_FFMPEG) {
 
 $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
 if (-not $iscc) {
-    $iscc = "${env:ProgramFiles}\Inno Setup 7\ISCC.exe", "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" |
-        Where-Object { Test-Path $_ } | Select-Object -First 1
+    $iscc = Get-ChildItem "${env:ProgramFiles}\Inno Setup *\ISCC.exe", "${env:ProgramFiles(x86)}\Inno Setup *\ISCC.exe" -ErrorAction SilentlyContinue |
+        Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
 }
 if (-not $iscc) { throw "Inno Setup (iscc.exe) not found" }
 & $iscc "/DAppVersion=$Version" "/DArch=$Arch" "$PSScriptRoot\installer.iss"
