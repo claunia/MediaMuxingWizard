@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Builds an AppImage and a portable .tar.gz. Needs appimagetool on PATH (https://github.com/AppImage/appimagetool/releases).
+# Builds an AppImage and a portable .tar.gz. Needs appimagetool (https://github.com/AppImage/appimagetool/releases) on
+# PATH, or its path in APPIMAGETOOL.
 # Usage: packaging/linux/build-appimage.sh [x64|arm64] [version]
 set -euo pipefail
 arch="${1:-x64}"
@@ -31,7 +32,7 @@ RUN
 chmod +x "$appdir/AppRun"
 
 machine=$([ "$arch" = arm64 ] && echo aarch64 || echo x86_64)
-ARCH=$machine appimagetool "$appdir" "$root/artifacts/MediaMuxingWizard-$version-$machine.AppImage"
+ARCH=$machine "${APPIMAGETOOL:-appimagetool}" "$appdir" "$root/artifacts/MediaMuxingWizard-$version-$machine.AppImage"
 
 # Portable archive of the published files, for running without the AppImage.
 tar -C "$root/artifacts/publish" -czf "$root/artifacts/MediaMuxingWizard-$version-linux-$arch.tar.gz" \
