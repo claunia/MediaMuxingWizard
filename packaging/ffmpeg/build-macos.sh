@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the LGPL FFmpeg shared libraries FFmpegLoader loads (avutil, swresample, swscale, avcodec, avformat) for
 # macOS from the release tarball, with install names relative to the library (@loader_path) so they work from the
-# app bundle. Only FFmpeg's own code is built, plus zlib, bzip2 and iconv from macOS. Run on macOS; x64 is
+# app bundle. Only FFmpeg's own code is built, plus zlib and bzip2 from macOS. Run on macOS; x64 is
 # cross-compiled on Apple Silicon (needs nasm, e.g. brew install nasm).
 # Usage: packaging/ffmpeg/build-macos.sh <arm64|x64> <version> <dest> [sha256 of ffmpeg-<version>.tar.xz]
 set -euo pipefail
@@ -31,7 +31,7 @@ min="-mmacosx-version-min=12.0"
 options=(
   --prefix="$work/install" --enable-shared --disable-static --install-name-dir=@loader_path
   --disable-programs --disable-doc --disable-avdevice --disable-avfilter --disable-network
-  --disable-autodetect --enable-zlib --enable-bzlib --enable-iconv
+  --disable-autodetect --enable-zlib --enable-bzlib
   --target-os=darwin --arch="$cpu" --cc="clang -arch $cpu" --extra-cflags="$min" --extra-ldflags="$min"
 )
 if [ "$cpu" != "$(uname -m)" ]; then
