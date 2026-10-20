@@ -13,7 +13,8 @@ app="$root/artifacts/Media Muxing Wizard.app"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp -a "$root/artifacts/publish/osx-$arch/." "$app/Contents/MacOS/"
-sed "s/@VERSION@/$version/g" "$here/Info.plist" > "$app/Contents/Info.plist"
+# Bundle versions are numbers only: a pre-release suffix (1.2.3-rc1) is left out of Info.plist.
+sed "s/@VERSION@/${version%%-*}/g" "$here/Info.plist" > "$app/Contents/Info.plist"
 cp "$root/packaging/icon/icon.icns" "$app/Contents/Resources/icon.icns"
 
 codesign --force --deep --options runtime --timestamp=none -s "$identity" "$app"
