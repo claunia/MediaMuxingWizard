@@ -198,6 +198,26 @@ when the tools are missing.
 | `MMW_CORPUS` | Directory of real media files; corpus tests read them and edit temporary copies. |
 | `MMW_SCREENSHOTS` | Directory where headless UI tests save screenshots. |
 
+### Packaging and releases
+
+Each script publishes the editor and `mmw` as self-contained single-file executables and builds the packages into
+`artifacts/`:
+
+| Script | Output |
+|---|---|
+| `packaging/windows/build-installer.ps1 -Arch x64\|arm64 -Version x.y.z [-Portable]` | Inno Setup installer (and a zip) |
+| `packaging/linux/build-appimage.sh x64\|arm64 x.y.z` | AppImage and a `.tar.gz` |
+| `packaging/macos/build-app.sh arm64\|x64 x.y.z` | `.app` in a DMG and a zip (ad-hoc signed) |
+
+To bundle FFmpeg, point `MMW_BUNDLE_FFMPEG` at a folder made by `packaging/ffmpeg/fetch-btbn.sh` (Windows and Linux,
+from [BtbN's LGPL builds](https://github.com/BtbN/FFmpeg-Builds)) or `packaging/ffmpeg/build-macos.sh` (macOS, built from
+source). `packaging/ffmpeg/check-bundle.sh` checks the result.
+
+Pushing a `v*` tag (`v1.2.0`, or `v1.3.0-rc1` for a pre-release) runs `.github/workflows/release.yml`. It runs the tests,
+packages all six platform and architecture combinations with FFmpeg bundled, and creates a **draft** GitHub release
+with the packages, the FFmpeg source and `SHA256SUMS.txt`. Review the draft and publish it. Running the workflow by
+hand from the Actions tab builds the packages as workflow artifacts without releasing.
+
 ### Project layout
 
 The container engines are pure C#, with no mkvtoolnix, MP4Box or mp4v2 at runtime.
