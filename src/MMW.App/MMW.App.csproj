@@ -27,6 +27,14 @@
     <AllowedReferenceRelatedFileExtensions>.none</AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
 
+  <!-- SkiaSharp and HarfBuzzSharp ship the symbols of their native libraries as package assets, which single-file
+       publishing leaves next to the executable. -->
+  <Target Name="RemoveSymbolsFromPublish" AfterTargets="ComputeResolvedFilesToPublishList" Condition="'$(RuntimeIdentifier)' != ''">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
