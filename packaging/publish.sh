@@ -13,12 +13,15 @@ for project in src/MMW.App/MMW.App.csproj src/MMW.Cli/MMW.Cli.csproj; do
   dotnet publish "$root/$project" -c Release -r "$rid" -p:Version="$version" -o "$out"
 done
 # Optional native libraries, bundled next to the executable:
-#   MMW_BUNDLE_FFMPEG=/path/to/lgpl-ffmpeg-9/lib     (libavcodec, libavformat, libavutil, libswresample, libswscale)
+#   MMW_BUNDLE_FFMPEG=/path/to/lgpl-ffmpeg-9/lib     (libavcodec, libavformat, libavutil, libswresample, libswscale,
+#                                                    and the COPYING.LGPL* and FFMPEG-SOURCE.txt the scripts in
+#                                                    packaging/ffmpeg write)
 #   MMW_BUNDLE_TESSERACT=/path/to/tesseract-5/lib    (libtesseract and its dependencies)
 #   MMW_BUNDLE_TESSDATA=/path/to/tessdata            (at least eng.traineddata)
 if [ -n "${MMW_BUNDLE_FFMPEG:-}" ]; then
   mkdir -p "$out/ffmpeg"
   cp -a "$MMW_BUNDLE_FFMPEG"/*{avcodec,avformat,avutil,swresample,swscale}* "$out/ffmpeg/"
+  cp -a "$MMW_BUNDLE_FFMPEG"/{COPYING.LGPL*,FFMPEG-SOURCE.txt} "$out/ffmpeg/" 2>/dev/null || true
 fi
 if [ -n "${MMW_BUNDLE_TESSERACT:-}" ]; then
   mkdir -p "$out/tesseract"
