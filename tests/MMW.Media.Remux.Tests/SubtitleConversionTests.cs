@@ -36,7 +36,7 @@ public sealed class SubtitleConversionTests
     private static string Write(string name, string content)
     {
         var path = Path.Combine(Fixtures.GeneratedDirectory, name);
-        File.WriteAllText(path, content);
+        File.WriteAllText(path, content.ReplaceLineEndings("\n")); // the same on every platform (see RemuxFixtures.Text)
         return path;
     }
 

@@ -19,6 +19,8 @@ internal static class RemuxFixtures
 
     public static string Text(string name, string content)
     {
+        // Raw string literals carry the checkout's line endings (CRLF on Windows): fixtures are the same everywhere.
+        content = content.ReplaceLineEndings("\n");
         Directory.CreateDirectory(Fixtures.GeneratedDirectory);
         var path = Path.Combine(Fixtures.GeneratedDirectory, name);
         if (!File.Exists(path) || File.ReadAllText(path) != content)
