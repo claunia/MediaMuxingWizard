@@ -26,5 +26,8 @@ ditto -c -k --keepParent "$app" "$zip"
 
 dmg="$root/artifacts/MediaMuxingWizard-$version-$arch.dmg"
 rm -f "$dmg"
-hdiutil create -volname "Media Muxing Wizard" -srcfolder "$app" -ov -format UDZO "$dmg"
+# hdiutil's own estimate of the image size from -srcfolder can come out too small ("No space left on device"): size
+# it from the bundle, with headroom for the file system.
+size=$(( $(du -sm "$app" | cut -f1) * 12 / 10 + 20 ))
+hdiutil create -volname "Media Muxing Wizard" -srcfolder "$app" -size "${size}m" -ov -format UDZO "$dmg"
 echo "Created $dmg and $zip"
