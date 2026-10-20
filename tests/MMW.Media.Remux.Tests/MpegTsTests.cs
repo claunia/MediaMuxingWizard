@@ -398,7 +398,7 @@ public sealed class MpegTsTests
     private static void AssertInSync(string source, string output)
     {
         double[] Starts(string path) => Fixtures.Run("ffprobe", $"-v error -show_entries stream=index,start_time -of csv=p=0 {Fixtures.Quote(path)}")
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim(',').Split(',')).DistinctBy(p => p[0]) // programs repeat their streams
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Where(s => s.Trim(',').Length > 0).Select(s => s.Trim(',').Split(',')).DistinctBy(p => p[0]) // programs repeat their streams
             .Select(p => double.Parse(p[1], System.Globalization.CultureInfo.InvariantCulture)).ToArray();
         var a = Starts(source);
         var b = Starts(output);

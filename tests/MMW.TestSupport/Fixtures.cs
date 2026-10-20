@@ -10,7 +10,8 @@ public static class Fixtures
 {
     private static readonly Lock s_lock = new();
 
-    public static string GeneratedDirectory { get; } = Path.Combine(FindRepoRoot(), "tests", "fixtures", "generated");
+    /// <summary>The (git-ignored) fixture cache; created on first use so tests can write next to the fixtures.</summary>
+    public static string GeneratedDirectory { get; } = Directory.CreateDirectory(Path.Combine(FindRepoRoot(), "tests", "fixtures", "generated")).FullName;
 
     public static bool HasTool(string name)
     {

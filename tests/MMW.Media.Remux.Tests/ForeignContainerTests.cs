@@ -13,9 +13,18 @@ public sealed class ForeignContainerTests
 {
     private const string Source = "-v error -y -f lavfi -i testsrc2=size=320x240:rate=25:duration=2 -f lavfi -i sine=f=440:duration=2:sample_rate=48000";
 
-    private static string Make(string name, string options)
+    /// <summary>These containers are demuxed by the FFmpeg libraries, not just the ffmpeg tool.</summary>
+    private static void RequireFfmpegLibraries()
     {
         MediaProbe.RequireFfmpeg();
+        MediaRemux.EnsureRegistered();
+        if (MediaFormatRegistry.AvailableAudioConverter is null)
+            Assert.Skip("The FFmpeg libraries are not available.");
+    }
+
+    private static string Make(string name, string options)
+    {
+        RequireFfmpegLibraries();
         return Fixtures.Get(name, "ffmpeg", $"{Source} {options} {{out}}");
     }
 
@@ -201,7 +210,7 @@ public sealed class ForeignContainerTests
     {
         var wmv = Corpus.Directory is { } dir ? Path.Combine(dir, "Video codecs", "VC1.wmv") : string.Empty;
         Corpus.Require(File.Exists(wmv) ? wmv : string.Empty);
-        MediaProbe.RequireFfmpeg();
+        RequireFfmpegLibraries();
         var output = await SaveAsync(wmv, ContainerKind.Mp4);
         try
         {
@@ -237,7 +246,7 @@ public sealed class ForeignContainerTests
     [Fact]
     public async Task Vobsub_pairs_import_and_offer_ocr()
     {
-        MediaProbe.RequireFfmpeg();
+        RequireFfmpegLibraries();
         if (!Fixtures.HasTool("mkvextract"))
             Assert.Skip("mkvextract not installed.");
         var mkv = Path.Combine(Fixtures.GeneratedDirectory, "foreign-dvdsub.mks");
@@ -254,7 +263,8 @@ public sealed class ForeignContainerTests
         {
             var track = Assert.Single(await TrackImporter.InspectAsync(path, ContainerKind.Matroska, Ct));
             Assert.Equal(CodecType.VobSub, track.Config.Codec);
-            Assert.Contains(track.Choices, c => c.Ocr);
+            // OCR is offered whenever Tesseract (and FFmpeg's decoder) are available.
+            Assert.Equal(ConversionDefaults.CanOcr(track.Config), track.Choices.Any(c => c.Ocr));
         }
 
         var output = await SaveAsync(idx, ContainerKind.Matroska);

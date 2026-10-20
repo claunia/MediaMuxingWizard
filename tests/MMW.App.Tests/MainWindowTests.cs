@@ -480,17 +480,19 @@ public class SingleInstanceTests
         var received = new TaskCompletionSource<IReadOnlyList<string>>();
         SingleInstance.StartServer(p => received.TrySetResult(p), cts.Token);
 
+        // Already absolute on every platform: forwarded paths are made absolute ("/tmp/a.mkv" is "D:\tmp\a.mkv" on Windows).
+        string[] sent = [Path.Combine(Path.GetTempPath(), "a.mkv"), Path.Combine(Path.GetTempPath(), "b c.m4v")];
         var forwarded = false;
         for (var i = 0; i < 20 && !forwarded; i++)
         {
-            forwarded = SingleInstance.TryForward(["/tmp/a.mkv", "/tmp/b c.m4v"]);
+            forwarded = SingleInstance.TryForward(sent);
             if (!forwarded)
                 await Task.Delay(50, TestContext.Current.CancellationToken);
         }
 
         Assert.True(forwarded);
         var paths = await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
-        Assert.Equal(["/tmp/a.mkv", "/tmp/b c.m4v"], paths);
+        Assert.Equal(sent, paths);
         cts.Cancel();
     }
 }
