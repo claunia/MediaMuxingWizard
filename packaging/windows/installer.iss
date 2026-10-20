@@ -20,8 +20,14 @@ SetupIconFile=..\icon\icon.ico
 UninstallDisplayIcon={app}\MediaMuxingWizard.exe
 Compression=lzma2
 SolidCompression=yes
+; Inno Setup has no "arm64compatible": arm64 builds name the architecture itself, x64 builds also run on arm64.
+#if Arch == "arm64"
+ArchitecturesAllowed=arm64
+ArchitecturesInstallIn64BitMode=arm64
+#else
 ArchitecturesAllowed={#Arch}compatible
 ArchitecturesInstallIn64BitMode={#Arch}compatible
+#endif
 ChangesAssociations=yes
 WizardStyle=modern
 
