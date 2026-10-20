@@ -55,10 +55,10 @@ jobs:
         arch: [arm64, x64]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ffmpeg-bundle
           key: ffmpeg-osx-${{ matrix.arch }}-${{ env.FFMPEG_VERSION }}-${{ hashFiles('packaging/ffmpeg/build-macos.sh') }}
@@ -69,7 +69,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         run: packaging/ffmpeg/build-macos.sh ${{ matrix.arch }} "$FFMPEG_VERSION" ffmpeg-bundle "$FFMPEG_SHA256"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ffmpeg-osx-${{ matrix.arch }}
           path: ffmpeg-bundle
@@ -98,9 +98,9 @@ jobs:
       MMW_TVDB_API_KEY: ${{ secrets.MMW_TVDB_API_KEY }}
       MMW_FANARTTV_API_KEY: ${{ secrets.MMW_FANARTTV_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
 
@@ -111,7 +111,7 @@ jobs:
 
       - name: Download FFmpeg
         if: runner.os == 'macOS'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ffmpeg-${{ matrix.rid }}
           path: ffmpeg-bundle
@@ -143,7 +143,7 @@ jobs:
         shell: bash
         run: packaging/ffmpeg/check-bundle.sh "artifacts/publish/${{ matrix.rid }}" ${{ matrix.smoke && '--run' || '' }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: package-${{ matrix.rid }}
           path: |
@@ -161,7 +161,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: package-*
           path: dist
