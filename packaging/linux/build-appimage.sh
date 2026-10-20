@@ -16,7 +16,8 @@ mkdir -p "$appdir/usr/bin" "$appdir/usr/share/applications" "$appdir/usr/share/m
 cp -a "$root/artifacts/publish/linux-$arch/." "$appdir/usr/bin/"
 cp "$here/$id.desktop" "$appdir/usr/share/applications/"
 cp "$here/$id.desktop" "$appdir/"
-cp "$here/$id.metainfo.xml" "$appdir/usr/share/metainfo/"
+# appimagetool only finds AppStream metadata under the legacy .appdata.xml name.
+cp "$here/$id.metainfo.xml" "$appdir/usr/share/metainfo/$id.appdata.xml"
 for size in 16 24 32 48 64 128 256 512; do
   mkdir -p "$appdir/usr/share/icons/hicolor/${size}x${size}/apps"
   cp "$root/packaging/icon/icon-$size.png" "$appdir/usr/share/icons/hicolor/${size}x${size}/apps/$id.png"
