@@ -28,8 +28,14 @@ jobs:
             Windows) choco install -y ffmpeg mkvtoolnix && echo "C:\Program Files\MKVToolNix" >> $GITHUB_PATH ;;
           esac
 
+      # Provider API keys compiled into the binaries (see src/MMW.Metadata/BundledApiKeys.targets). Only the build step
+      # sees them, so tests are not affected; they are empty on pull requests from forks, which still build fine.
       - name: Build
         run: dotnet build MediaMuxingWizard.slnx -c Release
+        env:
+          MMW_TMDB_API_KEY: ${{ secrets.MMW_TMDB_API_KEY }}
+          MMW_TVDB_API_KEY: ${{ secrets.MMW_TVDB_API_KEY }}
+          MMW_FANARTTV_API_KEY: ${{ secrets.MMW_FANARTTV_API_KEY }}
 
       - name: Test
         run: dotnet test --solution MediaMuxingWizard.slnx -c Release --no-build
