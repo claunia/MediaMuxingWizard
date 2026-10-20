@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds "Media Muxing Wizard.app" and a DMG. Run on macOS.
+# Builds "Media Muxing Wizard.app", a DMG and a portable zip of the app. Run on macOS.
 # Usage: packaging/macos/build-app.sh [arm64|x64] [version] [signing identity, default ad-hoc "-"]
 set -euo pipefail
 arch="${1:-arm64}"
@@ -18,7 +18,12 @@ cp "$root/packaging/icon/icon.icns" "$app/Contents/Resources/icon.icns"
 
 codesign --force --deep --options runtime --timestamp=none -s "$identity" "$app"
 
+# Portable archive of the app bundle (ditto keeps the signature and permissions).
+zip="$root/artifacts/MediaMuxingWizard-$version-macos-$arch.zip"
+rm -f "$zip"
+ditto -c -k --keepParent "$app" "$zip"
+
 dmg="$root/artifacts/MediaMuxingWizard-$version-$arch.dmg"
 rm -f "$dmg"
 hdiutil create -volname "Media Muxing Wizard" -srcfolder "$app" -ov -format UDZO "$dmg"
-echo "Created $dmg"
+echo "Created $dmg and $zip"
