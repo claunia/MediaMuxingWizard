@@ -22,6 +22,9 @@
       fallbacks and accessibility characteristics. A batch queue applies the same changes to many files.
     </p>
   </description>
+  <url type="homepage">https://github.com/claunia/MediaMuxingWizard</url>
+  <url type="bugtracker">https://github.com/claunia/MediaMuxingWizard/issues</url>
+  <url type="vcs-browser">https://github.com/claunia/MediaMuxingWizard</url>
   <launchable type="desktop-id">com.claunia.MediaMuxingWizard.desktop</launchable>
   <provides>
     <binary>MediaMuxingWizard</binary>
