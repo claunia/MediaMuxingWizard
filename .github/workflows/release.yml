@@ -1,0 +1,188 @@
+name: Release
+
+# Pushing a v* tag (v1.2.0, v1.3.0-rc1) builds the installers and portable archives for every platform, with the LGPL
+# FFmpeg libraries bundled, and attaches them to a draft GitHub release. Run it by hand to build the packages without
+# releasing (they are kept as workflow artifacts).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to stamp on the packages (no release is created)
+        default: 0.0.0-test
+
+permissions:
+  contents: read
+
+env:
+  # FFmpeg release branch the FFmpeg.AutoGen bindings are generated for. Windows and Linux use BtbN's LGPL shared
+  # builds of it; macOS builds this release from source (signed by FFmpeg's release key FCF986EA15E6E293A5644F10B4322F04D67658D8).
+  FFMPEG_BRANCH: n9.0
+  FFMPEG_VERSION: 9.0.2
+  FFMPEG_SHA256: 8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e
+
+jobs:
+  test:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      btbn-tag: ${{ steps.btbn.outputs.tag }}
+    steps:
+      - id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then version="${GITHUB_REF_NAME#v}"; else version="$INPUT_VERSION"; fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # One dated BtbN build for every platform; its asset names pin the FFmpeg revision.
+      - id: btbn
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(gh release list -R BtbN/FFmpeg-Builds -L 30 --json tagName -q '[.[].tagName | select(startswith("autobuild-"))][0]')"
+          echo "BtbN build: $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  ffmpeg-macos:
+    strategy:
+      matrix:
+        arch: [arm64, x64]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: cache
+        uses: actions/cache@v4
+        with:
+          path: ffmpeg-bundle
+          key: ffmpeg-osx-${{ matrix.arch }}-${{ env.FFMPEG_VERSION }}-${{ hashFiles('packaging/ffmpeg/build-macos.sh') }}
+
+      - if: steps.cache.outputs.cache-hit != 'true' && matrix.arch == 'x64'
+        run: brew install nasm
+
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: packaging/ffmpeg/build-macos.sh ${{ matrix.arch }} "$FFMPEG_VERSION" ffmpeg-bundle "$FFMPEG_SHA256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-osx-${{ matrix.arch }}
+          path: ffmpeg-bundle
+          if-no-files-found: error
+
+  package:
+    needs: [test, prepare, ffmpeg-macos]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # smoke: the runner can execute the package, so check-bundle.sh also proves FFmpeg loads.
+          - { rid: win-x64, arch: x64, os: windows-latest, btbn: win64, smoke: true }
+          - { rid: win-arm64, arch: arm64, os: windows-latest, btbn: winarm64, smoke: false }
+          - { rid: linux-x64, arch: x64, os: ubuntu-latest, btbn: linux64, appimage: x86_64, smoke: true }
+          - { rid: linux-arm64, arch: arm64, os: ubuntu-24.04-arm, btbn: linuxarm64, appimage: aarch64, smoke: true }
+          - { rid: osx-arm64, arch: arm64, os: macos-latest, smoke: true }
+          - { rid: osx-x64, arch: x64, os: macos-latest, smoke: false }
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      ARCH: ${{ matrix.arch }}
+      MMW_BUNDLE_FFMPEG: ffmpeg-bundle
+      # Provider API keys compiled into the binaries (see src/MMW.Metadata/BundledApiKeys.targets).
+      MMW_TMDB_API_KEY: ${{ secrets.MMW_TMDB_API_KEY }}
+      MMW_TVDB_API_KEY: ${{ secrets.MMW_TVDB_API_KEY }}
+      MMW_FANARTTV_API_KEY: ${{ secrets.MMW_FANARTTV_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Fetch FFmpeg
+        if: matrix.btbn
+        shell: bash
+        run: packaging/ffmpeg/fetch-btbn.sh "${{ needs.prepare.outputs.btbn-tag }}" ${{ matrix.btbn }} ffmpeg-bundle "$FFMPEG_BRANCH"
+
+      - name: Download FFmpeg
+        if: runner.os == 'macOS'
+        uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-${{ matrix.rid }}
+          path: ffmpeg-bundle
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          packaging/windows/build-installer.ps1 -Arch $env:ARCH -Version $env:VERSION -Portable
+
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        env:
+          APPIMAGETOOL: ${{ runner.temp }}/appimagetool
+          # No FUSE on the runners: appimagetool runs from its extracted image.
+          APPIMAGE_EXTRACT_AND_RUN: 1
+        run: |
+          curl -fsSL --retry 3 -o "$APPIMAGETOOL" \
+            "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.appimage }}.AppImage"
+          chmod +x "$APPIMAGETOOL"
+          packaging/linux/build-appimage.sh "$ARCH" "$VERSION"
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: packaging/macos/build-app.sh "$ARCH" "$VERSION"
+
+      - name: Check the FFmpeg bundle
+        shell: bash
+        run: packaging/ffmpeg/check-bundle.sh "artifacts/publish/${{ matrix.rid }}" ${{ matrix.smoke && '--run' || '' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.rid }}
+          path: |
+            artifacts/*.exe
+            artifacts/*.zip
+            artifacts/*.AppImage
+            artifacts/*.tar.gz
+            artifacts/*.dmg
+          if-no-files-found: error
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: package-*
+          path: dist
+          merge-multiple: true
+
+      # The LGPL asks for the source of the shipped libraries: the macOS ones are built from this tarball (the
+      # Windows and Linux ones name their revision in ffmpeg/FFMPEG-SOURCE.txt).
+      - name: Attach the FFmpeg source
+        run: |
+          curl -fsSL --retry 3 -o "dist/ffmpeg-$FFMPEG_VERSION.tar.xz" "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.xz"
+          echo "$FFMPEG_SHA256  dist/ffmpeg-$FFMPEG_VERSION.tar.xz" | sha256sum -c -
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum -- * > SHA256SUMS.txt
+
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          flags=(--draft --generate-notes --verify-tag --title "Media Muxing Wizard ${TAG#v}")
+          if [[ "$TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" "${flags[@]}" dist/*
