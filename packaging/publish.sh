@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Publishes the editor and the mmw command line tool, self-contained, for one runtime identifier.
+# Publishes the editor and the mmw command line tool, as self-contained single-file executables, for one runtime
+# identifier.
 # Usage: packaging/publish.sh <rid> [version]     e.g. packaging/publish.sh linux-x64 0.1.0
 set -euo pipefail
 rid="${1:?runtime identifier, e.g. linux-x64, osx-arm64, win-x64}"
@@ -9,8 +10,7 @@ out="$root/artifacts/publish/$rid"
 
 rm -rf "$out"
 for project in src/MMW.App/MMW.App.csproj src/MMW.Cli/MMW.Cli.csproj; do
-  dotnet publish "$root/$project" -c Release -r "$rid" --self-contained true \
-    -p:Version="$version" -p:PublishReadyToRun=true -p:DebugType=none -o "$out"
+  dotnet publish "$root/$project" -c Release -r "$rid" -p:Version="$version" -o "$out"
 done
 # Optional native libraries, bundled next to the executable:
 #   MMW_BUNDLE_FFMPEG=/path/to/lgpl-ffmpeg-9/lib     (libavcodec, libavformat, libavutil, libswresample, libswscale)

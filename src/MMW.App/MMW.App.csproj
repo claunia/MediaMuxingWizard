@@ -14,6 +14,20 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
+  <!-- Publishing for a runtime (dotnet publish -r <rid>) gives one self-contained executable with the .NET runtime and
+       the managed and native dependencies inside. The FFmpeg and Tesseract libraries stay separate files next to it
+       (ffmpeg/, tesseract/): the LGPL requires them to remain replaceable. -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <DebugType>none</DebugType>
+    <AllowedReferenceRelatedFileExtensions>.none</AllowedReferenceRelatedFileExtensions>
+  </PropertyGroup>
+
+
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
