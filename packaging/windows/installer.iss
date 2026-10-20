@@ -29,6 +29,10 @@ ArchitecturesAllowed={#Arch}compatible
 ArchitecturesInstallIn64BitMode={#Arch}compatible
 #endif
 ChangesAssociations=yes
+ChangesEnvironment=yes
+; Installs for the current user by default; the dialog offers an all-users install (needs elevation).
+PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 WizardStyle=modern
 
 [Files]
@@ -55,14 +59,53 @@ Root: HKA; Subkey: "Software\Classes\.mov\OpenWithProgids"; ValueType: string; V
 Root: HKA; Subkey: "Software\Classes\.mkv\OpenWithProgids"; ValueType: string; ValueName: "MediaMuxingWizard.Media"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\.mka\OpenWithProgids"; ValueType: string; ValueName: "MediaMuxingWizard.Media"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\.webm\OpenWithProgids"; ValueType: string; ValueName: "MediaMuxingWizard.Media"; ValueData: ""; Flags: uninsdeletevalue
-Root: HKA; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))
+; The user's PATH for a per-user install, the system PATH for an all-users one (removed again on uninstall).
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: (not IsAdminInstallMode) and NeedsAddPath(ExpandConstant('{app}'))
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: IsAdminInstallMode and NeedsAddPath(ExpandConstant('{app}'))
 
 [Code]
+const
+  SystemEnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+
+function EnvironmentRoot: Integer;
+begin
+  if IsAdminInstallMode then
+    Result := HKLM
+  else
+    Result := HKCU;
+end;
+
+function EnvironmentKey: string;
+begin
+  if IsAdminInstallMode then
+    Result := SystemEnvironmentKey
+  else
+    Result := 'Environment';
+end;
+
 function NeedsAddPath(Dir: string): Boolean;
 var
   Paths: string;
 begin
-  if not RegQueryStringValue(HKCU, 'Environment', 'Path', Paths) then
+  if not RegQueryStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Paths) then
     Paths := '';
   Result := Pos(';' + Uppercase(Dir) + ';', ';' + Uppercase(Paths) + ';') = 0;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  Paths, Dir: string;
+  Index: Integer;
+begin
+  if CurUninstallStep <> usPostUninstall then
+    exit;
+  if not RegQueryStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Paths) then
+    exit;
+  Dir := ExpandConstant('{app}');
+  Paths := ';' + Paths + ';';
+  Index := Pos(';' + Uppercase(Dir) + ';', Uppercase(Paths));
+  if Index = 0 then
+    exit;
+  Delete(Paths, Index, Length(Dir) + 1);
+  RegWriteExpandStringValue(EnvironmentRoot, EnvironmentKey, 'Path', Copy(Paths, 2, Length(Paths) - 2));
 end;
