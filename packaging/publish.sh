@@ -28,5 +28,4 @@ if [ -n "${MMW_BUNDLE_TESSDATA:-}" ]; then
   mkdir -p "$out/tessdata"
   cp -a "$MMW_BUNDLE_TESSDATA"/*.traineddata "$out/tessdata/"
 fi
-find "$root/src" -name 'THIRD-PARTY-NOTICES*.md' -not -path '*/bin/*' -not -path '*/obj/*' -exec cp {} "$out/" \;
 echo "Published to $out"
