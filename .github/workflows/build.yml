@@ -4,6 +4,8 @@ on:
   push:
     branches: [devel]
   pull_request:
+  # The release workflow runs the same build and tests before packaging.
+  workflow_call:
 
 jobs:
   build:
