@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Publishes the editor and the mmw command line tool, as self-contained single-file executables, for one runtime
 # identifier.
-# Usage: packaging/publish.sh <rid> [version]     e.g. packaging/publish.sh linux-x64 0.1.0
+# Usage: packaging/publish.sh <rid> [version]     e.g. packaging/publish.sh linux-x64 1.0.0
 set -euo pipefail
 rid="${1:?runtime identifier, e.g. linux-x64, osx-arm64, win-x64}"
-version="${2:-0.1.0}"
+version="${2:-1.0.0}"
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="$root/artifacts/publish/$rid"
 

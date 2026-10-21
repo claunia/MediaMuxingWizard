@@ -4,7 +4,7 @@
 # Usage: packaging/linux/build-appimage.sh [x64|arm64] [version]
 set -euo pipefail
 arch="${1:-x64}"
-version="${2:-0.1.0}"
+version="${2:-1.0.0}"
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
 id=com.claunia.MediaMuxingWizard

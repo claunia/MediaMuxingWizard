@@ -1,7 +1,7 @@
 ; Inno Setup script. Build with: packaging\windows\build-installer.ps1
 #define AppName "Media Muxing Wizard"
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "1.0.0"
 #endif
 #ifndef Arch
   #define Arch "x64"

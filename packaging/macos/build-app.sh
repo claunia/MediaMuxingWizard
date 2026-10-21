@@ -3,7 +3,7 @@
 # Usage: packaging/macos/build-app.sh [arm64|x64] [version] [signing identity, default ad-hoc "-"]
 set -euo pipefail
 arch="${1:-arm64}"
-version="${2:-0.1.0}"
+version="${2:-1.0.0}"
 identity="${3:--}"
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"

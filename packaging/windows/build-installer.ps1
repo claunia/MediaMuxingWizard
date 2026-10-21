@@ -1,8 +1,8 @@
 # Builds the Windows installer. Needs Inno Setup 6 or 7 (iscc.exe on PATH or in its default install folder).
-# Usage: packaging\windows\build-installer.ps1 [-Arch x64|arm64] [-Version 0.1.0] [-Portable]
+# Usage: packaging\windows\build-installer.ps1 [-Arch x64|arm64] [-Version 1.0.0] [-Portable]
 #   -Portable also writes a zip of the published files (no installer needed).
 # Set MMW_BUNDLE_FFMPEG to a folder with the LGPL FFmpeg DLLs (packaging/ffmpeg/fetch-btbn.sh) to bundle them.
-param([string]$Arch = "x64", [string]$Version = "0.1.0", [switch]$Portable)
+param([string]$Arch = "x64", [string]$Version = "1.0.0", [switch]$Portable)
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path "$PSScriptRoot\..\.."
 $publish = "$root\artifacts\publish\win-$Arch"
